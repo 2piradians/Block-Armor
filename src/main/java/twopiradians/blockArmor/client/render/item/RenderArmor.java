@@ -18,6 +18,8 @@ import com.google.gson.stream.JsonReader;
 
 import gnu.trove.map.hash.TIntObjectHashMap;
 import net.minecraft.block.Block;
+import net.minecraft.block.BlockContainer;
+import net.minecraft.block.BlockLiquid;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
@@ -32,6 +34,8 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.math.AxisAlignedBB;
+import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.client.ItemModelMesherForge;
 import net.minecraftforge.client.event.ModelBakeEvent;
 import net.minecraftforge.client.model.ModelLoader;
@@ -91,29 +95,67 @@ public class RenderArmor implements LayerRenderer<EntityPlayer>
 			RenderArmor.modelLoader = event.getModelLoader();
 		}
 	}
-	
+
 	public void doRenderLayer(EntityPlayer player, float limbSwing, float limbSwingAmount, float partialTicks, 
 			float ageInTicks, float netHeadYaw, float headPitch, float scale)
 	{	
-		String blockPath = null;
-		String blockDomain = null;
-		if(player.getHeldItemMainhand() == null || !(player.getHeldItemMainhand().getItem() instanceof ItemBlock))	
+		if(player.getHeldItemMainhand() == null || !(player.getHeldItemMainhand().getItem() instanceof ItemBlock) 
+				|| ((ItemBlock)player.getHeldItemMainhand().getItem()).getBlock() instanceof BlockLiquid
+				|| ((ItemBlock)player.getHeldItemMainhand().getItem()).getBlock() instanceof BlockContainer)
+			/*&& ((ItemBlock)player.getHeldItemMainhand().getItem()).getBlock().isFullBlock(((ItemBlock)player.getHeldItemMainhand().getItem()).getBlock().getStateFromMeta(player.getHeldItemMainhand().getMetadata()))*/	
 			return;
 
+		try{
+			if(!((ItemBlock)player.getHeldItemMainhand().getItem()).getBlock().getBoundingBox(((ItemBlock)player.getHeldItemMainhand().getItem()).getBlock().getDefaultState(), 
+					player.worldObj, new BlockPos(0,0,0)).equals(Block.FULL_BLOCK_AABB))
+				return;
+		}
+		catch(Exception e){return;}
+		
 		Item item = player.getHeldItemMainhand().getItem();
 		ItemStack stack = player.getHeldItemMainhand();
 		Block block = ((ItemBlock)item).getBlock();
 		IBlockState state = block.getStateFromMeta(stack.getMetadata());
 		int meta = stack.getMetadata();
-
-		ResourceLocation textureResourceLocation = null;
-
-		//finding location of json
+		
+		ArrayList<AxisAlignedBB> list = new ArrayList<AxisAlignedBB>();
+		block.addCollisionBoxToList(block.getDefaultState(), Minecraft.getMinecraft().theWorld, new BlockPos(0,0,0), Block.FULL_BLOCK_AABB, list, Minecraft.getMinecraft().thePlayer);
+		if (!(list.size() == 1 && list.get(0).equals(Block.FULL_BLOCK_AABB)))
+		{
+			return;
+		}
+		
+		//finding location of item json
 		String resourcePath = locations.get(item).get(meta).toString().replaceAll("#inventory", "").replaceAll("minecraft:", ""); //possibly better way of getting?
 		ResourceLocation loc = Item.REGISTRY.getNameForObject(item); 
-		loc = new ResourceLocation(loc.getResourceDomain(), "models/block/" + resourcePath + ".json");
+		loc = new ResourceLocation(loc.getResourceDomain(), "models/item/" + resourcePath + ".json");
 
-		//see if json exists at loc
+		//see if item json exists at loc
+		IResource iresourceItem = null;
+		try {
+			iresourceItem = Minecraft.getMinecraft().getResourceManager().getResource(loc);
+		} 
+		catch (IOException e) {
+			if (stack != this.lastReportedStack)
+				System.out.println("Bad location: " + loc);
+			return;
+		}
+		Reader readerItem = new InputStreamReader(iresourceItem.getInputStream(), Charsets.UTF_8);
+		JsonObject objectItem = Streams.parse(new JsonReader(readerItem)).getAsJsonObject();
+		ArrayList<String> blockLocations = new ArrayList<String>();
+
+		//read item json
+		if (objectItem.has("parent"))
+		{
+			JsonElement jsonobject = objectItem.get("parent");
+			blockLocations.add(jsonobject.toString().replaceAll("\"", ""));
+		}
+
+		//get location of block json
+		if(!blockLocations.isEmpty())
+			loc = new ResourceLocation(loc.getResourceDomain(), "models/" + blockLocations.get(0) + ".json");
+
+		//see if block json exists at loc
 		IResource iresource = null;
 		try {
 			iresource = Minecraft.getMinecraft().getResourceManager().getResource(loc);
@@ -124,61 +166,90 @@ public class RenderArmor implements LayerRenderer<EntityPlayer>
 		}
 		Reader reader = new InputStreamReader(iresource.getInputStream(), Charsets.UTF_8);
 		JsonObject object = Streams.parse(new JsonReader(reader)).getAsJsonObject();
+		JsonObject jsonobject = null;
 
 		//get textures from json - from ModelBlock.getTextures()
 		ArrayList<String> textureLocations = new ArrayList<String>();
 
 		if (object.has("textures"))
 		{
-			JsonObject jsonobject = object.getAsJsonObject("textures");
+			jsonobject = object.getAsJsonObject("textures");
 			for (Entry<String, JsonElement> entry : jsonobject.entrySet())
 				textureLocations.add(entry.getValue().getAsString());
 		}
 
-		if (!textureLocations.isEmpty()) 
-			textureResourceLocation = new ResourceLocation(loc.getResourceDomain(), "textures/" + textureLocations.get(0) + ".png");			
+		String helmetTexture = null;
+		String chestTexture = null;
+		String legTexture = null;
+		String feetTexture = null;
 
-
-		//Guessing texture location
-		/*Map<Item, List<String>> variantNames = ReflectionHelper.getPrivateValue(ModelBakery.class, RenderArmor.modelLoader, 21);
-		List<String> list = (List)variantNames.get(item);
-		if (list == null)
-			list = Collections.<String>singletonList(((ResourceLocation)Item.REGISTRY.getNameForObject(item)).toString());
-		ResourceLocation resourcelocation;
-		if (list.size() > stack.getMetadata())
-			resourcelocation = new ResourceLocation(list.get(stack.getMetadata()).replaceAll("#.*", ""));
-		else
-			resourcelocation = new ResourceLocation(list.get(0).replaceAll("#.*", ""));
-		blockPath = resourcelocation.getResourcePath();
-		blockDomain = resourcelocation.getResourceDomain();
-		ResourceLocation textureResourceLocation = null;
-		ArrayList<ResourceLocation> locs = new ArrayList<ResourceLocation>();
-		locs.add(new ResourceLocation(blockDomain, "textures/blocks/" + blockPath + ".png"));
-		locs.add(new ResourceLocation(blockDomain, "textures/blocks/" + blockPath + meta + ".png"));
-		locs.add(new ResourceLocation(blockDomain, "textures/blocks/" + blockPath + "_" + meta + ".png"));
-		locs.add(new ResourceLocation(blockDomain, "textures/" + blockPath + ".png"));
-		locs.add(new ResourceLocation(blockDomain, "textures/" + blockPath + meta + ".png"));
-		locs.add(new ResourceLocation(blockDomain, "textures/" + blockPath + "_" + meta + ".png"));
-		for (ResourceLocation loc : locs) {
-			try {
-				Minecraft.getMinecraft().getResourceManager().getResource(loc);
-				textureResourceLocation = loc;
-				if (this.lastReportedStack != player.getHeldItemMainhand())
-					System.out.println("Good: "+textureResourceLocation);
-				break;
-			}
-			catch (Exception e){
-				if (this.lastReportedStack != player.getHeldItemMainhand())
-					System.out.println("Bad: "+loc);
-			}
-		}*/
-		
-		this.lastReportedStack = player.getHeldItemMainhand();
-
-		if (textureResourceLocation == null)
+		if(jsonobject == null)
 			return;
 
-		this.livingEntityRenderer.bindTexture(textureResourceLocation);
+		if(jsonobject.has("texture"))
+		{
+			helmetTexture = jsonobject.get("texture").toString();
+			chestTexture = jsonobject.get("texture").toString();
+			legTexture = jsonobject.get("texture").toString();
+			feetTexture = jsonobject.get("texture").toString();
+		}
+
+		if(jsonobject.has("all"))
+			helmetTexture = jsonobject.get("all").toString();
+		else if(jsonobject.has("end"))
+			helmetTexture = jsonobject.get("end").toString();
+		else if(jsonobject.has("up"))
+			helmetTexture = jsonobject.get("up").toString();
+		else if(jsonobject.has("top"))
+			helmetTexture = jsonobject.get("top").toString();
+		else if(jsonobject.has("side"))
+			helmetTexture = jsonobject.get("side").toString();
+
+		if(jsonobject.has("all"))
+			chestTexture = jsonobject.get("all").toString();
+		else if(jsonobject.has("front"))
+			chestTexture = jsonobject.get("front").toString();
+		else if(jsonobject.has("side"))
+			chestTexture = jsonobject.get("side").toString();
+		else if(jsonobject.has("north"))
+			chestTexture = jsonobject.get("north").toString();
+		else if(jsonobject.has("south"))
+			chestTexture = jsonobject.get("south").toString();
+		else if(jsonobject.has("east"))
+			chestTexture = jsonobject.get("east").toString();
+		else if(jsonobject.has("west"))
+			chestTexture = jsonobject.get("west").toString();
+
+		if(jsonobject.has("all"))
+			legTexture = jsonobject.get("all").toString();
+		else if(jsonobject.has("side"))
+			legTexture = jsonobject.get("side").toString();
+		else if(jsonobject.has("north"))
+			legTexture = jsonobject.get("north").toString();
+		else if(jsonobject.has("south"))
+			legTexture = jsonobject.get("south").toString();
+		else if(jsonobject.has("east"))
+			legTexture = jsonobject.get("east").toString();
+		else if(jsonobject.has("west"))
+			legTexture = jsonobject.get("west").toString();
+
+		if(jsonobject.has("all"))
+			feetTexture = jsonobject.get("all").toString();
+		else if(jsonobject.has("end"))
+			feetTexture = jsonobject.get("end").toString();
+		else if(jsonobject.has("down"))
+			feetTexture = jsonobject.get("down").toString();
+		else if(jsonobject.has("bottom"))
+			feetTexture = jsonobject.get("bottom").toString();
+		else if(jsonobject.has("side"))
+			feetTexture = jsonobject.get("side").toString();
+
+		helmetTexture = helmetTexture.replaceAll("\"", "");
+		chestTexture = chestTexture.replaceAll("\"", "");
+		legTexture = legTexture.replaceAll("\"", "");
+		feetTexture = feetTexture.replaceAll("\"", "");
+
+		this.lastReportedStack = player.getHeldItemMainhand();
 		if (player.getItemStackFromSlot(EntityEquipmentSlot.HEAD) == null)
 		{
 			// First pass of render 
@@ -197,6 +268,7 @@ public class RenderArmor implements LayerRenderer<EntityPlayer>
 			GL11.glTranslatef(dx, dy + 0.3f, dz + 0.6f);
 			float s = 1.0f;
 			GL11.glScalef(s, s, s);
+			this.livingEntityRenderer.bindTexture(new ResourceLocation(loc.getResourceDomain(), "textures/" + helmetTexture + ".png"));
 			helmet.renderAll();
 			GL11.glPopMatrix();
 			GlStateManager.cullFace(GlStateManager.CullFace.BACK);
@@ -223,6 +295,7 @@ public class RenderArmor implements LayerRenderer<EntityPlayer>
 			GL11.glTranslatef(dx, dy - 0.35f, dz + 0.6f);
 			float s = 0.8f;
 			GL11.glScalef(s, s, s);
+			this.livingEntityRenderer.bindTexture(new ResourceLocation(loc.getResourceDomain(), "textures/" + chestTexture + ".png"));
 			chest.renderAll();
 			GL11.glPopMatrix();
 			// Second pass with colour.
@@ -230,6 +303,7 @@ public class RenderArmor implements LayerRenderer<EntityPlayer>
 			GL11.glRotated(180, 1, 0, 0);
 			GL11.glTranslatef(dx, dy - 0.25f, dz + 0.6f);
 			GL11.glScalef(1.2f*s, 1.2f*s, 1.2f*s);
+			this.livingEntityRenderer.bindTexture(new ResourceLocation(loc.getResourceDomain(), "textures/" + legTexture + ".png"));
 			leftShoulder.renderAll();
 			GL11.glColor3f(1, 1, 1);
 			GL11.glPopMatrix();
@@ -238,6 +312,7 @@ public class RenderArmor implements LayerRenderer<EntityPlayer>
 			GL11.glRotated(180, 1, 0, 0);
 			GL11.glTranslatef(dx, dy - 0.25f, dz + 0.6f);
 			GL11.glScalef(1.2f*s, 1.2f*s, 1.2f*s);
+			this.livingEntityRenderer.bindTexture(new ResourceLocation(loc.getResourceDomain(), "textures/" + legTexture + ".png"));
 			rightShoulder.renderAll();
 			GL11.glColor3f(1, 1, 1);
 			GL11.glPopMatrix();
@@ -265,6 +340,7 @@ public class RenderArmor implements LayerRenderer<EntityPlayer>
 			GL11.glTranslatef(dx, dy - 0.9f, dz);
 			float s = 1.0f;
 			GL11.glScalef(1.01f*s, 1.01f*s, 1.01f*s);
+			this.livingEntityRenderer.bindTexture(new ResourceLocation(loc.getResourceDomain(), "textures/" + legTexture + ".png"));
 			waist.renderAll();
 			GL11.glPopMatrix();
 			// Second pass
@@ -272,6 +348,7 @@ public class RenderArmor implements LayerRenderer<EntityPlayer>
 			GL11.glRotated(180, 0, 0, 0);
 			GL11.glTranslatef(dx, dy - 1.05f, dz);
 			GL11.glScalef(s, s, s);
+			this.livingEntityRenderer.bindTexture(new ResourceLocation(loc.getResourceDomain(), "textures/" + legTexture + ".png"));
 			leftLeg.renderAll();
 			GL11.glColor3f(1, 1, 1);
 			GL11.glPopMatrix();
@@ -280,6 +357,7 @@ public class RenderArmor implements LayerRenderer<EntityPlayer>
 			GL11.glRotated(180, 0, 0, 0);
 			GL11.glTranslatef(dx, dy - 0.82f, dz);
 			GL11.glScalef(s, s, 1.005f*s);
+			this.livingEntityRenderer.bindTexture(new ResourceLocation(loc.getResourceDomain(), "textures/" + legTexture + ".png"));
 			rightLeg.renderAll();
 			GL11.glColor3f(1, 1, 1);
 			GL11.glPopMatrix();
@@ -307,6 +385,7 @@ public class RenderArmor implements LayerRenderer<EntityPlayer>
 			GL11.glTranslatef(dx, dy - 1.55f, dz);
 			float s = 1.0f;
 			GL11.glScalef(s, s, s);
+			this.livingEntityRenderer.bindTexture(new ResourceLocation(loc.getResourceDomain(), "textures/" + feetTexture + ".png"));
 			leftFoot.renderAll();
 			GL11.glPopMatrix();
 			// Second pass
@@ -314,6 +393,7 @@ public class RenderArmor implements LayerRenderer<EntityPlayer>
 			GL11.glRotated(180, 0, 0, 0);
 			GL11.glTranslatef(dx, dy - 1.55f, dz);
 			GL11.glScalef(s, s, 1.01f*s);
+			this.livingEntityRenderer.bindTexture(new ResourceLocation(loc.getResourceDomain(), "textures/" + feetTexture + ".png"));
 			rightFoot.renderAll();
 			GL11.glColor3f(1, 1, 1);
 			GL11.glPopMatrix();
