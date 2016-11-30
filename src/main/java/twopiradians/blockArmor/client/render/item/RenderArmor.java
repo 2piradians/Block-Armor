@@ -126,9 +126,8 @@ public class RenderArmor implements LayerRenderer<EntityPlayer>
 		}
 		
 		//finding location of item json
-		String resourcePath = locations.get(item).get(meta).toString().replaceAll("#inventory", "").replaceAll("minecraft:", ""); //possibly better way of getting?
-		ResourceLocation loc = Item.REGISTRY.getNameForObject(item); 
-		loc = new ResourceLocation(loc.getResourceDomain(), "models/item/" + resourcePath + ".json");
+		ResourceLocation loc = locations.get(item).get(meta);
+		loc = new ResourceLocation(loc.getResourceDomain(), "models/item/" + loc.getResourcePath() + ".json");
 
 		//see if item json exists at loc
 		IResource iresourceItem = null;
