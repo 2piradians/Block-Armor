@@ -111,23 +111,25 @@ public class RenderArmor implements LayerRenderer<EntityPlayer>
 				return;
 		}
 		catch(Exception e){return;}
-		
+
 		Item item = player.getHeldItemMainhand().getItem();
 		ItemStack stack = player.getHeldItemMainhand();
 		Block block = ((ItemBlock)item).getBlock();
 		IBlockState state = block.getStateFromMeta(stack.getMetadata());
 		int meta = stack.getMetadata();
-		
+
 		ArrayList<AxisAlignedBB> list = new ArrayList<AxisAlignedBB>();
 		block.addCollisionBoxToList(block.getDefaultState(), Minecraft.getMinecraft().theWorld, new BlockPos(0,0,0), Block.FULL_BLOCK_AABB, list, Minecraft.getMinecraft().thePlayer);
 		if (!(list.size() == 1 && list.get(0).equals(Block.FULL_BLOCK_AABB)))
 		{
 			return;
 		}
-		
+
 		//finding location of item json
-		ResourceLocation loc = locations.get(item).get(meta);
-		loc = new ResourceLocation(loc.getResourceDomain(), "models/item/" + loc.getResourcePath() + ".json");
+		ResourceLocation loc1 = locations.get(item).get(meta);
+		ResourceLocation loc = new ResourceLocation(loc1.getResourceDomain(), "models/item/" + loc1.getResourcePath() + ".json");
+
+		boolean checkBlockstate = false;
 
 		//see if item json exists at loc
 		IResource iresourceItem = null;
@@ -136,33 +138,55 @@ public class RenderArmor implements LayerRenderer<EntityPlayer>
 		} 
 		catch (IOException e) {
 			if (stack != this.lastReportedStack)
-				System.out.println("Bad location: " + loc);
-			return;
+				System.out.println("Bad item location: " + loc);
+			checkBlockstate = true;
+			//return;
 		}
-		Reader readerItem = new InputStreamReader(iresourceItem.getInputStream(), Charsets.UTF_8);
-		JsonObject objectItem = Streams.parse(new JsonReader(readerItem)).getAsJsonObject();
+		
 		ArrayList<String> blockLocations = new ArrayList<String>();
 
-		//read item json
-		if (objectItem.has("parent"))
-		{
-			JsonElement jsonobject = objectItem.get("parent");
-			blockLocations.add(jsonobject.toString().replaceAll("\"", ""));
-		}
 
-		//get location of block json
-		if(!blockLocations.isEmpty())
-			loc = new ResourceLocation(loc.getResourceDomain(), "models/" + blockLocations.get(0) + ".json");
-
-		//see if block json exists at loc
 		IResource iresource = null;
-		try {
-			iresource = Minecraft.getMinecraft().getResourceManager().getResource(loc);
-		} catch (IOException e) {
-			if (stack != this.lastReportedStack)
-				System.out.println("Bad location: " + loc);
-			return;
+
+		if(!checkBlockstate)
+		{		
+			//read item json
+			Reader readerItem = new InputStreamReader(iresourceItem.getInputStream(), Charsets.UTF_8);
+			JsonObject objectItem = Streams.parse(new JsonReader(readerItem)).getAsJsonObject();
+			if (objectItem.has("parent"))
+			{
+				JsonElement jsonobject = objectItem.get("parent");
+				blockLocations.add(jsonobject.toString().replaceAll("\"", ""));
+			}
+			//get location of block json from models
+			if(!blockLocations.isEmpty())
+				loc = new ResourceLocation(loc1.getResourceDomain(), "models/" + blockLocations.get(0) + ".json");
+
+
+			//see if block json exists at loc
+			try {
+				iresource = Minecraft.getMinecraft().getResourceManager().getResource(loc);
+			} catch (IOException e) {
+				if (stack != this.lastReportedStack)
+					System.out.println("Bad block location in models: " + loc);
+				return;
+			}
 		}
+		else
+		{
+			//get location of block json from blockstates
+			loc = new ResourceLocation(loc.getResourceDomain(), "blockstates/" + loc1.getResourcePath() + ".json");
+
+			//see if block json exists at loc
+			try {
+				iresource = Minecraft.getMinecraft().getResourceManager().getResource(loc);
+			} catch (IOException e) {
+				if (stack != this.lastReportedStack)
+					System.out.println("Bad block location in blockstates: " + loc);
+				return;
+			} 
+		}
+
 		Reader reader = new InputStreamReader(iresource.getInputStream(), Charsets.UTF_8);
 		JsonObject object = Streams.parse(new JsonReader(reader)).getAsJsonObject();
 		JsonObject jsonobject = null;
