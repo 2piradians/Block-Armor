@@ -11,6 +11,7 @@ import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.registry.GameRegistry;
+import twopiradians.blockArmor.client.TextureManager;
 import twopiradians.blockArmor.client.gui.armorDisplay.OpenGuiEvent;
 import twopiradians.blockArmor.common.block.ModBlocks;
 import twopiradians.blockArmor.common.config.Config;
@@ -233,5 +234,6 @@ public class BlockArmor
 		MinecraftForge.EVENT_BUS.register(new StopFallDamageEvent());
 		MinecraftForge.EVENT_BUS.register(new IgniteTargetEvent());
 		MinecraftForge.EVENT_BUS.register(new OpenGuiEvent());
+		MinecraftForge.EVENT_BUS.register(new TextureManager());
 	}
 }
