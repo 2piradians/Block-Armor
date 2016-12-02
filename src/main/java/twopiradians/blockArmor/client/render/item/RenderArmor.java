@@ -11,6 +11,7 @@ import org.lwjgl.opengl.GL11;
 
 import com.google.common.base.Charsets;
 import com.google.common.collect.Maps;
+import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.internal.Streams;
@@ -102,10 +103,10 @@ public class RenderArmor implements LayerRenderer<EntityPlayer>
 		if(player.getHeldItemMainhand() == null || !(player.getHeldItemMainhand().getItem() instanceof ItemBlock) 
 				|| ((ItemBlock)player.getHeldItemMainhand().getItem()).getBlock() instanceof BlockLiquid
 				|| ((ItemBlock)player.getHeldItemMainhand().getItem()).getBlock() instanceof BlockContainer)
-			/*&& ((ItemBlock)player.getHeldItemMainhand().getItem()).getBlock().isFullBlock(((ItemBlock)player.getHeldItemMainhand().getItem()).getBlock().getStateFromMeta(player.getHeldItemMainhand().getMetadata()))*/	
 			return;
 
-		try{
+		try
+		{
 			if(!((ItemBlock)player.getHeldItemMainhand().getItem()).getBlock().getBoundingBox(((ItemBlock)player.getHeldItemMainhand().getItem()).getBlock().getDefaultState(), 
 					player.worldObj, new BlockPos(0,0,0)).equals(Block.FULL_BLOCK_AABB))
 				return;
@@ -129,26 +130,27 @@ public class RenderArmor implements LayerRenderer<EntityPlayer>
 		ResourceLocation loc1 = locations.get(item).get(meta);
 		ResourceLocation loc = new ResourceLocation(loc1.getResourceDomain(), "models/item/" + loc1.getResourcePath() + ".json");
 
+		//used to check if should use models/block or blockstate for model
 		boolean checkBlockstate = false;
 
 		//see if item json exists at loc
 		IResource iresourceItem = null;
-		try {
+		try 
+		{
 			iresourceItem = Minecraft.getMinecraft().getResourceManager().getResource(loc);
 		} 
-		catch (IOException e) {
-			if (stack != this.lastReportedStack)
-				System.out.println("Bad item location: " + loc);
-			checkBlockstate = true;
+		catch (Exception e) 
+		{
+			//if (stack != this.lastReportedStack)
+			//System.out.println("Bad item location: " + loc);
 			//return;
+			checkBlockstate = true;
 		}
-		
+
 		ArrayList<String> blockLocations = new ArrayList<String>();
-
-
 		IResource iresource = null;
 
-		if(!checkBlockstate)
+		if(!checkBlockstate) //read jsons through models/block normally
 		{		
 			//read item json
 			Reader readerItem = new InputStreamReader(iresourceItem.getInputStream(), Charsets.UTF_8);
@@ -158,29 +160,35 @@ public class RenderArmor implements LayerRenderer<EntityPlayer>
 				JsonElement jsonobject = objectItem.get("parent");
 				blockLocations.add(jsonobject.toString().replaceAll("\"", ""));
 			}
+
 			//get location of block json from models
 			if(!blockLocations.isEmpty())
 				loc = new ResourceLocation(loc1.getResourceDomain(), "models/" + blockLocations.get(0) + ".json");
 
-
 			//see if block json exists at loc
-			try {
+			try
+			{
 				iresource = Minecraft.getMinecraft().getResourceManager().getResource(loc);
-			} catch (IOException e) {
+			} 
+			catch (IOException e) 
+			{
 				if (stack != this.lastReportedStack)
 					System.out.println("Bad block location in models: " + loc);
 				return;
 			}
 		}
-		else
+		else //read jsons in blockstates instead
 		{
 			//get location of block json from blockstates
 			loc = new ResourceLocation(loc.getResourceDomain(), "blockstates/" + loc1.getResourcePath() + ".json");
 
 			//see if block json exists at loc
-			try {
+			try 
+			{
 				iresource = Minecraft.getMinecraft().getResourceManager().getResource(loc);
-			} catch (IOException e) {
+			} 
+			catch (Exception e) 
+			{
 				if (stack != this.lastReportedStack)
 					System.out.println("Bad block location in blockstates: " + loc);
 				return;
@@ -190,6 +198,7 @@ public class RenderArmor implements LayerRenderer<EntityPlayer>
 		Reader reader = new InputStreamReader(iresource.getInputStream(), Charsets.UTF_8);
 		JsonObject object = Streams.parse(new JsonReader(reader)).getAsJsonObject();
 		JsonObject jsonobject = null;
+		boolean variants = false;
 
 		//get textures from json - from ModelBlock.getTextures()
 		ArrayList<String> textureLocations = new ArrayList<String>();
@@ -200,72 +209,88 @@ public class RenderArmor implements LayerRenderer<EntityPlayer>
 			for (Entry<String, JsonElement> entry : jsonobject.entrySet())
 				textureLocations.add(entry.getValue().getAsString());
 		}
+		else if (object.has("variants"))
+		{
+			JsonElement jsonelement = object.get("variants");
+			System.out.println(jsonelement);
+		}
+
+		if(jsonobject == null)
+		{
+			System.out.println("No textures");
+			return;
+		}
 
 		String helmetTexture = null;
 		String chestTexture = null;
 		String legTexture = null;
 		String feetTexture = null;
 
-		if(jsonobject == null)
-			return;
+		JsonElement jsonelement = null;
 
-		if(jsonobject.has("texture"))
+		if(!variants && jsonobject.has("textures"))
 		{
-			helmetTexture = jsonobject.get("texture").toString();
-			chestTexture = jsonobject.get("texture").toString();
-			legTexture = jsonobject.get("texture").toString();
-			feetTexture = jsonobject.get("texture").toString();
+			helmetTexture = jsonobject.get("textures").toString();
+			chestTexture = jsonobject.get("textures").toString();
+			legTexture = jsonobject.get("textures").toString();
+			feetTexture = jsonobject.get("textures").toString();
 		}
 
-		if(jsonobject.has("all"))
-			helmetTexture = jsonobject.get("all").toString();
-		else if(jsonobject.has("end"))
-			helmetTexture = jsonobject.get("end").toString();
-		else if(jsonobject.has("up"))
-			helmetTexture = jsonobject.get("up").toString();
-		else if(jsonobject.has("top"))
-			helmetTexture = jsonobject.get("top").toString();
-		else if(jsonobject.has("side"))
-			helmetTexture = jsonobject.get("side").toString();
+		if(!variants)
+		{
+			if(jsonobject.has("all"))
+				helmetTexture = jsonobject.get("all").toString();
+			else if(jsonobject.has("end"))
+				helmetTexture = jsonobject.get("end").toString();
+			else if(jsonobject.has("up"))
+				helmetTexture = jsonobject.get("up").toString();
+			else if(jsonobject.has("top"))
+				helmetTexture = jsonobject.get("top").toString();
+			else if(jsonobject.has("side"))
+				helmetTexture = jsonobject.get("side").toString();
 
-		if(jsonobject.has("all"))
-			chestTexture = jsonobject.get("all").toString();
-		else if(jsonobject.has("front"))
-			chestTexture = jsonobject.get("front").toString();
-		else if(jsonobject.has("side"))
-			chestTexture = jsonobject.get("side").toString();
-		else if(jsonobject.has("north"))
-			chestTexture = jsonobject.get("north").toString();
-		else if(jsonobject.has("south"))
-			chestTexture = jsonobject.get("south").toString();
-		else if(jsonobject.has("east"))
-			chestTexture = jsonobject.get("east").toString();
-		else if(jsonobject.has("west"))
-			chestTexture = jsonobject.get("west").toString();
+			if(jsonobject.has("all"))
+				chestTexture = jsonobject.get("all").toString();
+			else if(jsonobject.has("front"))
+				chestTexture = jsonobject.get("front").toString();
+			else if(jsonobject.has("side"))
+				chestTexture = jsonobject.get("side").toString();
+			else if(jsonobject.has("north"))
+				chestTexture = jsonobject.get("north").toString();
+			else if(jsonobject.has("south"))
+				chestTexture = jsonobject.get("south").toString();
+			else if(jsonobject.has("east"))
+				chestTexture = jsonobject.get("east").toString();
+			else if(jsonobject.has("west"))
+				chestTexture = jsonobject.get("west").toString();
 
-		if(jsonobject.has("all"))
-			legTexture = jsonobject.get("all").toString();
-		else if(jsonobject.has("side"))
-			legTexture = jsonobject.get("side").toString();
-		else if(jsonobject.has("north"))
-			legTexture = jsonobject.get("north").toString();
-		else if(jsonobject.has("south"))
-			legTexture = jsonobject.get("south").toString();
-		else if(jsonobject.has("east"))
-			legTexture = jsonobject.get("east").toString();
-		else if(jsonobject.has("west"))
-			legTexture = jsonobject.get("west").toString();
+			if(jsonobject.has("all"))
+				legTexture = jsonobject.get("all").toString();
+			else if(jsonobject.has("side"))
+				legTexture = jsonobject.get("side").toString();
+			else if(jsonobject.has("north"))
+				legTexture = jsonobject.get("north").toString();
+			else if(jsonobject.has("south"))
+				legTexture = jsonobject.get("south").toString();
+			else if(jsonobject.has("east"))
+				legTexture = jsonobject.get("east").toString();
+			else if(jsonobject.has("west"))
+				legTexture = jsonobject.get("west").toString();
 
-		if(jsonobject.has("all"))
-			feetTexture = jsonobject.get("all").toString();
-		else if(jsonobject.has("end"))
-			feetTexture = jsonobject.get("end").toString();
-		else if(jsonobject.has("down"))
-			feetTexture = jsonobject.get("down").toString();
-		else if(jsonobject.has("bottom"))
-			feetTexture = jsonobject.get("bottom").toString();
-		else if(jsonobject.has("side"))
-			feetTexture = jsonobject.get("side").toString();
+			if(jsonobject.has("all"))
+				feetTexture = jsonobject.get("all").toString();
+			else if(jsonobject.has("end"))
+				feetTexture = jsonobject.get("end").toString();
+			else if(jsonobject.has("down"))
+				feetTexture = jsonobject.get("down").toString();
+			else if(jsonobject.has("bottom"))
+				feetTexture = jsonobject.get("bottom").toString();
+			else if(jsonobject.has("side"))
+				feetTexture = jsonobject.get("side").toString();
+		}
+
+		if(helmetTexture == null && chestTexture == null && legTexture == null && feetTexture == null)
+			return;
 
 		helmetTexture = helmetTexture.replaceAll("\"", "");
 		chestTexture = chestTexture.replaceAll("\"", "");
