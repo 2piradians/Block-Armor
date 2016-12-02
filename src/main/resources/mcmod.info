@@ -9,7 +9,7 @@
   "updateUrl": "",
   "authorList": ["2piradians"],
   "credits": "",
-  "logoFile": "",
+  "logoFile": "/BlockArmor.png",
   "screenshots": [],
   "requiredMods": ["Forge"],
   "dependencies": []

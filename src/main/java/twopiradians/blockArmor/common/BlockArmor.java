@@ -8,6 +8,7 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventHandler;
 import net.minecraftforge.fml.common.SidedProxy;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
+import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.registry.GameRegistry;
 import twopiradians.blockArmor.client.gui.armorDisplay.OpenGuiEvent;
@@ -40,15 +41,6 @@ public class BlockArmor
 		ModBlocks.init();
 		ModTileEntities.init();
 		Config.init(event.getSuggestedConfigurationFile());
-	}
-	
-	public void registerEventListeners()
-	{
-		MinecraftForge.EVENT_BUS.register(new IncreaseFortuneEvent());
-		MinecraftForge.EVENT_BUS.register(new ConfigChangeEvent());
-		MinecraftForge.EVENT_BUS.register(new StopFallDamageEvent());
-		MinecraftForge.EVENT_BUS.register(new IgniteTargetEvent());
-		MinecraftForge.EVENT_BUS.register(new OpenGuiEvent());
 	}
 	
 	@EventHandler
@@ -226,17 +218,20 @@ public class BlockArmor
 		GameRegistry.addShapedRecipe(new ItemStack(ModItems.sugarcane_chestplate),"A A","AAA","AAA",'A', Items.REEDS);
 		GameRegistry.addShapedRecipe(new ItemStack(ModItems.sugarcane_leggings),"AAA","A A","A A",'A', Items.REEDS);
 		GameRegistry.addShapedRecipe(new ItemStack(ModItems.sugarcane_boots),"A A","A A",'A', Items.REEDS);
-		
-		
-/*		GameRegistry.addShapedRecipe(new ItemStack(ModItems.leaves_helmet),"AAA","A A",'A', Blocks.LEAVES);
-		GameRegistry.addShapedRecipe(new ItemStack(ModItems.leaves_chestplate),"A A","AAA","AAA",'A', Blocks.LEAVES);
-		GameRegistry.addShapedRecipe(new ItemStack(ModItems.leaves_leggings),"AAA","A A","A A",'A', Blocks.LEAVES);
-		GameRegistry.addShapedRecipe(new ItemStack(ModItems.leaves_boots),"A A","A A",'A', Blocks.LEAVES);*/
-		
-		
-		/*GameRegistry.addShapedRecipe(new ItemStack(ModItems.poliwag_helmet),"AAA","A A",'A', Blocks.WOOL);
-		GameRegistry.addShapedRecipe(new ItemStack(ModItems.poliwag_chestplate),"A A","AAA","AAA",'A', Blocks.WOOL);
-		GameRegistry.addShapedRecipe(new ItemStack(ModItems.poliwag_leggings),"AAA","A A","A A",'A', Blocks.WOOL);
-		GameRegistry.addShapedRecipe(new ItemStack(ModItems.poliwag_boots),"A A","A A",'A', Blocks.WOOL);*/
     }
+	
+	@EventHandler
+    public void postInit(FMLPostInitializationEvent event)
+    {
+		
+    }
+	
+	public void registerEventListeners()
+	{
+		MinecraftForge.EVENT_BUS.register(new IncreaseFortuneEvent());
+		MinecraftForge.EVENT_BUS.register(new ConfigChangeEvent());
+		MinecraftForge.EVENT_BUS.register(new StopFallDamageEvent());
+		MinecraftForge.EVENT_BUS.register(new IgniteTargetEvent());
+		MinecraftForge.EVENT_BUS.register(new OpenGuiEvent());
+	}
 }

@@ -1,80 +1,38 @@
 package twopiradians.blockArmor.client.render.item;
 
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.Reader;
 import java.util.ArrayList;
-import java.util.IdentityHashMap;
-import java.util.Map.Entry;
 
 import org.lwjgl.opengl.GL11;
 
-import com.google.common.base.Charsets;
-import com.google.common.collect.Maps;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.internal.Streams;
-import com.google.gson.stream.JsonReader;
-
-import gnu.trove.map.hash.TIntObjectHashMap;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockContainer;
-import net.minecraft.block.BlockLiquid;
-import net.minecraft.block.state.IBlockState;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.client.renderer.RenderItem;
-import net.minecraft.client.renderer.block.model.ModelResourceLocation;
 import net.minecraft.client.renderer.entity.RenderLivingBase;
 import net.minecraft.client.renderer.entity.layers.LayerRenderer;
-import net.minecraft.client.resources.IResource;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.inventory.EntityEquipmentSlot;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemBlock;
-import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.BlockPos;
-import net.minecraftforge.client.ItemModelMesherForge;
-import net.minecraftforge.client.event.ModelBakeEvent;
-import net.minecraftforge.client.model.ModelLoader;
-import net.minecraftforge.fml.common.eventhandler.EventPriority;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import net.minecraftforge.fml.relauncher.ReflectionHelper;
+import twopiradians.blockArmor.client.TextureManager;
 import twopiradians.blockArmor.client.render.x3d.X3dModel;
 
 public class RenderArmor implements LayerRenderer<EntityPlayer>
 {
-	X3dModel                          chest;
-	X3dModel                          helmet;
-	X3dModel                          leftFoot;
-	X3dModel                          leftLeg;
-	X3dModel                          leftShoulder;
-	X3dModel                          rightFoot;
-	X3dModel                          rightLeg;
-	X3dModel                          rightShoulder;
-	X3dModel                          waist;
-
-	ResourceLocation                  block = new ResourceLocation("minecraft", "textures/blocks/bedrock.png");
-	ResourceLocation                  block2 = new ResourceLocation("minecraft", "textures/blocks/dirt.png");
-	ResourceLocation                  block3 = new ResourceLocation("minecraft", "textures/blocks/glass.png");
-	ResourceLocation                  block4 = new ResourceLocation("minecraft", "textures/blocks/stone.png");
-	ResourceLocation                  block5 = new ResourceLocation("minecraft", "textures/blocks/gravel.png");
-
+	X3dModel chest;
+	X3dModel helmet;
+	X3dModel leftFoot;
+	X3dModel leftLeg;
+	X3dModel leftShoulder;
+	X3dModel rightFoot;
+	X3dModel rightLeg;
+	X3dModel rightShoulder;
+	X3dModel waist;
 
 	private final RenderLivingBase<?> livingEntityRenderer;
-	IdentityHashMap<Item, TIntObjectHashMap<ModelResourceLocation>> locations = Maps.newIdentityHashMap();
-	/**Used to prevent s.o.p spam during testing*/
-	private ItemStack lastReportedStack;
-	/**Set in event during initialization*/
-	public static ModelLoader modelLoader;
+/*	IdentityHashMap<Item, TIntObjectHashMap<ModelResourceLocation>> locations = Maps.newIdentityHashMap();
+	*//**Used to prevent s.o.p spam during testing*//*
+	private ItemStack lastReportedStack;*/
 
 	public RenderArmor(RenderLivingBase<?> livingEntityRendererIn)
 	{
-		ItemModelMesherForge itemModelMesher = ReflectionHelper.getPrivateValue(RenderItem.class, Minecraft.getMinecraft().getRenderItem(), 3);
-		locations = ReflectionHelper.getPrivateValue(ItemModelMesherForge.class, itemModelMesher, 0);
+/*		ItemModelMesherForge itemModelMesher = ReflectionHelper.getPrivateValue(RenderItem.class, Minecraft.getMinecraft().getRenderItem(), 3);
+		locations = ReflectionHelper.getPrivateValue(ItemModelMesherForge.class, itemModelMesher, 0);*/
 
 		this.livingEntityRenderer = livingEntityRendererIn;
 		chest = new X3dModel(new ResourceLocation("blockarmor:models/Chest.x3d"));
@@ -88,41 +46,28 @@ public class RenderArmor implements LayerRenderer<EntityPlayer>
 		waist = new X3dModel(new ResourceLocation("blockarmor:models/Waist.x3d"));
 	}
 
-	public class ModelLoaderEvent 
-	{
-		@SubscribeEvent(priority=EventPriority.NORMAL, receiveCanceled=true)
-		public void onEvent(ModelBakeEvent event) 
-		{
-			RenderArmor.modelLoader = event.getModelLoader();
-		}
-	}
-
 	public void doRenderLayer(EntityPlayer player, float limbSwing, float limbSwingAmount, float partialTicks, 
 			float ageInTicks, float netHeadYaw, float headPitch, float scale)
 	{	
-		if(player.getHeldItemMainhand() == null || !(player.getHeldItemMainhand().getItem() instanceof ItemBlock) 
+		ArrayList<ResourceLocation> textures = TextureManager.getTextures(player.getHeldItemMainhand());
+		if (textures != null)
+			this.renderArmor(textures.get(0), textures.get(1), textures.get(2), textures.get(3));
+		
+		/*if(player.getHeldItemMainhand() == null || !(player.getHeldItemMainhand().getItem() instanceof ItemBlock) 
 				|| ((ItemBlock)player.getHeldItemMainhand().getItem()).getBlock() instanceof BlockLiquid
 				|| ((ItemBlock)player.getHeldItemMainhand().getItem()).getBlock() instanceof BlockContainer)
 			return;
 
-		try
-		{
-			if(!((ItemBlock)player.getHeldItemMainhand().getItem()).getBlock().getBoundingBox(((ItemBlock)player.getHeldItemMainhand().getItem()).getBlock().getDefaultState(), 
-					player.worldObj, new BlockPos(0,0,0)).equals(Block.FULL_BLOCK_AABB))
-				return;
-		}
-		catch(Exception e){return;}
-
-		Item item = player.getHeldItemMainhand().getItem();
 		ItemStack stack = player.getHeldItemMainhand();
-		Block block = ((ItemBlock)item).getBlock();
-		IBlockState state = block.getStateFromMeta(stack.getMetadata());
+		ItemBlock item = (ItemBlock) stack.getItem();
+		Block block = item.getBlock();
 		int meta = stack.getMetadata();
-
+		
+		//Check if full block
 		ArrayList<AxisAlignedBB> list = new ArrayList<AxisAlignedBB>();
-		block.addCollisionBoxToList(block.getDefaultState(), Minecraft.getMinecraft().theWorld, new BlockPos(0,0,0), Block.FULL_BLOCK_AABB, list, Minecraft.getMinecraft().thePlayer);
-		if (!(list.size() == 1 && list.get(0).equals(Block.FULL_BLOCK_AABB)))
-		{
+		block.addCollisionBoxToList(block.getDefaultState(), player.worldObj, new BlockPos(0,0,0), Block.FULL_BLOCK_AABB, list, player);
+		if (list.size() != 1 || !list.get(0).equals(Block.FULL_BLOCK_AABB)) {
+			System.out.println("Not full block");
 			return;
 		}
 
@@ -224,16 +169,14 @@ public class RenderArmor implements LayerRenderer<EntityPlayer>
 		String helmetTexture = null;
 		String chestTexture = null;
 		String legTexture = null;
-		String feetTexture = null;
-
-		JsonElement jsonelement = null;
+		String bootTexture = null;
 
 		if(!variants && jsonobject.has("textures"))
 		{
 			helmetTexture = jsonobject.get("textures").toString();
 			chestTexture = jsonobject.get("textures").toString();
 			legTexture = jsonobject.get("textures").toString();
-			feetTexture = jsonobject.get("textures").toString();
+			bootTexture = jsonobject.get("textures").toString();
 		}
 
 		if(!variants)
@@ -278,27 +221,32 @@ public class RenderArmor implements LayerRenderer<EntityPlayer>
 				legTexture = jsonobject.get("west").toString();
 
 			if(jsonobject.has("all"))
-				feetTexture = jsonobject.get("all").toString();
+				bootTexture = jsonobject.get("all").toString();
 			else if(jsonobject.has("end"))
-				feetTexture = jsonobject.get("end").toString();
+				bootTexture = jsonobject.get("end").toString();
 			else if(jsonobject.has("down"))
-				feetTexture = jsonobject.get("down").toString();
+				bootTexture = jsonobject.get("down").toString();
 			else if(jsonobject.has("bottom"))
-				feetTexture = jsonobject.get("bottom").toString();
+				bootTexture = jsonobject.get("bottom").toString();
 			else if(jsonobject.has("side"))
-				feetTexture = jsonobject.get("side").toString();
+				bootTexture = jsonobject.get("side").toString();
 		}
 
-		if(helmetTexture == null && chestTexture == null && legTexture == null && feetTexture == null)
+		this.lastReportedStack = player.getHeldItemMainhand();
+
+		if(helmetTexture == null || chestTexture == null || legTexture == null || bootTexture == null)
 			return;
 
-		helmetTexture = helmetTexture.replaceAll("\"", "");
-		chestTexture = chestTexture.replaceAll("\"", "");
-		legTexture = legTexture.replaceAll("\"", "");
-		feetTexture = feetTexture.replaceAll("\"", "");
+		
+		
+		this.renderArmor(new ResourceLocation(loc.getResourceDomain(), "textures/" + helmetTexture.replaceAll("\"", "") + ".png"), 
+				new ResourceLocation(loc.getResourceDomain(), "textures/" + chestTexture.replaceAll("\"", "") + ".png"), 
+				new ResourceLocation(loc.getResourceDomain(), "textures/" + legTexture.replaceAll("\"", "") + ".png"), 
+				new ResourceLocation(loc.getResourceDomain(), "textures/" + bootTexture.replaceAll("\"", "") + ".png"));*/
+	}
 
-		this.lastReportedStack = player.getHeldItemMainhand();
-		if (player.getItemStackFromSlot(EntityEquipmentSlot.HEAD) == null)
+	private void renderArmor(ResourceLocation helmetTexture, ResourceLocation chestTexture, ResourceLocation legTexture, ResourceLocation bootTexture) {
+		//HELMET
 		{
 			// First pass of render 
 			GL11.glPushMatrix();
@@ -316,7 +264,7 @@ public class RenderArmor implements LayerRenderer<EntityPlayer>
 			GL11.glTranslatef(dx, dy + 0.3f, dz + 0.6f);
 			float s = 1.0f;
 			GL11.glScalef(s, s, s);
-			this.livingEntityRenderer.bindTexture(new ResourceLocation(loc.getResourceDomain(), "textures/" + helmetTexture + ".png"));
+			this.livingEntityRenderer.bindTexture(helmetTexture);
 			helmet.renderAll();
 			GL11.glPopMatrix();
 			GlStateManager.cullFace(GlStateManager.CullFace.BACK);
@@ -325,7 +273,7 @@ public class RenderArmor implements LayerRenderer<EntityPlayer>
 			GlStateManager.disableBlend();
 			GL11.glPopMatrix();
 		}
-		if (player.getItemStackFromSlot(EntityEquipmentSlot.CHEST) == null)
+		//CHEST
 		{
 			// First pass of render
 			GL11.glPushMatrix();
@@ -343,7 +291,7 @@ public class RenderArmor implements LayerRenderer<EntityPlayer>
 			GL11.glTranslatef(dx, dy - 0.35f, dz + 0.6f);
 			float s = 0.8f;
 			GL11.glScalef(s, s, s);
-			this.livingEntityRenderer.bindTexture(new ResourceLocation(loc.getResourceDomain(), "textures/" + chestTexture + ".png"));
+			this.livingEntityRenderer.bindTexture(chestTexture);
 			chest.renderAll();
 			GL11.glPopMatrix();
 			// Second pass with colour.
@@ -351,7 +299,7 @@ public class RenderArmor implements LayerRenderer<EntityPlayer>
 			GL11.glRotated(180, 1, 0, 0);
 			GL11.glTranslatef(dx, dy - 0.25f, dz + 0.6f);
 			GL11.glScalef(1.2f*s, 1.2f*s, 1.2f*s);
-			this.livingEntityRenderer.bindTexture(new ResourceLocation(loc.getResourceDomain(), "textures/" + legTexture + ".png"));
+			this.livingEntityRenderer.bindTexture(legTexture);
 			leftShoulder.renderAll();
 			GL11.glColor3f(1, 1, 1);
 			GL11.glPopMatrix();
@@ -360,7 +308,7 @@ public class RenderArmor implements LayerRenderer<EntityPlayer>
 			GL11.glRotated(180, 1, 0, 0);
 			GL11.glTranslatef(dx, dy - 0.25f, dz + 0.6f);
 			GL11.glScalef(1.2f*s, 1.2f*s, 1.2f*s);
-			this.livingEntityRenderer.bindTexture(new ResourceLocation(loc.getResourceDomain(), "textures/" + legTexture + ".png"));
+			this.livingEntityRenderer.bindTexture(legTexture);
 			rightShoulder.renderAll();
 			GL11.glColor3f(1, 1, 1);
 			GL11.glPopMatrix();
@@ -370,7 +318,7 @@ public class RenderArmor implements LayerRenderer<EntityPlayer>
 			GlStateManager.disableBlend();
 			GL11.glPopMatrix();
 		}
-		if (player.getItemStackFromSlot(EntityEquipmentSlot.LEGS) == null)
+		//LEGGINGS
 		{
 			// First pass of render
 			GL11.glPushMatrix();
@@ -388,7 +336,7 @@ public class RenderArmor implements LayerRenderer<EntityPlayer>
 			GL11.glTranslatef(dx, dy - 0.9f, dz);
 			float s = 1.0f;
 			GL11.glScalef(1.01f*s, 1.01f*s, 1.01f*s);
-			this.livingEntityRenderer.bindTexture(new ResourceLocation(loc.getResourceDomain(), "textures/" + legTexture + ".png"));
+			this.livingEntityRenderer.bindTexture(legTexture);
 			waist.renderAll();
 			GL11.glPopMatrix();
 			// Second pass
@@ -396,7 +344,7 @@ public class RenderArmor implements LayerRenderer<EntityPlayer>
 			GL11.glRotated(180, 0, 0, 0);
 			GL11.glTranslatef(dx, dy - 1.05f, dz);
 			GL11.glScalef(s, s, s);
-			this.livingEntityRenderer.bindTexture(new ResourceLocation(loc.getResourceDomain(), "textures/" + legTexture + ".png"));
+			this.livingEntityRenderer.bindTexture(legTexture);
 			leftLeg.renderAll();
 			GL11.glColor3f(1, 1, 1);
 			GL11.glPopMatrix();
@@ -405,7 +353,7 @@ public class RenderArmor implements LayerRenderer<EntityPlayer>
 			GL11.glRotated(180, 0, 0, 0);
 			GL11.glTranslatef(dx, dy - 0.82f, dz);
 			GL11.glScalef(s, s, 1.005f*s);
-			this.livingEntityRenderer.bindTexture(new ResourceLocation(loc.getResourceDomain(), "textures/" + legTexture + ".png"));
+			this.livingEntityRenderer.bindTexture(legTexture);
 			rightLeg.renderAll();
 			GL11.glColor3f(1, 1, 1);
 			GL11.glPopMatrix();
@@ -415,7 +363,7 @@ public class RenderArmor implements LayerRenderer<EntityPlayer>
 			GlStateManager.disableBlend();
 			GL11.glPopMatrix();
 		}
-		if (player.getItemStackFromSlot(EntityEquipmentSlot.FEET) == null)
+		//BOOTS
 		{
 			// First pass of render
 			GL11.glPushMatrix();
@@ -433,7 +381,7 @@ public class RenderArmor implements LayerRenderer<EntityPlayer>
 			GL11.glTranslatef(dx, dy - 1.55f, dz);
 			float s = 1.0f;
 			GL11.glScalef(s, s, s);
-			this.livingEntityRenderer.bindTexture(new ResourceLocation(loc.getResourceDomain(), "textures/" + feetTexture + ".png"));
+			this.livingEntityRenderer.bindTexture(bootTexture);
 			leftFoot.renderAll();
 			GL11.glPopMatrix();
 			// Second pass
@@ -441,7 +389,7 @@ public class RenderArmor implements LayerRenderer<EntityPlayer>
 			GL11.glRotated(180, 0, 0, 0);
 			GL11.glTranslatef(dx, dy - 1.55f, dz);
 			GL11.glScalef(s, s, 1.01f*s);
-			this.livingEntityRenderer.bindTexture(new ResourceLocation(loc.getResourceDomain(), "textures/" + feetTexture + ".png"));
+			this.livingEntityRenderer.bindTexture(bootTexture);
 			rightFoot.renderAll();
 			GL11.glColor3f(1, 1, 1);
 			GL11.glPopMatrix();
