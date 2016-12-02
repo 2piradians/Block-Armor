@@ -10,7 +10,7 @@ public class ModBlocks
 {
 	public static Block movinglightsource;
 
-	public static void init()
+	public static void preInit()
 	{
 		movinglightsource = registerBlockWithoutTab(new BlockMovingLightSource(), "movinglightsource");
 	}

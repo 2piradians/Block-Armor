@@ -29,7 +29,7 @@ public class Config
 	private static boolean quartzEffects;
 
 
-	public static void init(final File file)
+	public static void postInit(final File file)
 	{
 		Config.config = new Configuration(file);
 		Config.config.addCustomCategoryComment(Configuration.CATEGORY_GENERAL, "Determines whether or not an individual armor set can use its effect.");

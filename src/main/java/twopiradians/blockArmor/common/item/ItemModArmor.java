@@ -66,6 +66,26 @@ public class ItemModArmor extends ItemArmor
 		super(material, renderIndex, equipmentSlot);
 	}
 
+	/**Change display name based on the block*/
+	public String getItemStackDisplayName(ItemStack stack)
+	{
+		ArmorSet set = ArmorSet.getSet((ItemModArmor) stack.getItem());
+		if (set == null)
+			return "";
+
+		String name = set.stack.getDisplayName();
+		if (stack.getItem() == set.helmet)
+			name += " Helmet";
+		else if (stack.getItem() == set.helmet)
+			name += " Chestplate";
+		else if (stack.getItem() == set.helmet)
+			name += " Leggings";
+		else if (stack.getItem() == set.helmet)
+			name += " Boots";
+
+		return name;
+	}
+
 	/**Handles the attributes when wearing an armor set.*/
 	@Override
 	public Multimap<String, AttributeModifier> getAttributeModifiers(EntityEquipmentSlot slot, ItemStack stack)
@@ -171,7 +191,7 @@ public class ItemModArmor extends ItemArmor
 		else 
 			tooltip = this.addFullSetTooltip(tooltip);
 	}
-	
+
 	/**Deals with armor tooltips.*/
 	public List<String> addFullSetTooltip(List<String> tooltip) 
 	{
@@ -327,7 +347,7 @@ public class ItemModArmor extends ItemArmor
 		if (!wearingFullSet(entity, this.getArmorMaterial()))
 			return;
 	}
- 
+
 	/**Handles most of the armor set special effects and bonuses.*/
 	@Override
 	public void onArmorTick(World world, EntityPlayer player, ItemStack itemStack)
@@ -423,7 +443,7 @@ public class ItemModArmor extends ItemArmor
 				}
 			}
 		}
-		
+
 		//Lapis
 		//gives xp for wearing. From lvl 0 to lvl 30 in one real hour (about)
 		if (!world.isRemote && this == ModItems.lapis_boots)
@@ -434,7 +454,7 @@ public class ItemModArmor extends ItemArmor
 				player.addExperience(1);
 			}
 		}
-		
+
 		//Endstone   
 		//teleports in the direction looking when sneaking
 		if (!world.isRemote && this == ModItems.endstone_boots)
@@ -484,7 +504,7 @@ public class ItemModArmor extends ItemArmor
 					world.playSound((EntityPlayer)null, player.posX, player.posY, player.posZ, SoundEvents.BLOCK_NOTE_BASS, 
 							SoundCategory.PLAYERS, 1.0F, world.rand.nextFloat() + 0.5F);			}
 		}
-		
+
 		//Slime
 		//bounces on landing and off walls at high enough speed
 		//--uses StopFallDamageEvent--
@@ -513,7 +533,7 @@ public class ItemModArmor extends ItemArmor
 				}
 			}
 		}
-		
+
 		//sugarcane
 		//can breath under water if less than two blocks from surface; speed boost
 		if (!world.isRemote && this == ModItems.sugarcane_boots)
@@ -524,7 +544,7 @@ public class ItemModArmor extends ItemArmor
 				player.setAir(300);
 			}
 		}
-		
+
 		//dark pris
 		//sink faster in water; respiration, night vision, depth strider in water
 		if (this.getArmorMaterial() == ModItems.darkprismarine)

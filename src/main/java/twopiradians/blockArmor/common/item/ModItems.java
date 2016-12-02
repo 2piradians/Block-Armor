@@ -227,8 +227,18 @@ public class ModItems extends Items
 
 	public static ArrayList<ItemModArmor> allArmors = new ArrayList<ItemModArmor>();
 
-	public static void init() 
+	public static void postInit() 
 	{
+		for (ArmorSet set : ArmorSet.allSets) {
+			String name = set.item.getRegistryName().getResourcePath().toLowerCase().replace(" ", "_");
+			if (set.stack.getHasSubtypes())
+				name += "_"+set.meta;
+			set.helmet = (ItemModArmor) registerItemWithTab(new ItemModArmor(set.material, 0, EntityEquipmentSlot.HEAD), name+"_helmet");
+			set.chestplate = (ItemModArmor) registerItemWithTab(new ItemModArmor(set.material, 0, EntityEquipmentSlot.CHEST), name+"_chestplate");
+			set.leggings = (ItemModArmor) registerItemWithTab(new ItemModArmor(set.material, 0,EntityEquipmentSlot.LEGS), name+"_leggings");
+			set.boots = (ItemModArmor) registerItemWithTab(new ItemModArmor(set.material, 0, EntityEquipmentSlot.FEET), name+"_boots");
+		}
+		/*
 		stone_helmet = registerItemWithTab(new ItemModArmor(stone, 0, EntityEquipmentSlot.HEAD), "stone_helmet");
 		stone_chestplate = registerItemWithTab(new ItemModArmor(stone, 0, EntityEquipmentSlot.CHEST), "stone_chestplate");
 		stone_leggings = registerItemWithTab(new ItemModArmor(stone, 0,EntityEquipmentSlot.LEGS), "stone_leggings");
@@ -402,7 +412,7 @@ public class ModItems extends Items
 		poliwag_helmet = registerItemWithTab(new ItemModArmor(poliwag, 0, EntityEquipmentSlot.HEAD), "poliwag_helmet");
 		poliwag_chestplate = registerItemWithTab(new ItemModArmor(poliwag, 0, EntityEquipmentSlot.CHEST), "poliwag_chestplate");
 		poliwag_leggings = registerItemWithTab(new ItemModArmor(poliwag, 0,EntityEquipmentSlot.LEGS), "poliwag_leggings");
-		poliwag_boots = registerItemWithTab(new ItemModArmor(poliwag, 0, EntityEquipmentSlot.FEET), "poliwag_boots");
+		poliwag_boots = registerItemWithTab(new ItemModArmor(poliwag, 0, EntityEquipmentSlot.FEET), "poliwag_boots");*/
 	}
 
 	public static void registerRenders()
@@ -434,6 +444,6 @@ public class ModItems extends Items
 
 	public static void registerRender(Item item)
 	{	
-		Minecraft.getMinecraft().getRenderItem().getItemModelMesher().register(item, 0, new ModelResourceLocation("blockarmor:" + item.getUnlocalizedName().substring(5), "inventory"));
+		Minecraft.getMinecraft().getRenderItem().getItemModelMesher().register(item, 0, new ModelResourceLocation(BlockArmor.MODID+":" + item.getUnlocalizedName().substring(5), "inventory"));
 	}
 }

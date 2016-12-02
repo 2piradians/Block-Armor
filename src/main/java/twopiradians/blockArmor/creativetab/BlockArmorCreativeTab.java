@@ -2,7 +2,7 @@ package twopiradians.blockArmor.creativetab;
 
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.item.Item;
-import twopiradians.blockArmor.common.item.ModItems;
+import twopiradians.blockArmor.common.item.ArmorSet;
 
 public class BlockArmorCreativeTab extends CreativeTabs 
 {
@@ -13,9 +13,7 @@ public class BlockArmorCreativeTab extends CreativeTabs
 
 	@Override
 	public Item getTabIconItem() {
-		//return ModItems.dirtHelmet;
-		return ModItems.bedrock_chestplate;
+		return ArmorSet.SETS_WITH_EFFECTS.get(0).chestplate;
 	}
-	
 }
 

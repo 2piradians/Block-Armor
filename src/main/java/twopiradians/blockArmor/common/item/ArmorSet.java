@@ -1,11 +1,13 @@
-package twopiradians.blockArmor.client;
+package twopiradians.blockArmor.common.item;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.IdentityHashMap;
 import java.util.List;
 
 import com.google.common.collect.Maps;
 
+import gnu.trove.map.hash.TIntObjectHashMap;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockContainer;
 import net.minecraft.block.BlockLiquid;
@@ -13,24 +15,91 @@ import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.RenderItem;
 import net.minecraft.client.renderer.block.model.BakedQuad;
+import net.minecraft.client.renderer.block.model.ModelResourceLocation;
+import net.minecraft.init.Blocks;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.ItemArmor.ArmorMaterial;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.client.ItemModelMesherForge;
+import net.minecraftforge.common.util.EnumHelper;
 import net.minecraftforge.fml.relauncher.ReflectionHelper;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-public class TextureManager {
+public class ArmorSet {
+
+	public static ArrayList<ArmorSet> allSets;
+	public static final ArrayList<ArmorSet> SETS_WITH_EFFECTS = new ArrayList<ArmorSet>() {{
+		add(new ArmorSet(new ItemStack(Blocks.STONE, 1, 1), true));//TODO add all sets with effects
+	}};
 
 	/**Map of valid ItemStacks to their textures - used for efficiency*/
-	private static HashMap<ItemStack, ArrayList<ResourceLocation>> map = Maps.newHashMap();
+	private static HashMap<ItemStack, ArrayList<ResourceLocation>> itemStackTextureMap = Maps.newHashMap();
 	/**Reflected value used to find textures*/
 	private static ItemModelMesherForge itemModelMesher;
+	/**Reflected value used to iterate through all items*/
+	private static IdentityHashMap<Item, TIntObjectHashMap<ModelResourceLocation>> locations;
+
+	public ItemStack stack;
+	public ItemBlock item;
+	public int meta;
+	public Block block;
+	public ArmorMaterial material;      
+	public boolean hasSetEffect;
+	public ItemModArmor helmet;
+	public ItemModArmor chestplate;
+	public ItemModArmor leggings;
+	public ItemModArmor boots;
+	
+	public ArmorSet(ItemStack stack, boolean hasSetEffect) {
+		this.stack = stack;
+		this.item = (ItemBlock) stack.getItem();
+		this.meta = stack.getMetadata();
+		this.block = item.getBlock();
+		this.hasSetEffect = hasSetEffect;
+		//TODO modifiy material based on block
+		this.material = EnumHelper.addArmorMaterial("poliwag", "blockarmor:poliwag", 2, new int[] {1,2,3, 1}, 10, null, 0);
+	}
+	
+	/**Creates ArmorSets for each valid registered item and puts them in allSets*/
+	public static void postInit() {
+		//initialize reflected fields
+		itemModelMesher = ReflectionHelper.getPrivateValue(RenderItem.class, Minecraft.getMinecraft().getRenderItem(), 3);
+		locations = ReflectionHelper.getPrivateValue(ItemModelMesherForge.class, itemModelMesher, 0);
+
+		allSets = new ArrayList<ArmorSet>();
+		allSets.addAll(SETS_WITH_EFFECTS);
+		for (Item item : locations.keySet()) //iterate through all items and meta and create sets for valid ones
+			for (int meta : locations.get(item).keys())
+				if (isValid(new ItemStack(item, 1, meta)) && ArmorSet.getSet(item, meta) == null)
+					allSets.add(new ArmorSet(new ItemStack(item, 1, meta), false));
+
+		System.out.println("[Block Armor] "+allSets.size()+" armor sets created."); //TODO replace with logger
+		for (ArmorSet set : allSets) 
+			System.out.println("- "+set.stack.getDisplayName());
+	}
+	
+	/**Returns armor set corresponding to given item and meta, or null if none exists*/
+	public static ArmorSet getSet(Item item, int meta) {
+		for (ArmorSet set : allSets)
+			if (set.item == item && set.meta == meta)
+				return set;
+		return null;
+	}
+	
+	/**Returns armor set containing given ItemModArmor, or null if none exists*/
+	public static ArmorSet getSet(ItemModArmor item) {
+		for (ArmorSet set : allSets)
+			if (set.helmet == item || set.chestplate == item || set.leggings == item || set.boots == item)
+				return set;
+		return null;
+	}
 
 	/**Should an armor set be made from this item*/
-	public static boolean isValid(ItemStack stack) {
+	private static boolean isValid(ItemStack stack) {
 		if (stack == null || !(stack.getItem() instanceof ItemBlock))
 			return false;
 
@@ -51,17 +120,14 @@ public class TextureManager {
 
 	/**Gets item's textures if valid, otherwise returns null
 	 * 
-	 * @return ArrayList of helmet, chestplate, leggings, and boot ResourceLocations*/
+	 * @return ArrayList of ResourceLocations for helmet, chestplate, leggings, and boots*/
 	@SideOnly(Side.CLIENT)
 	public static ArrayList<ResourceLocation> getTextures(ItemStack stack) {
-		if (map.containsKey(stack))
-			return map.get(stack);
+		if (itemStackTextureMap.containsKey(stack))
+			return itemStackTextureMap.get(stack);
 
 		if (!isValid(stack))
 			return null;
-
-		if (itemModelMesher == null)
-			itemModelMesher = ReflectionHelper.getPrivateValue(RenderItem.class, Minecraft.getMinecraft().getRenderItem(), 3);
 
 		ResourceLocation helmetTexture = null;
 		ResourceLocation chestTexture = null;
@@ -119,7 +185,8 @@ public class TextureManager {
 		textures.add(chestTexture);
 		textures.add(leggingsTexture);
 		textures.add(bootsTexture);
-		map.put(stack, textures);
+		itemStackTextureMap.put(stack, textures);
+
 		return textures;
 	}
 }
