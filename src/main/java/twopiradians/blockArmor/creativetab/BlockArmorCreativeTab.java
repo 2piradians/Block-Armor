@@ -13,7 +13,7 @@ public class BlockArmorCreativeTab extends CreativeTabs
 
 	@Override
 	public Item getTabIconItem() {
-		return ArmorSet.SETS_WITH_EFFECTS.get(0).chestplate;
+		return ArmorSet.MANUALLY_ADDED_SETS.get(0).chestplate;
 	}
 }
 

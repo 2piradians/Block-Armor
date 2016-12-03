@@ -20,7 +20,7 @@ import net.minecraft.init.Enchantments;
 import net.minecraft.init.Items;
 import net.minecraft.init.SoundEvents;
 import net.minecraft.inventory.EntityEquipmentSlot;
-import net.minecraft.item.Item;
+import net.minecraft.item.EnumRarity;
 import net.minecraft.item.ItemArmor;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -37,7 +37,6 @@ import net.minecraftforge.fml.relauncher.ReflectionHelper;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import twopiradians.blockArmor.common.block.ModBlocks;
-import twopiradians.blockArmor.common.config.Config;
 
 public class ItemModArmor extends ItemArmor
 {
@@ -69,21 +68,7 @@ public class ItemModArmor extends ItemArmor
 	/**Change display name based on the block*/
 	public String getItemStackDisplayName(ItemStack stack)
 	{
-		ArmorSet set = ArmorSet.getSet((ItemModArmor) stack.getItem());
-		if (set == null)
-			return "";
-
-		String name = set.stack.getDisplayName();
-		if (stack.getItem() == set.helmet)
-			name += " Helmet";
-		else if (stack.getItem() == set.helmet)
-			name += " Chestplate";
-		else if (stack.getItem() == set.helmet)
-			name += " Leggings";
-		else if (stack.getItem() == set.helmet)
-			name += " Boots";
-
-		return name;
+		return ArmorSet.getItemStackDisplayName(stack, this.getEquipmentSlot());
 	}
 
 	/**Handles the attributes when wearing an armor set.*/
@@ -94,82 +79,94 @@ public class ItemModArmor extends ItemArmor
 		if (slot != this.armorType)
 			return map;
 
-		if (wearingFullSet(entityWearing, this.getArmorMaterial()))
+		ArmorSet set = ArmorSet.getSet(this);
+		if (ArmorSet.isWearingFullSet(entityWearing, set) && ArmorSet.isSetEffectEnabled(set))
 		{
-			if (this.getArmorMaterial() == ModItems.sugarcane)
+			if (set.block == Blocks.REEDS)
 				map.put(SharedMonsterAttributes.MOVEMENT_SPEED.getAttributeUnlocalizedName(), 
 						new AttributeModifier(MOVEMENT_SPEED_UUID, "Speed Boost", 0.1d, 0));
-			//full set attributes
-			else if (this.getArmorMaterial() == ModItems.bedrock)
+			else if (set.block == Blocks.BEDROCK)
 			{
 				map.put(SharedMonsterAttributes.KNOCKBACK_RESISTANCE.getAttributeUnlocalizedName(), 
 						new AttributeModifier(KNOCKBACK_RESISTANCE_UUID, "Knockback Resistance", 2d, 0));
 				map.put(SharedMonsterAttributes.MAX_HEALTH.getAttributeUnlocalizedName(), 
 						new AttributeModifier(MAX_HEALTH_UUID, "Health Boost", 20d, 0));
 			}
-			else if (this.getArmorMaterial() == ModItems.obsidian)
+			else if (set.block == Blocks.OBSIDIAN)
 			{
 				map.put(SharedMonsterAttributes.KNOCKBACK_RESISTANCE.getAttributeUnlocalizedName(), 
 						new AttributeModifier(KNOCKBACK_RESISTANCE_UUID, "Knockback Resistance", 2d, 0));
 				map.put(SharedMonsterAttributes.MAX_HEALTH.getAttributeUnlocalizedName(), 
 						new AttributeModifier(MAX_HEALTH_UUID, "Health Boost", 10d, 0));
 			}
-			else if(this.getArmorMaterial() == ModItems.brick)
+			else if (set.block == Blocks.BRICK_BLOCK)
 			{
 				map.put(SharedMonsterAttributes.KNOCKBACK_RESISTANCE.getAttributeUnlocalizedName(), 
 						new AttributeModifier(KNOCKBACK_RESISTANCE_UUID, "Knockback Resistance", 0.5d, 0));
 				map.put(SharedMonsterAttributes.MAX_HEALTH.getAttributeUnlocalizedName(), 
 						new AttributeModifier(MAX_HEALTH_UUID, "Health Boost", 4d, 0));
 			}
-			else if(this.getArmorMaterial() == ModItems.quartz)
+			else if (set.block == Blocks.QUARTZ_BLOCK)
 			{
 				map.put(SharedMonsterAttributes.ATTACK_SPEED.getAttributeUnlocalizedName(), 
 						new AttributeModifier(ATTACK_SPEED_UUID, "Attack Speed Boost", 1d, 0));
 				map.put(SharedMonsterAttributes.ATTACK_DAMAGE.getAttributeUnlocalizedName(), 
 						new AttributeModifier(ATTACK_STRENGTH_UUID, "Attack Strength Boost", 3d, 0));
 			}
-			else if (this.getArmorMaterial() == ModItems.emerald)
+			else if (set.block == Blocks.EMERALD_BLOCK)
 				map.put(SharedMonsterAttributes.LUCK.getAttributeUnlocalizedName(), 
 						new AttributeModifier(LUCK_UUID, "Knockback Resistance", 1d, 0));
 		}
 		else 
 		{
-			if (this.getArmorMaterial() == ModItems.sugarcane)
+			if (set.block == Blocks.REEDS)
 				map.put(SharedMonsterAttributes.MOVEMENT_SPEED.getAttributeUnlocalizedName(), 
 						new AttributeModifier(MOVEMENT_SPEED_UUID, "Speed Boost", 0d, 0));
-			else if (this.getArmorMaterial() == ModItems.bedrock)
+			else if (set.block == Blocks.BEDROCK)
 			{
 				map.put(SharedMonsterAttributes.KNOCKBACK_RESISTANCE.getAttributeUnlocalizedName(), 
 						new AttributeModifier(KNOCKBACK_RESISTANCE_UUID, "Knockback Resistance", 0d, 0));
 				map.put(SharedMonsterAttributes.MAX_HEALTH.getAttributeUnlocalizedName(), 
 						new AttributeModifier(MAX_HEALTH_UUID, "Health Boost", 0d, 0));
 			}
-			else if (this.getArmorMaterial() == ModItems.obsidian)
+			else if (set.block == Blocks.OBSIDIAN)
 			{
 				map.put(SharedMonsterAttributes.KNOCKBACK_RESISTANCE.getAttributeUnlocalizedName(), 
 						new AttributeModifier(KNOCKBACK_RESISTANCE_UUID, "Knockback Resistance", 0d, 0));
 				map.put(SharedMonsterAttributes.MAX_HEALTH.getAttributeUnlocalizedName(), 
 						new AttributeModifier(MAX_HEALTH_UUID, "Health Boost", 0d, 0));
 			}
-			else if (this.getArmorMaterial() == ModItems.brick)
+			else if (set.block == Blocks.BRICK_BLOCK)
 			{
 				map.put(SharedMonsterAttributes.KNOCKBACK_RESISTANCE.getAttributeUnlocalizedName(), 
 						new AttributeModifier(KNOCKBACK_RESISTANCE_UUID, "Knockback Resistance", 0d, 0));
 				map.put(SharedMonsterAttributes.MAX_HEALTH.getAttributeUnlocalizedName(), 
 						new AttributeModifier(MAX_HEALTH_UUID, "Health Boost", 0d, 0));
 			}
-			else if (this.getArmorMaterial() == ModItems.quartz)
+			else if (set.block == Blocks.QUARTZ_BLOCK)
 			{
 				map.put(SharedMonsterAttributes.ATTACK_SPEED.getAttributeUnlocalizedName(), 
 						new AttributeModifier(ATTACK_SPEED_UUID, "Knockback Resistance", 0d, 0));
 				map.put(SharedMonsterAttributes.ATTACK_DAMAGE.getAttributeUnlocalizedName(), 
 						new AttributeModifier(ATTACK_STRENGTH_UUID, "Health Boost", 0d, 0));
 			}
-			else if (this.getArmorMaterial() == ModItems.emerald)
+			else if (set.block == Blocks.EMERALD_BLOCK)
 				map.put(SharedMonsterAttributes.LUCK.getAttributeUnlocalizedName(), 
 						new AttributeModifier(LUCK_UUID, "Knockback Resistance", 0d, 0));
 		}
 		return map;
+	}
+
+	/**Set to have tooltip color show if item has effect*/
+	@Override
+	public EnumRarity getRarity(ItemStack stack)
+	{
+		if (stack.isItemEnchanted())
+			return EnumRarity.RARE;
+		else if (ArmorSet.getSet(this).hasSetEffect)
+			return EnumRarity.UNCOMMON;
+		else
+			return EnumRarity.COMMON;
 	}
 
 	/**Deals with armor tooltips.*/
@@ -177,10 +174,20 @@ public class ItemModArmor extends ItemArmor
 	@SideOnly(Side.CLIENT)
 	public void addInformation(ItemStack stack, EntityPlayer player, List<String> tooltip, boolean advanced)
 	{
-		tooltip.set(0, TextFormatting.AQUA+tooltip.get(0));
-		if (!Config.isSetEffectEnabled(this.getArmorMaterial()) && Config.hasSetEffect(this.getArmorMaterial()))
+		if (ArmorSet.getSet(this).hasSetEffect)
+			tooltip = this.addFullSetEffectTooltip(tooltip);
+	}
+
+	/**Deals with armor tooltips.*/
+	public List<String> addFullSetEffectTooltip(List<String> tooltip) 
+	{
+		ArmorSet set = ArmorSet.getSet(this);
+		if (!set.hasSetEffect)
+			return tooltip;
+
+		tooltip.add(TEXT_FORMATTING_SET_EFFECT_HEADER+"Full Set Effect:");
+		if (!ArmorSet.isSetEffectEnabled(set))
 		{
-			tooltip.add(TEXT_FORMATTING_SET_EFFECT_HEADER+"Full Set Effect:");
 			tooltip.add(TextFormatting.RED+"Disabled.");
 			if (GuiScreen.isShiftKeyDown())
 			{
@@ -188,24 +195,15 @@ public class ItemModArmor extends ItemArmor
 				tooltip.add(TextFormatting.RED+"MP: Disabled in server config.");
 			}
 		}
-		else 
-			tooltip = this.addFullSetTooltip(tooltip);
-	}
-
-	/**Deals with armor tooltips.*/
-	public List<String> addFullSetTooltip(List<String> tooltip) 
-	{
-		if(this.getArmorMaterial() == ModItems.endstone)
+		else if(set.block == Blocks.END_STONE)
 		{
-			tooltip.add(TEXT_FORMATTING_SET_EFFECT_HEADER+"Full Set Effect:");
 			tooltip.add(TEXT_FORMATTING_SET_EFFECT_DESCRIPTION+"Teleports in the direction");
 			tooltip.add(TEXT_FORMATTING_SET_EFFECT_DESCRIPTION+"you're looking upon sneaking!");
 			if (GuiScreen.isShiftKeyDown())
 				tooltip.add(TEXT_FORMATTING_SET_EFFECT_EXTRA+"Now you see me. Now you *poof*");
 		}
-		else if(this.getArmorMaterial() == ModItems.slime)
+		else if(set.block == Blocks.SLIME_BLOCK)
 		{
-			tooltip.add(TEXT_FORMATTING_SET_EFFECT_HEADER+"Full Set Effect:");
 			tooltip.add(TEXT_FORMATTING_SET_EFFECT_DESCRIPTION+"Bounces off walls!");
 			tooltip.add(TEXT_FORMATTING_SET_EFFECT_DESCRIPTION+"Bounces off the ground!");
 			if (GuiScreen.isShiftKeyDown())
@@ -214,116 +212,70 @@ public class ItemModArmor extends ItemArmor
 				tooltip.add(TEXT_FORMATTING_SET_EFFECT_EXTRA+"fun, fun, fun, fun, fun!");
 			}
 		}
-		else if(this.getArmorMaterial() == ModItems.sugarcane)
+		else if(set.block == Blocks.REEDS)
 		{
-			tooltip.add(TEXT_FORMATTING_SET_EFFECT_HEADER+"Full Set Effect:");
 			tooltip.add(TEXT_FORMATTING_SET_EFFECT_DESCRIPTION+"Increases movement speed!");
 			tooltip.add(TEXT_FORMATTING_SET_EFFECT_DESCRIPTION+"Can breathe near");
 			tooltip.add(TEXT_FORMATTING_SET_EFFECT_DESCRIPTION+"the water surface.");
 			if (GuiScreen.isShiftKeyDown())
 				tooltip.add(TEXT_FORMATTING_SET_EFFECT_EXTRA+"Just like snorkeling!");
 		}
-		else if(this.getArmorMaterial() == ModItems.darkprismarine)
+		else if(set.block == Blocks.PRISMARINE)
 		{
-			tooltip.add(TEXT_FORMATTING_SET_EFFECT_HEADER+"Full Set Effect:");
 			tooltip.add(TEXT_FORMATTING_SET_EFFECT_DESCRIPTION+"Sinks faster in liquids!");
 			tooltip.add(TEXT_FORMATTING_SET_EFFECT_DESCRIPTION+"Respiration, night vision,");
 			tooltip.add(TEXT_FORMATTING_SET_EFFECT_DESCRIPTION+"and depth strider in water!");
 		}
-		else if(this.getArmorMaterial() == ModItems.emerald)
+		else if(set.block == Blocks.EMERALD_BLOCK)
 		{
-			tooltip.add(TEXT_FORMATTING_SET_EFFECT_HEADER+"Full Set Effect:");
 			tooltip.add(TEXT_FORMATTING_SET_EFFECT_DESCRIPTION+"Increases fortune level!");
 			tooltip.add(TEXT_FORMATTING_SET_EFFECT_DESCRIPTION+"Increases luck.");
 			if (GuiScreen.isShiftKeyDown())
 				tooltip.add(TEXT_FORMATTING_SET_EFFECT_EXTRA+"More Goodies!");
 		}
-		else if(this.getArmorMaterial() == ModItems.bedrock)
+		else if(set.block == Blocks.BEDROCK)
 		{
-			tooltip.add(TEXT_FORMATTING_SET_EFFECT_HEADER+"Full Set Effect:");
 			tooltip.add(TEXT_FORMATTING_SET_EFFECT_DESCRIPTION+"Knockback resistance.");
 			tooltip.add(TEXT_FORMATTING_SET_EFFECT_DESCRIPTION+"Greatly increases");
 			tooltip.add(TEXT_FORMATTING_SET_EFFECT_DESCRIPTION+"max health.");
 		}
-		else if(this.getArmorMaterial() == ModItems.quartz)
+		else if(set.block == Blocks.QUARTZ_BLOCK)
 		{
-			tooltip.add(TEXT_FORMATTING_SET_EFFECT_HEADER+"Full Set Effect:");
 			tooltip.add(TEXT_FORMATTING_SET_EFFECT_DESCRIPTION+"Increases attack strength!");
 			tooltip.add(TEXT_FORMATTING_SET_EFFECT_DESCRIPTION+"Increases attack speed!");
 		}
-		else if(this.getArmorMaterial() == ModItems.brick)
+		else if(set.block == Blocks.BRICK_BLOCK)
 		{
-			tooltip.add(TEXT_FORMATTING_SET_EFFECT_HEADER+"Full Set Effect:");
 			tooltip.add(TEXT_FORMATTING_SET_EFFECT_DESCRIPTION+"Minor knockback resistance.");
 			tooltip.add(TEXT_FORMATTING_SET_EFFECT_DESCRIPTION+"Increases max health.");
 		}
-		else if(this.getArmorMaterial() == ModItems.netherrack) 
+		else if(set.block == Blocks.NETHERRACK) 
 		{
-			tooltip.add(TEXT_FORMATTING_SET_EFFECT_HEADER+"Full Set Effect:");
 			tooltip.add(TEXT_FORMATTING_SET_EFFECT_DESCRIPTION+"Gives Fire Protection.");
 			tooltip.add(TEXT_FORMATTING_SET_EFFECT_DESCRIPTION+"Creates light");
 			tooltip.add(TEXT_FORMATTING_SET_EFFECT_DESCRIPTION+"while sneaking.");
 			tooltip.add(TEXT_FORMATTING_SET_EFFECT_DESCRIPTION+"Lights target on fire");
 			tooltip.add(TEXT_FORMATTING_SET_EFFECT_DESCRIPTION+"after attacking.");
 		}
-		else if(this.getArmorMaterial() == ModItems.obsidian)
+		else if(set.block == Blocks.OBSIDIAN)
 		{
-			tooltip.add(TEXT_FORMATTING_SET_EFFECT_HEADER+"Full Set Effect:");
 			tooltip.add(TEXT_FORMATTING_SET_EFFECT_DESCRIPTION+"Gives Fire Protection.");
 			tooltip.add(TEXT_FORMATTING_SET_EFFECT_DESCRIPTION+"Knockback resistance.");
 			tooltip.add(TEXT_FORMATTING_SET_EFFECT_DESCRIPTION+"Increases max health.");
 		}
-		else if(this.getArmorMaterial() == ModItems.redstone)
-		{
-			tooltip.add(TEXT_FORMATTING_SET_EFFECT_HEADER+"Full Set Effect:");
+		else if(set.block == Blocks.REDSTONE_BLOCK)
 			tooltip.add(TEXT_FORMATTING_SET_EFFECT_DESCRIPTION+"Creates light while sneaking.");
-		}
-		else if(this.getArmorMaterial() == ModItems.snow)
+		else if(set.block == Blocks.SNOW)
 		{
-			tooltip.add(TEXT_FORMATTING_SET_EFFECT_HEADER+"Full Set Effect:");
 			tooltip.add(TEXT_FORMATTING_SET_EFFECT_DESCRIPTION+"Spawns snow and snowballs");
 			tooltip.add(TEXT_FORMATTING_SET_EFFECT_DESCRIPTION+"while sneaking!");
 			tooltip.add(TEXT_FORMATTING_SET_EFFECT_DESCRIPTION+"Gives Frost Walking 2.");
 			if (GuiScreen.isShiftKeyDown())
 				tooltip.add(TEXT_FORMATTING_SET_EFFECT_EXTRA+"Do you wanna build a snowman?");
 		}
-		else if(this.getArmorMaterial() == ModItems.lapis)
-		{
-			tooltip.add(TEXT_FORMATTING_SET_EFFECT_HEADER+"Full Set Effect:");
+		else if(set.block == Blocks.LAPIS_BLOCK)
 			tooltip.add(TEXT_FORMATTING_SET_EFFECT_DESCRIPTION+"Gives xp for wearing!");
-		}
 		return tooltip;
-	}
-
-	/**Determines if entity is wearing a full set of armor of same material*/
-	public static boolean wearingFullSet(EntityLivingBase entity, ArmorMaterial material)
-	{
-		if (entity != null
-				&& entity.getItemStackFromSlot(EntityEquipmentSlot.HEAD) != null
-				&& entity.getItemStackFromSlot(EntityEquipmentSlot.CHEST) != null
-				&& entity.getItemStackFromSlot(EntityEquipmentSlot.LEGS) != null
-				&& entity.getItemStackFromSlot(EntityEquipmentSlot.FEET) != null
-				&& entity.getItemStackFromSlot(EntityEquipmentSlot.FEET).getItem() instanceof ItemArmor
-				&& entity.getItemStackFromSlot(EntityEquipmentSlot.LEGS).getItem() instanceof ItemArmor
-				&& entity.getItemStackFromSlot(EntityEquipmentSlot.CHEST).getItem() instanceof ItemArmor
-				&& entity.getItemStackFromSlot(EntityEquipmentSlot.HEAD).getItem() instanceof ItemArmor)
-		{
-			Item boot = entity.getItemStackFromSlot(EntityEquipmentSlot.FEET).getItem();
-			Item leg = entity.getItemStackFromSlot(EntityEquipmentSlot.LEGS).getItem();
-			Item chest = entity.getItemStackFromSlot(EntityEquipmentSlot.CHEST).getItem();
-			Item head = entity.getItemStackFromSlot(EntityEquipmentSlot.HEAD).getItem();
-
-			ArmorMaterial bootmat = ((ItemArmor)entity.getItemStackFromSlot(EntityEquipmentSlot.FEET).getItem()).getArmorMaterial();
-			ArmorMaterial legmat =   ((ItemArmor)entity.getItemStackFromSlot(EntityEquipmentSlot.LEGS).getItem()).getArmorMaterial();
-			ArmorMaterial chestmat = ((ItemArmor)entity.getItemStackFromSlot(EntityEquipmentSlot.CHEST).getItem()).getArmorMaterial();
-			ArmorMaterial headmat = ((ItemArmor)entity.getItemStackFromSlot(EntityEquipmentSlot.HEAD).getItem()).getArmorMaterial();
-
-			if(head instanceof ItemModArmor && leg instanceof ItemModArmor 
-					&& chest instanceof ItemModArmor && boot instanceof ItemModArmor 
-					&& bootmat == legmat && bootmat == chestmat && bootmat == headmat && bootmat == material)
-				return true;
-		}
-		return false;
 	}
 
 	/**Handles enchanting armor when worn*/
@@ -336,24 +288,21 @@ public class ItemModArmor extends ItemArmor
 		EntityLivingBase entity = (EntityLivingBase) entityIn;
 		entityWearing = entity;
 
-		if (!Config.isSetEffectEnabled(this.getArmorMaterial()))
+		if (!ArmorSet.isSetEffectEnabled(ArmorSet.getSet(this)))
 			return;
 
 		if (worldIn instanceof WorldServer)
 			((WorldServer)worldIn).getEntityTracker().updateTrackedEntities();
 
 		this.doEnchantments(stack, entity);
-
-		if (!wearingFullSet(entity, this.getArmorMaterial()))
-			return;
 	}
 
 	/**Handles most of the armor set special effects and bonuses.*/
 	@Override
 	public void onArmorTick(World world, EntityPlayer player, ItemStack itemStack)
 	{
-		//TODO clean up comments
-		if (!Config.isSetEffectEnabled(getArmorMaterial()) || !wearingFullSet(player, this.getArmorMaterial()))
+		ArmorSet set = ArmorSet.getSet(this);
+		if (!ArmorSet.isSetEffectEnabled(set) || !ArmorSet.isWearingFullSet(player, set))
 			return;
 
 		if (player != playerField) //if new player or don't have field yet, get field
@@ -362,9 +311,36 @@ public class ItemModArmor extends ItemArmor
 			isJumpingField.setAccessible(true);
 			playerField = player;
 		}
+
+		//dark pris
+		//sink faster in water; respiration, night vision, depth strider in water
+		if (set.block == Blocks.PRISMARINE)
+		{
+			if(player.isInWater() 
+					&& world.getBlockState(new BlockPos(player.posX, player.posY+1.7, player.posZ)).getBlock() instanceof BlockLiquid)
+			{ 
+				if(!player.isPotionActive(Potion.getPotionById(16)) 
+						|| (player.isPotionActive(Potion.getPotionById(16))
+								&& player.getActivePotionEffect(Potion.getPotionById(16)).getDuration() < 205))
+					player.addPotionEffect(new PotionEffect(Potion.getPotionById(16), 210, 0, false, false));
+				try {
+					if(world.isRemote && !isJumpingField.getBoolean(player) && !player.onGround 
+							&& world.getBlockState(new BlockPos(player.posX, player.posY+2, player.posZ)).getBlock() 
+							instanceof BlockLiquid && player.motionY < 0.0D)
+					{	
+						player.motionY = Math.max(-0.3D, player.motionY * 1.2D);
+					}
+				} catch (Exception e) { }
+			}
+		}
+		
+		//only allow boots past this point
+		if (this.getEquipmentSlot() != EntityEquipmentSlot.FEET)
+			return;
+		
 		//Netherrack
 		//gives fire protection; while sneaking gives off particles and light; ignites target when attacked
-		if (this == ModItems.netherrack_boots)
+		if (set.block == Blocks.NETHERRACK)
 		{
 			int radius = 3;
 			if(player.isSneaking() && !player.isInWater())
@@ -387,7 +363,7 @@ public class ItemModArmor extends ItemArmor
 
 		//Redstone
 		//gives light while sneaking
-		if (this == ModItems.redstone_boots)
+		if (set.block == Blocks.REDSTONE_BLOCK)
 		{
 			if(player.isSneaking()
 					&& world.getBlockState(new BlockPos(player.posX, player.posY+1, player.posZ)) != 
@@ -399,7 +375,7 @@ public class ItemModArmor extends ItemArmor
 		}
 		//Snow
 		//spawns snow, snowballs, and particles while sneaking; frost walking 2
-		if (player.isSneaking() && this == ModItems.snow_boots)
+		if (set.block == Blocks.SNOW)
 		{
 			int radius = 3;
 			if(!world.isRemote && player.ticksExisted % 2 == 0)
@@ -446,7 +422,7 @@ public class ItemModArmor extends ItemArmor
 
 		//Lapis
 		//gives xp for wearing. From lvl 0 to lvl 30 in one real hour (about)
-		if (!world.isRemote && this == ModItems.lapis_boots)
+		if (!world.isRemote && set.block == Blocks.LAPIS_BLOCK)
 		{
 			if(--xpCooldown == 0)
 			{
@@ -457,7 +433,7 @@ public class ItemModArmor extends ItemArmor
 
 		//Endstone   
 		//teleports in the direction looking when sneaking
-		if (!world.isRemote && this == ModItems.endstone_boots)
+		if (!world.isRemote && set.block == Blocks.END_STONE)
 		{
 			if (--endstoneCooldown <= 0 && player.isSneaking() && !player.capabilities.isFlying)
 			{    
@@ -508,7 +484,7 @@ public class ItemModArmor extends ItemArmor
 		//Slime
 		//bounces on landing and off walls at high enough speed
 		//--uses StopFallDamageEvent--
-		if (!player.isSneaking() && this == ModItems.slime_boots)
+		if (!player.isSneaking() && set.block == Blocks.SLIME_BLOCK)
 		{	
 			if(world.isRemote)
 			{
@@ -536,7 +512,7 @@ public class ItemModArmor extends ItemArmor
 
 		//sugarcane
 		//can breath under water if less than two blocks from surface; speed boost
-		if (!world.isRemote && this == ModItems.sugarcane_boots)
+		if (!world.isRemote && set.block == Blocks.REEDS)
 		{
 			if(player.isInWater() && player.ticksExisted % 10 == 0 
 					&& world.getBlockState(new BlockPos(player.posX, player.posY+3, player.posZ)).getBlock() == Blocks.AIR)
@@ -544,35 +520,15 @@ public class ItemModArmor extends ItemArmor
 				player.setAir(300);
 			}
 		}
-
-		//dark pris
-		//sink faster in water; respiration, night vision, depth strider in water
-		if (this.getArmorMaterial() == ModItems.darkprismarine)
-		{
-			if(player.isInWater() 
-					&& world.getBlockState(new BlockPos(player.posX, player.posY+1.7, player.posZ)).getBlock() instanceof BlockLiquid)
-			{ 
-				if(!player.isPotionActive(Potion.getPotionById(16)) 
-						|| (player.isPotionActive(Potion.getPotionById(16))
-								&& player.getActivePotionEffect(Potion.getPotionById(16)).getDuration() < 205))
-					player.addPotionEffect(new PotionEffect(Potion.getPotionById(16), 210, 0, false, false));
-				try {
-					if(world.isRemote && !isJumpingField.getBoolean(player) && !player.onGround 
-							&& world.getBlockState(new BlockPos(player.posX, player.posY+2, player.posZ)).getBlock() 
-							instanceof BlockLiquid && player.motionY < 0.0D)
-					{	
-						player.motionY = Math.max(-0.3D, player.motionY * 1.2D);
-					}
-				} catch (Exception e) { }
-			}
-		}
 	}
 
 	/**Does the (dis)enchanting of the armor*/
 	public void doEnchantments(ItemStack stack, EntityLivingBase entity) 
 	{
+		ArmorSet set = ArmorSet.getSet(this);
+		
 		//Depth Strider
-		if (this == ModItems.darkprismarine_boots)
+		if (set.block == Blocks.PRISMARINE && this.getEquipmentSlot() == EntityEquipmentSlot.FEET)
 		{
 			NBTTagList list = stack.getEnchantmentTagList();	
 			int targetId = 8;
@@ -591,12 +547,12 @@ public class ItemModArmor extends ItemArmor
 						wasEnchanted = true;
 				}
 			}
-			if (entity instanceof EntityLivingBase && wearingFullSet((EntityLivingBase) entity, ModItems.darkprismarine) 
+			if (entity instanceof EntityLivingBase && ArmorSet.isWearingFullSet((EntityLivingBase) entity, set) 
 					&& ((EntityLivingBase) entity).getItemStackFromSlot(EntityEquipmentSlot.FEET) == stack 
 					&& entity.isInWater() && !wasEnchanted)
 				stack.addEnchantment(Enchantments.DEPTH_STRIDER, 2);
 			else if(stack.isItemEnchanted() && (!entity.isInWater() 
-					||	!wearingFullSet((EntityLivingBase) entity, ModItems.darkprismarine)
+					||	!ArmorSet.isWearingFullSet((EntityLivingBase) entity, set)
 					|| !(((EntityLivingBase) entity).getItemStackFromSlot(EntityEquipmentSlot.FEET) == stack)))
 			{
 				if (list != null)
@@ -622,7 +578,7 @@ public class ItemModArmor extends ItemArmor
 			}
 		}
 		//Respiration
-		if (this == ModItems.darkprismarine_helmet)
+		if (set.block == Blocks.PRISMARINE && this.getEquipmentSlot() == EntityEquipmentSlot.HEAD)
 		{
 			NBTTagList list = stack.getEnchantmentTagList();	
 			int targetId = 5;
@@ -641,14 +597,14 @@ public class ItemModArmor extends ItemArmor
 						wasEnchanted = true;
 				}
 			}
-			if(entity instanceof EntityLivingBase && wearingFullSet((EntityLivingBase) entity, ModItems.darkprismarine) 
+			if(entity instanceof EntityLivingBase && ArmorSet.isWearingFullSet((EntityLivingBase) entity, set) 
 					&& ((EntityLivingBase) entity).getItemStackFromSlot(EntityEquipmentSlot.HEAD) == stack 
 					&& entity.worldObj.getBlockState(new BlockPos(entity.posX, entity.posY+1.7D, entity.posZ)).getBlock() 
 					instanceof BlockLiquid && !wasEnchanted)
 				stack.addEnchantment(Enchantments.RESPIRATION, 3);
 			else if(stack.isItemEnchanted() && 
 					(!(entity.worldObj.getBlockState(new BlockPos(entity.posX, entity.posY+1.7D, entity.posZ)).getBlock() 
-							instanceof BlockLiquid) || !wearingFullSet((EntityLivingBase) entity, ModItems.darkprismarine)))
+							instanceof BlockLiquid) || !ArmorSet.isWearingFullSet((EntityLivingBase) entity, set)))
 			{
 				if (list != null)
 				{
@@ -672,7 +628,7 @@ public class ItemModArmor extends ItemArmor
 			}
 		}
 		//Frost Walker
-		if (this == ModItems.snow_boots)
+		if (set.block == Blocks.SNOW && this.getEquipmentSlot() == EntityEquipmentSlot.FEET)
 		{
 			NBTTagList list = stack.getEnchantmentTagList();	
 			int targetId = 9;
@@ -689,11 +645,11 @@ public class ItemModArmor extends ItemArmor
 						wasEnchanted = true;
 				}
 			}
-			if(entity instanceof EntityLivingBase && wearingFullSet((EntityLivingBase) entity, ModItems.snow) 
+			if(entity instanceof EntityLivingBase && ArmorSet.isWearingFullSet((EntityLivingBase) entity, set) 
 					&& ((EntityLivingBase) entity).getItemStackFromSlot(EntityEquipmentSlot.FEET) == stack 
 					&& !wasEnchanted)
 				stack.addEnchantment(Enchantments.FROST_WALKER, 2);
-			else if(stack.isItemEnchanted() && !wearingFullSet((EntityLivingBase) entity, ModItems.snow))
+			else if(stack.isItemEnchanted() && !ArmorSet.isWearingFullSet((EntityLivingBase) entity, set))
 			{
 				if (list != null)
 				{
@@ -716,8 +672,7 @@ public class ItemModArmor extends ItemArmor
 			}
 		}
 		//Fire Protection
-		if (this.getArmorMaterial() == ModItems.netherrack
-				|| this.getArmorMaterial() == ModItems.obsidian)
+		if (set.block == Blocks.NETHERRACK || set.block == Blocks.OBSIDIAN)
 		{
 			NBTTagList list = stack.getEnchantmentTagList();	
 			int targetId = 1;
@@ -734,13 +689,11 @@ public class ItemModArmor extends ItemArmor
 						wasEnchanted = true;
 				}
 			}
-			if(entity instanceof EntityLivingBase && (wearingFullSet((EntityLivingBase) entity, ModItems.netherrack)
-					|| wearingFullSet((EntityLivingBase) entity, ModItems.obsidian)) 
+			if(entity instanceof EntityLivingBase && ArmorSet.isWearingFullSet((EntityLivingBase) entity, set) 
 					&& ((EntityLivingBase) entity).getItemStackFromSlot(EntityEquipmentSlot.FEET) == stack
 					&& !wasEnchanted)
 				stack.addEnchantment(Enchantments.FIRE_PROTECTION, 4);
-			else if(stack.isItemEnchanted() && !(wearingFullSet((EntityLivingBase) entity, ModItems.netherrack) 
-					|| wearingFullSet((EntityLivingBase) entity, ModItems.obsidian)))
+			else if(stack.isItemEnchanted() && !ArmorSet.isWearingFullSet((EntityLivingBase) entity, set))
 			{
 				if (list != null)
 				{

@@ -20,7 +20,7 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.util.text.translation.I18n;
 import twopiradians.blockArmor.common.BlockArmor;
-import twopiradians.blockArmor.common.config.Config;
+import twopiradians.blockArmor.common.item.ArmorSet;
 import twopiradians.blockArmor.common.item.ItemModArmor;
 import twopiradians.blockArmor.common.item.ModItems;
 
@@ -41,7 +41,7 @@ public class GuiArmorDisplay extends GuiScreen
 		//initialize armors with all armor that has a set effect
 		armors = new ArrayList<ItemModArmor>();
 		for (ItemModArmor armor : ModItems.allArmors)
-			if (Config.hasSetEffect(armor.getArmorMaterial())) {
+			if (ArmorSet.getSet(armor).hasSetEffect) {
 				armor.entityWearing = guiPlayer;
 				armors.add(armor);
 			}
@@ -116,7 +116,7 @@ public class GuiArmorDisplay extends GuiScreen
 			int length = 0;
 			ArrayList<String> tooltip = new ArrayList<String>();
 			tooltip.add(TextFormatting.AQUA+""+TextFormatting.UNDERLINE+stack.getDisplayName().replace("Helmet", "Armor"));
-			armors.get(index).addFullSetTooltip(tooltip);
+			armors.get(index).addFullSetEffectTooltip(tooltip);
 			this.addStatTooltips(tooltip, index, guiPlayer);
 			for (String string : tooltip)
 				if (this.fontRendererObj.getStringWidth(string) > length)

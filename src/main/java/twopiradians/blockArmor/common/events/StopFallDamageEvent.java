@@ -1,27 +1,28 @@
 package twopiradians.blockArmor.common.events;
 
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.init.Blocks;
 import net.minecraft.init.SoundEvents;
 import net.minecraft.util.SoundCategory;
 import net.minecraftforge.event.entity.living.LivingFallEvent;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
-import twopiradians.blockArmor.common.config.Config;
-import twopiradians.blockArmor.common.item.ItemModArmor;
-import twopiradians.blockArmor.common.item.ModItems;
+import twopiradians.blockArmor.common.item.ArmorSet;
 
 /**Used for slime's armor effect.*/
 public class StopFallDamageEvent 
 {
-
+	/**Static is fine bc this is only used on client*/
 	private static EntityPlayer bouncingPlayer;
 	private static double motionY;
 
 	@SubscribeEvent(priority=EventPriority.NORMAL, receiveCanceled=true)
 	public void onFall(LivingFallEvent event) 
 	{
-		if (ItemModArmor.wearingFullSet(event.getEntityLiving(), ModItems.slime) && Config.isSetEffectEnabled(ModItems.slime))
+		ArmorSet set = ArmorSet.getSet(Blocks.SLIME_BLOCK, 0);
+
+		if (ArmorSet.isWearingFullSet(event.getEntityLiving(), set) && ArmorSet.isSetEffectEnabled(set))
 		{
 			EntityPlayer player = (EntityPlayer) event.getEntity();
 			event.setDamageMultiplier(0);
@@ -34,7 +35,7 @@ public class StopFallDamageEvent
 					player.onGround = true;
 					bouncingPlayer = player;
 					motionY = player.motionY;
-					event.getEntity().worldObj.playSound(((EntityPlayer) event.getEntity()), ((EntityPlayer) event.getEntity()).posX, ((EntityPlayer) event.getEntity()).posY, ((EntityPlayer) event.getEntity()).posZ, SoundEvents.ENTITY_SLIME_SQUISH, SoundCategory.HOSTILE, 1.0F, 1.0F);
+					player.worldObj.playSound(player, player.posX, player.posY, player.posZ, SoundEvents.ENTITY_SLIME_SQUISH, SoundCategory.PLAYERS, 1.0F, 1.0F);
 				}
 				else if(event.getDistance() > 40 && event.getDistance() <= 100)
 				{
@@ -42,7 +43,7 @@ public class StopFallDamageEvent
 					player.onGround = true;
 					bouncingPlayer = player;
 					motionY = player.motionY;
-					event.getEntity().worldObj.playSound(((EntityPlayer) event.getEntity()), ((EntityPlayer) event.getEntity()).posX, ((EntityPlayer) event.getEntity()).posY, ((EntityPlayer) event.getEntity()).posZ, SoundEvents.ENTITY_SLIME_JUMP, SoundCategory.HOSTILE, 1.0F, 1.0F);
+					player.worldObj.playSound(player, player.posX, player.posY, player.posZ, SoundEvents.ENTITY_SLIME_JUMP, SoundCategory.PLAYERS, 1.0F, 1.0F);
 				}
 				else if(event.getDistance() > 100)
 				{
@@ -50,7 +51,7 @@ public class StopFallDamageEvent
 					player.onGround = true;
 					bouncingPlayer = player;
 					motionY = player.motionY;
-					event.getEntity().worldObj.playSound(((EntityPlayer) event.getEntity()), ((EntityPlayer) event.getEntity()).posX, ((EntityPlayer) event.getEntity()).posY, ((EntityPlayer) event.getEntity()).posZ, SoundEvents.ENTITY_SLIME_JUMP, SoundCategory.HOSTILE, 1.0F, 1.0F);
+					player.worldObj.playSound(player, player.posX, player.posY, player.posZ, SoundEvents.ENTITY_SLIME_JUMP, SoundCategory.PLAYERS, 1.0F, 1.0F);
 				}
 			}
 		}
@@ -59,14 +60,17 @@ public class StopFallDamageEvent
 	@SubscribeEvent(priority=EventPriority.NORMAL, receiveCanceled=true)
 	public void playerTickPost(TickEvent.PlayerTickEvent event) 
 	{
-		if (Config.isSetEffectEnabled(ModItems.slime))
-		{
+		if (!event.player.worldObj.isRemote)
+			return;
+		
+		ArmorSet set = ArmorSet.getSet(Blocks.SLIME_BLOCK, 0);
+
+		if (ArmorSet.isSetEffectEnabled(set))
 			if (bouncingPlayer != null && event.player == bouncingPlayer && bouncingPlayer.worldObj.isRemote) 
 			{
 				bouncingPlayer.motionY = motionY;
 				bouncingPlayer.fallDistance = 0;
 				bouncingPlayer = null;
 			}
-		}
 	}
 }
