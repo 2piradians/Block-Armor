@@ -1,7 +1,5 @@
 package twopiradians.blockArmor.client.render.item;
 
-import java.util.ArrayList;
-
 import org.lwjgl.opengl.GL11;
 
 import net.minecraft.client.renderer.GlStateManager;
@@ -10,7 +8,6 @@ import net.minecraft.client.renderer.entity.layers.LayerRenderer;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.ResourceLocation;
 import twopiradians.blockArmor.client.render.x3d.X3dModel;
-import twopiradians.blockArmor.common.item.ArmorSet;
 
 public class RenderArmor implements LayerRenderer<EntityPlayer>
 {
@@ -49,9 +46,9 @@ public class RenderArmor implements LayerRenderer<EntityPlayer>
 	public void doRenderLayer(EntityPlayer player, float limbSwing, float limbSwingAmount, float partialTicks, 
 			float ageInTicks, float netHeadYaw, float headPitch, float scale)
 	{	
-		ArrayList<ResourceLocation> textures = ArmorSet.getTextures(player.getHeldItemMainhand());
+/*		ArrayList<ResourceLocation> textures = ArmorSet.getTextures(player.getHeldItemMainhand());
 		if (textures != null)
-			this.renderArmor(textures.get(0), textures.get(1), textures.get(2), textures.get(3));
+			this.renderArmor(textures.get(0), textures.get(1), textures.get(2), textures.get(3));*/
 		
 		/*if(player.getHeldItemMainhand() == null || !(player.getHeldItemMainhand().getItem() instanceof ItemBlock) 
 				|| ((ItemBlock)player.getHeldItemMainhand().getItem()).getBlock() instanceof BlockLiquid

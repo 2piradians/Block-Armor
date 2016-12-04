@@ -65,6 +65,12 @@ public class ItemModArmor extends ItemArmor
 		super(material, renderIndex, equipmentSlot);
 	}
 
+	/**Change armor texture based on block*/
+	public String getArmorTexture(ItemStack stack, Entity entity, EntityEquipmentSlot slot, String type)
+	{
+		return ArmorSet.getTextureLocation(this).toString();
+	}
+
 	/**Change display name based on the block*/
 	public String getItemStackDisplayName(ItemStack stack)
 	{
@@ -333,11 +339,11 @@ public class ItemModArmor extends ItemArmor
 				} catch (Exception e) { }
 			}
 		}
-		
+
 		//only allow boots past this point
 		if (this.getEquipmentSlot() != EntityEquipmentSlot.FEET)
 			return;
-		
+
 		//Netherrack
 		//gives fire protection; while sneaking gives off particles and light; ignites target when attacked
 		if (set.block == Blocks.NETHERRACK)
@@ -375,7 +381,7 @@ public class ItemModArmor extends ItemArmor
 		}
 		//Snow
 		//spawns snow, snowballs, and particles while sneaking; frost walking 2
-		if (set.block == Blocks.SNOW)
+		if (player.isSneaking() && set.block == Blocks.SNOW)
 		{
 			int radius = 3;
 			if(!world.isRemote && player.ticksExisted % 2 == 0)
@@ -526,7 +532,7 @@ public class ItemModArmor extends ItemArmor
 	public void doEnchantments(ItemStack stack, EntityLivingBase entity) 
 	{
 		ArmorSet set = ArmorSet.getSet(this);
-		
+
 		//Depth Strider
 		if (set.block == Blocks.PRISMARINE && this.getEquipmentSlot() == EntityEquipmentSlot.FEET)
 		{

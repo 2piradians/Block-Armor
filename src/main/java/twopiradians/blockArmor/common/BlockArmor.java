@@ -56,11 +56,11 @@ public class BlockArmor
 	@EventHandler
 	public void postInit(FMLPostInitializationEvent event)
 	{
-		proxy.postInit();
 		ArmorSet.postInit();
 		Config.postInit(configFile);
 		ModItems.postInit();
 		registerRecipes();
+		proxy.postInit();
 	}
 
 	private void registerRecipes() {
