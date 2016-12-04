@@ -180,7 +180,12 @@ public class ItemModArmor extends ItemArmor
 	@SideOnly(Side.CLIENT)
 	public void addInformation(ItemStack stack, EntityPlayer player, List<String> tooltip, boolean advanced)
 	{
-		if (ArmorSet.getSet(this).hasSetEffect)
+		ArmorSet set = ArmorSet.getSet(this);
+
+		if (GuiScreen.isShiftKeyDown())
+			tooltip.add(TEXT_FORMATTING_SET_EFFECT_EXTRA+"Generated from: "+set.stack.getDisplayName());
+		
+		if (set.hasSetEffect)
 			tooltip = this.addFullSetEffectTooltip(tooltip);
 	}
 
@@ -281,6 +286,7 @@ public class ItemModArmor extends ItemArmor
 		}
 		else if(set.block == Blocks.LAPIS_BLOCK)
 			tooltip.add(TEXT_FORMATTING_SET_EFFECT_DESCRIPTION+"Gives xp for wearing!");
+
 		return tooltip;
 	}
 

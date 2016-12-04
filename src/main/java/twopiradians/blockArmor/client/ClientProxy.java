@@ -39,7 +39,6 @@ public class ClientProxy extends CommonProxy
 	public void onWorldLoad(WorldEvent.Load event)
 	{
 		if (event.getWorld().isRemote) {
-			System.out.println("registering item renders");
 			for (ArmorSet set : ArmorSet.allSets)
 				set.initTextures();
 			ModItems.registerRenders();
@@ -49,7 +48,7 @@ public class ClientProxy extends CommonProxy
 	@SubscribeEvent
 	public void textureStitch(TextureStitchEvent.Post event)
 	{
-		System.out.println("texture stitching");
+		/*System.out.println("texture stitching");
 		//event.getMap().getAtlasSprite("");
 		ResourceLocation loc = new ResourceLocation(BlockArmor.MODID, "auto_generated_boots");
 		event.getMap().setTextureEntry(new ResourceLocation(BlockArmor.MODID, "auto_generated_boots").toString(), event.getMap().getAtlasSprite("minecraft:items/shears"));
@@ -57,7 +56,7 @@ public class ClientProxy extends CommonProxy
 		event.getMap().setTextureEntry(BlockArmor.MODID+":items/auto_generated_boots.json", event.getMap().getAtlasSprite("minecraft:items/shears"));
 		event.getMap().setTextureEntry("blockarmor:items/andesite_chestplate", event.getMap().getAtlasSprite("minecraft:items/shears"));
 		event.getMap().setTextureEntry("blockarmor:items/andesite_chestplate.png", event.getMap().getAtlasSprite("minecraft:items/shears"));
-	}
+	*/}
 
 	@SubscribeEvent
 	public void addRenderLayer(RenderPlayerEvent.Post event)
