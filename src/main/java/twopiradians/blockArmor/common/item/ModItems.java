@@ -67,7 +67,7 @@ public class ModItems
 	{		
 		if (item instanceof ItemModArmor) {
 			ResourceLocation texture = ArmorSet.getTextureLocation((ItemModArmor) item);
-			if (texture != null) {
+			if (texture != null && false) {
 				//read item json
 				ModelResourceLocation modelLoc = new ModelResourceLocation(BlockArmor.MODID+":" + "auto_generated_boots" , "inventory");
 				/*	ResourceLocation jsonLoc = new ResourceLocation(BlockArmor.MODID, "models/item/auto_generated_boots.json");

@@ -19,7 +19,6 @@ import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.RenderItem;
 import net.minecraft.client.renderer.block.model.BakedQuad;
-import net.minecraft.client.renderer.block.model.IBakedModel;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.init.Blocks;
@@ -39,6 +38,7 @@ import net.minecraftforge.common.util.EnumHelper;
 import net.minecraftforge.fml.relauncher.ReflectionHelper;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import twopiradians.blockArmor.common.BlockArmor;
 import twopiradians.blockArmor.common.config.Config;
 
 public class ArmorSet {
@@ -349,12 +349,24 @@ public class ArmorSet {
 		if (helmetTexture == null || chestTexture == null || leggingsTexture == null || bootsTexture == null) 
 			System.out.println("null texture - this shouldn't happen!"); //TODO remove after testing
 
-		this.helmetTexture = helmetTexture;
-		this.chestplateTexture = chestTexture;
-		this.leggingsTexture = leggingsTexture;
-		this.bootsTexture = bootsTexture;
+		ResourceLocation texture1 = new ResourceLocation(BlockArmor.MODID+":textures/models/armor/"+stack.getDisplayName().toLowerCase().replace(" ", "_")+"_layer_1.png");
+		ResourceLocation texture2 = new ResourceLocation(BlockArmor.MODID+":textures/models/armor/"+stack.getDisplayName().toLowerCase().replace(" ", "_")+"_layer_2.png");
+		try {
+			Minecraft.getMinecraft().getResourceManager().getResource(texture1);
+			this.helmetTexture = texture1;
+			this.chestplateTexture = texture1;
+			this.leggingsTexture = texture2;
+			this.bootsTexture = texture1;
+			System.out.println("Texture found at: "+texture1.toString());
+		} catch (Exception e) {
+			this.helmetTexture = helmetTexture;
+			this.chestplateTexture = chestTexture;
+			this.leggingsTexture = leggingsTexture;
+			this.bootsTexture = bootsTexture;
+			System.out.println("No texture found at: "+texture1.toString());
+		}
 
-
+		/*
 		//set item inventory textures
 		IBakedModel model = Minecraft.getMinecraft().getRenderItem().getItemModelMesher().getItemModel(new ItemStack(this.helmet));
 		//System.out.println("");
@@ -362,7 +374,7 @@ public class ArmorSet {
 		Minecraft.getMinecraft().getRenderItem().getItemModelMesher().getItemModel(new ItemStack(this.helmet)).getParticleTexture();
 		//System.out.println("");
 
-
+		 */
 		//can change model, but not texture
 		/*IItemPropertyGetter getter = new IItemPropertyGetter()
 		{
