@@ -81,15 +81,15 @@ public class ArmorSet {
 	public Block block;
 	public ArmorMaterial material;      
 	public boolean hasSetEffect;
-	public ItemModArmor helmet;
-	public ItemModArmor chestplate;
-	public ItemModArmor leggings;
-	public ItemModArmor boots;
+	public ItemBlockArmor helmet;
+	public ItemBlockArmor chestplate;
+	public ItemBlockArmor leggings;
+	public ItemBlockArmor boots;
 
-	private ResourceLocation helmetTexture;
-	private ResourceLocation chestplateTexture;
-	private ResourceLocation leggingsTexture;
-	private ResourceLocation bootsTexture;
+	/**Array of inventory textures sorted by EntityEquipmentSlot id*/
+	private ResourceLocation[] inventoryTextures;
+	/**Array of armor textures sorted by EnumFacing id*/
+	private ResourceLocation[] armorTextures;
 
 
 	@SuppressWarnings("deprecation")
@@ -172,31 +172,29 @@ public class ArmorSet {
 	}
 
 	/**Returns ResourceLocation to texture corresponding to given ItemModArmor*/
-	public static ResourceLocation getTextureLocation(ItemModArmor item) {
+	public static ResourceLocation getInventoryTextureLocation(ItemBlockArmor item) {
 		ArmorSet set = ArmorSet.getSet(item);
-		if (set != null) {
-			switch (item.getEquipmentSlot()) {
-			case HEAD:
-				return set.helmetTexture;
-			case CHEST:
-				return set.chestplateTexture;
-			case LEGS:
-				return set.leggingsTexture;
-			case FEET:
-				return set.bootsTexture;
-			default:
-				break;
-			}
-		}
-		return null;
+		if (set != null) 
+			return set.inventoryTextures[item.getEquipmentSlot().getIndex()];
+		else
+			return null;
+	}
+	
+	/**Returns ResourceLocation to armor texture corresponding to the item's block's facing textures*/
+	public static ResourceLocation getArmorTextureLocation(ItemBlockArmor item, EnumFacing facing) {
+		ArmorSet set = ArmorSet.getSet(item);
+		if (set != null && facing != null) 
+			return set.armorTextures[facing.getIndex()];
+		else
+			return null;
 	}
 
 	/**Change display name based on the block*/
 	public static String getItemStackDisplayName(ItemStack stack, EntityEquipmentSlot slot)
 	{
 		String name;
-		if (stack.getItem() instanceof ItemModArmor) {
-			ArmorSet set = ArmorSet.getSet((ItemModArmor) stack.getItem());
+		if (stack.getItem() instanceof ItemBlockArmor) {
+			ArmorSet set = ArmorSet.getSet((ItemBlockArmor) stack.getItem());
 			name = set.stack.getDisplayName();
 		}
 		else
@@ -263,7 +261,7 @@ public class ArmorSet {
 	}
 
 	/**Returns armor set containing given ItemModArmor, or null if none exists*/
-	public static ArmorSet getSet(ItemModArmor item) {
+	public static ArmorSet getSet(ItemBlockArmor item) {
 		for (ArmorSet set : allSets)
 			if (set.helmet == item || set.chestplate == item || set.leggings == item || set.boots == item)
 				return set;
@@ -279,7 +277,8 @@ public class ArmorSet {
 		Block block = ((ItemBlock)stack.getItem()).getBlock();
 		if (block instanceof BlockLiquid || block instanceof BlockContainer || block.hasTileEntity() || 
 				block instanceof BlockOre || block instanceof BlockCrops || block instanceof BlockBush ||
-				block == Blocks.BARRIER || block instanceof BlockLeaves || block == Blocks.MONSTER_EGG)
+				block == Blocks.BARRIER || block instanceof BlockLeaves || block == Blocks.MONSTER_EGG || 
+				block == Blocks.GRASS)
 			return false;
 
 		//Check if full block (requires player) (possibly check if block's model is for a full block? - accept only parent: block/cube*)
@@ -300,10 +299,9 @@ public class ArmorSet {
 	 * @return ArrayList of ResourceLocations for helmet, chestplate, leggings, and boots*/
 	@SideOnly(Side.CLIENT)
 	public void initTextures() {
-		ResourceLocation helmetTexture = null;
-		ResourceLocation chestTexture = null;
-		ResourceLocation leggingsTexture = null;
-		ResourceLocation bootsTexture = null;
+
+		this.armorTextures = new ResourceLocation[EnumFacing.VALUES.length];
+		this.inventoryTextures = new ResourceLocation[EntityEquipmentSlot.values().length];
 
 		//Gets textures from item model's BakedQuads (textures for each side)
 		IBlockState state = this.block.getDefaultState();
@@ -311,93 +309,49 @@ public class ArmorSet {
 		list.addAll(itemModelMesher.getItemModel(this.stack).getQuads(state, null, 0));
 		for (EnumFacing facing : EnumFacing.VALUES)
 			list.addAll(itemModelMesher.getItemModel(this.stack).getQuads(state, facing, 0));
-		if (list.size() < 6)
-			System.out.println("less than 6 textures! - I did not expect this!"); //TODO remove after testing
 		for (BakedQuad quad : list) { //there's at least one texture per face
-			switch (quad.getFace()) {
-			case DOWN:
-				if (bootsTexture != null)
-					break;
-				bootsTexture = new ResourceLocation(quad.getSprite().getIconName());
-				bootsTexture = new ResourceLocation(bootsTexture.getResourceDomain(), "textures/"+bootsTexture.getResourcePath()+".png");
-				break;
-			case EAST:
-				break;
-			case NORTH:
-				if (chestTexture != null)
-					break;
-				chestTexture = new ResourceLocation(quad.getSprite().getIconName());
-				chestTexture = new ResourceLocation(chestTexture.getResourceDomain(), "textures/"+chestTexture.getResourcePath()+".png");
-				break;
-			case SOUTH:
-				if (leggingsTexture != null)
-					break;
-				leggingsTexture = new ResourceLocation(quad.getSprite().getIconName());
-				leggingsTexture = new ResourceLocation(leggingsTexture.getResourceDomain(), "textures/"+leggingsTexture.getResourcePath()+".png");
-				break;
-			case UP:
-				if (helmetTexture != null)
-					break;
-				helmetTexture = new ResourceLocation(quad.getSprite().getIconName());
-				helmetTexture = new ResourceLocation(helmetTexture.getResourceDomain(), "textures/"+helmetTexture.getResourcePath()+".png");
-				break;
-			case WEST:
-				break;
-			}
+			ResourceLocation loc = new ResourceLocation(quad.getSprite().getIconName());
+
+			if (quad.getFace() == EnumFacing.UP)
+				this.inventoryTextures[EntityEquipmentSlot.HEAD.getIndex()] = loc;
+			else if (quad.getFace() == EnumFacing.NORTH)
+				this.inventoryTextures[EntityEquipmentSlot.CHEST.getIndex()] = loc;
+			else if (quad.getFace() == EnumFacing.SOUTH)
+				this.inventoryTextures[EntityEquipmentSlot.LEGS.getIndex()] = loc;
+			else if (quad.getFace() == EnumFacing.DOWN)
+				this.inventoryTextures[EntityEquipmentSlot.FEET.getIndex()] = loc;
+
+			loc = new ResourceLocation(loc.getResourceDomain(), "textures/"+loc.getResourcePath()+".png");
+			this.armorTextures[quad.getFace().getIndex()] = loc;
 		}
 
-		if (helmetTexture == null || chestTexture == null || leggingsTexture == null || bootsTexture == null) 
-			System.out.println("null texture - this shouldn't happen!"); //TODO remove after testing
-
+		//Check for armor texture overrides (expects armor layer textures)
 		ResourceLocation texture1 = new ResourceLocation(BlockArmor.MODID+":textures/models/armor/"+stack.getDisplayName().toLowerCase().replace(" ", "_")+"_layer_1.png");
 		ResourceLocation texture2 = new ResourceLocation(BlockArmor.MODID+":textures/models/armor/"+stack.getDisplayName().toLowerCase().replace(" ", "_")+"_layer_2.png");
 		try {
-			Minecraft.getMinecraft().getResourceManager().getResource(texture1);
-			this.helmetTexture = texture1;
-			this.chestplateTexture = texture1;
-			this.leggingsTexture = texture2;
-			this.bootsTexture = texture1;
-			System.out.println("Texture found at: "+texture1.toString());
+			Minecraft.getMinecraft().getResourceManager().getResource(texture1); //does texture exist?
+			this.armorTextures[EntityEquipmentSlot.HEAD.getIndex()] = texture1;
+			this.armorTextures[EntityEquipmentSlot.CHEST.getIndex()] = texture1;
+			this.armorTextures[EntityEquipmentSlot.LEGS.getIndex()] = texture2;
+			this.armorTextures[EntityEquipmentSlot.FEET.getIndex()] = texture1;
+			//System.out.println("Texture found at: "+texture1.toString());
 		} catch (Exception e) {
-			this.helmetTexture = helmetTexture;
-			this.chestplateTexture = chestTexture;
-			this.leggingsTexture = leggingsTexture;
-			this.bootsTexture = bootsTexture;
-			System.out.println("No texture found at: "+texture1.toString());
+			//System.out.println("No texture found at: "+texture1.toString());
 		}
 
-		/*
-		//set item inventory textures
-		IBakedModel model = Minecraft.getMinecraft().getRenderItem().getItemModelMesher().getItemModel(new ItemStack(this.helmet));
-		//System.out.println("");
-		model.getParticleTexture();
-		Minecraft.getMinecraft().getRenderItem().getItemModelMesher().getItemModel(new ItemStack(this.helmet)).getParticleTexture();
-		//System.out.println("");
-
-		 */
-		//can change model, but not texture
-		/*IItemPropertyGetter getter = new IItemPropertyGetter()
-		{
-			@SideOnly(Side.CLIENT)
-			public float apply(ItemStack stack, @Nullable World worldIn, @Nullable EntityLivingBase entityIn)
-			{
-				return 1;
-			}
-		};
-
-		ItemModArmor[] armors = new ItemModArmor[] {this.helmet, this.chestplate, this.leggings, this.boots};
-		for (ItemModArmor item : armors) {
-			item.addPropertyOverride(ArmorSet.getTextureLocation(item), getter); 
-
-			IBakedModel model = Minecraft.getMinecraft().getRenderItem().getItemModelMesher().getItemModel(new ItemStack(item));
-			//ResourceLocation loc = new ModelResourceLocation(BlockArmor.MODID+":" + "auto_generated_boots" , "inventory");
-			List<ItemOverride> overrides = ReflectionHelper.getPrivateValue(ItemOverrideList.class, model.getOverrides(), 1); //overrides
-			Map<ResourceLocation, Float> map = Maps.<ResourceLocation, Float>newLinkedHashMap();
-			map.put(ArmorSet.getTextureLocation(item), 1F);
-			overrides.add(new ItemOverride(ArmorSet.getTextureLocation(item), map));
-			overrides = ReflectionHelper.getPrivateValue(ItemOverrideList.class, model.getOverrides(), 1); //overrides
-			System.out.println(overrides.size());
-		}*/
+		//Check for inventory texture overrides (expects block texture) - location must be registered in ClientProxy TextureStitchEvent.Pre
+		ResourceLocation texture = new ResourceLocation(BlockArmor.MODID+":textures/items/"+stack.getDisplayName().toLowerCase().replace(" ", "_")+".png");
+		try {
+			Minecraft.getMinecraft().getResourceManager().getResource(texture); //does texture exist?
+			texture = new ResourceLocation(texture.getResourceDomain(), texture.getResourcePath().replace("textures/", "").replace(".png", ""));
+			this.inventoryTextures[EntityEquipmentSlot.HEAD.getIndex()] = texture;
+			this.inventoryTextures[EntityEquipmentSlot.CHEST.getIndex()] = texture;
+			this.inventoryTextures[EntityEquipmentSlot.LEGS.getIndex()] = texture;
+			this.inventoryTextures[EntityEquipmentSlot.FEET.getIndex()] = texture;
+			System.out.println("Texture found at: "+texture.toString());
+		} catch (Exception e) {
+			//System.out.println("No texture found at: "+texture.toString());
+		}
 	}
 
 

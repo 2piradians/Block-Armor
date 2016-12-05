@@ -21,7 +21,7 @@ import net.minecraft.util.text.TextFormatting;
 import net.minecraft.util.text.translation.I18n;
 import twopiradians.blockArmor.common.BlockArmor;
 import twopiradians.blockArmor.common.item.ArmorSet;
-import twopiradians.blockArmor.common.item.ItemModArmor;
+import twopiradians.blockArmor.common.item.ItemBlockArmor;
 import twopiradians.blockArmor.common.item.ModItems;
 
 @SuppressWarnings("deprecation")
@@ -33,14 +33,14 @@ public class GuiArmorDisplay extends GuiScreen
 	private EntityGuiPlayer guiPlayer;
 	private float partialTicks;
 	/**List of all armors with set effects*/
-	private ArrayList<ItemModArmor> armors;
+	private ArrayList<ItemBlockArmor> armors;
 
 	public GuiArmorDisplay()
 	{
 		guiPlayer = new EntityGuiPlayer(Minecraft.getMinecraft().theWorld, Minecraft.getMinecraft().thePlayer.getGameProfile(), Minecraft.getMinecraft().thePlayer);
 		//initialize armors with all armor that has a set effect
-		armors = new ArrayList<ItemModArmor>();
-		for (ItemModArmor armor : ModItems.allArmors)
+		armors = new ArrayList<ItemBlockArmor>();
+		for (ItemBlockArmor armor : ModItems.allArmors)
 			if (ArmorSet.getSet(armor).hasSetEffect) {
 				armor.entityWearing = guiPlayer;
 				armors.add(armor);
@@ -149,13 +149,13 @@ public class GuiArmorDisplay extends GuiScreen
 					AttributeModifier attributemodifier = (AttributeModifier)entry.getValue();
 					double d0 = attributemodifier.getAmount();
 					flag = false;
-					if (attributemodifier.getID() == ItemModArmor.ATTACK_STRENGTH_UUID)
+					if (attributemodifier.getID() == ItemBlockArmor.ATTACK_STRENGTH_UUID)
 					{
 						d0 = d0 + player.getEntityAttribute(SharedMonsterAttributes.ATTACK_DAMAGE).getBaseValue();
 						d0 = d0 + (double)EnchantmentHelper.getModifierForCreature(new ItemStack(armors.get(index)), EnumCreatureAttribute.UNDEFINED);
 						flag = true;
 					}
-					else if (attributemodifier.getID() == ItemModArmor.ATTACK_SPEED_UUID)
+					else if (attributemodifier.getID() == ItemBlockArmor.ATTACK_SPEED_UUID)
 					{
 						d0 += player.getEntityAttribute(SharedMonsterAttributes.ATTACK_SPEED).getBaseValue();
 						flag = true;

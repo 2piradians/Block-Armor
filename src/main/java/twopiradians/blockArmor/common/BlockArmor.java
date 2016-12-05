@@ -40,6 +40,7 @@ public class BlockArmor
 	@EventHandler
 	public void preInit(FMLPreInitializationEvent event)
 	{
+		System.out.println("[Block Armor] Starting preInit...");
 		proxy.preInit();
 		ModBlocks.preInit();
 		ModTileEntities.preInit();
@@ -49,6 +50,7 @@ public class BlockArmor
 	@EventHandler
 	public void init(FMLInitializationEvent event)
 	{
+		System.out.println("[Block Armor] Starting init...");
 		proxy.init();
 		registerEventListeners();
 	}
@@ -56,6 +58,7 @@ public class BlockArmor
 	@EventHandler
 	public void postInit(FMLPostInitializationEvent event)
 	{
+		System.out.println("[Block Armor] Starting postInit...");
 		ArmorSet.postInit();
 		Config.postInit(configFile);
 		ModItems.postInit();
