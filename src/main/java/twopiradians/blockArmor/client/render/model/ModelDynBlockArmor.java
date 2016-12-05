@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 
 import javax.vecmath.Matrix4f;
+import javax.vecmath.Quat4f;
 
 import org.apache.commons.lang3.tuple.Pair;
 
@@ -39,6 +40,7 @@ import net.minecraftforge.client.model.IModelCustomData;
 import net.minecraftforge.client.model.IPerspectiveAwareModel;
 import net.minecraftforge.client.model.IRetexturableModel;
 import net.minecraftforge.client.model.ItemTextureQuadConverter;
+import net.minecraftforge.client.model.ModelStateComposition;
 import net.minecraftforge.client.model.SimpleModelState;
 import net.minecraftforge.common.model.IModelPart;
 import net.minecraftforge.common.model.IModelState;
@@ -275,7 +277,9 @@ public final class ModelDynBlockArmor implements IModel, IModelCustomData, IRete
 		{
 			if (originalModel instanceof BakedDynBlockArmor && ArmorSet.getInventoryTextureLocation((ItemBlockArmor) stack.getItem()) != null) {
 				ImmutableList.Builder<BakedQuad> builder = ImmutableList.builder();
-				TRSRTransformation transform = new SimpleModelState(((BakedDynBlockArmor)originalModel).transforms).apply(Optional.<IModelPart>absent()).or(TRSRTransformation.identity());
+				IModelState state = new SimpleModelState(((BakedDynBlockArmor)originalModel).transforms);
+				//state = new ModelStateComposition(state, TRSRTransformation.blockCenterToCorner(new TRSRTransformation(null, new Quat4f(0, 0.5f, 1, 0.1f), null, null)));
+				TRSRTransformation transform = state.apply(Optional.<IModelPart>absent()).or(TRSRTransformation.identity());
 				VertexFormat format = ((BakedDynBlockArmor)originalModel).format;
 				//Full block texture
 				String textureLocation = ArmorSet.getInventoryTextureLocation((ItemBlockArmor) stack.getItem()).toString();

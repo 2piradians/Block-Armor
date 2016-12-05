@@ -179,7 +179,7 @@ public class ArmorSet {
 		else
 			return null;
 	}
-	
+
 	/**Returns ResourceLocation to armor texture corresponding to the item's block's facing textures*/
 	public static ResourceLocation getArmorTextureLocation(ItemBlockArmor item, EnumFacing facing) {
 		ArmorSet set = ArmorSet.getSet(item);
@@ -330,10 +330,11 @@ public class ArmorSet {
 		ResourceLocation texture2 = new ResourceLocation(BlockArmor.MODID+":textures/models/armor/"+stack.getDisplayName().toLowerCase().replace(" ", "_")+"_layer_2.png");
 		try {
 			Minecraft.getMinecraft().getResourceManager().getResource(texture1); //does texture exist?
-			this.armorTextures[EntityEquipmentSlot.HEAD.getIndex()] = texture1;
-			this.armorTextures[EntityEquipmentSlot.CHEST.getIndex()] = texture1;
-			this.armorTextures[EntityEquipmentSlot.LEGS.getIndex()] = texture2;
-			this.armorTextures[EntityEquipmentSlot.FEET.getIndex()] = texture1;
+			for (EnumFacing facing : EnumFacing.VALUES)
+				if (facing == EnumFacing.DOWN)
+					this.armorTextures[facing.getIndex()] = texture2;
+				else
+					this.armorTextures[facing.getIndex()] = texture1;
 			//System.out.println("Texture found at: "+texture1.toString());
 		} catch (Exception e) {
 			//System.out.println("No texture found at: "+texture1.toString());

@@ -69,7 +69,7 @@ public class ItemBlockArmor extends ItemArmor
 	/**Change armor texture based on block*/
 	public String getArmorTexture(ItemStack stack, Entity entity, EntityEquipmentSlot slot, String type)
 	{
-		return ArmorSet.getArmorTextureLocation(this, EnumFacing.NORTH).toString();
+		return ArmorSet.getArmorTextureLocation(this, slot == EntityEquipmentSlot.LEGS ? EnumFacing.DOWN : EnumFacing.NORTH).toString();
 	}
 
 	/**Change display name based on the block*/
