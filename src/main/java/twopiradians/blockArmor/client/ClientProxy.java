@@ -55,7 +55,7 @@ public class ClientProxy extends CommonProxy
 		}
 	}
 
-	/**Used to register block textures to override inventory textures*/
+	/**Used to register block textures to override inventory textures and for inventory icons*/
 	@SubscribeEvent
 	public void textureStitch(TextureStitchEvent.Pre event)
 	{
@@ -67,7 +67,8 @@ public class ClientProxy extends CommonProxy
 		event.getMap().registerSprite(new ResourceLocation(BlockArmor.MODID, "items/block_armor_leggings_cover"));
 		event.getMap().registerSprite(new ResourceLocation(BlockArmor.MODID, "items/block_armor_leggings_template"));
 		event.getMap().registerSprite(new ResourceLocation(BlockArmor.MODID, "items/block_armor_boots_cover"));
-		event.getMap().registerSprite(new ResourceLocation(BlockArmor.MODID, "items/block_armor_boots_template"));
+		event.getMap().registerSprite(new ResourceLocation(BlockArmor.MODID, "items/block_armor_boots1_template"));
+		event.getMap().registerSprite(new ResourceLocation(BlockArmor.MODID, "items/block_armor_boots2_template"));
 	}
 
 	@SubscribeEvent

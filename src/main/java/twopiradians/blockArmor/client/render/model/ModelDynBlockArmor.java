@@ -293,10 +293,17 @@ public final class ModelDynBlockArmor implements IModel, IModelCustomData, IRete
 				else if (slot == EntityEquipmentSlot.FEET)
 					armorType = "boots";
 				//Template texture
-				String templateLocation = new ResourceLocation("blockarmor:items/block_armor_"+armorType+"_template").toString();
+				String templateLocation = new ResourceLocation("blockarmor:items/block_armor_"+armorType+(armorType.equals("boots")?"1":"")+"_template").toString();
 				TextureAtlasSprite templateTexture = Minecraft.getMinecraft().getTextureMapBlocks().getAtlasSprite(templateLocation);
 				builder.addAll(ItemTextureQuadConverter.convertTexture(format, transform, templateTexture, blockTexture, NORTH_Z_FLUID, EnumFacing.NORTH, 0xffffffff));
 				builder.addAll(ItemTextureQuadConverter.convertTexture(format, transform, templateTexture, blockTexture, SOUTH_Z_FLUID, EnumFacing.SOUTH, 0xffffffff));
+				if (armorType.equals("boots")) {
+					//Template texture for other boot
+					templateLocation = new ResourceLocation("blockarmor:items/block_armor_"+armorType+(armorType.equals("boots")?"2":"")+"_template").toString();
+					templateTexture = Minecraft.getMinecraft().getTextureMapBlocks().getAtlasSprite(templateLocation);
+					builder.addAll(ItemTextureQuadConverter.convertTexture(format, transform, templateTexture, blockTexture, NORTH_Z_FLUID, EnumFacing.NORTH, 0xffffffff));
+					builder.addAll(ItemTextureQuadConverter.convertTexture(format, transform, templateTexture, blockTexture, SOUTH_Z_FLUID, EnumFacing.SOUTH, 0xffffffff));
+				}
 				//Cover texture
 				String coverLocation = new ResourceLocation("blockarmor:items/block_armor_"+armorType+"_cover").toString();
 				TextureAtlasSprite coverTexture = Minecraft.getMinecraft().getTextureMapBlocks().getAtlasSprite(coverLocation);
