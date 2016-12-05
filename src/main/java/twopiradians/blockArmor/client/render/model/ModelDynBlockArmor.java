@@ -6,6 +6,7 @@ import java.util.Map;
 
 import javax.vecmath.Matrix4f;
 import javax.vecmath.Quat4f;
+import javax.vecmath.Vector3f;
 
 import org.apache.commons.lang3.tuple.Pair;
 
@@ -39,6 +40,7 @@ import net.minecraftforge.client.model.IModel;
 import net.minecraftforge.client.model.IModelCustomData;
 import net.minecraftforge.client.model.IPerspectiveAwareModel;
 import net.minecraftforge.client.model.IRetexturableModel;
+import net.minecraftforge.client.model.ItemLayerModel;
 import net.minecraftforge.client.model.ItemTextureQuadConverter;
 import net.minecraftforge.client.model.ModelStateComposition;
 import net.minecraftforge.client.model.SimpleModelState;
@@ -53,7 +55,7 @@ import twopiradians.blockArmor.common.item.ItemBlockArmor;
 
 public final class ModelDynBlockArmor implements IModel, IModelCustomData, IRetexturableModel
 {
-	public static final ModelResourceLocation LOCATION = new ModelResourceLocation(new ResourceLocation(BlockArmor.MODID, "block_armor"), "inventory");
+	public static final ModelResourceLocation LOCATION = new ModelResourceLocation(new ResourceLocation("forge", "dynbucket"), "inventory");
 
 	// minimal Z offset to prevent depth-fighting
 	private static final float NORTH_Z_BASE = 7.496f / 16f;
@@ -204,7 +206,7 @@ public final class ModelDynBlockArmor implements IModel, IModelCustomData, IRete
 		return new ModelDynBlockArmor(baseLocation, liquidLocation, coverLocation, fluid, flip);
 	}
 
-	/**
+	/**e
 	 * Allows to use different textures for the model.
 	 * There are 3 layers:
 	 * base - The empty bucket/container
@@ -279,13 +281,14 @@ public final class ModelDynBlockArmor implements IModel, IModelCustomData, IRete
 				ImmutableList.Builder<BakedQuad> builder = ImmutableList.builder();
 				IModelState state = new SimpleModelState(((BakedDynBlockArmor)originalModel).transforms);
 				//state = new ModelStateComposition(state, TRSRTransformation.blockCenterToCorner(new TRSRTransformation(null, new Quat4f(0, 0.5f, 1, 0.1f), null, null)));
-				TRSRTransformation transform = state.apply(Optional.<IModelPart>absent()).or(TRSRTransformation.identity());
+				TRSRTransformation transform = TRSRTransformation.identity();//state.apply(Optional.<IModelPart>absent()).or(TRSRTransformation.identity());
+	            state = new ModelStateComposition(state, transform);
 				VertexFormat format = ((BakedDynBlockArmor)originalModel).format;
 				//Full block texture
-				String textureLocation = ArmorSet.getInventoryTextureLocation((ItemBlockArmor) stack.getItem()).toString();
-				TextureAtlasSprite blockTexture = Minecraft.getMinecraft().getTextureMapBlocks().getAtlasSprite(textureLocation);
+				ResourceLocation textureLocation = ArmorSet.getInventoryTextureLocation((ItemBlockArmor) stack.getItem());
+				TextureAtlasSprite blockTexture = Minecraft.getMinecraft().getTextureMapBlocks().getAtlasSprite(textureLocation.toString());
 				//builder.add(ItemTextureQuadConverter.genQuad(format, transform, 0, 0, 16, 16, NORTH_Z_BASE, blockTexture, EnumFacing.NORTH, 0xffffffff));
-				//builder.add(ItemTextureQuadConverter.genQuad(format, transform, 0, 0, 16, 16, SOUTH_Z_BASE, blockTexture, EnumFacing.SOUTH, 0xffffffff));
+				//builder.add(ItemTextureQuadConverter.genQuad(format, transform, 0, 0, 16, 16, SOUTH_Z_BASE, blockTexture, EnumFacing.SOUTH, 0xffffffff));	            
 				String armorType = "";
 				EntityEquipmentSlot slot = ((ItemBlockArmor) stack.getItem()).getEquipmentSlot();
 				if (slot == EntityEquipmentSlot.HEAD)
@@ -296,6 +299,15 @@ public final class ModelDynBlockArmor implements IModel, IModelCustomData, IRete
 					armorType = "leggings";
 				else if (slot == EntityEquipmentSlot.FEET)
 					armorType = "boots";
+				//Base texture and model
+				ResourceLocation baseLocation = new ResourceLocation("blockarmor:items/block_armor_"+armorType+"_base");
+	            IBakedModel model = (new ItemLayerModel(ImmutableList.of(baseLocation))).bake(state, format, new Function<ResourceLocation, TextureAtlasSprite>() {
+	            	public TextureAtlasSprite apply(ResourceLocation location)
+	                {
+	                    return Minecraft.getMinecraft().getTextureMapBlocks().getAtlasSprite(location.toString());
+	                }
+	            });
+	            builder.addAll(model.getQuads(null, null, 0));
 				//Template texture
 				String templateLocation = new ResourceLocation("blockarmor:items/block_armor_"+armorType+(armorType.equals("boots")?"1":"")+"_template").toString();
 				TextureAtlasSprite templateTexture = Minecraft.getMinecraft().getTextureMapBlocks().getAtlasSprite(templateLocation);
@@ -386,7 +398,15 @@ public final class ModelDynBlockArmor implements IModel, IModelCustomData, IRete
 		@Override
 		public Pair<? extends IBakedModel, Matrix4f> handlePerspective(TransformType cameraTransformType)
 		{
-			return IPerspectiveAwareModel.MapWrapper.handlePerspective(this, transforms, cameraTransformType);
+			ImmutableMap.Builder<TransformType, TRSRTransformation> builder = ImmutableMap.builder();
+			builder.put(TransformType.GROUND, new TRSRTransformation(new Vector3f(0.25f, 0.375f, 0.25f), new Quat4f(0.0f, 0.0f, 0.0f, 1.0f), new Vector3f(0.5f, 0.5f, 0.5f), new Quat4f(0.0f, 0.0f, 0.0f, 1.0f)));
+			builder.put(TransformType.HEAD, new TRSRTransformation(new Vector3f(1.0f, 0.8125f, 1.4375f), new Quat4f(0.0f, 1.0f, 0.0f, -4.371139E-8f), new Vector3f(1.0f, 1.0f, 1.0f), new Quat4f(0.0f, 0.0f, 0.0f, 1.0f)));
+			builder.put(TransformType.FIRST_PERSON_RIGHT_HAND, new TRSRTransformation(new Vector3f(0.910625f, 0.24816513f, 0.40617055f), new Quat4f(-0.15304594f, -0.6903456f, 0.15304594f, 0.6903456f), new Vector3f(0.68000007f, 0.68000007f, 0.68f), new Quat4f(0.0f, 0.0f, 0.0f, 1.0f)));
+			builder.put(TransformType.FIRST_PERSON_LEFT_HAND, new TRSRTransformation(new Vector3f(0.910625f, 0.24816513f, 0.40617055f), new Quat4f(-0.15304594f, -0.6903456f, 0.15304594f, 0.6903456f), new Vector3f(0.68000007f, 0.68000007f, 0.68f), new Quat4f(0.0f, 0.0f, 0.0f, 1.0f)));
+			builder.put(TransformType.THIRD_PERSON_RIGHT_HAND, new TRSRTransformation(new Vector3f(0.225f, 0.4125f, 0.2875f), new Quat4f(0.0f, 0.0f, 0.0f, 0.99999994f), new Vector3f(0.55f, 0.55f, 0.55f), new Quat4f(0.0f, 0.0f, 0.0f, 1.0f)));
+			builder.put(TransformType.THIRD_PERSON_LEFT_HAND, new TRSRTransformation(new Vector3f(0.225f, 0.4125f, 0.2875f), new Quat4f(0.0f, 0.0f, 0.0f, 0.99999994f), new Vector3f(0.55f, 0.55f, 0.55f), new Quat4f(0.0f, 0.0f, 0.0f, 1.0f)));
+			ImmutableMap<TransformType, TRSRTransformation> transformMap = builder.build();
+			return IPerspectiveAwareModel.MapWrapper.handlePerspective(this, Maps.immutableEnumMap(transformMap), cameraTransformType);
 		}
 
 		@Override

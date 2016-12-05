@@ -42,6 +42,7 @@ public class ClientProxy extends CommonProxy
 	@Override
 	public void postInit() {
 		ModBlocks.registerRenders();
+		ModItems.registerRenders();
 		MinecraftForge.EVENT_BUS.register(this);
 	}
 
@@ -51,7 +52,6 @@ public class ClientProxy extends CommonProxy
 		if (event.getWorld().isRemote) {
 			for (ArmorSet set : ArmorSet.allSets)
 				set.initTextures();
-			ModItems.registerRenders();
 		}
 	}
 
@@ -60,12 +60,16 @@ public class ClientProxy extends CommonProxy
 	public void textureStitch(TextureStitchEvent.Pre event)
 	{
 		event.getMap().registerSprite(new ResourceLocation(BlockArmor.MODID, "items/sugar_canes"));
+		event.getMap().registerSprite(new ResourceLocation(BlockArmor.MODID, "items/block_armor_helmet_base"));
 		event.getMap().registerSprite(new ResourceLocation(BlockArmor.MODID, "items/block_armor_helmet_cover"));
 		event.getMap().registerSprite(new ResourceLocation(BlockArmor.MODID, "items/block_armor_helmet_template"));
+		event.getMap().registerSprite(new ResourceLocation(BlockArmor.MODID, "items/block_armor_chestplate_base"));
 		event.getMap().registerSprite(new ResourceLocation(BlockArmor.MODID, "items/block_armor_chestplate_cover"));
 		event.getMap().registerSprite(new ResourceLocation(BlockArmor.MODID, "items/block_armor_chestplate_template"));
+		event.getMap().registerSprite(new ResourceLocation(BlockArmor.MODID, "items/block_armor_leggings_base"));
 		event.getMap().registerSprite(new ResourceLocation(BlockArmor.MODID, "items/block_armor_leggings_cover"));
 		event.getMap().registerSprite(new ResourceLocation(BlockArmor.MODID, "items/block_armor_leggings_template"));
+		event.getMap().registerSprite(new ResourceLocation(BlockArmor.MODID, "items/block_armor_boots_base"));
 		event.getMap().registerSprite(new ResourceLocation(BlockArmor.MODID, "items/block_armor_boots_cover"));
 		event.getMap().registerSprite(new ResourceLocation(BlockArmor.MODID, "items/block_armor_boots1_template"));
 		event.getMap().registerSprite(new ResourceLocation(BlockArmor.MODID, "items/block_armor_boots2_template"));
@@ -75,6 +79,7 @@ public class ClientProxy extends CommonProxy
 	public void modelBake(ModelBakeEvent event)
 	{
 		System.out.println("[Block Armor] Baking models...");
+		event.getModelManager().getModel(null);
 		for (ArmorSet set : ArmorSet.allSets) {
 			Item[] items = {set.helmet, set.chestplate, set.leggings, set.boots};
 			for (Item item : items) {
