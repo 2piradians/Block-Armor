@@ -81,8 +81,6 @@ public class ClientProxy extends CommonProxy
 	@SubscribeEvent
 	public void modelBake(ModelBakeEvent event)
 	{
-		System.out.println("[Block Armor] Baking models...");
-		event.getModelManager().getModel(null);
 		for (ArmorSet set : ArmorSet.allSets) {
 			Item[] items = {set.helmet, set.chestplate, set.leggings, set.boots};
 			for (Item item : items) {
@@ -97,7 +95,6 @@ public class ClientProxy extends CommonProxy
 				ModelBakery.registerItemVariants(item, ModelDynBlockArmor.LOCATION);
 			}
 		}
-		System.out.println("[Block Armor] Finished baking models");
 	}
 
 	@SubscribeEvent

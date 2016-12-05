@@ -50,7 +50,7 @@ public class RenderArmor implements LayerRenderer<EntityPlayer>
 		if (textures != null)
 			this.renderArmor(textures.get(0), textures.get(1), textures.get(2), textures.get(3));*/
 		
-		/*if(player.getHeldItemMainhand() == null || !(player.getHeldItemMainhand().getItem() instanceof ItemBlock) 
+		/*if (player.getHeldItemMainhand() == null || !(player.getHeldItemMainhand().getItem() instanceof ItemBlock) 
 				|| ((ItemBlock)player.getHeldItemMainhand().getItem()).getBlock() instanceof BlockLiquid
 				|| ((ItemBlock)player.getHeldItemMainhand().getItem()).getBlock() instanceof BlockContainer)
 			return;
@@ -92,7 +92,7 @@ public class RenderArmor implements LayerRenderer<EntityPlayer>
 		ArrayList<String> blockLocations = new ArrayList<String>();
 		IResource iresource = null;
 
-		if(!checkBlockstate) //read jsons through models/block normally
+		if (!checkBlockstate) //read jsons through models/block normally
 		{		
 			//read item json
 			Reader readerItem = new InputStreamReader(iresourceItem.getInputStream(), Charsets.UTF_8);
@@ -104,7 +104,7 @@ public class RenderArmor implements LayerRenderer<EntityPlayer>
 			}
 
 			//get location of block json from models
-			if(!blockLocations.isEmpty())
+			if (!blockLocations.isEmpty())
 				loc = new ResourceLocation(loc1.getResourceDomain(), "models/" + blockLocations.get(0) + ".json");
 
 			//see if block json exists at loc
@@ -157,7 +157,7 @@ public class RenderArmor implements LayerRenderer<EntityPlayer>
 			System.out.println(jsonelement);
 		}
 
-		if(jsonobject == null)
+		if (jsonobject == null)
 		{
 			System.out.println("No textures");
 			return;
@@ -168,7 +168,7 @@ public class RenderArmor implements LayerRenderer<EntityPlayer>
 		String legTexture = null;
 		String bootTexture = null;
 
-		if(!variants && jsonobject.has("textures"))
+		if (!variants && jsonobject.has("textures"))
 		{
 			helmetTexture = jsonobject.get("textures").toString();
 			chestTexture = jsonobject.get("textures").toString();
@@ -176,62 +176,62 @@ public class RenderArmor implements LayerRenderer<EntityPlayer>
 			bootTexture = jsonobject.get("textures").toString();
 		}
 
-		if(!variants)
+		if (!variants)
 		{
-			if(jsonobject.has("all"))
+			if (jsonobject.has("all"))
 				helmetTexture = jsonobject.get("all").toString();
-			else if(jsonobject.has("end"))
+			else if (jsonobject.has("end"))
 				helmetTexture = jsonobject.get("end").toString();
-			else if(jsonobject.has("up"))
+			else if (jsonobject.has("up"))
 				helmetTexture = jsonobject.get("up").toString();
-			else if(jsonobject.has("top"))
+			else if (jsonobject.has("top"))
 				helmetTexture = jsonobject.get("top").toString();
-			else if(jsonobject.has("side"))
+			else if (jsonobject.has("side"))
 				helmetTexture = jsonobject.get("side").toString();
 
-			if(jsonobject.has("all"))
+			if (jsonobject.has("all"))
 				chestTexture = jsonobject.get("all").toString();
-			else if(jsonobject.has("front"))
+			else if (jsonobject.has("front"))
 				chestTexture = jsonobject.get("front").toString();
-			else if(jsonobject.has("side"))
+			else if (jsonobject.has("side"))
 				chestTexture = jsonobject.get("side").toString();
-			else if(jsonobject.has("north"))
+			else if (jsonobject.has("north"))
 				chestTexture = jsonobject.get("north").toString();
-			else if(jsonobject.has("south"))
+			else if (jsonobject.has("south"))
 				chestTexture = jsonobject.get("south").toString();
-			else if(jsonobject.has("east"))
+			else if (jsonobject.has("east"))
 				chestTexture = jsonobject.get("east").toString();
-			else if(jsonobject.has("west"))
+			else if (jsonobject.has("west"))
 				chestTexture = jsonobject.get("west").toString();
 
-			if(jsonobject.has("all"))
+			if (jsonobject.has("all"))
 				legTexture = jsonobject.get("all").toString();
-			else if(jsonobject.has("side"))
+			else if (jsonobject.has("side"))
 				legTexture = jsonobject.get("side").toString();
-			else if(jsonobject.has("north"))
+			else if (jsonobject.has("north"))
 				legTexture = jsonobject.get("north").toString();
-			else if(jsonobject.has("south"))
+			else if (jsonobject.has("south"))
 				legTexture = jsonobject.get("south").toString();
-			else if(jsonobject.has("east"))
+			else if (jsonobject.has("east"))
 				legTexture = jsonobject.get("east").toString();
-			else if(jsonobject.has("west"))
+			else if (jsonobject.has("west"))
 				legTexture = jsonobject.get("west").toString();
 
-			if(jsonobject.has("all"))
+			if (jsonobject.has("all"))
 				bootTexture = jsonobject.get("all").toString();
-			else if(jsonobject.has("end"))
+			else if (jsonobject.has("end"))
 				bootTexture = jsonobject.get("end").toString();
-			else if(jsonobject.has("down"))
+			else if (jsonobject.has("down"))
 				bootTexture = jsonobject.get("down").toString();
-			else if(jsonobject.has("bottom"))
+			else if (jsonobject.has("bottom"))
 				bootTexture = jsonobject.get("bottom").toString();
-			else if(jsonobject.has("side"))
+			else if (jsonobject.has("side"))
 				bootTexture = jsonobject.get("side").toString();
 		}
 
 		this.lastReportedStack = player.getHeldItemMainhand();
 
-		if(helmetTexture == null || chestTexture == null || legTexture == null || bootTexture == null)
+		if (helmetTexture == null || chestTexture == null || legTexture == null || bootTexture == null)
 			return;
 
 		

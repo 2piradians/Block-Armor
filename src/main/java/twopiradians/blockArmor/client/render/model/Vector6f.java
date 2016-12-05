@@ -16,27 +16,27 @@ public class Vector6f
     
     public void clean()
     {
-        if(Math.abs(vector1.x) < 1e-6)
+        if (Math.abs(vector1.x) < 1e-6)
         {
             vector1.x = 0;
         }
-        if(Math.abs(vector1.y) < 1e-6)
+        if (Math.abs(vector1.y) < 1e-6)
         {
             vector1.y = 0;
         }
-        if(Math.abs(vector1.z) < 1e-6)
+        if (Math.abs(vector1.z) < 1e-6)
         {
             vector1.z = 0;
         }
-        if(Math.abs(vector2.x) < 1e-6)
+        if (Math.abs(vector2.x) < 1e-6)
         {
             vector2.x = 0;
         }
-        if(Math.abs(vector2.y) < 1e-6)
+        if (Math.abs(vector2.y) < 1e-6)
         {
             vector2.y = 0;
         }
-        if(Math.abs(vector2.z) < 1e-6)
+        if (Math.abs(vector2.z) < 1e-6)
         {
             vector2.z = 0;
         }

@@ -137,7 +137,7 @@ public final class ModelDynBlockArmor implements IModel, IModelCustomData, IRete
 
 		@Override
 		public IBakedModel handleItemState(IBakedModel originalModel, ItemStack stack, World world, EntityLivingBase entity)
-		{
+		{//TODO only assign texture once
 			if (originalModel instanceof BakedDynBlockArmor && ArmorSet.getInventoryTextureLocation((ItemBlockArmor) stack.getItem()) != null) {
 				ImmutableList.Builder<BakedQuad> builder = ImmutableList.builder();
 				IModelState state = new SimpleModelState(((BakedDynBlockArmor)originalModel).transforms);
@@ -227,7 +227,7 @@ public final class ModelDynBlockArmor implements IModel, IModelCustomData, IRete
 		@Override
 		public List<BakedQuad> getQuads(IBlockState state, EnumFacing side, long rand)
 		{
-			if(side == null) return quads;
+			if (side == null) return quads;
 			return ImmutableList.of();
 		}
 

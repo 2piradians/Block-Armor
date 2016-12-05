@@ -115,7 +115,7 @@ public class ArmorSet {
 		} catch(Exception e) {
 			blockHardness = ReflectionHelper.getPrivateValue(Block.class, this.block, 11); //blockHardness
 		}
-		if(blockHardness == -1) {
+		if (blockHardness == -1) {
 			durability = 0;
 			blockHardness = 1000;
 		}
@@ -281,7 +281,7 @@ public class ArmorSet {
 				block == Blocks.GRASS)
 			return false;
 
-		//Check if full block (requires player) (possibly check if block's model is for a full block? - accept only parent: block/cube*)
+		//Check if full block
 		ArrayList<AxisAlignedBB> list = new ArrayList<AxisAlignedBB>();
 		try {
 			block.addCollisionBoxToList(block.getDefaultState(), null, new BlockPos(0,0,0), Block.FULL_BLOCK_AABB, list, null);
@@ -294,9 +294,7 @@ public class ArmorSet {
 		return true;
 	}
 
-	/**Gets item's textures if valid, otherwise returns null
-	 * 
-	 * @return ArrayList of ResourceLocations for helmet, chestplate, leggings, and boots*/
+	/**Initialize set's texture variables*/
 	@SideOnly(Side.CLIENT)
 	public void initTextures() {
 
@@ -349,11 +347,9 @@ public class ArmorSet {
 			this.inventoryTextures[EntityEquipmentSlot.CHEST.getIndex()] = texture;
 			this.inventoryTextures[EntityEquipmentSlot.LEGS.getIndex()] = texture;
 			this.inventoryTextures[EntityEquipmentSlot.FEET.getIndex()] = texture;
-			System.out.println("Texture found at: "+texture.toString());
+			//System.out.println("Texture found at: "+texture.toString());
 		} catch (Exception e) {
 			//System.out.println("No texture found at: "+texture.toString());
 		}
 	}
-
-
 }

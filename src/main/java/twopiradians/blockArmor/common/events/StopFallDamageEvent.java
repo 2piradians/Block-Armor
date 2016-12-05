@@ -37,7 +37,7 @@ public class StopFallDamageEvent
 					motionY = player.motionY;
 					player.worldObj.playSound(player, player.posX, player.posY, player.posZ, SoundEvents.ENTITY_SLIME_SQUISH, SoundCategory.PLAYERS, 1.0F, 1.0F);
 				}
-				else if(event.getDistance() > 40 && event.getDistance() <= 100)
+				else if (event.getDistance() > 40 && event.getDistance() <= 100)
 				{
 					player.motionY = Math.abs(player.motionY * 0.9d * 1.5D);
 					player.onGround = true;
@@ -45,7 +45,7 @@ public class StopFallDamageEvent
 					motionY = player.motionY;
 					player.worldObj.playSound(player, player.posX, player.posY, player.posZ, SoundEvents.ENTITY_SLIME_JUMP, SoundCategory.PLAYERS, 1.0F, 1.0F);
 				}
-				else if(event.getDistance() > 100)
+				else if (event.getDistance() > 100)
 				{
 					player.motionY = Math.abs(player.motionY * 0.9d * 2D);
 					player.onGround = true;

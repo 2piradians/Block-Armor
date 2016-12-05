@@ -27,7 +27,7 @@ public class IgniteTargetEvent
 			//Lights the entity that attacks the wearer of the armor
 			if (ArmorSet.isWearingFullSet(attacked, set) && !attacker.isInWater())
 			{
-				if(!attacker.isBurning())
+				if (!attacker.isBurning())
 					attacker.worldObj.playSound(null, attacker.posX, 
 							attacker.posY, attacker.posZ, SoundEvents.ITEM_FIRECHARGE_USE, 
 							SoundCategory.PLAYERS, 1.0f, attacker.worldObj.rand.nextFloat());

@@ -67,12 +67,14 @@ public class ItemBlockArmor extends ItemArmor
 	}
 
 	/**Change armor texture based on block*/
+	@Override
 	public String getArmorTexture(ItemStack stack, Entity entity, EntityEquipmentSlot slot, String type)
 	{
 		return ArmorSet.getArmorTextureLocation(this, slot == EntityEquipmentSlot.LEGS ? EnumFacing.DOWN : EnumFacing.NORTH).toString();
 	}
 
 	/**Change display name based on the block*/
+	@Override
 	public String getItemStackDisplayName(ItemStack stack)
 	{
 		return ArmorSet.getItemStackDisplayName(stack, this.getEquipmentSlot());
@@ -207,14 +209,14 @@ public class ItemBlockArmor extends ItemArmor
 				tooltip.add(TextFormatting.RED+"MP: Disabled in server config.");
 			}
 		}
-		else if(set.block == Blocks.END_STONE)
+		else if (set.block == Blocks.END_STONE)
 		{
 			tooltip.add(TEXT_FORMATTING_SET_EFFECT_DESCRIPTION+"Teleports in the direction");
 			tooltip.add(TEXT_FORMATTING_SET_EFFECT_DESCRIPTION+"you're looking upon sneaking!");
 			if (GuiScreen.isShiftKeyDown())
 				tooltip.add(TEXT_FORMATTING_SET_EFFECT_EXTRA+"Now you see me. Now you *poof*");
 		}
-		else if(set.block == Blocks.SLIME_BLOCK)
+		else if (set.block == Blocks.SLIME_BLOCK)
 		{
 			tooltip.add(TEXT_FORMATTING_SET_EFFECT_DESCRIPTION+"Bounces off walls!");
 			tooltip.add(TEXT_FORMATTING_SET_EFFECT_DESCRIPTION+"Bounces off the ground!");
@@ -224,7 +226,7 @@ public class ItemBlockArmor extends ItemArmor
 				tooltip.add(TEXT_FORMATTING_SET_EFFECT_EXTRA+"fun, fun, fun, fun, fun!");
 			}
 		}
-		else if(set.block == Blocks.REEDS)
+		else if (set.block == Blocks.REEDS)
 		{
 			tooltip.add(TEXT_FORMATTING_SET_EFFECT_DESCRIPTION+"Increases movement speed!");
 			tooltip.add(TEXT_FORMATTING_SET_EFFECT_DESCRIPTION+"Can breathe near");
@@ -232,36 +234,36 @@ public class ItemBlockArmor extends ItemArmor
 			if (GuiScreen.isShiftKeyDown())
 				tooltip.add(TEXT_FORMATTING_SET_EFFECT_EXTRA+"Just like snorkeling!");
 		}
-		else if(set.block == Blocks.PRISMARINE)
+		else if (set.block == Blocks.PRISMARINE)
 		{
 			tooltip.add(TEXT_FORMATTING_SET_EFFECT_DESCRIPTION+"Sinks faster in liquids!");
 			tooltip.add(TEXT_FORMATTING_SET_EFFECT_DESCRIPTION+"Respiration, night vision,");
 			tooltip.add(TEXT_FORMATTING_SET_EFFECT_DESCRIPTION+"and depth strider in water!");
 		}
-		else if(set.block == Blocks.EMERALD_BLOCK)
+		else if (set.block == Blocks.EMERALD_BLOCK)
 		{
 			tooltip.add(TEXT_FORMATTING_SET_EFFECT_DESCRIPTION+"Increases fortune level!");
 			tooltip.add(TEXT_FORMATTING_SET_EFFECT_DESCRIPTION+"Increases luck.");
 			if (GuiScreen.isShiftKeyDown())
 				tooltip.add(TEXT_FORMATTING_SET_EFFECT_EXTRA+"More Goodies!");
 		}
-		else if(set.block == Blocks.BEDROCK)
+		else if (set.block == Blocks.BEDROCK)
 		{
 			tooltip.add(TEXT_FORMATTING_SET_EFFECT_DESCRIPTION+"Knockback resistance.");
 			tooltip.add(TEXT_FORMATTING_SET_EFFECT_DESCRIPTION+"Greatly increases");
 			tooltip.add(TEXT_FORMATTING_SET_EFFECT_DESCRIPTION+"max health.");
 		}
-		else if(set.block == Blocks.QUARTZ_BLOCK)
+		else if (set.block == Blocks.QUARTZ_BLOCK)
 		{
 			tooltip.add(TEXT_FORMATTING_SET_EFFECT_DESCRIPTION+"Increases attack strength!");
 			tooltip.add(TEXT_FORMATTING_SET_EFFECT_DESCRIPTION+"Increases attack speed!");
 		}
-		else if(set.block == Blocks.BRICK_BLOCK)
+		else if (set.block == Blocks.BRICK_BLOCK)
 		{
 			tooltip.add(TEXT_FORMATTING_SET_EFFECT_DESCRIPTION+"Minor knockback resistance.");
 			tooltip.add(TEXT_FORMATTING_SET_EFFECT_DESCRIPTION+"Increases max health.");
 		}
-		else if(set.block == Blocks.NETHERRACK) 
+		else if (set.block == Blocks.NETHERRACK) 
 		{
 			tooltip.add(TEXT_FORMATTING_SET_EFFECT_DESCRIPTION+"Gives Fire Protection.");
 			tooltip.add(TEXT_FORMATTING_SET_EFFECT_DESCRIPTION+"Creates light");
@@ -269,15 +271,15 @@ public class ItemBlockArmor extends ItemArmor
 			tooltip.add(TEXT_FORMATTING_SET_EFFECT_DESCRIPTION+"Lights target on fire");
 			tooltip.add(TEXT_FORMATTING_SET_EFFECT_DESCRIPTION+"after attacking.");
 		}
-		else if(set.block == Blocks.OBSIDIAN)
+		else if (set.block == Blocks.OBSIDIAN)
 		{
 			tooltip.add(TEXT_FORMATTING_SET_EFFECT_DESCRIPTION+"Gives Fire Protection.");
 			tooltip.add(TEXT_FORMATTING_SET_EFFECT_DESCRIPTION+"Knockback resistance.");
 			tooltip.add(TEXT_FORMATTING_SET_EFFECT_DESCRIPTION+"Increases max health.");
 		}
-		else if(set.block == Blocks.REDSTONE_BLOCK)
+		else if (set.block == Blocks.REDSTONE_BLOCK)
 			tooltip.add(TEXT_FORMATTING_SET_EFFECT_DESCRIPTION+"Creates light while sneaking.");
-		else if(set.block == Blocks.SNOW)
+		else if (set.block == Blocks.SNOW)
 		{
 			tooltip.add(TEXT_FORMATTING_SET_EFFECT_DESCRIPTION+"Spawns snow and snowballs");
 			tooltip.add(TEXT_FORMATTING_SET_EFFECT_DESCRIPTION+"while sneaking!");
@@ -285,7 +287,7 @@ public class ItemBlockArmor extends ItemArmor
 			if (GuiScreen.isShiftKeyDown())
 				tooltip.add(TEXT_FORMATTING_SET_EFFECT_EXTRA+"Do you wanna build a snowman?");
 		}
-		else if(set.block == Blocks.LAPIS_BLOCK)
+		else if (set.block == Blocks.LAPIS_BLOCK)
 			tooltip.add(TEXT_FORMATTING_SET_EFFECT_DESCRIPTION+"Gives xp for wearing!");
 
 		return tooltip;
@@ -329,15 +331,15 @@ public class ItemBlockArmor extends ItemArmor
 		//sink faster in water; respiration, night vision, depth strider in water
 		if (set.block == Blocks.PRISMARINE)
 		{
-			if(player.isInWater() 
+			if (player.isInWater() 
 					&& world.getBlockState(new BlockPos(player.posX, player.posY+1.7, player.posZ)).getBlock() instanceof BlockLiquid)
 			{ 
-				if(!player.isPotionActive(Potion.getPotionById(16)) 
+				if (!player.isPotionActive(Potion.getPotionById(16)) 
 						|| (player.isPotionActive(Potion.getPotionById(16))
 								&& player.getActivePotionEffect(Potion.getPotionById(16)).getDuration() < 205))
 					player.addPotionEffect(new PotionEffect(Potion.getPotionById(16), 210, 0, false, false));
 				try {
-					if(world.isRemote && !isJumpingField.getBoolean(player) && !player.onGround 
+					if (world.isRemote && !isJumpingField.getBoolean(player) && !player.onGround 
 							&& world.getBlockState(new BlockPos(player.posX, player.posY+2, player.posZ)).getBlock() 
 							instanceof BlockLiquid && player.motionY < 0.0D)
 					{	
@@ -356,16 +358,16 @@ public class ItemBlockArmor extends ItemArmor
 		if (set.block == Blocks.NETHERRACK)
 		{
 			int radius = 3;
-			if(player.isSneaking() && !player.isInWater())
+			if (player.isSneaking() && !player.isInWater())
 			{
-				if(!world.isRemote && player.ticksExisted % 2 == 0)
+				if (!world.isRemote && player.ticksExisted % 2 == 0)
 					((WorldServer)world).spawnParticle(EnumParticleTypes.LAVA, player.posX+(world.rand.nextDouble()-0.5D)*radius, 
 							player.posY+world.rand.nextDouble()+1.0D, player.posZ+(world.rand.nextDouble()-0.5D)*radius, 
 							1, 0, 0, 0, 0, new int[0]);
 				if (world.rand.nextInt(20) == 0)
 					world.playSound(null, player.posX, player.posY, player.posZ, SoundEvents.ITEM_FIRECHARGE_USE, 
 							player.getSoundCategory(), 0.5f, world.rand.nextFloat());
-				if(world.getBlockState(new BlockPos(player.posX, player.posY+1, player.posZ)) 
+				if (world.getBlockState(new BlockPos(player.posX, player.posY+1, player.posZ)) 
 						!= ModBlocks.movinglightsource.getDefaultState()
 						&& world.getBlockState(new BlockPos(player.posX, player.posY+1, player.posZ)) == Blocks.AIR.getDefaultState()
 						&& !world.isRemote)
@@ -378,7 +380,7 @@ public class ItemBlockArmor extends ItemArmor
 		//gives light while sneaking
 		if (set.block == Blocks.REDSTONE_BLOCK)
 		{
-			if(player.isSneaking()
+			if (player.isSneaking()
 					&& world.getBlockState(new BlockPos(player.posX, player.posY+1, player.posZ)) != 
 					ModBlocks.movinglightsource.getDefaultState()
 					&& world.getBlockState(new BlockPos(player.posX, player.posY+1, player.posZ)) == Blocks.AIR.getDefaultState())
@@ -391,14 +393,14 @@ public class ItemBlockArmor extends ItemArmor
 		if (player.isSneaking() && set.block == Blocks.SNOW)
 		{
 			int radius = 3;
-			if(!world.isRemote && player.ticksExisted % 2 == 0)
+			if (!world.isRemote && player.ticksExisted % 2 == 0)
 				((WorldServer)world).spawnParticle(EnumParticleTypes.SNOW_SHOVEL, player.posX+(world.rand.nextDouble()-0.5D)*radius, 
 						player.posY+world.rand.nextDouble()+1.0D, player.posZ+(world.rand.nextDouble()-0.5D)*radius, 
 						1, 0, 0, 0, 0, new int[0]);
 			if (world.rand.nextInt(5) == 0)
 				world.playSound(player, player.posX, player.posY, player.posZ, SoundEvents.WEATHER_RAIN, 
 						player.getSoundCategory(), 1.0f, world.rand.nextFloat());
-			if(!world.isRemote)
+			if (!world.isRemote)
 			{
 				for (int x=-radius/2; x<=radius/2; x++)
 					for (int z=-radius/2; z<=radius/2; z++)
@@ -437,7 +439,7 @@ public class ItemBlockArmor extends ItemArmor
 		//gives xp for wearing. From lvl 0 to lvl 30 in one real hour (about)
 		if (!world.isRemote && set.block == Blocks.LAPIS_BLOCK)
 		{
-			if(--xpCooldown == 0)
+			if (--xpCooldown == 0)
 			{
 				xpCooldown = 50;
 				player.addExperience(1);
@@ -477,7 +479,7 @@ public class ItemBlockArmor extends ItemArmor
 						break;
 					}
 				}
-				if(posFound && player.attemptTeleport(pos.getX()+0.5d, pos.getY(), pos.getZ()+0.5d)) //if pos found and can tp
+				if (posFound && player.attemptTeleport(pos.getX()+0.5d, pos.getY(), pos.getZ()+0.5d)) //if pos found and can tp
 				{
 					if (player.isRiding())
 						player.dismountRidingEntity();
@@ -499,19 +501,19 @@ public class ItemBlockArmor extends ItemArmor
 		//--uses StopFallDamageEvent--
 		if (!player.isSneaking() && set.block == Blocks.SLIME_BLOCK)
 		{	
-			if(world.isRemote)
+			if (world.isRemote)
 			{
-				if(--slimeCooldown <= 0 && player.isCollidedHorizontally 
+				if (--slimeCooldown <= 0 && player.isCollidedHorizontally 
 						&& Math.sqrt(Math.pow(player.posX - player.prevChasingPosX, 2) + 
 								Math.pow(player.posZ - player.prevChasingPosZ, 2)) >= 0.9D)
 				{	
 					slimeCooldown = 10;
-					if(player.motionX == 0)
+					if (player.motionX == 0)
 					{
 						player.motionX = -(player.posX - player.prevChasingPosX)*1.5D;
 						player.motionZ = (player.posZ - player.prevChasingPosZ)*1.5D;
 					}
-					else if(player.motionZ == 0)
+					else if (player.motionZ == 0)
 					{
 						player.motionX = (player.posX - player.prevChasingPosX)*1.5D;
 						player.motionZ = -(player.posZ - player.prevChasingPosZ)*1.5D;
@@ -527,7 +529,7 @@ public class ItemBlockArmor extends ItemArmor
 		//can breath under water if less than two blocks from surface; speed boost
 		if (!world.isRemote && set.block == Blocks.REEDS)
 		{
-			if(player.isInWater() && player.ticksExisted % 10 == 0 
+			if (player.isInWater() && player.ticksExisted % 10 == 0 
 					&& world.getBlockState(new BlockPos(player.posX, player.posY+3, player.posZ)).getBlock() == Blocks.AIR)
 			{
 				player.setAir(300);
@@ -549,14 +551,14 @@ public class ItemBlockArmor extends ItemArmor
 			int lvl = 0;
 			boolean wasEnchanted = false; 
 			Enchantment e;
-			if(list != null)
+			if (list != null)
 			{
 				for (int i = 0; i < list.tagCount(); i++) 
 				{
 					NBTTagCompound compound = list.getCompoundTagAt(i);
 					id = compound.getShort("id");
 					lvl = compound.getShort("lvl");
-					if(id == 8 && lvl >= 2)
+					if (id == 8 && lvl >= 2)
 						wasEnchanted = true;
 				}
 			}
@@ -564,7 +566,7 @@ public class ItemBlockArmor extends ItemArmor
 					&& ((EntityLivingBase) entity).getItemStackFromSlot(EntityEquipmentSlot.FEET) == stack 
 					&& entity.isInWater() && !wasEnchanted)
 				stack.addEnchantment(Enchantments.DEPTH_STRIDER, 2);
-			else if(stack.isItemEnchanted() && (!entity.isInWater() 
+			else if (stack.isItemEnchanted() && (!entity.isInWater() 
 					||	!ArmorSet.isWearingFullSet((EntityLivingBase) entity, set)
 					|| !(((EntityLivingBase) entity).getItemStackFromSlot(EntityEquipmentSlot.FEET) == stack)))
 			{
@@ -581,7 +583,7 @@ public class ItemBlockArmor extends ItemArmor
 						NBTTagCompound stackCompound = stack.getTagCompound();
 						if (stackCompound == null)
 							return;
-						if(lvl <= 2)
+						if (lvl <= 2)
 							list.removeTag(i);
 						if (list.tagCount() <= 0)
 							stackCompound.removeTag("ench");
@@ -599,23 +601,23 @@ public class ItemBlockArmor extends ItemArmor
 			int lvl = 0;
 			boolean wasEnchanted = false; 
 			Enchantment e;
-			if(list != null)
+			if (list != null)
 			{
 				for (int i = 0; i < list.tagCount(); i++) 
 				{
 					NBTTagCompound compound = list.getCompoundTagAt(i);
 					id = compound.getShort("id");
 					lvl = compound.getShort("lvl");
-					if(id == 5 && lvl == 3)
+					if (id == 5 && lvl == 3)
 						wasEnchanted = true;
 				}
 			}
-			if(entity instanceof EntityLivingBase && ArmorSet.isWearingFullSet((EntityLivingBase) entity, set) 
+			if (entity instanceof EntityLivingBase && ArmorSet.isWearingFullSet((EntityLivingBase) entity, set) 
 					&& ((EntityLivingBase) entity).getItemStackFromSlot(EntityEquipmentSlot.HEAD) == stack 
 					&& entity.worldObj.getBlockState(new BlockPos(entity.posX, entity.posY+1.7D, entity.posZ)).getBlock() 
 					instanceof BlockLiquid && !wasEnchanted)
 				stack.addEnchantment(Enchantments.RESPIRATION, 3);
-			else if(stack.isItemEnchanted() && 
+			else if (stack.isItemEnchanted() && 
 					(!(entity.worldObj.getBlockState(new BlockPos(entity.posX, entity.posY+1.7D, entity.posZ)).getBlock() 
 							instanceof BlockLiquid) || !ArmorSet.isWearingFullSet((EntityLivingBase) entity, set)))
 			{
@@ -648,21 +650,21 @@ public class ItemBlockArmor extends ItemArmor
 			int id = 0;
 			boolean wasEnchanted = false; 
 			Enchantment e;
-			if(list != null)
+			if (list != null)
 			{
 				for (int i = 0; i < list.tagCount(); i++) 
 				{
 					NBTTagCompound compound = list.getCompoundTagAt(i);
 					id = compound.getShort("id");
-					if(id == 9)
+					if (id == 9)
 						wasEnchanted = true;
 				}
 			}
-			if(entity instanceof EntityLivingBase && ArmorSet.isWearingFullSet((EntityLivingBase) entity, set) 
+			if (entity instanceof EntityLivingBase && ArmorSet.isWearingFullSet((EntityLivingBase) entity, set) 
 					&& ((EntityLivingBase) entity).getItemStackFromSlot(EntityEquipmentSlot.FEET) == stack 
 					&& !wasEnchanted)
 				stack.addEnchantment(Enchantments.FROST_WALKER, 2);
-			else if(stack.isItemEnchanted() && !ArmorSet.isWearingFullSet((EntityLivingBase) entity, set))
+			else if (stack.isItemEnchanted() && !ArmorSet.isWearingFullSet((EntityLivingBase) entity, set))
 			{
 				if (list != null)
 				{
@@ -692,21 +694,21 @@ public class ItemBlockArmor extends ItemArmor
 			int id = 0;
 			boolean wasEnchanted = false; 
 			Enchantment e;
-			if(list != null)
+			if (list != null)
 			{
 				for (int i = 0; i < list.tagCount(); i++) 
 				{
 					NBTTagCompound compound = list.getCompoundTagAt(i);
 					id = compound.getShort("id");
-					if(id == targetId)
+					if (id == targetId)
 						wasEnchanted = true;
 				}
 			}
-			if(entity instanceof EntityLivingBase && ArmorSet.isWearingFullSet((EntityLivingBase) entity, set) 
+			if (entity instanceof EntityLivingBase && ArmorSet.isWearingFullSet((EntityLivingBase) entity, set) 
 					&& ((EntityLivingBase) entity).getItemStackFromSlot(EntityEquipmentSlot.FEET) == stack
 					&& !wasEnchanted)
 				stack.addEnchantment(Enchantments.FIRE_PROTECTION, 4);
-			else if(stack.isItemEnchanted() && !ArmorSet.isWearingFullSet((EntityLivingBase) entity, set))
+			else if (stack.isItemEnchanted() && !ArmorSet.isWearingFullSet((EntityLivingBase) entity, set))
 			{
 				if (list != null)
 				{
