@@ -89,7 +89,7 @@ public class ArmorSet {
 	/**Array of inventory textures sorted by EntityEquipmentSlot id*/
 	private ResourceLocation[] inventoryTextures;
 	/**Array of armor textures sorted by EnumFacing id*/
-	private ResourceLocation[] armorTextures;
+	public ResourceLocation[] armorTextures;
 
 
 	@SuppressWarnings("deprecation")
@@ -130,7 +130,7 @@ public class ArmorSet {
 		int reductionAmount3 = (int) Math.min(1 + 2.2D*blockHardness, 6);
 		int reductionAmount4 = (int) Math.min(1 + blockHardness, 3);
 		int[] reductionAmounts = new int[] {reductionAmount1, reductionAmount2, reductionAmount3, reductionAmount4};
-		this.material = EnumHelper.addArmorMaterial(getItemStackDisplayName(stack, null)+" Material", "", 
+		this.material = EnumHelper.addArmorMaterial(getItemStackDisplayName(stack, null)+" Material", "blockarmor:empty", 
 				(int) durability, reductionAmounts, enchantability, SoundEvents.ITEM_ARMOR_EQUIP_GENERIC, toughness);
 		//System.out.println(getItemStackDisplayName(stack, null)+": blockHardness = "+blockHardness+", toughness = "+toughness+", durability = "+durability);
 	}
@@ -180,14 +180,14 @@ public class ArmorSet {
 			return null;
 	}
 
-	/**Returns ResourceLocation to armor texture corresponding to the item's block's facing textures*/
+	/**Returns ResourceLocation to armor texture corresponding to the item's block's facing textures*//*
 	public static ResourceLocation getArmorTextureLocation(ItemBlockArmor item, EnumFacing facing) {
 		ArmorSet set = ArmorSet.getSet(item);
 		if (set != null && facing != null) 
 			return set.armorTextures[facing.getIndex()];
 		else
 			return null;
-	}
+	}*/
 
 	/**Change display name based on the block*/
 	public static String getItemStackDisplayName(ItemStack stack, EntityEquipmentSlot slot)

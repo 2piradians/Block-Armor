@@ -8,6 +8,7 @@ import com.google.common.collect.Multimap;
 
 import net.minecraft.block.BlockLiquid;
 import net.minecraft.client.gui.GuiScreen;
+import net.minecraft.client.model.ModelBiped;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
@@ -37,6 +38,9 @@ import net.minecraft.world.WorldServer;
 import net.minecraftforge.fml.relauncher.ReflectionHelper;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import twopiradians.blockArmor.client.ClientProxy;
+import twopiradians.blockArmor.client.model.ModelBlockArmor;
+import twopiradians.blockArmor.common.BlockArmor;
 import twopiradians.blockArmor.common.block.ModBlocks;
 
 public class ItemBlockArmor extends ItemArmor
@@ -70,8 +74,29 @@ public class ItemBlockArmor extends ItemArmor
 	@Override
 	public String getArmorTexture(ItemStack stack, Entity entity, EntityEquipmentSlot slot, String type)
 	{
-		return ArmorSet.getArmorTextureLocation(this, slot == EntityEquipmentSlot.LEGS ? EnumFacing.DOWN : EnumFacing.NORTH).toString();
+		if (false)
+			return ArmorSet.getSet((ItemBlockArmor) stack.getItem()).armorTextures[EnumFacing.NORTH.getIndex()].toString();
+		switch (slot) {
+		case HEAD:
+			return ArmorSet.getSet((ItemBlockArmor) stack.getItem()).armorTextures[EnumFacing.UP.getIndex()].toString();
+		case CHEST:
+			return ArmorSet.getSet((ItemBlockArmor) stack.getItem()).armorTextures[EnumFacing.NORTH.getIndex()].toString();
+		case LEGS:
+			return ArmorSet.getSet((ItemBlockArmor) stack.getItem()).armorTextures[EnumFacing.SOUTH.getIndex()].toString();
+		case FEET:
+			return ArmorSet.getSet((ItemBlockArmor) stack.getItem()).armorTextures[EnumFacing.DOWN.getIndex()].toString();
+		default:
+			return null;
+		}
 	}
+	
+	@Override
+    @SideOnly(Side.CLIENT)
+    public ModelBiped getArmorModel(EntityLivingBase entity, ItemStack stack, EntityEquipmentSlot slot, ModelBiped oldModel)
+    {
+		((ClientProxy)BlockArmor.proxy).model = new ModelBlockArmor(0.0f, 0.0F, 16, 16);
+        return (ModelBiped) BlockArmor.proxy.getBlockArmorModel();
+    }
 
 	/**Change display name based on the block*/
 	@Override
