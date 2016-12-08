@@ -88,7 +88,8 @@ public class ItemBlockArmor extends ItemArmor
 		int height = sprite.getIconHeight() * sprite.getFrameCount();
 		boolean isTranslucent = ArmorSet.getSet(this).isTranslucent;
 		int frame = ArmorSet.getAnimationFrame(this);
-        return (ModelBiped) BlockArmor.proxy.getBlockArmorModel(height, width, isTranslucent, frame);
+        //return new ModelBlockArmor(height, width, isTranslucent, frame);
+		return (ModelBiped) BlockArmor.proxy.getBlockArmorModel(height, width, isTranslucent, frame);
     }
 
 	/**Change display name based on the block*/
@@ -333,7 +334,7 @@ public class ItemBlockArmor extends ItemArmor
 	/**Handles most of the armor set special effects and bonuses.*/
 	@Override
 	public void onArmorTick(World world, EntityPlayer player, ItemStack itemStack)
-	{
+	{		
 		ArmorSet set = ArmorSet.getSet(this);
 		if (!ArmorSet.isSetEffectEnabled(set) || !ArmorSet.isWearingFullSet(player, set))
 			return;

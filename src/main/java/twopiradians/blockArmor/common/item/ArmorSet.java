@@ -22,6 +22,7 @@ import net.minecraft.client.renderer.RenderItem;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
@@ -41,6 +42,7 @@ import net.minecraftforge.common.util.EnumHelper;
 import net.minecraftforge.fml.relauncher.ReflectionHelper;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import twopiradians.blockArmor.client.ClientProxy;
 import twopiradians.blockArmor.common.BlockArmor;
 import twopiradians.blockArmor.common.config.Config;
 
@@ -345,6 +347,9 @@ public class ArmorSet {
 				this.frameFields[EntityEquipmentSlot.FEET.getIndex()] = field;
 			}
 			System.out.println("adding sprite for: "+sprite.getIconName()+", with field: "+field);
+			
+			if (sprite.getIconName() == TextureMap.LOCATION_MISSING_TEXTURE.toString())
+				((ClientProxy)BlockArmor.proxy).remapTextures = true;
 		}
 
 		//Check for inventory texture overrides (expects block texture) - location must be registered in ClientProxy TextureStitchEvent.Pre

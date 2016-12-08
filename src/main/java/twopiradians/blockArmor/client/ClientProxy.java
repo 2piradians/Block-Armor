@@ -11,6 +11,7 @@ import net.minecraftforge.client.model.ModelLoaderRegistry;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.common.gameevent.TickEvent;
 import twopiradians.blockArmor.client.model.ModelBlockArmor;
 import twopiradians.blockArmor.client.model.ModelDynBlockArmor;
 import twopiradians.blockArmor.common.BlockArmor;
@@ -22,6 +23,7 @@ import twopiradians.blockArmor.common.item.ModItems;
 public class ClientProxy extends CommonProxy
 {
 	private HashMap<String, ModelBlockArmor> modelMaps = Maps.newHashMap();
+	public boolean remapTextures;
 
 	@Override
 	public void preInit() {
@@ -37,7 +39,7 @@ public class ClientProxy extends CommonProxy
 		ModItems.registerRenders();
 		MinecraftForge.EVENT_BUS.register(this);
 	}
-	
+
 	@Override
 	public Object getBlockArmorModel(int height, int width, boolean isTranslucent, int frame) {
 		String key = height+""+width+""+isTranslucent+""+frame;
@@ -52,7 +54,16 @@ public class ClientProxy extends CommonProxy
 	@SubscribeEvent
 	public void onWorldLoad(WorldEvent.Load event)
 	{
-		if (event.getWorld().isRemote) {
+		for (ArmorSet set : ArmorSet.allSets)
+			set.initTextures();
+	}
+
+	@SubscribeEvent
+	public void mapTextures(TickEvent.ClientTickEvent event)
+	{
+		if (remapTextures && Minecraft.getMinecraft().thePlayer != null) {
+			remapTextures = false;
+			System.out.println("initializing textures");
 			for (ArmorSet set : ArmorSet.allSets)
 				set.initTextures();
 		}
@@ -82,17 +93,15 @@ public class ClientProxy extends CommonProxy
 		event.getMap().registerSprite(new ResourceLocation(BlockArmor.MODID, "items/icons/block_armor_boots1_template"));
 		event.getMap().registerSprite(new ResourceLocation(BlockArmor.MODID, "items/icons/block_armor_boots2_template"));
 	}
-	
+
 	/**Used to register block textures to override inventory textures and for inventory icons*/
 	@SubscribeEvent
 	public void textureStitch(TextureStitchEvent.Post event)
 	{
 		System.out.println("texture stitch post");
-		
-		if (Minecraft.getMinecraft().thePlayer != null) {
-			System.out.println("initializing textures");
-			for (ArmorSet set : ArmorSet.allSets)
-				set.initTextures();
-		}
+
+		modelMaps = Maps.newHashMap();
+
+		this.remapTextures = true;
 	}
 }
