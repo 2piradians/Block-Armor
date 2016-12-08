@@ -39,9 +39,9 @@ public class ModItems
 		for (ArmorSet set : setsToRemove)
 			ArmorSet.allSets.remove(set);
 
-		System.out.println("[Block Armor] "+generatedSets.size()+" armor sets generated."); //TODO replace with logger
+		BlockArmor.logger.info("Created "+generatedSets.size()+" Block Armor items");
 		/*for (ArmorSet set : generatedSets) 
-			System.out.println("- "+set.stack.getDisplayName());*/
+			BlockArmor.logger.info("- "+set.stack.getDisplayName());*/
 	}
 
 	public static void registerRenders()
@@ -64,6 +64,6 @@ public class ModItems
 
 	private static void registerRender(Item item)
 	{		
-			Minecraft.getMinecraft().getRenderItem().getItemModelMesher().register(item, 0, new ModelResourceLocation(BlockArmor.MODID+":" + item.getUnlocalizedName().substring(5), "inventory"));
+		Minecraft.getMinecraft().getRenderItem().getItemModelMesher().register(item, 0, new ModelResourceLocation(BlockArmor.MODID+":" + item.getUnlocalizedName().substring(5), "inventory"));
 	}
 }

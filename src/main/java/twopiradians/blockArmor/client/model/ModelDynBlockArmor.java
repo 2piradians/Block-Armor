@@ -1,6 +1,7 @@
 package twopiradians.blockArmor.client.model;
 
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 
 import javax.vecmath.Matrix4f;
@@ -25,10 +26,12 @@ import net.minecraft.client.renderer.block.model.ItemOverride;
 import net.minecraft.client.renderer.block.model.ItemOverrideList;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.client.renderer.vertex.VertexFormat;
 import net.minecraft.client.resources.IResourceManager;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.inventory.EntityEquipmentSlot;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ResourceLocation;
@@ -123,68 +126,100 @@ public final class ModelDynBlockArmor implements IModel, IModelCustomData, IRete
 		@Override
 		public void onResourceManagerReload(IResourceManager resourceManager)
 		{
-			
+
 		}
 	}
 
-	private static final class BakedDynBlockArmorOverrideHandler extends ItemOverrideList
+	public static final class BakedDynBlockArmorOverrideHandler extends ItemOverrideList
 	{
+		private static HashMap<Item, ImmutableList<BakedQuad>> itemQuadsMap = Maps.newHashMap();
+
 		public static final BakedDynBlockArmorOverrideHandler INSTANCE = new BakedDynBlockArmorOverrideHandler();
 		private BakedDynBlockArmorOverrideHandler()
 		{
 			super(ImmutableList.<ItemOverride>of());
 		}
 
+		/**Creates inventory icons (via quads) for each Block Armor piece and adds to itemQuadsMap*/
+		public static int createInventoryIcons() {
+			ModelDynBlockArmor.BakedDynBlockArmorOverrideHandler.itemQuadsMap = Maps.newHashMap();
+			int numIcons = 0;
+			
+			ImmutableMap.Builder<TransformType, TRSRTransformation> builder2 = ImmutableMap.builder();
+			builder2.put(TransformType.GROUND, new TRSRTransformation(new Vector3f(0.25f, 0.375f, 0.25f), new Quat4f(0.0f, 0.0f, 0.0f, 1.0f), new Vector3f(0.5f, 0.5f, 0.5f), new Quat4f(0.0f, 0.0f, 0.0f, 1.0f)));
+			builder2.put(TransformType.HEAD, new TRSRTransformation(new Vector3f(1.0f, 0.8125f, 1.4375f), new Quat4f(0.0f, 1.0f, 0.0f, -4.371139E-8f), new Vector3f(1.0f, 1.0f, 1.0f), new Quat4f(0.0f, 0.0f, 0.0f, 1.0f)));
+			builder2.put(TransformType.FIRST_PERSON_RIGHT_HAND, new TRSRTransformation(new Vector3f(0.910625f, 0.24816513f, 0.40617055f), new Quat4f(-0.15304594f, -0.6903456f, 0.15304594f, 0.6903456f), new Vector3f(0.68000007f, 0.68000007f, 0.68f), new Quat4f(0.0f, 0.0f, 0.0f, 1.0f)));
+			builder2.put(TransformType.FIRST_PERSON_LEFT_HAND, new TRSRTransformation(new Vector3f(0.910625f, 0.24816513f, 0.40617055f), new Quat4f(-0.15304594f, -0.6903456f, 0.15304594f, 0.6903456f), new Vector3f(0.68000007f, 0.68000007f, 0.68f), new Quat4f(0.0f, 0.0f, 0.0f, 1.0f)));
+			builder2.put(TransformType.THIRD_PERSON_RIGHT_HAND, new TRSRTransformation(new Vector3f(0.225f, 0.4125f, 0.2875f), new Quat4f(0.0f, 0.0f, 0.0f, 0.99999994f), new Vector3f(0.55f, 0.55f, 0.55f), new Quat4f(0.0f, 0.0f, 0.0f, 1.0f)));
+			builder2.put(TransformType.THIRD_PERSON_LEFT_HAND, new TRSRTransformation(new Vector3f(0.225f, 0.4125f, 0.2875f), new Quat4f(0.0f, 0.0f, 0.0f, 0.99999994f), new Vector3f(0.55f, 0.55f, 0.55f), new Quat4f(0.0f, 0.0f, 0.0f, 1.0f)));
+			ImmutableMap<TransformType, TRSRTransformation> transformMap = builder2.build();
+			
+			for (ArmorSet set : ArmorSet.allSets) {
+				ItemBlockArmor[] armor = new ItemBlockArmor[] {set.helmet, set.chestplate, set.leggings, set.boots};
+				for (ItemBlockArmor item : armor) {
+					//Initialize variables
+					TextureAtlasSprite sprite = ArmorSet.getSprite(item);
+					ImmutableList.Builder<BakedQuad> builder = ImmutableList.builder();
+					IModelState state = new SimpleModelState(transformMap);
+					TRSRTransformation transform = TRSRTransformation.identity();
+					state = new ModelStateComposition(state, transform);
+					VertexFormat format = DefaultVertexFormats.ITEM;
+					String armorType = "";
+					EntityEquipmentSlot slot = item.getEquipmentSlot();
+					if (slot == EntityEquipmentSlot.HEAD)
+						armorType = "helmet";
+					else if (slot == EntityEquipmentSlot.CHEST)
+						armorType = "chestplate";
+					else if (slot == EntityEquipmentSlot.LEGS)
+						armorType = "leggings";
+					else if (slot == EntityEquipmentSlot.FEET)
+						armorType = "boots";
+					
+					//Block texture background
+					//builder.add(ItemTextureQuadConverter.genQuad(format, transform, 0, 0, 16, 16, NORTH_Z_BASE, sprite, EnumFacing.NORTH, 0xffffffff));
+					//builder.add(ItemTextureQuadConverter.genQuad(format, transform, 0, 0, 16, 16, SOUTH_Z_BASE, sprite, EnumFacing.SOUTH, 0xffffffff));	            
+						
+					//Base texture and model
+					ResourceLocation baseLocation = new ResourceLocation(BlockArmor.MODID+":items/icons/block_armor_"+armorType+"_base");
+					IBakedModel model = (new ItemLayerModel(ImmutableList.of(baseLocation))).bake(state, format, new Function<ResourceLocation, TextureAtlasSprite>() {
+						public TextureAtlasSprite apply(ResourceLocation location)
+						{
+							return Minecraft.getMinecraft().getTextureMapBlocks().getAtlasSprite(location.toString());
+						}
+					});
+					builder.addAll(model.getQuads(null, null, 0));
+					
+					//Template texture for left half
+					String templateLocation = new ResourceLocation(BlockArmor.MODID+":items/icons/block_armor_"+armorType+"1_template").toString();
+					TextureAtlasSprite templateTexture = Minecraft.getMinecraft().getTextureMapBlocks().getAtlasSprite(templateLocation);
+					builder.addAll(ItemTextureQuadConverter.convertTexture(format, transform, templateTexture, sprite, NORTH_Z_FLUID, EnumFacing.NORTH, 0xffffffff));
+					builder.addAll(ItemTextureQuadConverter.convertTexture(format, transform, templateTexture, sprite, SOUTH_Z_FLUID, EnumFacing.SOUTH, 0xffffffff));
+					
+					//Template texture for right half
+					templateLocation = new ResourceLocation(BlockArmor.MODID+":items/icons/block_armor_"+armorType+"2_template").toString();
+					templateTexture = Minecraft.getMinecraft().getTextureMapBlocks().getAtlasSprite(templateLocation);
+					builder.addAll(ItemTextureQuadConverter.convertTexture(format, transform, templateTexture, sprite, NORTH_Z_FLUID, EnumFacing.NORTH, 0xffffffff));
+					builder.addAll(ItemTextureQuadConverter.convertTexture(format, transform, templateTexture, sprite, SOUTH_Z_FLUID, EnumFacing.SOUTH, 0xffffffff));
+					
+					//Cover texture
+					String coverLocation = new ResourceLocation(BlockArmor.MODID+":items/icons/block_armor_"+armorType+"_cover").toString();
+					TextureAtlasSprite coverTexture = Minecraft.getMinecraft().getTextureMapBlocks().getAtlasSprite(coverLocation);
+					builder.add(ItemTextureQuadConverter.genQuad(format, transform, 0, 0, 16, 16, NORTH_Z_BASE, coverTexture, EnumFacing.NORTH, 0xffffffff));
+					builder.add(ItemTextureQuadConverter.genQuad(format, transform, 0, 0, 16, 16, SOUTH_Z_BASE, coverTexture, EnumFacing.SOUTH, 0xffffffff));
+					
+					itemQuadsMap.put(item, builder.build());
+					numIcons++;
+				}
+			}
+			return numIcons;
+		}
+		
+		/**Called every tick - sets inventory icon (via quads) from map*/
 		@Override
 		public IBakedModel handleItemState(IBakedModel originalModel, ItemStack stack, World world, EntityLivingBase entity)
-		{//TODO only assign texture once
-			TextureAtlasSprite sprite = ArmorSet.getSprite((ItemBlockArmor) stack.getItem());
-			if (originalModel instanceof BakedDynBlockArmor && sprite != null) {
-				ImmutableList.Builder<BakedQuad> builder = ImmutableList.builder();
-				IModelState state = new SimpleModelState(((BakedDynBlockArmor)originalModel).transforms);
-				TRSRTransformation transform = TRSRTransformation.identity();
-				state = new ModelStateComposition(state, transform);
-				VertexFormat format = ((BakedDynBlockArmor)originalModel).format;
-				//Full block texture
-				TextureAtlasSprite blockTexture = ArmorSet.getSprite((ItemBlockArmor) stack.getItem());
-				//builder.add(ItemTextureQuadConverter.genQuad(format, transform, 0, 0, 16, 16, NORTH_Z_BASE, blockTexture, EnumFacing.NORTH, 0xffffffff));
-				//builder.add(ItemTextureQuadConverter.genQuad(format, transform, 0, 0, 16, 16, SOUTH_Z_BASE, blockTexture, EnumFacing.SOUTH, 0xffffffff));	            
-				String armorType = "";
-				EntityEquipmentSlot slot = ((ItemBlockArmor) stack.getItem()).getEquipmentSlot();
-				if (slot == EntityEquipmentSlot.HEAD)
-					armorType = "helmet";
-				else if (slot == EntityEquipmentSlot.CHEST)
-					armorType = "chestplate";
-				else if (slot == EntityEquipmentSlot.LEGS)
-					armorType = "leggings";
-				else if (slot == EntityEquipmentSlot.FEET)
-					armorType = "boots";
-				//Base texture and model
-				ResourceLocation baseLocation = new ResourceLocation("blockarmor:items/icons/block_armor_"+armorType+"_base");
-				IBakedModel model = (new ItemLayerModel(ImmutableList.of(baseLocation))).bake(state, format, new Function<ResourceLocation, TextureAtlasSprite>() {
-					public TextureAtlasSprite apply(ResourceLocation location)
-					{
-						return Minecraft.getMinecraft().getTextureMapBlocks().getAtlasSprite(location.toString());
-					}
-				});
-				builder.addAll(model.getQuads(null, null, 0));
-				//Template texture for left half
-				String templateLocation = new ResourceLocation("blockarmor:items/icons/block_armor_"+armorType+"1_template").toString();
-				TextureAtlasSprite templateTexture = Minecraft.getMinecraft().getTextureMapBlocks().getAtlasSprite(templateLocation);
-				builder.addAll(ItemTextureQuadConverter.convertTexture(format, transform, templateTexture, blockTexture, NORTH_Z_FLUID, EnumFacing.NORTH, 0xffffffff));
-				builder.addAll(ItemTextureQuadConverter.convertTexture(format, transform, templateTexture, blockTexture, SOUTH_Z_FLUID, EnumFacing.SOUTH, 0xffffffff));
-				//Template texture for right half
-				templateLocation = new ResourceLocation("blockarmor:items/icons/block_armor_"+armorType+"2_template").toString();
-				templateTexture = Minecraft.getMinecraft().getTextureMapBlocks().getAtlasSprite(templateLocation);
-				builder.addAll(ItemTextureQuadConverter.convertTexture(format, transform, templateTexture, blockTexture, NORTH_Z_FLUID, EnumFacing.NORTH, 0xffffffff));
-				builder.addAll(ItemTextureQuadConverter.convertTexture(format, transform, templateTexture, blockTexture, SOUTH_Z_FLUID, EnumFacing.SOUTH, 0xffffffff));
-				//Cover texture
-				String coverLocation = new ResourceLocation("blockarmor:items/icons/block_armor_"+armorType+"_cover").toString();
-				TextureAtlasSprite coverTexture = Minecraft.getMinecraft().getTextureMapBlocks().getAtlasSprite(coverLocation);
-				builder.add(ItemTextureQuadConverter.genQuad(format, transform, 0, 0, 16, 16, NORTH_Z_BASE, coverTexture, EnumFacing.NORTH, 0xffffffff));
-				builder.add(ItemTextureQuadConverter.genQuad(format, transform, 0, 0, 16, 16, SOUTH_Z_BASE, coverTexture, EnumFacing.SOUTH, 0xffffffff));
-				((BakedDynBlockArmor)originalModel).quads = builder.build();
-			}
+		{
+			ImmutableList<BakedQuad> quads = itemQuadsMap.get(stack.getItem());
+			((BakedDynBlockArmor)originalModel).quads = quads;
 
 			return originalModel;
 		}
@@ -194,12 +229,9 @@ public final class ModelDynBlockArmor implements IModel, IModelCustomData, IRete
 	{
 		private final ImmutableMap<TransformType, TRSRTransformation> transforms;
 		private ImmutableList<BakedQuad> quads;
-		private final VertexFormat format;
 
 		public BakedDynBlockArmor(VertexFormat format)
 		{
-			this.format = format;
-
 			ImmutableMap.Builder<TransformType, TRSRTransformation> builder = ImmutableMap.builder();
 			builder.put(TransformType.GROUND, new TRSRTransformation(new Vector3f(0.25f, 0.375f, 0.25f), new Quat4f(0.0f, 0.0f, 0.0f, 1.0f), new Vector3f(0.5f, 0.5f, 0.5f), new Quat4f(0.0f, 0.0f, 0.0f, 1.0f)));
 			builder.put(TransformType.HEAD, new TRSRTransformation(new Vector3f(1.0f, 0.8125f, 1.4375f), new Quat4f(0.0f, 1.0f, 0.0f, -4.371139E-8f), new Vector3f(1.0f, 1.0f, 1.0f), new Quat4f(0.0f, 0.0f, 0.0f, 1.0f)));

@@ -2,6 +2,8 @@ package twopiradians.blockArmor.common;
 
 import java.io.File;
 
+import org.apache.logging.log4j.Logger;
+
 import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
@@ -33,6 +35,7 @@ public class BlockArmor
 	public static final BlockArmorCreativeTab tab = new BlockArmorCreativeTab("tabBlockArmor");
 	@SidedProxy(clientSide = "twopiradians.blockArmor.client.ClientProxy", serverSide = "twopiradians.blockArmor.common.CommonProxy")
 	public static CommonProxy proxy;
+	public static Logger logger;
 	/**Should armor display be opened on chat event? ONLY WORKS IN SP*/
 	public static final boolean DISPLAY_ARMOR_GUI = false;
 	private File configFile;
@@ -40,7 +43,7 @@ public class BlockArmor
 	@EventHandler
 	public void preInit(FMLPreInitializationEvent event)
 	{
-		System.out.println("[Block Armor] Starting preInit...");
+		logger = event.getModLog();
 		proxy.preInit();
 		ModBlocks.preInit();
 		ModTileEntities.preInit();
@@ -50,7 +53,6 @@ public class BlockArmor
 	@EventHandler
 	public void init(FMLInitializationEvent event)
 	{
-		System.out.println("[Block Armor] Starting init...");
 		proxy.init();
 		registerEventListeners();
 	}
@@ -58,7 +60,6 @@ public class BlockArmor
 	@EventHandler
 	public void postInit(FMLPostInitializationEvent event)
 	{
-		System.out.println("[Block Armor] Starting postInit...");
 		ArmorSet.postInit();
 		Config.postInit(configFile);
 		ModItems.postInit();

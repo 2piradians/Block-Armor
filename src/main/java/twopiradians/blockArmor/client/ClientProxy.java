@@ -9,7 +9,6 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.client.event.TextureStitchEvent;
 import net.minecraftforge.client.model.ModelLoaderRegistry;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 import twopiradians.blockArmor.client.model.ModelBlockArmor;
@@ -22,7 +21,9 @@ import twopiradians.blockArmor.common.item.ModItems;
 
 public class ClientProxy extends CommonProxy
 {
+	/**Map of models to their constructor fields - generated as needed*/
 	private HashMap<String, ModelBlockArmor> modelMaps = Maps.newHashMap();
+	/**Should textures and icons be remapped next client tick*/
 	public boolean remapTextures;
 
 	@Override
@@ -52,20 +53,28 @@ public class ClientProxy extends CommonProxy
 	}
 
 	@SubscribeEvent
-	public void onWorldLoad(WorldEvent.Load event)
-	{
-		for (ArmorSet set : ArmorSet.allSets)
-			set.initTextures();
-	}
-
-	@SubscribeEvent
 	public void mapTextures(TickEvent.ClientTickEvent event)
 	{
-		if (remapTextures && Minecraft.getMinecraft().thePlayer != null) {
-			remapTextures = false;
-			System.out.println("initializing textures");
-			for (ArmorSet set : ArmorSet.allSets)
-				set.initTextures();
+		if (remapTextures && Minecraft.getMinecraft().thePlayer != null)
+			this.mapTextures();
+	}
+
+	/**Resets model and item quads and maps block textures (called when client joins world or resource pack loaded)*/
+	private void mapTextures() {
+		//reset model and item quad maps
+		modelMaps = Maps.newHashMap();
+
+		//find block textures
+		remapTextures = false;
+		int numTextures = 0;
+		for (ArmorSet set : ArmorSet.allSets)
+			numTextures += set.initTextures();
+		BlockArmor.logger.info("Found "+numTextures+" block textures for Block Armor");
+
+		//create inventory icons
+		if (!remapTextures) { //if all block textures were found
+			int numIcons = ModelDynBlockArmor.BakedDynBlockArmorOverrideHandler.createInventoryIcons();
+			BlockArmor.logger.info("Created "+numIcons+" inventory icons for Block Armor");
 		}
 	}
 
@@ -73,9 +82,10 @@ public class ClientProxy extends CommonProxy
 	@SubscribeEvent
 	public void textureStitch(TextureStitchEvent.Pre event)
 	{
-		System.out.println("texture stitch pre");
-
+		//textures for overriding
 		event.getMap().registerSprite(new ResourceLocation(BlockArmor.MODID, "items/sugar_canes"));
+
+		//textures for inventory icons
 		event.getMap().registerSprite(new ResourceLocation(BlockArmor.MODID, "items/icons/block_armor_helmet_base"));
 		event.getMap().registerSprite(new ResourceLocation(BlockArmor.MODID, "items/icons/block_armor_helmet_cover"));
 		event.getMap().registerSprite(new ResourceLocation(BlockArmor.MODID, "items/icons/block_armor_helmet1_template"));
@@ -94,14 +104,9 @@ public class ClientProxy extends CommonProxy
 		event.getMap().registerSprite(new ResourceLocation(BlockArmor.MODID, "items/icons/block_armor_boots2_template"));
 	}
 
-	/**Used to register block textures to override inventory textures and for inventory icons*/
 	@SubscribeEvent
 	public void textureStitch(TextureStitchEvent.Post event)
 	{
-		System.out.println("texture stitch post");
-
-		modelMaps = Maps.newHashMap();
-
 		this.remapTextures = true;
 	}
 }

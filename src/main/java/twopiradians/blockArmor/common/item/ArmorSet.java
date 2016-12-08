@@ -139,7 +139,7 @@ public class ArmorSet {
 		int[] reductionAmounts = new int[] {reductionAmount1, reductionAmount2, reductionAmount3, reductionAmount4};
 		this.material = EnumHelper.addArmorMaterial(getItemStackDisplayName(stack, null)+" Material", "", 
 				(int) durability, reductionAmounts, enchantability, SoundEvents.ITEM_ARMOR_EQUIP_GENERIC, toughness);
-		//System.out.println(getItemStackDisplayName(stack, null)+": blockHardness = "+blockHardness+", toughness = "+toughness+", durability = "+durability);
+		//BlockArmor.logger.info(getItemStackDisplayName(stack, null)+": blockHardness = "+blockHardness+", toughness = "+toughness+", durability = "+durability);
 	}
 
 	/**Creates ArmorSets for each valid registered item and puts them in allSets*/
@@ -312,9 +312,9 @@ public class ArmorSet {
 
 	/**Initialize set's texture variable*/
 	@SideOnly(Side.CLIENT)
-	public void initTextures() {
-		System.out.println("starting init textures");
-
+	public int initTextures() {
+		int numTextures = 0;
+			
 		this.sprites = new TextureAtlasSprite[EntityEquipmentSlot.values().length];
 		this.frameFields = new Field[EntityEquipmentSlot.values().length];
 
@@ -346,10 +346,11 @@ public class ArmorSet {
 				this.sprites[EntityEquipmentSlot.FEET.getIndex()] = sprite;
 				this.frameFields[EntityEquipmentSlot.FEET.getIndex()] = field;
 			}
-			System.out.println("adding sprite for: "+sprite.getIconName()+", with field: "+field);
 			
 			if (sprite.getIconName() == TextureMap.LOCATION_MISSING_TEXTURE.toString())
 				((ClientProxy)BlockArmor.proxy).remapTextures = true;
+			else 
+				numTextures++;
 		}
 
 		//Check for inventory texture overrides (expects block texture) - location must be registered in ClientProxy TextureStitchEvent.Pre
@@ -366,12 +367,13 @@ public class ArmorSet {
 			this.frameFields[EntityEquipmentSlot.LEGS.getIndex()] = null;
 			this.sprites[EntityEquipmentSlot.FEET.getIndex()] = sprite;
 			this.frameFields[EntityEquipmentSlot.FEET.getIndex()] = null;
-			//System.out.println("Texture found at: "+texture.toString());
+			//BlockArmor.logger.info("Texture found at: "+texture.toString());
 		} catch (Exception e) {
-			//System.out.println("No texture found at: "+texture.toString());
+			//BlockArmor.logger.info("No texture found at: "+texture.toString());
 		}
 
 		this.isTranslucent = this.block.getBlockLayer() != BlockRenderLayer.SOLID;
-		System.out.println("finished init textures");
+		
+		return numTextures;
 	}
 }
