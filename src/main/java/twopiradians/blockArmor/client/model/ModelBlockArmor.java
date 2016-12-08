@@ -1,9 +1,7 @@
 package twopiradians.blockArmor.client.model;
 
-import net.minecraft.client.model.ModelBase;
 import net.minecraft.client.model.ModelBiped;
 import net.minecraft.client.model.ModelRenderer;
-import net.minecraft.client.renderer.BlockModelRenderer;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
@@ -19,52 +17,83 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 @SideOnly(Side.CLIENT)
 public class ModelBlockArmor extends ModelBiped
 {
-	public ModelBlockArmor()
-	{
-		this(0.0F);
-	}
+	public boolean translucent;
 
-	public ModelBlockArmor(float modelSize)
-	{
-		this(modelSize, 0.0F, 64, 32);
-	}
+	public ModelBlockArmor(int textureHeight, int textureWidth, boolean isTranslucent, int frame)
+	{		
+		int size = textureWidth / 16;
+		this.textureHeight = textureHeight / size;
+		this.textureWidth = textureWidth / size;
+		this.translucent = isTranslucent;
+		int yOffset = this.textureWidth * frame;
 
-	public ModelBlockArmor(float modelSize, float rotYOffset, int textureWidthIn, int textureHeightIn)
-	{
-		ModelRenderer child;
 		this.leftArmPose = ModelBlockArmor.ArmPose.EMPTY;
 		this.rightArmPose = ModelBlockArmor.ArmPose.EMPTY;
-		this.textureWidth = textureWidthIn;
-		this.textureHeight = textureHeightIn;
+		
 		//HELMET
-		this.bipedHead = new ModelRenderer(this, 9, 3);
-		this.bipedHead.addBox(-5.0F, -9.0F, -5.0F, 10, 0, 10, modelSize+0.01f); //top
-		child = new ModelRenderer(this, 0, 3);
-		child.addBox(-5.0F, -9.0F, 5.0F, 10, 8, 0, modelSize+0.01f); //back
-		this.bipedHead.addChild(child);
-		child = new ModelRenderer(this, 0, 3);
-		child.addBox(-3.0F, -1.0F, 5.0F, 6, 1, 0, modelSize+0.01f); //back bottom
-		this.bipedHead.addChild(child);
-		this.bipedHead.setRotationPoint(0.0F, 0.0F + rotYOffset, 0.0F);
 		this.bipedHeadwear = new ModelRenderer(this, 0, 0);
+		this.bipedHead = new ModelRenderer(this, 0, 0);
+		this.bipedHead.setRotationPoint(0.0F, 0.0F, 0.0F);
+		
+		this.bipedHead.cubeList.add(new ModelPlane(bipedHead, 9, 3+yOffset, -5.0f, -9.0f, -5.0f, 10, 0, 10)); //top
+		this.bipedHead.cubeList.add(new ModelPlane(bipedHead, 9, 3+yOffset, -5.0f, -9.0f, 5.0f, 10, 8, 0)); //back
+		this.bipedHead.cubeList.add(new ModelPlane(bipedHead, -1, 11+yOffset, -3.0f, -1.0f, 5.0f, 6, 1, 0)); //back bottom
+		this.bipedHead.cubeList.add(new ModelPlane(bipedHead, 0, 6+yOffset, -5.0f, -9.0f, -5.0f, 0, 5, 10)); //right
+		this.bipedHead.cubeList.add(new ModelPlane(bipedHead, 0, 16+yOffset, -5.0f, -4.0f, -0.0f, 0, 1, 5)); //right bottom
+		this.bipedHead.cubeList.add(new ModelPlane(bipedHead, 12, 6+yOffset, 5.0f, -9.0f, -5.0f, 0, 5, 10)); //left
+		this.bipedHead.cubeList.add(new ModelPlane(bipedHead, 6, 0+yOffset, 5.0f, -4.0f, -0.0f, 0, 1, 5)); //left bottom
+		this.bipedHead.cubeList.add(new ModelPlane(bipedHead, 3, 0+yOffset, -5.0f, -9.0f, -5.0f, 10, 4, 0)); //front
+		this.bipedHead.cubeList.add(new ModelPlane(bipedHead, 0, 4+yOffset, -5.0F, -5.0F, -5.0F, 1, 1, 0)); //front left
+		this.bipedHead.cubeList.add(new ModelPlane(bipedHead, 7, 4+yOffset, -1.0F, -5.0F, -5.0F, 2, 2, 0)); //front mid
+		this.bipedHead.cubeList.add(new ModelPlane(bipedHead, 12, 4+yOffset, 4.0F, -5.0F, -5.0F, 1, 1, 0)); //front right
+		
 		//CHESTPLATE
 		this.bipedBody = new ModelRenderer(this, 0, 0);
-		this.bipedBody.addBox(-4.0F, 0.0F, -2.0F, 8, 12, 4, modelSize);
-		this.bipedBody.setRotationPoint(0.0F, 0.0F + rotYOffset, 0.0F);
+		this.bipedBody.setRotationPoint(0.0F, 0.0F, 0.0F);
+		
+		this.bipedBody.cubeList.add(new ModelPlane(bipedBody, 3, 3+yOffset, -5.0F, 1.0F, -2.5F, 10, 8, 0)); //front
+		this.bipedBody.cubeList.add(new ModelPlane(bipedBody, 4, 11+yOffset, -4.0F, 9.0F, -2.5F, 8, 1, 0)); //front bottom mid
+		this.bipedBody.cubeList.add(new ModelPlane(bipedBody, 5, 12+yOffset, -3.0F, 10.0F, -2.5F, 6, 1, 0)); //front bottom
+		this.bipedBody.cubeList.add(new ModelPlane(bipedBody, 3, 1+yOffset, -5.0F, -1.0F, -2.5F, 2, 2, 0)); //front top right 2x2
+		this.bipedBody.cubeList.add(new ModelPlane(bipedBody, 5, 1+yOffset, -3.0F, -0.0F, -2.5F, 1, 1, 0)); //front top right 1x1
+		this.bipedBody.cubeList.add(new ModelPlane(bipedBody, 11, 1+yOffset, 3.0F, -1.0F, -2.5F, 2, 2, 0)); //front top left 2x2
+		this.bipedBody.cubeList.add(new ModelPlane(bipedBody, 10, 1+yOffset, 2.0F, -0.0F, -2.5F, 1, 1, 0)); //front top left 1x1
+		this.bipedBody.cubeList.add(new ModelPlane(bipedBody, 9, 3+yOffset, -5.0F, -1.0F, -2.5F, 0, 10, 5)); //right 
+		this.bipedBody.cubeList.add(new ModelPlane(bipedBody, 9, 3+yOffset, 5.0F, -1.0F, -2.5F, 0, 10, 5)); //left 
+		this.bipedBody.cubeList.add(new ModelPlane(bipedBody, 9, 3+yOffset, -5.0F, 0.0F, 2.5F, 10, 9, 0)); //back 
+		this.bipedBody.cubeList.add(new ModelPlane(bipedBody, 9, 3+yOffset, -5.0F, -1.0F, 2.5F, 2, 1, 0)); //back top right 
+		this.bipedBody.cubeList.add(new ModelPlane(bipedBody, 9, 3+yOffset, 3.0F, -1.0F, 2.5F, 2, 1, 0)); //back top left 
+		this.bipedBody.cubeList.add(new ModelPlane(bipedBody, 9, 3+yOffset, -4.0F, 9.0F, 2.5F, 8, 1, 0)); //back bottom
+		
+		//RIGHT ARM
 		this.bipedRightArm = new ModelRenderer(this, 0, 0);
-		this.bipedRightArm.addBox(-3.0F, -2.0F, -2.0F, 4, 12, 4, modelSize);
-		this.bipedRightArm.setRotationPoint(-5.0F, 2.0F + rotYOffset, 0.0F);
+		this.bipedRightArm.setRotationPoint(-5.0F, 2.0F, 0.0F);
+		
+		this.bipedRightArm.cubeList.add(new ModelPlane(bipedRightArm, 9, 3+yOffset, -3.5F, -3.0F, -2.5F, 0, 5, 5)); //right
+		this.bipedRightArm.cubeList.add(new ModelPlane(bipedRightArm, 9, 3+yOffset, 1.5F, -3.0F, -2.5F, 0, 5, 5)); //left
+		this.bipedRightArm.cubeList.add(new ModelPlane(bipedRightArm, 9, 3+yOffset, -3.5F, -3.0F, -2.5F, 5, 5, 0)); //front
+		this.bipedRightArm.cubeList.add(new ModelPlane(bipedRightArm, 9, 3+yOffset, -3.5F, -3.0F, 2.5F, 5, 5, 0)); //back
+		this.bipedRightArm.cubeList.add(new ModelPlane(bipedRightArm, 9, 3+yOffset, -3.5F, -3.0F, -2.5F, 5, 0, 5)); //top
+		
+		//LEFT ARM
 		this.bipedLeftArm = new ModelRenderer(this, 0, 0);
 		this.bipedLeftArm.mirror = true;
-		this.bipedLeftArm.addBox(-1.0F, -2.0F, -2.0F, 4, 12, 4, modelSize);
-		this.bipedLeftArm.setRotationPoint(5.0F, 2.0F + rotYOffset, 0.0F);
+		this.bipedLeftArm.setRotationPoint(5.0F, 2.0F, 0.0F);
+		
+		this.bipedLeftArm.cubeList.add(new ModelPlane(bipedLeftArm, 9, 3+yOffset, -1.5F, -3.0F, -2.5F, 0, 5, 5)); //right
+		this.bipedLeftArm.cubeList.add(new ModelPlane(bipedLeftArm, 9, 3+yOffset, 3.5F, -3.0F, -2.5F, 0, 5, 5)); //left
+		this.bipedLeftArm.cubeList.add(new ModelPlane(bipedLeftArm, 9, 3+yOffset, -1.5F, -3.0F, -2.5F, 5, 5, 0)); //front
+		this.bipedLeftArm.cubeList.add(new ModelPlane(bipedLeftArm, 9, 3+yOffset, -1.5F, -3.0F, 2.5F, 5, 5, 0)); //back
+		this.bipedLeftArm.cubeList.add(new ModelPlane(bipedLeftArm, 9, 3+yOffset, -1.5F, -3.0F, -2.5F, 5, 0, 5)); //top
+		
+		//RIGHT LEG
 		this.bipedRightLeg = new ModelRenderer(this, 0, 0);
-		this.bipedRightLeg.addBox(-2.0F, 0.0F, -2.0F, 4, 12, 4, modelSize);
-		this.bipedRightLeg.setRotationPoint(-1.9F, 12.0F + rotYOffset, 0.0F);
+		this.bipedRightLeg.setRotationPoint(-1.9F, 12.0F, 0.0F);
+		
+		//LEFT LEG
 		this.bipedLeftLeg = new ModelRenderer(this, 0, 0);
 		this.bipedLeftLeg.mirror = true;
-		this.bipedLeftLeg.addBox(-2.0F, 0.0F, -2.0F, 4, 12, 4, modelSize);
-		this.bipedLeftLeg.setRotationPoint(1.9F, 12.0F + rotYOffset, 0.0F);
+		this.bipedLeftLeg.setRotationPoint(1.9F, 12.0F, 0.0F);
 	}
 
 	/**
@@ -72,18 +101,53 @@ public class ModelBlockArmor extends ModelBiped
 	 */
 	public void render(Entity entityIn, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch, float scale)
 	{
-		//GlStateManager.alphaFunc(516, 0.1F); //for transparency
-		GlStateManager.enableBlend();
-		GlStateManager.enableCull();
-		GlStateManager.depthMask(false);
-		//GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA,GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, 
-		//		GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
-		
-		super.render(entityIn, limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch, scale);
+		this.setRotationAngles(limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch, scale, entityIn);
 
-		GlStateManager.depthMask(true);
-		GlStateManager.disableCull();//glDisable(GL_CULL_FACE);
-		GlStateManager.disableBlend();//for transparency
+		GlStateManager.pushMatrix();
+
+		if (this.translucent) { 
+			GlStateManager.enableBlend(); //enable transparency
+			GlStateManager.enableCull(); //only show first layer of box
+			GlStateManager.depthMask(false); //render entities through texture
+		}
+
+		if (this.isChild)
+		{
+			GlStateManager.scale(0.75F, 0.75F, 0.75F);
+			GlStateManager.translate(0.0F, 16.0F * scale, 0.0F);
+			this.bipedHead.render(scale);
+			GlStateManager.popMatrix();
+			GlStateManager.pushMatrix();
+			GlStateManager.scale(0.5F, 0.5F, 0.5F);
+			GlStateManager.translate(0.0F, 24.0F * scale, 0.0F);
+			this.bipedBody.render(scale);
+			this.bipedRightArm.render(scale);
+			this.bipedLeftArm.render(scale);
+			this.bipedRightLeg.render(scale);
+			this.bipedLeftLeg.render(scale);
+			this.bipedHeadwear.render(scale);
+		}
+		else
+		{
+			if (entityIn.isSneaking())
+				GlStateManager.translate(0.0F, 0.2F, 0.0F);
+
+			this.bipedHead.render(scale);
+			this.bipedBody.render(scale);
+			this.bipedRightArm.render(scale);
+			this.bipedLeftArm.render(scale);
+			this.bipedRightLeg.render(scale);
+			this.bipedLeftLeg.render(scale);
+			this.bipedHeadwear.render(scale);
+		}
+
+		if (this.translucent) { //disable transparency
+			GlStateManager.depthMask(true);
+			GlStateManager.disableCull();
+			GlStateManager.disableBlend();
+		}
+
+		GlStateManager.popMatrix();
 	}
 
 	/**Manually added setRotationAngles for ModelZombie and ModelSkeleton*/
@@ -156,29 +220,5 @@ public class ModelBlockArmor extends ModelBiped
 			this.bipedRightLeg.setRotationPoint(-1.9F, 11.0F, 0.0F);
 			copyModelAngles(this.bipedHead, this.bipedHeadwear);
 		}
-	}
-
-	public void setModelAttributes(ModelBase model)
-	{
-		super.setModelAttributes(model);
-
-		if (model instanceof ModelBlockArmor)
-		{
-			ModelBlockArmor modelbiped = (ModelBlockArmor)model;
-			this.leftArmPose = modelbiped.leftArmPose;
-			this.rightArmPose = modelbiped.rightArmPose;
-			this.isSneak = modelbiped.isSneak;
-		}
-	}
-
-	public void setInvisible(boolean invisible)
-	{
-		this.bipedHead.showModel = invisible;
-		this.bipedHeadwear.showModel = invisible;
-		this.bipedBody.showModel = invisible;
-		this.bipedRightArm.showModel = invisible;
-		this.bipedLeftArm.showModel = invisible;
-		this.bipedRightLeg.showModel = invisible;
-		this.bipedLeftLeg.showModel = invisible;
 	}
 }

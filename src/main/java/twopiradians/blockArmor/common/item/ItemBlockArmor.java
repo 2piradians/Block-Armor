@@ -9,6 +9,7 @@ import com.google.common.collect.Multimap;
 import net.minecraft.block.BlockLiquid;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.model.ModelBiped;
+import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
@@ -28,7 +29,6 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.potion.Potion;
 import net.minecraft.potion.PotionEffect;
-import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.BlockPos;
@@ -38,14 +38,12 @@ import net.minecraft.world.WorldServer;
 import net.minecraftforge.fml.relauncher.ReflectionHelper;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import twopiradians.blockArmor.client.ClientProxy;
-import twopiradians.blockArmor.client.model.ModelBlockArmor;
 import twopiradians.blockArmor.common.BlockArmor;
 import twopiradians.blockArmor.common.block.ModBlocks;
 
 public class ItemBlockArmor extends ItemArmor
 {
-	private int xpCooldown = 50;
+	private int xpCooldown = 50;//FIXME put cooldowns in nbt
 	private int endstoneCooldown = 100;
 	private int slimeCooldown = 10;
 	/**Keeps track of current player for getAttributeModifiers method*/
@@ -74,28 +72,23 @@ public class ItemBlockArmor extends ItemArmor
 	@Override
 	public String getArmorTexture(ItemStack stack, Entity entity, EntityEquipmentSlot slot, String type)
 	{
-		if (false)
-			return ArmorSet.getSet((ItemBlockArmor) stack.getItem()).armorTextures[EnumFacing.NORTH.getIndex()].toString();
-		switch (slot) {
-		case HEAD:
-			return ArmorSet.getSet((ItemBlockArmor) stack.getItem()).armorTextures[EnumFacing.UP.getIndex()].toString();
-		case CHEST:
-			return ArmorSet.getSet((ItemBlockArmor) stack.getItem()).armorTextures[EnumFacing.NORTH.getIndex()].toString();
-		case LEGS:
-			return ArmorSet.getSet((ItemBlockArmor) stack.getItem()).armorTextures[EnumFacing.SOUTH.getIndex()].toString();
-		case FEET:
-			return ArmorSet.getSet((ItemBlockArmor) stack.getItem()).armorTextures[EnumFacing.DOWN.getIndex()].toString();
-		default:
-			return null;
-		}
+		TextureAtlasSprite sprite = ArmorSet.getSprite(this);
+		String texture = sprite.getIconName()+".png";
+		int index = texture.indexOf(":");
+		texture = texture.substring(0, index+1)+"textures/"+texture.substring(index+1);
+		return texture;
 	}
 	
 	@Override
     @SideOnly(Side.CLIENT)
     public ModelBiped getArmorModel(EntityLivingBase entity, ItemStack stack, EntityEquipmentSlot slot, ModelBiped oldModel)
     {
-		((ClientProxy)BlockArmor.proxy).model = new ModelBlockArmor(0.0f, 0.0F, 16, 16);
-        return (ModelBiped) BlockArmor.proxy.getBlockArmorModel();
+		TextureAtlasSprite sprite = ArmorSet.getSprite(this);
+		int width = sprite.getIconWidth();
+		int height = sprite.getIconHeight() * sprite.getFrameCount();
+		boolean isTranslucent = ArmorSet.getSet(this).isTranslucent;
+		int frame = ArmorSet.getAnimationFrame(this);
+        return (ModelBiped) BlockArmor.proxy.getBlockArmorModel(height, width, isTranslucent, frame);
     }
 
 	/**Change display name based on the block*/

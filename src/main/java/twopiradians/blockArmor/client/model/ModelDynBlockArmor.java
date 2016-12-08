@@ -123,7 +123,7 @@ public final class ModelDynBlockArmor implements IModel, IModelCustomData, IRete
 		@Override
 		public void onResourceManagerReload(IResourceManager resourceManager)
 		{
-
+			
 		}
 	}
 
@@ -138,15 +138,15 @@ public final class ModelDynBlockArmor implements IModel, IModelCustomData, IRete
 		@Override
 		public IBakedModel handleItemState(IBakedModel originalModel, ItemStack stack, World world, EntityLivingBase entity)
 		{//TODO only assign texture once
-			if (originalModel instanceof BakedDynBlockArmor && ArmorSet.getInventoryTextureLocation((ItemBlockArmor) stack.getItem()) != null) {
+			TextureAtlasSprite sprite = ArmorSet.getSprite((ItemBlockArmor) stack.getItem());
+			if (originalModel instanceof BakedDynBlockArmor && sprite != null) {
 				ImmutableList.Builder<BakedQuad> builder = ImmutableList.builder();
 				IModelState state = new SimpleModelState(((BakedDynBlockArmor)originalModel).transforms);
 				TRSRTransformation transform = TRSRTransformation.identity();
 				state = new ModelStateComposition(state, transform);
 				VertexFormat format = ((BakedDynBlockArmor)originalModel).format;
 				//Full block texture
-				ResourceLocation textureLocation = ArmorSet.getInventoryTextureLocation((ItemBlockArmor) stack.getItem());
-				TextureAtlasSprite blockTexture = Minecraft.getMinecraft().getTextureMapBlocks().getAtlasSprite(textureLocation.toString());
+				TextureAtlasSprite blockTexture = ArmorSet.getSprite((ItemBlockArmor) stack.getItem());
 				//builder.add(ItemTextureQuadConverter.genQuad(format, transform, 0, 0, 16, 16, NORTH_Z_BASE, blockTexture, EnumFacing.NORTH, 0xffffffff));
 				//builder.add(ItemTextureQuadConverter.genQuad(format, transform, 0, 0, 16, 16, SOUTH_Z_BASE, blockTexture, EnumFacing.SOUTH, 0xffffffff));	            
 				String armorType = "";
@@ -160,7 +160,7 @@ public final class ModelDynBlockArmor implements IModel, IModelCustomData, IRete
 				else if (slot == EntityEquipmentSlot.FEET)
 					armorType = "boots";
 				//Base texture and model
-				ResourceLocation baseLocation = new ResourceLocation("blockarmor:items/block_armor_"+armorType+"_base");
+				ResourceLocation baseLocation = new ResourceLocation("blockarmor:items/icons/block_armor_"+armorType+"_base");
 				IBakedModel model = (new ItemLayerModel(ImmutableList.of(baseLocation))).bake(state, format, new Function<ResourceLocation, TextureAtlasSprite>() {
 					public TextureAtlasSprite apply(ResourceLocation location)
 					{
@@ -169,17 +169,17 @@ public final class ModelDynBlockArmor implements IModel, IModelCustomData, IRete
 				});
 				builder.addAll(model.getQuads(null, null, 0));
 				//Template texture for left half
-				String templateLocation = new ResourceLocation("blockarmor:items/block_armor_"+armorType+"1_template").toString();
+				String templateLocation = new ResourceLocation("blockarmor:items/icons/block_armor_"+armorType+"1_template").toString();
 				TextureAtlasSprite templateTexture = Minecraft.getMinecraft().getTextureMapBlocks().getAtlasSprite(templateLocation);
 				builder.addAll(ItemTextureQuadConverter.convertTexture(format, transform, templateTexture, blockTexture, NORTH_Z_FLUID, EnumFacing.NORTH, 0xffffffff));
 				builder.addAll(ItemTextureQuadConverter.convertTexture(format, transform, templateTexture, blockTexture, SOUTH_Z_FLUID, EnumFacing.SOUTH, 0xffffffff));
 				//Template texture for right half
-				templateLocation = new ResourceLocation("blockarmor:items/block_armor_"+armorType+"2_template").toString();
+				templateLocation = new ResourceLocation("blockarmor:items/icons/block_armor_"+armorType+"2_template").toString();
 				templateTexture = Minecraft.getMinecraft().getTextureMapBlocks().getAtlasSprite(templateLocation);
 				builder.addAll(ItemTextureQuadConverter.convertTexture(format, transform, templateTexture, blockTexture, NORTH_Z_FLUID, EnumFacing.NORTH, 0xffffffff));
 				builder.addAll(ItemTextureQuadConverter.convertTexture(format, transform, templateTexture, blockTexture, SOUTH_Z_FLUID, EnumFacing.SOUTH, 0xffffffff));
 				//Cover texture
-				String coverLocation = new ResourceLocation("blockarmor:items/block_armor_"+armorType+"_cover").toString();
+				String coverLocation = new ResourceLocation("blockarmor:items/icons/block_armor_"+armorType+"_cover").toString();
 				TextureAtlasSprite coverTexture = Minecraft.getMinecraft().getTextureMapBlocks().getAtlasSprite(coverLocation);
 				builder.add(ItemTextureQuadConverter.genQuad(format, transform, 0, 0, 16, 16, NORTH_Z_BASE, coverTexture, EnumFacing.NORTH, 0xffffffff));
 				builder.add(ItemTextureQuadConverter.genQuad(format, transform, 0, 0, 16, 16, SOUTH_Z_BASE, coverTexture, EnumFacing.SOUTH, 0xffffffff));
@@ -220,7 +220,6 @@ public final class ModelDynBlockArmor implements IModel, IModelCustomData, IRete
 		@Override
 		public Pair<? extends IBakedModel, Matrix4f> handlePerspective(TransformType cameraTransformType)
 		{
-
 			return IPerspectiveAwareModel.MapWrapper.handlePerspective(this, transforms, cameraTransformType);
 		}
 
