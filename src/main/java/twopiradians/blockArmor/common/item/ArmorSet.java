@@ -371,9 +371,9 @@ public class ArmorSet {
 			this.frameFields[EntityEquipmentSlot.LEGS.getIndex()] = null;
 			this.sprites[EntityEquipmentSlot.FEET.getIndex()] = sprite;
 			this.frameFields[EntityEquipmentSlot.FEET.getIndex()] = null;
-			BlockArmor.logger.info("Texture found at: "+texture.toString());
+			//BlockArmor.logger.info("Texture found at: "+texture.toString());
 		} catch (Exception e) {
-			BlockArmor.logger.info("No texture found at: "+texture.toString());
+			//BlockArmor.logger.info("No texture found at: "+texture.toString());
 		}
 
 		this.isTranslucent = this.block.getBlockLayer() != BlockRenderLayer.SOLID && this.block != Blocks.REEDS;

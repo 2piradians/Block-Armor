@@ -67,14 +67,14 @@ public class ModItems
 		item.setRegistryName(BlockArmor.MODID, unlocalizedName);
 		if (addToTab) {
 			if (isFromModdedBlock) {
-				if (BlockArmor.vanillaTab == null)
-					BlockArmor.vanillaTab = new BlockArmorCreativeTab("tabBlockArmorVanilla");
-				BlockArmor.vanillaTab.orderedStacks.add(new ItemStack(item));
-			}
-			else {
 				if (BlockArmor.moddedTab == null)
 					BlockArmor.moddedTab = new BlockArmorCreativeTab("tabBlockArmorModded");
 				BlockArmor.moddedTab.orderedStacks.add(new ItemStack(item));
+			}
+			else {
+				if (BlockArmor.vanillaTab == null)
+					BlockArmor.vanillaTab = new BlockArmorCreativeTab("tabBlockArmorVanilla");
+				BlockArmor.vanillaTab.orderedStacks.add(new ItemStack(item));
 			}
 		}
 		GameRegistry.register(item);
