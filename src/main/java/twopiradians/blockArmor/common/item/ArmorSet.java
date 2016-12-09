@@ -372,7 +372,7 @@ public class ArmorSet {
 			//BlockArmor.logger.info("No texture found at: "+texture.toString());
 		}
 
-		this.isTranslucent = this.block.getBlockLayer() != BlockRenderLayer.SOLID;
+		this.isTranslucent = this.block.getBlockLayer() != BlockRenderLayer.SOLID && this.block != Blocks.REEDS;
 		
 		return numTextures;
 	}

@@ -73,7 +73,7 @@ public class ModelBlockArmor extends ModelBiped
 		this.bipedRightArm.cubeList.add(new ModelPlane(bipedRightArm, 9, 3+yOffset, 1.5F, -3.0F, -2.5F, 0, 5, 5, true)); //left
 		this.bipedRightArm.cubeList.add(new ModelPlane(bipedRightArm, 9, 3+yOffset, -3.5F, -3.0F, -2.5F, 5, 5, 0, false)); //front
 		this.bipedRightArm.cubeList.add(new ModelPlane(bipedRightArm, 9, 3+yOffset, -3.5F, -3.0F, 2.5F, 5, 5, 0, true)); //back
-		this.bipedRightArm.cubeList.add(new ModelPlane(bipedRightArm, 9, 3+yOffset, -3.5F, -3.0F, -2.5F, 5, 0, 5, true)); //top
+		this.bipedRightArm.cubeList.add(new ModelPlane(bipedRightArm, 9, 3+yOffset, -3.5F, -3.0F, -2.5F, 5, 0, 5, false)); //top
 
 		//LEFT ARM
 		this.bipedLeftArm = new ModelRenderer(this, 0, 0);
@@ -84,7 +84,7 @@ public class ModelBlockArmor extends ModelBiped
 		this.bipedLeftArm.cubeList.add(new ModelPlane(bipedLeftArm, 9, 3+yOffset, 3.5F, -3.0F, -2.5F, 0, 5, 5, false)); //left
 		this.bipedLeftArm.cubeList.add(new ModelPlane(bipedLeftArm, 9, 3+yOffset, -1.5F, -3.0F, -2.5F, 5, 5, 0, false)); //front
 		this.bipedLeftArm.cubeList.add(new ModelPlane(bipedLeftArm, 9, 3+yOffset, -1.5F, -3.0F, 2.5F, 5, 5, 0, true)); //back
-		this.bipedLeftArm.cubeList.add(new ModelPlane(bipedLeftArm, 9, 3+yOffset, -1.5F, -3.0F, -2.5F, 5, 0, 5, true)); //top
+		this.bipedLeftArm.cubeList.add(new ModelPlane(bipedLeftArm, 9, 3+yOffset, -1.5F, -3.0F, -2.5F, 5, 0, 5, false)); //top
 
 		//RIGHT LEG
 		this.bipedRightLeg = new ModelRenderer(this, 0, 0);
@@ -105,7 +105,8 @@ public class ModelBlockArmor extends ModelBiped
 
 		GlStateManager.pushMatrix();
 
-		GlStateManager.enableBlend();
+		if (this.translucent) 
+			GlStateManager.enableBlend(); //enables transparency
 
 		if (this.isChild)
 		{

@@ -9,6 +9,7 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.client.event.TextureStitchEvent;
 import net.minecraftforge.client.model.ModelLoaderRegistry;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 import twopiradians.blockArmor.client.model.ModelBlockArmor;
@@ -25,6 +26,8 @@ public class ClientProxy extends CommonProxy
 	private HashMap<String, ModelBlockArmor> modelMaps = Maps.newHashMap();
 	/**Should textures and icons be remapped next client tick*/
 	public boolean remapTextures;
+	/**Is this the first time the world was loaded since restarting client*/
+	private boolean firstWorldLoad = true;
 
 	@Override
 	public void preInit() {
@@ -50,6 +53,15 @@ public class ClientProxy extends CommonProxy
 			modelMaps.put(key, model);
 		}
 		return model;
+	}
+	
+	@SubscribeEvent
+	public void mapTextures(WorldEvent.Load event)
+	{
+		if (firstWorldLoad) { //used to map textures immediately if needed - sometimes ClientTickEvent doesn't get to it in time
+			firstWorldLoad = false;
+			this.mapTextures();
+		}
 	}
 
 	@SubscribeEvent
