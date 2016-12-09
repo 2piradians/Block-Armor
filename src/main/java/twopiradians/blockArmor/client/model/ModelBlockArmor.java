@@ -18,6 +18,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 @SideOnly(Side.CLIENT)
 public class ModelBlockArmor extends ModelBiped
 {
+	private ModelRenderer bipedWaist;
 	private ModelRenderer bipedRightFoot;
 	private ModelRenderer bipedLeftFoot;
 	private boolean translucent;
@@ -41,6 +42,8 @@ public class ModelBlockArmor extends ModelBiped
 		this.bipedLeftArm = new ModelRenderer(this, 0, 0);
 		this.bipedLeftArm.mirror = true;
 		this.bipedLeftArm.setRotationPoint(5.0F, 2.0F, 0.0F);
+		this.bipedWaist = new ModelRenderer(this, 0, 0);
+		this.bipedWaist.setRotationPoint(0.0F, 0.0F, 0.0F);
 		this.bipedRightLeg = new ModelRenderer(this, 0, 0);
 		this.bipedRightLeg.setRotationPoint(-1.9F, 12.0F, 0.0F);
 		this.bipedLeftLeg = new ModelRenderer(this, 0, 0);
@@ -99,6 +102,9 @@ public class ModelBlockArmor extends ModelBiped
 			this.bipedLeftArm.cubeList.add(new ModelPlane(bipedLeftArm, 9, 3+yOffset, -1.5F, -3.0F, -3.0F, 6, 0, 6, false)); //top
 			break;
 		case LEGS:
+			//WAIST
+			//TODO add waist here
+			
 			//RIGHT LEG
 			//TODO add right leg here
 
@@ -149,6 +155,7 @@ public class ModelBlockArmor extends ModelBiped
 			this.bipedBody.render(scale);
 			this.bipedRightArm.render(scale);
 			this.bipedLeftArm.render(scale);
+			this.bipedWaist.render(scale);
 			this.bipedRightLeg.render(scale);
 			this.bipedLeftLeg.render(scale);
 			this.bipedRightFoot.render(scale);
@@ -163,6 +170,7 @@ public class ModelBlockArmor extends ModelBiped
 			this.bipedBody.render(scale);
 			this.bipedRightArm.render(scale);
 			this.bipedLeftArm.render(scale);
+			this.bipedWaist.render(scale);
 			this.bipedRightLeg.render(scale);
 			this.bipedLeftLeg.render(scale);
 			this.bipedRightFoot.render(scale);
@@ -245,6 +253,7 @@ public class ModelBlockArmor extends ModelBiped
 			this.bipedRightLeg.setRotationPoint(-1.9F, 11.0F, 0.0F);
 		}
 
+		copyModelAngles(bipedBody, bipedWaist);
 		copyModelAngles(bipedLeftLeg, bipedLeftFoot);
 		copyModelAngles(bipedRightLeg, bipedRightFoot);
 	}
