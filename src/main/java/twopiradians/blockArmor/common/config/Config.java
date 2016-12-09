@@ -74,9 +74,7 @@ public class Config
 				prop.set(false);
 			ArmorSet.setsWithEffects.put(set, prop.getBoolean());
 		}		
-		
-		//TODO remove enchants armor (so armor doesn't have enchants when set effect disabled)
-		
+				
 		Config.config.save();
 	}
 	

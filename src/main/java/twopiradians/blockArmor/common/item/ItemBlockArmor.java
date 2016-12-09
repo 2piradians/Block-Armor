@@ -335,10 +335,10 @@ public class ItemBlockArmor extends ItemArmor
 	@Override
 	public void onArmorTick(World world, EntityPlayer player, ItemStack itemStack)
 	{		
-		ArmorSet set = ArmorSet.getSet(this);
+		ArmorSet set = ArmorSet.getSet(this);		
 		if (!ArmorSet.isSetEffectEnabled(set) || !ArmorSet.isWearingFullSet(player, set))
 			return;
-
+		
 		if (player != playerField) //if new player or don't have field yet, get field
 		{ 
 			isJumpingField = ReflectionHelper.findField(EntityLivingBase.class, new String[] {"isJumping", "field_70703_bu"});

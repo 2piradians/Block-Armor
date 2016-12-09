@@ -144,7 +144,7 @@ public class ModelBlockArmor extends ModelBiped
 		GlStateManager.popMatrix();
 	}
 
-	/**Manually added setRotationAngles for ModelZombie and ModelSkeleton*/
+	/**Manually added setRotationAngles for Zombies, Skeletons, and ArmorStands*/
 	public void setRotationAngles(float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch, float scaleFactor, Entity entityIn)
 	{
 		super.setRotationAngles(limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch, scaleFactor, entityIn);

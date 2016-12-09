@@ -56,18 +56,18 @@ public class ArmorSet {
 	public static final ArrayList<ArmorSet> MANUALLY_ADDED_SETS;
 	static {
 		MANUALLY_ADDED_SETS = new ArrayList<ArmorSet>() {{
-			add(new ArmorSet(new ItemStack(Blocks.NETHERRACK, 1, 0), true));
-			add(new ArmorSet(new ItemStack(Blocks.OBSIDIAN, 1, 0), true));
+			add(new ArmorSet(new ItemStack(Blocks.BEDROCK, 1, 0), true));
 			add(new ArmorSet(new ItemStack(Blocks.REDSTONE_BLOCK, 1, 0), true));
-			add(new ArmorSet(new ItemStack(Blocks.SNOW, 1, 0), true));
 			add(new ArmorSet(new ItemStack(Blocks.LAPIS_BLOCK, 1, 0), true));
+			add(new ArmorSet(new ItemStack(Blocks.EMERALD_BLOCK, 1, 0), true));
+			add(new ArmorSet(new ItemStack(Blocks.OBSIDIAN, 1, 0), true));
+			add(new ArmorSet(new ItemStack(Blocks.NETHERRACK, 1, 0), true));
+			add(new ArmorSet(new ItemStack(Blocks.SNOW, 1, 0), true));
 			add(new ArmorSet(new ItemStack(Blocks.END_STONE, 1, 0), true));
 			add(new ArmorSet(new ItemStack(Blocks.SLIME_BLOCK, 1, 0), true));
 			add(new ArmorSet(new ItemStack(Items.REEDS, 1, 0), true));
 			add(new ArmorSet(new ItemStack(Blocks.PRISMARINE, 1, 2), true));
-			add(new ArmorSet(new ItemStack(Blocks.EMERALD_BLOCK, 1, 0), true));
 			add(new ArmorSet(new ItemStack(Blocks.BRICK_BLOCK, 1, 0), true));
-			add(new ArmorSet(new ItemStack(Blocks.BEDROCK, 1, 0), true));
 			add(new ArmorSet(new ItemStack(Blocks.QUARTZ_BLOCK, 1, 0), true));
 			//add(new ArmorSet(new ItemStack(Blocks.BEACON, 1, 0), true));
 
@@ -93,6 +93,7 @@ public class ArmorSet {
 	public ItemBlockArmor leggings;
 	public ItemBlockArmor boots;
 	public boolean isTranslucent;
+	public boolean isFromModdedBlock;
 
 	/**Array of sprites for the block's texture sorted by EntityEquipmentSlot id*/
 	private TextureAtlasSprite[] sprites;
@@ -103,6 +104,9 @@ public class ArmorSet {
 	public ArmorSet(ItemStack stack, boolean hasSetEffect) {
 		this.stack = stack;
 		this.item = stack.getItem();
+		ResourceLocation loc = (ResourceLocation)Item.REGISTRY.getNameForObject(this.item);
+		if (!loc.getResourceDomain().equals("minecraft"))
+			isFromModdedBlock = true;
 		this.meta = stack.getMetadata();
 		if (item == Items.REEDS)
 			this.block = Blocks.REEDS;
@@ -354,8 +358,8 @@ public class ArmorSet {
 		}
 
 		//Check for inventory texture overrides (expects block texture) - location must be registered in ClientProxy TextureStitchEvent.Pre
+		ResourceLocation texture = new ResourceLocation(BlockArmor.MODID+":textures/items/"+item.getRegistryName().getResourcePath().toLowerCase().replace(" ", "_")+".png");
 		try {
-			ResourceLocation texture = new ResourceLocation(BlockArmor.MODID+":textures/items/"+stack.getDisplayName().toLowerCase().replace(" ", "_")+".png");
 			Minecraft.getMinecraft().getResourceManager().getResource(texture); //does texture exist?
 			texture = new ResourceLocation(texture.getResourceDomain(), texture.getResourcePath().replace("textures/", "").replace(".png", ""));
 			TextureAtlasSprite sprite = Minecraft.getMinecraft().getTextureMapBlocks().getAtlasSprite(texture.toString());
@@ -367,9 +371,9 @@ public class ArmorSet {
 			this.frameFields[EntityEquipmentSlot.LEGS.getIndex()] = null;
 			this.sprites[EntityEquipmentSlot.FEET.getIndex()] = sprite;
 			this.frameFields[EntityEquipmentSlot.FEET.getIndex()] = null;
-			//BlockArmor.logger.info("Texture found at: "+texture.toString());
+			BlockArmor.logger.info("Texture found at: "+texture.toString());
 		} catch (Exception e) {
-			//BlockArmor.logger.info("No texture found at: "+texture.toString());
+			BlockArmor.logger.info("No texture found at: "+texture.toString());
 		}
 
 		this.isTranslucent = this.block.getBlockLayer() != BlockRenderLayer.SOLID && this.block != Blocks.REEDS;

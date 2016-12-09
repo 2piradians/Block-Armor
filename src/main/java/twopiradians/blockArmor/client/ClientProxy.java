@@ -54,7 +54,7 @@ public class ClientProxy extends CommonProxy
 		}
 		return model;
 	}
-	
+
 	@SubscribeEvent
 	public void mapTextures(WorldEvent.Load event)
 	{
@@ -95,7 +95,7 @@ public class ClientProxy extends CommonProxy
 	public void textureStitch(TextureStitchEvent.Pre event)
 	{
 		//textures for overriding
-		event.getMap().registerSprite(new ResourceLocation(BlockArmor.MODID, "items/sugar_canes"));
+		event.getMap().registerSprite(new ResourceLocation(BlockArmor.MODID, "items/reeds"));
 
 		//textures for inventory icons
 		event.getMap().registerSprite(new ResourceLocation(BlockArmor.MODID, "items/icons/block_armor_helmet_base"));
