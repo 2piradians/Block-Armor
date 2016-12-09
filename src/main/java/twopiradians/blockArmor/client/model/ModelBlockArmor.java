@@ -21,7 +21,6 @@ public class ModelBlockArmor extends ModelBiped
 	private ModelRenderer bipedRightFoot;
 	private ModelRenderer bipedLeftFoot;
 	private boolean translucent;
-	private EntityEquipmentSlot slot;
 
 	public ModelBlockArmor(int textureHeight, int textureWidth, boolean isTranslucent, int frame, EntityEquipmentSlot slot)
 	{		
@@ -29,7 +28,6 @@ public class ModelBlockArmor extends ModelBiped
 		this.textureHeight = textureHeight / size;
 		this.textureWidth = textureWidth / size;
 		this.translucent = isTranslucent;
-		this.slot = slot;
 		int yOffset = this.textureWidth * frame;
 
 		//Initialization and rotation points
@@ -133,14 +131,6 @@ public class ModelBlockArmor extends ModelBiped
 	public void render(Entity entityIn, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch, float scale)
 	{
 		this.setRotationAngles(limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch, scale, entityIn);
-
-		//hide extra models (normally controlled in LayerBipedArmor)
-		if (slot == EntityEquipmentSlot.LEGS)
-			this.bipedBody.showModel = false;
-		else if (slot == EntityEquipmentSlot.FEET) {
-			this.bipedRightLeg.showModel = false;
-			this.bipedLeftLeg.showModel = false;
-		}
 
 		GlStateManager.pushMatrix();
 
