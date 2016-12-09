@@ -291,7 +291,8 @@ public class ArmorSet {
 	/**Should an armor set be made from this item*/
 	@SuppressWarnings("deprecation")
 	private static boolean isValid(ItemStack stack) {
-		if (stack == null || !(stack.getItem() instanceof ItemBlock) || stack.getDisplayName().contains("Ore"))
+		if (stack == null || !(stack.getItem() instanceof ItemBlock) || 
+				stack.getItem().getRegistryName().getResourcePath().contains("ore"))
 			return false;
 
 		Block block = ((ItemBlock)stack.getItem()).getBlock();

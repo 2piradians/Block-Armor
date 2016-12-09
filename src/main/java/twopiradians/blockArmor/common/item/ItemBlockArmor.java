@@ -88,8 +88,8 @@ public class ItemBlockArmor extends ItemArmor
 		int height = sprite.getIconHeight() * sprite.getFrameCount();
 		boolean isTranslucent = ArmorSet.getSet(this).isTranslucent;
 		int frame = ArmorSet.getAnimationFrame(this);
-        //return new ModelBlockArmor(height, width, isTranslucent, frame);
-		return (ModelBiped) BlockArmor.proxy.getBlockArmorModel(height, width, isTranslucent, frame);
+        //return new ModelBlockArmor(height, width, isTranslucent, frame, slot);
+		return (ModelBiped) BlockArmor.proxy.getBlockArmorModel(height, width, isTranslucent, frame, slot);
     }
 
 	/**Change display name based on the block*/

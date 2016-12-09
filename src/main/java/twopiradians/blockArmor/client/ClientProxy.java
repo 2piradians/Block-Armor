@@ -5,6 +5,7 @@ import java.util.HashMap;
 import com.google.common.collect.Maps;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.inventory.EntityEquipmentSlot;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.client.event.TextureStitchEvent;
 import net.minecraftforge.client.model.ModelLoaderRegistry;
@@ -45,11 +46,11 @@ public class ClientProxy extends CommonProxy
 	}
 
 	@Override
-	public Object getBlockArmorModel(int height, int width, boolean isTranslucent, int frame) {
-		String key = height+""+width+""+isTranslucent+""+frame;
+	public Object getBlockArmorModel(int height, int width, boolean isTranslucent, int frame, EntityEquipmentSlot slot) {
+		String key = height+""+width+""+isTranslucent+""+frame+""+slot.getName();
 		ModelBlockArmor model = modelMaps.get(key);
 		if (model == null) {
-			model = new ModelBlockArmor(height, width, isTranslucent, frame);
+			model = new ModelBlockArmor(height, width, isTranslucent, frame, slot);
 			modelMaps.put(key, model);
 		}
 		return model;
