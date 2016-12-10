@@ -38,7 +38,7 @@ import net.minecraft.world.WorldServer;
 import net.minecraftforge.fml.relauncher.ReflectionHelper;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import twopiradians.blockArmor.client.model.ModelBlockArmor;
+import twopiradians.blockArmor.common.BlockArmor;
 import twopiradians.blockArmor.common.block.ModBlocks;
 
 public class ItemBlockArmor extends ItemArmor
@@ -88,8 +88,8 @@ public class ItemBlockArmor extends ItemArmor
 		int height = sprite.getIconHeight() * sprite.getFrameCount();
 		boolean isTranslucent = ArmorSet.getSet(this).isTranslucent;
 		int frame = ArmorSet.getAnimationFrame(this);
-        return new ModelBlockArmor(height, width, isTranslucent, frame, slot);
-		//return (ModelBiped) BlockArmor.proxy.getBlockArmorModel(height, width, isTranslucent, frame, slot);
+        //return new ModelBlockArmor(height, width, isTranslucent, frame, slot);
+		return (ModelBiped) BlockArmor.proxy.getBlockArmorModel(height, width, isTranslucent, frame, slot);
     }
 
 	/**Change display name based on the block*/

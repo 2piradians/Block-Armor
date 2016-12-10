@@ -38,7 +38,7 @@ public class BlockArmor
 	public static CommonProxy proxy;
 	public static Logger logger;
 	/**Should armor display be opened on chat event? ONLY WORKS IN SP*/
-	public static final boolean DISPLAY_ARMOR_GUI = false;
+	public static final boolean DISPLAY_ARMOR_GUI = true;
 	private File configFile;
 
 	@EventHandler
