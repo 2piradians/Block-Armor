@@ -49,9 +49,10 @@ public class ItemBlockArmor extends ItemArmor
 	/**Keeps track of current player for getAttributeModifiers method*/
 	public EntityLivingBase entityWearing;
 	/**Player's isJumping field*/
-	private EntityPlayer playerField;
+	private EntityPlayer playerField;//FIXME not server compatible either, is this bad?
 	/**Keeps track of which player's isJumping field is being used*/
 	private Field isJumpingField;
+	
 	public static final UUID MOVEMENT_SPEED_UUID = UUID.fromString("308e48ee-a300-4846-9b56-05e53e35eb8f");
 	public static final UUID ATTACK_SPEED_UUID = UUID.fromString("3094e67f-88f1-4d81-a59d-655d4e7e8065");
 	public static final UUID ATTACK_STRENGTH_UUID = UUID.fromString("d7dfa4ea-1cdf-4dd9-8842-883d7448cb00");
