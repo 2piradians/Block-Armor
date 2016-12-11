@@ -13,6 +13,7 @@ import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
+import twopiradians.blockArmor.client.gui.armorDisplay.OpenGuiEvent;
 import twopiradians.blockArmor.client.model.ModelBlockArmor;
 import twopiradians.blockArmor.client.model.ModelDynBlockArmor;
 import twopiradians.blockArmor.common.BlockArmor;
@@ -29,6 +30,8 @@ public class ClientProxy extends CommonProxy
 	public boolean remapTextures;
 	/**Is this the first time the world was loaded since restarting client*/
 	private boolean firstWorldLoad = true;
+	/**Allow ArmorSet to retry finding textures once if it can't find one*/
+	public boolean shouldRetryFindingTextures = true;
 
 	@Override
 	public void preInit() {
@@ -36,13 +39,15 @@ public class ClientProxy extends CommonProxy
 	}
 
 	@Override
-	public void init() {}
+	public void init() {
+		MinecraftForge.EVENT_BUS.register(this);
+		MinecraftForge.EVENT_BUS.register(new OpenGuiEvent());
+	}
 
 	@Override
 	public void postInit() {
 		ModBlocks.registerRenders();
 		ModItems.registerRenders();
-		MinecraftForge.EVENT_BUS.register(this);
 	}
 
 	@Override
@@ -57,7 +62,7 @@ public class ClientProxy extends CommonProxy
 	}
 
 	@SubscribeEvent
-	public void mapTextures(WorldEvent.Load event)
+	public void worldLoad(WorldEvent.Load event)
 	{
 		if (firstWorldLoad) { //used to map textures immediately if needed - sometimes ClientTickEvent doesn't get to it in time
 			firstWorldLoad = false;
@@ -66,7 +71,7 @@ public class ClientProxy extends CommonProxy
 	}
 
 	@SubscribeEvent
-	public void mapTextures(TickEvent.ClientTickEvent event)
+	public void clientTick(TickEvent.ClientTickEvent event)
 	{
 		if (remapTextures && Minecraft.getMinecraft().thePlayer != null)
 			this.mapTextures();
@@ -80,12 +85,23 @@ public class ClientProxy extends CommonProxy
 		//find block textures
 		remapTextures = false;
 		int numTextures = 0;
-		for (ArmorSet set : ArmorSet.allSets)
-			numTextures += set.initTextures();
+		for (ArmorSet set : ArmorSet.allSets) {
+			int ret = set.initTextures();
+			if (ret == -1) {
+				BlockArmor.logger.warn("Unable to find texture for item: "+set.stack.getDisplayName());
+				this.shouldRetryFindingTextures = false;
+				BlockArmor.logger.warn("Searching for textures again...");
+				this.remapTextures = true;
+				break;
+			}
+			else
+				numTextures += set.initTextures();
+		}
 		BlockArmor.logger.info("Found "+numTextures+" block textures for Block Armor");
 
 		//create inventory icons
 		if (!remapTextures) { //if all block textures were found
+			this.shouldRetryFindingTextures = true;
 			int numIcons = ModelDynBlockArmor.BakedDynBlockArmorOverrideHandler.createInventoryIcons();
 			BlockArmor.logger.info("Created "+numIcons+" inventory icons for Block Armor");
 		}

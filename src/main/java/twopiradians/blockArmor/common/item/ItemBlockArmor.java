@@ -96,7 +96,7 @@ public class ItemBlockArmor extends ItemArmor
 	@Override
 	public String getItemStackDisplayName(ItemStack stack)
 	{
-		return ArmorSet.getItemStackDisplayName(stack, this.getEquipmentSlot());
+		return ArmorSet.getItemStackDisplayName(stack, this.armorType);
 	}
 
 	/**Handles the attributes when wearing an armor set.*/
@@ -369,7 +369,7 @@ public class ItemBlockArmor extends ItemArmor
 		}
 
 		//only allow boots past this point
-		if (this.getEquipmentSlot() != EntityEquipmentSlot.FEET)
+		if (this.armorType != EntityEquipmentSlot.FEET)
 			return;
 
 		//Netherrack
@@ -562,7 +562,7 @@ public class ItemBlockArmor extends ItemArmor
 		ArmorSet set = ArmorSet.getSet(this);
 
 		//Depth Strider
-		if (set.block == Blocks.PRISMARINE && this.getEquipmentSlot() == EntityEquipmentSlot.FEET)
+		if (set.block == Blocks.PRISMARINE && this.armorType == EntityEquipmentSlot.FEET)
 		{
 			NBTTagList list = stack.getEnchantmentTagList();	
 			int targetId = 8;
@@ -612,7 +612,7 @@ public class ItemBlockArmor extends ItemArmor
 			}
 		}
 		//Respiration
-		if (set.block == Blocks.PRISMARINE && this.getEquipmentSlot() == EntityEquipmentSlot.HEAD)
+		if (set.block == Blocks.PRISMARINE && this.armorType == EntityEquipmentSlot.HEAD)
 		{
 			NBTTagList list = stack.getEnchantmentTagList();	
 			int targetId = 5;
@@ -662,7 +662,7 @@ public class ItemBlockArmor extends ItemArmor
 			}
 		}
 		//Frost Walker
-		if (set.block == Blocks.SNOW && this.getEquipmentSlot() == EntityEquipmentSlot.FEET)
+		if (set.block == Blocks.SNOW && this.armorType == EntityEquipmentSlot.FEET)
 		{
 			NBTTagList list = stack.getEnchantmentTagList();	
 			int targetId = 9;

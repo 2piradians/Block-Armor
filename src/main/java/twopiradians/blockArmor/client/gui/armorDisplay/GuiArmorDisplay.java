@@ -35,8 +35,7 @@ public class GuiArmorDisplay extends GuiScreen
 	/**List of all armors with set effects*/
 	private ArrayList<ItemBlockArmor> armors;
 
-	public GuiArmorDisplay()
-	{
+	public GuiArmorDisplay() {
 		guiPlayer = new EntityGuiPlayer(Minecraft.getMinecraft().theWorld, Minecraft.getMinecraft().thePlayer.getGameProfile(), Minecraft.getMinecraft().thePlayer);
 		//initialize armors with all armor that has a set effect
 		armors = new ArrayList<ItemBlockArmor>();
@@ -47,24 +46,13 @@ public class GuiArmorDisplay extends GuiScreen
 			}
 	}
 
-	/**
-	 * Adds the buttons (and other controls) to the screen in question.
-	 */
 	@Override
-	public void initGui() 
-	{
-		this.updateScreen();
+	public boolean doesGuiPauseGame() {
+		return false;
 	}
 
 	@Override
-	public boolean doesGuiPauseGame()
-	{
-		return true;
-	}
-
-	@Override
-	public void drawScreen(int mouseX, int mouseY, float partialTicks)
-	{
+	public void drawScreen(int mouseX, int mouseY, float partialTicks) {
 		//background
 		GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
 		mc.getTextureManager().bindTexture(backgroundPageTexture);

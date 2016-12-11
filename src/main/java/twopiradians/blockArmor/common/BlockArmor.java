@@ -12,10 +12,10 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventHandler;
 import net.minecraftforge.fml.common.SidedProxy;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
+import net.minecraftforge.fml.common.event.FMLMissingMappingsEvent;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.registry.GameRegistry;
-import twopiradians.blockArmor.client.gui.armorDisplay.OpenGuiEvent;
 import twopiradians.blockArmor.common.block.ModBlocks;
 import twopiradians.blockArmor.common.config.Config;
 import twopiradians.blockArmor.common.events.IgniteTargetEvent;
@@ -37,60 +37,53 @@ public class BlockArmor
 	@SidedProxy(clientSide = "twopiradians.blockArmor.client.ClientProxy", serverSide = "twopiradians.blockArmor.common.CommonProxy")
 	public static CommonProxy proxy;
 	public static Logger logger;
-	/**Should armor display be opened on chat event? ONLY WORKS IN SP*/
-	public static final boolean DISPLAY_ARMOR_GUI = true;
+	/**Should armor display be opened on chat event?*/
+	public static final boolean DISPLAY_ARMOR_GUI = false;
 	private File configFile;
 
 	@EventHandler
-	public void preInit(FMLPreInitializationEvent event)
-	{
+	public void preInit(FMLPreInitializationEvent event) {
+		configFile = event.getSuggestedConfigurationFile();
 		logger = event.getModLog();
 		proxy.preInit();
 		ModBlocks.preInit();
 		ModTileEntities.preInit();
-		this.configFile = event.getSuggestedConfigurationFile();
 	}
 
 	@EventHandler
-	public void init(FMLInitializationEvent event)
-	{
+	public void init(FMLInitializationEvent event) {
 		proxy.init();
 		registerEventListeners();
 	}
 
 	@EventHandler
-	public void postInit(FMLPostInitializationEvent event)
-	{
+	public void postInit(FMLPostInitializationEvent event) {
 		ArmorSet.postInit();
 		Config.postInit(configFile);
 		ModItems.postInit();
 		registerRecipes();
 		proxy.postInit();
 	}
+	
+	@Mod.EventHandler
+	public void missingMapping(FMLMissingMappingsEvent event) {
+		//TODO remap old armors to new ones
+	}
 
 	private void registerRecipes() {
 		for (ArmorSet set : ArmorSet.allSets) {
-			if (set.block == Blocks.EMERALD_BLOCK) {
-				GameRegistry.addShapedRecipe(new ItemStack(set.helmet),"AAA","A A",'A', new ItemStack(Items.EMERALD));
-				GameRegistry.addShapedRecipe(new ItemStack(set.chestplate),"A A","AAA","AAA",'A', new ItemStack(Items.EMERALD));
-				GameRegistry.addShapedRecipe(new ItemStack(set.leggings),"AAA","A A","A A",'A', new ItemStack(Items.EMERALD));
-				GameRegistry.addShapedRecipe(new ItemStack(set.boots),"A A","A A",'A', new ItemStack(Items.EMERALD));
-			}
-			else {
-				GameRegistry.addShapedRecipe(new ItemStack(set.helmet),"AAA","A A",'A', set.stack);
-				GameRegistry.addShapedRecipe(new ItemStack(set.chestplate),"A A","AAA","AAA",'A', set.stack);
-				GameRegistry.addShapedRecipe(new ItemStack(set.leggings),"AAA","A A","A A",'A', set.stack);
-				GameRegistry.addShapedRecipe(new ItemStack(set.boots),"A A","A A",'A', set.stack);
-			}
+			ItemStack stack = set.block == Blocks.EMERALD_BLOCK ? new ItemStack(Items.EMERALD) : set.stack;
+			GameRegistry.addShapedRecipe(new ItemStack(set.helmet),"AAA","A A",'A', stack);
+			GameRegistry.addShapedRecipe(new ItemStack(set.chestplate),"A A","AAA","AAA",'A', stack);
+			GameRegistry.addShapedRecipe(new ItemStack(set.leggings),"AAA","A A","A A",'A', stack);
+			GameRegistry.addShapedRecipe(new ItemStack(set.boots),"A A","A A",'A', stack);
 		}
 	}
 
-	private void registerEventListeners()
-	{
+	private void registerEventListeners() {
 		MinecraftForge.EVENT_BUS.register(new IncreaseFortuneEvent());
 		MinecraftForge.EVENT_BUS.register(new Config());
 		MinecraftForge.EVENT_BUS.register(new StopFallDamageEvent());
 		MinecraftForge.EVENT_BUS.register(new IgniteTargetEvent());
-		MinecraftForge.EVENT_BUS.register(new OpenGuiEvent());
 	}
 }

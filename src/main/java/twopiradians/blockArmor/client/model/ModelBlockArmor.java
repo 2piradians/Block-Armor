@@ -59,13 +59,13 @@ public class ModelBlockArmor extends ModelBiped
 		switch (slot) {
 		
 		case HEAD:
-			//HELMET
+			 //HELMET
 			this.bipedHead.cubeList.add(new ModelPlane(bipedHead, 9, 3+yOffset, -5.0f, -9.0f, -5.0f, 10, 0, 10, false)); //top
 			this.bipedHead.cubeList.add(new ModelPlane(bipedHead, 3, 0+yOffset, -5.0f, -9.0f, 5.0f, 10, 8, 0, true)); //back
 			this.bipedHead.cubeList.add(new ModelPlane(bipedHead, 5, 8+yOffset, -3.0f, -1.0f, 5.0f, 6, 1, 0, true)); //back bottom
-			this.bipedHead.cubeList.add(new ModelPlane(bipedHead, 0, 6+yOffset, -5.0f, -9.0f, -5.0f, 0, 5, 10, false)); //right
+			this.bipedHead.cubeList.add(new ModelPlane(bipedHead, 0, -10+yOffset, -5.0f, -9.0f, -5.0f, 0, 5, 10, false)); //right
 			this.bipedHead.cubeList.add(new ModelPlane(bipedHead, 0, 0+yOffset, -5.0f, -4.0f, -0.0f, 0, 1, 5, false)); //right bottom
-			this.bipedHead.cubeList.add(new ModelPlane(bipedHead, 6, 6+yOffset, 5.0f, -9.0f, -5.0f, 0, 5, 10, true)); //left
+			this.bipedHead.cubeList.add(new ModelPlane(bipedHead, 6, -10+yOffset, 5.0f, -9.0f, -5.0f, 0, 5, 10, true)); //left
 			this.bipedHead.cubeList.add(new ModelPlane(bipedHead, 11, 0+yOffset, 5.0f, -4.0f, -0.0f, 0, 1, 5, true)); //left bottom
 			this.bipedHead.cubeList.add(new ModelPlane(bipedHead, 3, 0+yOffset, -5.0f, -9.0f, -5.0f, 10, 4, 0, false)); //front
 			this.bipedHead.cubeList.add(new ModelPlane(bipedHead, 0, 4+yOffset, -5.0F, -5.0F, -5.0F, 1, 1, 0, false)); //front left
@@ -74,7 +74,7 @@ public class ModelBlockArmor extends ModelBiped
 			break;
 
 		case CHEST:
-			//CHEST
+			 //CHEST
 			this.bipedBody.cubeList.add(new ModelPlane(bipedBody, 3, 4+yOffset, -5.0F, 1.0F, -3.0F, 10, 8, 0, false)); //front
 			this.bipedBody.cubeList.add(new ModelPlane(bipedBody, 4, 12+yOffset, -4.0F, 9.0F, -3.0F, 8, 1, 0, false)); //front bottom mid
 			this.bipedBody.cubeList.add(new ModelPlane(bipedBody, 5, 13+yOffset, -3.0F, 10.0F, -3.0F, 6, 1, 0, false)); //front bottom
@@ -82,33 +82,33 @@ public class ModelBlockArmor extends ModelBiped
 			this.bipedBody.cubeList.add(new ModelPlane(bipedBody, 5, 2+yOffset, -3.0F, -0.0F, -3.0F, 1, 1, 0, false)); //front top right 1x1
 			this.bipedBody.cubeList.add(new ModelPlane(bipedBody, 11, 2+yOffset, 3.0F, -1.0F, -3.0F, 2, 2, 0, false)); //front top left 2x2
 			this.bipedBody.cubeList.add(new ModelPlane(bipedBody, 10, 2+yOffset, 2.0F, -0.0F, -3.0F, 1, 1, 0, false)); //front top left 1x1
-			this.bipedBody.cubeList.add(new ModelPlane(bipedBody, 5, 12+yOffset, -5.0F, -1.0F, -3.0F, 0, 10, 6, true)); //right 
-			this.bipedBody.cubeList.add(new ModelPlane(bipedBody, 5, 12+yOffset, 5.0F, -1.0F, -3.0F, 0, 10, 6, false)); //left 
+			this.bipedBody.cubeList.add(new ModelPlane(bipedBody, 5, -4+yOffset, -5.0F, -1.0F, -3.0F, 0, 10, 6, true)); //right 
+			this.bipedBody.cubeList.add(new ModelPlane(bipedBody, 5, -4+yOffset, 5.0F, -1.0F, -3.0F, 0, 10, 6, false)); //left 
 			this.bipedBody.cubeList.add(new ModelPlane(bipedBody, 3, 3+yOffset, -5.0F, 0.0F, 3.0F, 10, 9, 0, true)); //back 
 			this.bipedBody.cubeList.add(new ModelPlane(bipedBody, 11, 2+yOffset, -5.0F, -1.0F, 3.0F, 2, 1, 0, true)); //back top right 
 			this.bipedBody.cubeList.add(new ModelPlane(bipedBody, 3, 2+yOffset, 3.0F, -1.0F, 3.0F, 2, 1, 0, true)); //back top left 
 			this.bipedBody.cubeList.add(new ModelPlane(bipedBody, 4, 12+yOffset, -4.0F, 9.0F, 3.0F, 8, 1, 0, true)); //back bottom
 
 			//RIGHT ARM
-			this.bipedRightArm.cubeList.add(new ModelPlane(bipedRightArm, 5, 15+yOffset, -4.5F, -3.0F, -3.0F, 0, 6, 6, true)); //right
-			this.bipedRightArm.cubeList.add(new ModelPlane(bipedRightArm, 5, 15+yOffset, 1.5F, -3.0F, -3.0F, 0, 6, 6, true)); //left
+			this.bipedRightArm.cubeList.add(new ModelPlane(bipedRightArm, 5, -1+yOffset, -4.5F, -3.0F, -3.0F, 0, 6, 6, true)); //right
+			this.bipedRightArm.cubeList.add(new ModelPlane(bipedRightArm, 5, -1+yOffset, 1.5F, -3.0F, -3.0F, 0, 6, 6, true)); //left
 			this.bipedRightArm.cubeList.add(new ModelPlane(bipedRightArm, 5, 5+yOffset, -4.5F, -3.0F, -3.0F, 6, 6, 0, false)); //front
 			this.bipedRightArm.cubeList.add(new ModelPlane(bipedRightArm, 5, 5+yOffset, -4.5F, -3.0F, 3.0F, 6, 6, 0, true)); //back
 			this.bipedRightArm.cubeList.add(new ModelPlane(bipedRightArm, 15, 5+yOffset, -4.5F, -3.0F, -3.0F, 6, 0, 6, false)); //top
 
 			//LEFT ARM
-			this.bipedLeftArm.cubeList.add(new ModelPlane(bipedLeftArm, 5, 15+yOffset, -1.5F, -3.0F, -3.0F, 0, 6, 6, false)); //right
-			this.bipedLeftArm.cubeList.add(new ModelPlane(bipedLeftArm, 5, 15+yOffset, 4.5F, -3.0F, -3.0F, 0, 6, 6, false)); //left
+			this.bipedLeftArm.cubeList.add(new ModelPlane(bipedLeftArm, 5, -1+yOffset, -1.5F, -3.0F, -3.0F, 0, 6, 6, false)); //right
+			this.bipedLeftArm.cubeList.add(new ModelPlane(bipedLeftArm, 5, -1+yOffset, 4.5F, -3.0F, -3.0F, 0, 6, 6, false)); //left
 			this.bipedLeftArm.cubeList.add(new ModelPlane(bipedLeftArm, 5, 5+yOffset, -1.5F, -3.0F, -3.0F, 6, 6, 0, false)); //front
 			this.bipedLeftArm.cubeList.add(new ModelPlane(bipedLeftArm, 5, 5+yOffset, -1.5F, -3.0F, 3.0F, 6, 6, 0, true)); //back
 			this.bipedLeftArm.cubeList.add(new ModelPlane(bipedLeftArm, 15, 5+yOffset, -1.5F, -3.0F, -3.0F, 6, 0, 6, false)); //top
 			break;
 
 		case LEGS:
-			//WAIST
+			 //WAIST
 			this.bipedWaist.cubeList.add(new ModelPlane(bipedWaist, 3, 1+yOffset, -4.5F, 6.5F, -2.5F, 9, 6, 0, false)); //front
-			this.bipedWaist.cubeList.add(new ModelPlane(bipedWaist, 5, 12+yOffset, -4.5F, 6.5F, -2.5F, 0, 6, 5, true)); //right 
-			this.bipedWaist.cubeList.add(new ModelPlane(bipedWaist, 5, 12+yOffset, 4.5F, 6.5F, -2.5F, 0, 6, 5, false)); //left 
+			this.bipedWaist.cubeList.add(new ModelPlane(bipedWaist, 5, -4+yOffset, -4.5F, 6.5F, -2.5F, 0, 6, 5, true)); //right 
+			this.bipedWaist.cubeList.add(new ModelPlane(bipedWaist, 5, -4+yOffset, 4.5F, 6.5F, -2.5F, 0, 6, 5, false)); //left 
 			this.bipedWaist.cubeList.add(new ModelPlane(bipedWaist, 3, 1+yOffset, -4.5F, 6.5F, 2.5F, 9, 6, 0, true)); //back
 
 			//RIGHT LEG
@@ -128,17 +128,17 @@ public class ModelBlockArmor extends ModelBiped
 
 		case FEET:
 			//RIGHT FOOT
-			this.bipedRightFoot.cubeList.add(new ModelPlane(bipedRightFoot, 10, 10+yOffset, -3.0F, 6.0F, -3.0F, 0, 7, 6, false)); //right
-			this.bipedRightFoot.cubeList.add(new ModelPlane(bipedRightFoot, 10, 10+yOffset, 3.0F, 6.0F, -3.0F, 0, 7, 6, true)); //left
-			this.bipedRightFoot.cubeList.add(new ModelPlane(bipedRightFoot, 0, 0+yOffset, -3.0F, 6.0F, -3.0F, 6, 7, 0, false)); //front
-			this.bipedRightFoot.cubeList.add(new ModelPlane(bipedRightFoot, 4, 0+yOffset, -3.0F, 6.0F, 3.0F, 6, 7, 0, true)); //back
+			this.bipedRightFoot.cubeList.add(new ModelPlane(bipedRightFoot, 13, -6+yOffset, -3.0F, 6.0F, -3.0F, 0, 7, 6, false)); //right
+			this.bipedRightFoot.cubeList.add(new ModelPlane(bipedRightFoot, 13, -6+yOffset, 3.0F, 6.0F, -3.0F, 0, 7, 6, true)); //left
+			this.bipedRightFoot.cubeList.add(new ModelPlane(bipedRightFoot, 3, 0+yOffset, -3.0F, 6.0F, -3.0F, 6, 7, 0, false)); //front
+			this.bipedRightFoot.cubeList.add(new ModelPlane(bipedRightFoot, 7, 0+yOffset, -3.0F, 6.0F, 3.0F, 6, 7, 0, true)); //back
 			this.bipedRightFoot.cubeList.add(new ModelPlane(bipedRightFoot, 10, 0+yOffset, -3.0F, 13.0F, -3.0F, 6, 0, 6, false)); //bottom
 
 			//LEFT FOOT
-			this.bipedLeftFoot.cubeList.add(new ModelPlane(bipedLeftFoot, 10, 10+yOffset, -3.0F, 6.0F, -3.0F, 0, 7, 6, true)); //right
-			this.bipedLeftFoot.cubeList.add(new ModelPlane(bipedLeftFoot, 10, 10+yOffset, 3.0F, 6.0F, -3.0F, 0, 7, 6, true)); //left
-			this.bipedLeftFoot.cubeList.add(new ModelPlane(bipedLeftFoot, 4, 0+yOffset, -3.0F, 6.0F, -3.0F, 6, 7, 0, false)); //front
-			this.bipedLeftFoot.cubeList.add(new ModelPlane(bipedLeftFoot, 0, 0+yOffset, -3.0F, 6.0F, 3.0F, 6, 7, 0, true)); //back
+			this.bipedLeftFoot.cubeList.add(new ModelPlane(bipedLeftFoot, 13, -6+yOffset, -3.0F, 6.0F, -3.0F, 0, 7, 6, true)); //right
+			this.bipedLeftFoot.cubeList.add(new ModelPlane(bipedLeftFoot, 13, -6+yOffset, 3.0F, 6.0F, -3.0F, 0, 7, 6, true)); //left
+			this.bipedLeftFoot.cubeList.add(new ModelPlane(bipedLeftFoot, 7, 0+yOffset, -3.0F, 6.0F, -3.0F, 6, 7, 0, false)); //front
+			this.bipedLeftFoot.cubeList.add(new ModelPlane(bipedLeftFoot, 3, 0+yOffset, -3.0F, 6.0F, 3.0F, 6, 7, 0, true)); //back
 			this.bipedLeftFoot.cubeList.add(new ModelPlane(bipedLeftFoot, 10, 0+yOffset, -3.0F, 13.0F, -3.0F, 6, 0, 6, false)); //bottom
 			break;
 
