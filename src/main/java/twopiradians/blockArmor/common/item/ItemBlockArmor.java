@@ -43,15 +43,24 @@ import twopiradians.blockArmor.common.block.ModBlocks;
 
 public class ItemBlockArmor extends ItemArmor
 {
-	private int xpCooldown = 50;//FIXME put cooldowns in nbt
-	private int endstoneCooldown = 100;
+	//FIXME ALL non-static fields need to be removed and/or replaced with nbt or static fields
+	
+	//combine cooldowns into one universal nbt cooldown
+	private int xpCooldown = 50;
+	private int endstoneCooldown = 100; 
 	private int slimeCooldown = 10;
+	
+	//move entityWearing to nbt 
 	/**Keeps track of current player for getAttributeModifiers method*/
 	public EntityLivingBase entityWearing;
+	
+	//only used on client, so can replaced with EntityPlayerSP#movementInput#jump
 	/**Player's isJumping field*/
-	private EntityPlayer playerField;//FIXME not server compatible either, is this bad?
+	private EntityPlayer playerField;
 	/**Keeps track of which player's isJumping field is being used*/
 	private Field isJumpingField;
+	
+	//^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 	
 	public static final UUID MOVEMENT_SPEED_UUID = UUID.fromString("308e48ee-a300-4846-9b56-05e53e35eb8f");
 	public static final UUID ATTACK_SPEED_UUID = UUID.fromString("3094e67f-88f1-4d81-a59d-655d4e7e8065");
