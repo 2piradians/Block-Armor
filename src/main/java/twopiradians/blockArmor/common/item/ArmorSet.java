@@ -85,11 +85,13 @@ public class ArmorSet {
 	public ItemBlockArmor boots;
 	public boolean isFromModdedBlock;
 
-	//CLIENT SIDE ONLY FIELDS
+	@SideOnly(Side.CLIENT)
 	public boolean isTranslucent;
 	/**Array of sprites for the block's texture sorted by EntityEquipmentSlot id*/
+	@SideOnly(Side.CLIENT)
 	private TextureAtlasSprite[] sprites;
 	/**Array of fields for TextureAtlasSprite's frameCounter (or null if not animated) sorted by EntityEquipmentSlot id*/
+	@SideOnly(Side.CLIENT)
 	private Field[] frameFields;
 
 	@SuppressWarnings("deprecation")
@@ -171,6 +173,7 @@ public class ArmorSet {
 				if (!registryNames.contains(registryName)) {
 					allSets.add(new ArmorSet(stack, false));
 					registryNames.add(registryName);
+					BlockArmor.logger.debug("Created ArmorSet for: "+stack.getDisplayName());
 				}
 			}
 
@@ -181,6 +184,7 @@ public class ArmorSet {
 	}
 
 	/**Returns TextureAtlasSprite corresponding to given ItemModArmor*/
+	@SideOnly(Side.CLIENT)
 	public static TextureAtlasSprite getSprite(ItemBlockArmor item) {
 		ArmorSet set = ArmorSet.getSet(item);
 		if (set != null) 
@@ -190,6 +194,7 @@ public class ArmorSet {
 	}
 
 	/**Returns TextureAtlasSprite corresponding to given ItemModArmor*/
+	@SideOnly(Side.CLIENT)
 	public static int getAnimationFrame(ItemBlockArmor item) {
 		ArmorSet set = ArmorSet.getSet(item);
 		if (set != null) {
@@ -207,6 +212,7 @@ public class ArmorSet {
 			return 0;
 	}
 
+	/**Used to uniformly create registry name*/
 	public static String getItemStackRegistryName(ItemStack stack) {
 		String registryName = stack.getItem().getRegistryName().getResourcePath().toLowerCase().replace(" ", "_");
 		registryName += (stack.getHasSubtypes() ? "_"+stack.getMetadata() : "");
@@ -220,8 +226,10 @@ public class ArmorSet {
 			ArmorSet set = ArmorSet.getSet((ItemBlockArmor) stack.getItem());
 			name = set.stack.getDisplayName();
 		}
-		else
+		else if (stack.getItem() != null)
 			name = stack.getDisplayName();
+		else
+			name = "";
 
 		if (slot != null)
 			switch (slot) {
@@ -356,14 +364,16 @@ public class ArmorSet {
 				this.frameFields[EntityEquipmentSlot.FEET.getIndex()] = field;
 			}
 
-			if (sprite.getIconName().equals(TextureMap.LOCATION_MISSING_TEXTURE.getResourcePath()) &&
-					((ClientProxy)BlockArmor.proxy).shouldRetryFindingTextures)
-				return -1;
+			if (sprite.getIconName().equals(TextureMap.LOCATION_MISSING_TEXTURE.getResourcePath())) {
+				BlockArmor.logger.debug("Missing texture for: "+this.stack.getDisplayName() + ", Face: "+quad.getFace());
+				if (((ClientProxy)BlockArmor.proxy).shouldRetryFindingTextures)
+					return -1;
+			}
 
 			numTextures++;
 		}
 
-		//Check for inventory texture overrides (expects block texture) - location must be registered in ClientProxy TextureStitchEvent.Pre
+		//Check for block texture overrides - location must be registered in ClientProxy TextureStitchEvent.Pre
 		ResourceLocation texture = new ResourceLocation(BlockArmor.MODID+":textures/items/"+item.getRegistryName().getResourcePath().toLowerCase().replace(" ", "_")+".png");
 		try {
 			Minecraft.getMinecraft().getResourceManager().getResource(texture); //does texture exist?
@@ -377,7 +387,7 @@ public class ArmorSet {
 			this.frameFields[EntityEquipmentSlot.LEGS.getIndex()] = null;
 			this.sprites[EntityEquipmentSlot.FEET.getIndex()] = sprite;
 			this.frameFields[EntityEquipmentSlot.FEET.getIndex()] = null;
-			//BlockArmor.logger.info("Texture found at: "+texture.toString());
+			BlockArmor.logger.debug("Override texture found at: "+texture.toString());
 		} catch (Exception e) {
 			//BlockArmor.logger.info("No texture found at: "+texture.toString());
 		}

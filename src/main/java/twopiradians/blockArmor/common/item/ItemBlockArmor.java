@@ -44,24 +44,24 @@ import twopiradians.blockArmor.common.block.ModBlocks;
 public class ItemBlockArmor extends ItemArmor
 {
 	//FIXME ALL non-static fields need to be removed and/or replaced with nbt or static fields
-	
+
 	//combine cooldowns into one universal nbt cooldown
 	private int xpCooldown = 50;
 	private int endstoneCooldown = 100; 
 	private int slimeCooldown = 10;
-	
+
 	//move entityWearing to nbt 
 	/**Keeps track of current player for getAttributeModifiers method*/
 	public EntityLivingBase entityWearing;
-	
+
 	//only used on client, so can replaced with EntityPlayerSP#movementInput#jump
 	/**Player's isJumping field*/
 	private EntityPlayer playerField;
 	/**Keeps track of which player's isJumping field is being used*/
 	private Field isJumpingField;
-	
+
 	//^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-	
+
 	public static final UUID MOVEMENT_SPEED_UUID = UUID.fromString("308e48ee-a300-4846-9b56-05e53e35eb8f");
 	public static final UUID ATTACK_SPEED_UUID = UUID.fromString("3094e67f-88f1-4d81-a59d-655d4e7e8065");
 	public static final UUID ATTACK_STRENGTH_UUID = UUID.fromString("d7dfa4ea-1cdf-4dd9-8842-883d7448cb00");
@@ -80,6 +80,7 @@ public class ItemBlockArmor extends ItemArmor
 
 	/**Change armor texture based on block*/
 	@Override
+	@SideOnly(Side.CLIENT)
 	public String getArmorTexture(ItemStack stack, Entity entity, EntityEquipmentSlot slot, String type)
 	{
 		TextureAtlasSprite sprite = ArmorSet.getSprite(this);
@@ -88,19 +89,19 @@ public class ItemBlockArmor extends ItemArmor
 		texture = texture.substring(0, index+1)+"textures/"+texture.substring(index+1);
 		return texture;
 	}
-	
+
 	@Override
-    @SideOnly(Side.CLIENT)
-    public ModelBiped getArmorModel(EntityLivingBase entity, ItemStack stack, EntityEquipmentSlot slot, ModelBiped oldModel)
-    {
+	@SideOnly(Side.CLIENT)
+	public ModelBiped getArmorModel(EntityLivingBase entity, ItemStack stack, EntityEquipmentSlot slot, ModelBiped oldModel)
+	{
 		TextureAtlasSprite sprite = ArmorSet.getSprite(this);
 		int width = sprite.getIconWidth();
 		int height = sprite.getIconHeight() * sprite.getFrameCount();
 		boolean isTranslucent = ArmorSet.getSet(this).isTranslucent;
 		int frame = ArmorSet.getAnimationFrame(this);
-        //return new ModelBlockArmor(height, width, isTranslucent, frame, slot);
+		//return new ModelBlockArmor(height, width, isTranslucent, frame, slot);
 		return (ModelBiped) BlockArmor.proxy.getBlockArmorModel(height, width, isTranslucent, frame, slot);
-    }
+	}
 
 	/**Change display name based on the block*/
 	@Override
@@ -216,12 +217,13 @@ public class ItemBlockArmor extends ItemArmor
 
 		if (GuiScreen.isShiftKeyDown())
 			tooltip.add(TEXT_FORMATTING_SET_EFFECT_EXTRA+"Generated from: "+set.stack.getDisplayName());
-		
+
 		if (set.hasSetEffect)
 			tooltip = this.addFullSetEffectTooltip(tooltip);
 	}
 
 	/**Deals with armor tooltips.*/
+	@SideOnly(Side.CLIENT)
 	public List<String> addFullSetEffectTooltip(List<String> tooltip) 
 	{
 		ArmorSet set = ArmorSet.getSet(this);
@@ -348,7 +350,7 @@ public class ItemBlockArmor extends ItemArmor
 		ArmorSet set = ArmorSet.getSet(this);		
 		if (!ArmorSet.isSetEffectEnabled(set) || !ArmorSet.isWearingFullSet(player, set))
 			return;
-		
+
 		if (player != playerField) //if new player or don't have field yet, get field
 		{ 
 			isJumpingField = ReflectionHelper.findField(EntityLivingBase.class, new String[] {"isJumping", "field_70703_bu"});
@@ -413,10 +415,9 @@ public class ItemBlockArmor extends ItemArmor
 					&& world.getBlockState(new BlockPos(player.posX, player.posY+1, player.posZ)) != 
 					ModBlocks.movinglightsource.getDefaultState()
 					&& world.getBlockState(new BlockPos(player.posX, player.posY+1, player.posZ)) == Blocks.AIR.getDefaultState())
-			{
 				world.setBlockState(new BlockPos(player.posX, player.posY+1, player.posZ), ModBlocks.movinglightsource.getDefaultState());
-			}
 		}
+
 		//Snow
 		//spawns snow, snowballs, and particles while sneaking; frost walking 2
 		if (player.isSneaking() && set.block == Blocks.SNOW)
@@ -567,7 +568,7 @@ public class ItemBlockArmor extends ItemArmor
 	}
 
 	/**Does the (dis)enchanting of the armor*/
-	public void doEnchantments(ItemStack stack, EntityLivingBase entity) 
+	private void doEnchantments(ItemStack stack, EntityLivingBase entity) 
 	{
 		ArmorSet set = ArmorSet.getSet(this);
 

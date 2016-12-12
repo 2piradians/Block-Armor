@@ -30,13 +30,14 @@ public class ModItems
 					moddedItems += 4;
 				else
 					vanillaItems += 4;
+				BlockArmor.logger.debug("Generated armor for: "+set.stack.getDisplayName());
 			}
+			else
+				BlockArmor.logger.debug("Armor generation disabled for: "+set.stack.getDisplayName());
 
 		BlockArmor.logger.info("Generated "+vanillaItems+" Block Armor items from Vanilla Blocks");
 		if (moddedItems > 0)
 			BlockArmor.logger.info("Generated "+moddedItems+" Block Armor items from Modded Blocks");
-		/*for (ArmorSet set : generatedSets) 
-			BlockArmor.logger.info("- "+set.stack.getDisplayName());*/
 	}
 
 	public static void registerRenders() {

@@ -19,12 +19,15 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.util.text.translation.I18n;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 import twopiradians.blockArmor.common.BlockArmor;
 import twopiradians.blockArmor.common.item.ArmorSet;
 import twopiradians.blockArmor.common.item.ItemBlockArmor;
 import twopiradians.blockArmor.common.item.ModItems;
 
 @SuppressWarnings("deprecation")
+@SideOnly(Side.CLIENT)
 public class GuiArmorDisplay extends GuiScreen
 {
 	public final ResourceLocation backgroundPageTexture = new ResourceLocation(BlockArmor.MODID+":textures/gui/armor_display_background.png");
