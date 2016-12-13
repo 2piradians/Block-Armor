@@ -6,6 +6,7 @@ import org.apache.logging.log4j.Logger;
 
 import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.Mod;
@@ -13,6 +14,7 @@ import net.minecraftforge.fml.common.Mod.EventHandler;
 import net.minecraftforge.fml.common.SidedProxy;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLMissingMappingsEvent;
+import net.minecraftforge.fml.common.event.FMLMissingMappingsEvent.MissingMapping;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.registry.GameRegistry;
@@ -64,11 +66,6 @@ public class BlockArmor
 		registerRecipes();
 		proxy.postInit();
 	}
-	
-	@Mod.EventHandler
-	public void missingMapping(FMLMissingMappingsEvent event) {
-		//TODO remap old armors to new ones
-	}
 
 	private void registerRecipes() {
 		for (ArmorSet set : ArmorSet.allSets) {
@@ -85,5 +82,105 @@ public class BlockArmor
 		MinecraftForge.EVENT_BUS.register(new Config());
 		MinecraftForge.EVENT_BUS.register(new StopFallDamageEvent());
 		MinecraftForge.EVENT_BUS.register(new IgniteTargetEvent());
+	}
+	
+	/**Replace armor from old versions to new auto-generated armor and ignore other missing mappings*/
+	@Mod.EventHandler
+	public void missingMapping(FMLMissingMappingsEvent event) {
+		for (MissingMapping mapping : event.get()) {
+			try {
+				String block = mapping.name.replace("blockarmor:", "");
+				String armor = block.substring(block.indexOf("_")+1);
+				block = block.substring(0, block.indexOf("_"));
+				ArmorSet set = null;
+				if (block.equalsIgnoreCase("sugarcane"))
+					set = ArmorSet.getSet(Blocks.REEDS, 0);
+				else if (block.equalsIgnoreCase("stone"))
+					set = ArmorSet.getSet(Blocks.STONE, 0);
+				else if (block.equalsIgnoreCase("sprucewood"))
+					set = ArmorSet.getSet(Blocks.LOG, 1);
+				else if (block.equalsIgnoreCase("sprucewoodplanks"))
+					set = ArmorSet.getSet(Blocks.PLANKS, 1);
+				else if (block.equalsIgnoreCase("snow"))
+					set = ArmorSet.getSet(Blocks.SNOW, 0);
+				else if (block.equalsIgnoreCase("smoothgranite"))
+					set = ArmorSet.getSet(Blocks.STONE, 2);
+				else if (block.equalsIgnoreCase("smoothdiorite"))
+					set = ArmorSet.getSet(Blocks.STONE, 4);
+				else if (block.equalsIgnoreCase("smoothandesite"))
+					set = ArmorSet.getSet(Blocks.STONE, 6);
+				else if (block.equalsIgnoreCase("slime"))
+					set = ArmorSet.getSet(Blocks.SLIME_BLOCK, 0);
+				else if (block.equalsIgnoreCase("redstone"))
+					set = ArmorSet.getSet(Blocks.REDSTONE_BLOCK, 0);
+				else if (block.equalsIgnoreCase("quartz"))
+					set = ArmorSet.getSet(Blocks.QUARTZ_BLOCK, 0);
+				else if (block.equalsIgnoreCase("obsidian"))
+					set = ArmorSet.getSet(Blocks.OBSIDIAN, 0);
+				else if (block.equalsIgnoreCase("oakwood"))
+					set = ArmorSet.getSet(Blocks.LOG, 0);
+				else if (block.equalsIgnoreCase("oakwoodplanks"))
+					set = ArmorSet.getSet(Blocks.PLANKS, 0);
+				else if (block.equalsIgnoreCase("netherrack"))
+					set = ArmorSet.getSet(Blocks.NETHERRACK, 0);
+				else if (block.equalsIgnoreCase("lapis"))
+					set = ArmorSet.getSet(Blocks.LAPIS_BLOCK, 0);
+				else if (block.equalsIgnoreCase("junglewood"))
+					set = ArmorSet.getSet(Blocks.LOG, 3);
+				else if (block.equalsIgnoreCase("junglewoodplanks"))
+					set = ArmorSet.getSet(Blocks.PLANKS, 3);
+				else if (block.equalsIgnoreCase("granite"))
+					set = ArmorSet.getSet(Blocks.STONE, 1);
+				else if (block.equalsIgnoreCase("endstone"))
+					set = ArmorSet.getSet(Blocks.END_STONE, 0);
+				else if (block.equalsIgnoreCase("emerald"))
+					set = ArmorSet.getSet(Blocks.EMERALD_BLOCK, 0);
+				else if (block.equalsIgnoreCase("dirt"))
+					set = ArmorSet.getSet(Blocks.DIRT, 0);
+				else if (block.equalsIgnoreCase("diorite"))
+					set = ArmorSet.getSet(Blocks.STONE, 3);
+				else if (block.equalsIgnoreCase("darkprismarine"))
+					set = ArmorSet.getSet(Blocks.PRISMARINE, 2);
+				else if (block.equalsIgnoreCase("darkoakwood"))
+					set = ArmorSet.getSet(Blocks.LOG2, 1);
+				else if (block.equalsIgnoreCase("darkoakwoodplanks"))
+					set = ArmorSet.getSet(Blocks.PLANKS, 5);
+				else if (block.equalsIgnoreCase("cobble"))
+					set = ArmorSet.getSet(Blocks.COBBLESTONE, 0);
+				else if (block.equalsIgnoreCase("brick"))
+					set = ArmorSet.getSet(Blocks.BRICK_BLOCK, 0);
+				else if (block.equalsIgnoreCase("birchwood"))
+					set = ArmorSet.getSet(Blocks.LOG, 2);
+				else if (block.equalsIgnoreCase("birchwoodplanks"))
+					set = ArmorSet.getSet(Blocks.PLANKS, 2);
+				else if (block.equalsIgnoreCase("bedrock"))
+					set = ArmorSet.getSet(Blocks.BEDROCK, 0);
+				else if (block.equalsIgnoreCase("andesite"))
+					set = ArmorSet.getSet(Blocks.STONE, 5);
+				else if (block.equalsIgnoreCase("acaciawood"))
+					set = ArmorSet.getSet(Blocks.LOG2, 0);
+				else if (block.equalsIgnoreCase("acaciawoodplanks"))
+					set = ArmorSet.getSet(Blocks.PLANKS, 4);
+				
+				Item item = null;
+				
+				if (set != null) {
+					if (armor.equalsIgnoreCase("helmet"))
+						item = set.helmet;
+					else if (armor.equalsIgnoreCase("chestplate"))
+						item = set.chestplate;
+					else if (armor.equalsIgnoreCase("leggings"))
+						item = set.leggings;
+					else if (armor.equalsIgnoreCase("boots"))
+						item = set.boots;
+				}
+				
+				if (item != null)
+					mapping.remap(item);
+				else
+					mapping.ignore();
+			}
+			catch (Exception e) {}
+		}
 	}
 }

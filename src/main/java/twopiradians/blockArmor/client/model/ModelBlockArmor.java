@@ -1,5 +1,6 @@
 package twopiradians.blockArmor.client.model;
 
+
 import net.minecraft.client.model.ModelBiped;
 import net.minecraft.client.model.ModelRenderer;
 import net.minecraft.client.renderer.GlStateManager;
@@ -57,9 +58,9 @@ public class ModelBlockArmor extends ModelBiped
 
 		//Add planes for specified slot
 		switch (slot) {
-		
+
 		case HEAD:
-			 //HELMET
+			//HELMET
 			this.bipedHead.cubeList.add(new ModelPlane(bipedHead, 9, 3+yOffset, -5.0f, -9.0f, -5.0f, 10, 0, 10, false)); //top
 			this.bipedHead.cubeList.add(new ModelPlane(bipedHead, 3, 0+yOffset, -5.0f, -9.0f, 5.0f, 10, 8, 0, true)); //back
 			this.bipedHead.cubeList.add(new ModelPlane(bipedHead, 5, 8+yOffset, -3.0f, -1.0f, 5.0f, 6, 1, 0, true)); //back bottom
@@ -74,7 +75,7 @@ public class ModelBlockArmor extends ModelBiped
 			break;
 
 		case CHEST:
-			 //CHEST
+			//CHEST
 			this.bipedBody.cubeList.add(new ModelPlane(bipedBody, 3, 4+yOffset, -5.0F, 1.0F, -3.0F, 10, 8, 0, false)); //front
 			this.bipedBody.cubeList.add(new ModelPlane(bipedBody, 4, 12+yOffset, -4.0F, 9.0F, -3.0F, 8, 1, 0, false)); //front bottom mid
 			this.bipedBody.cubeList.add(new ModelPlane(bipedBody, 5, 13+yOffset, -3.0F, 10.0F, -3.0F, 6, 1, 0, false)); //front bottom
@@ -105,7 +106,7 @@ public class ModelBlockArmor extends ModelBiped
 			break;
 
 		case LEGS:
-			 //WAIST
+			//WAIST
 			this.bipedWaist.cubeList.add(new ModelPlane(bipedWaist, 3, 1+yOffset, -4.5F, 6.5F, -2.5F, 9, 6, 0, false)); //front
 			this.bipedWaist.cubeList.add(new ModelPlane(bipedWaist, 5, -4+yOffset, -4.5F, 6.5F, -2.5F, 0, 6, 5, true)); //right 
 			this.bipedWaist.cubeList.add(new ModelPlane(bipedWaist, 5, -4+yOffset, 4.5F, 6.5F, -2.5F, 0, 6, 5, false)); //left 
@@ -155,6 +156,88 @@ public class ModelBlockArmor extends ModelBiped
 		this.setRotationAngles(limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch, scale, entityIn);
 
 		GlStateManager.pushMatrix();
+
+		//testing colors
+		//ItemStack stack = new ItemStack(Blocks.GRASS);
+
+		/*		List<BakedQuad> list = new ArrayList<BakedQuad>();
+		ItemModelMesher mesher = Minecraft.getMinecraft().getRenderItem().getItemModelMesher();
+		list.addAll(mesher.getItemModel(stack).getQuads(Blocks.GRASS.getDefaultState(), EnumFacing.UP, 0));
+		BakedQuad quad = list.get(0);*/
+
+		/*	int color = Minecraft.getMinecraft().getItemColors().getColorFromItemstack(stack, 3); //TODO colors seem to work, need to differentiate with different sides/quads
+		if (color != -1) { //TODO possibly add support for overlays?
+			color = color | -16777216;
+			float cb = color & 0xFF;
+			float cg = (color >>> 8) & 0xFF;
+			float cr = (color >>> 16) & 0xFF;
+			float ca = (color >>> 24) & 0xFF;
+
+			float red = cr/255f;
+			float green = cg/255f;
+			float blue = cb/255f;
+
+			 System.out.println("red: "+red+", green: "+green+", blue: "+blue);
+			GlStateManager.color(red, green, blue);
+		}*/
+		////////////////////////////
+
+		//testing other rendering
+		/*try {
+			Block block = Blocks.field_189877_df;
+			Render renderer = Minecraft.getMinecraft().getRenderManager().getEntityRenderObject(entityIn);
+			World world = Minecraft.getMinecraft().theWorld;
+			IBlockState state = block.getDefaultState();
+			BlockPos pos = new BlockPos(0, 5, 0);
+			BakedQuad quad = Minecraft.getMinecraft().getRenderItem().getItemModelMesher().getItemModel(new ItemStack(block)).getQuads(state, EnumFacing.UP, 0).get(0);
+			TextureAtlasSprite sprite = quad.getSprite();
+			Optional<TRSRTransformation> opt = Optional.absent();
+			//quad = ItemLayerModel.getQuadsForSprite(0, sprite, DefaultVertexFormats.ITEM, opt).get(0);
+			VertexBuffer worldRenderer = Tessellator.getInstance().getBuffer();
+			BlockRendererDispatcher dispatcher = Minecraft.getMinecraft().getBlockRendererDispatcher();
+
+			String texture = sprite.getIconName()+".png";
+			int index = texture.indexOf(":");
+			texture = texture.substring(0, index+1)+"textures/"+texture.substring(index+1);
+			renderer.bindTexture(new ResourceLocation(texture));
+
+			GlStateManager.pushAttrib();
+			GlStateManager.pushMatrix();
+			worldRenderer.setTranslation(0, 0, 0);
+
+			//worldRenderer.begin(7, DefaultVertexFormats.BLOCK); 
+			//dispatcher.renderBlockDamage(state, pos, sprite, world);
+			//dispatcher.renderBlock(state, pos, world, worldRenderer);
+			//setup flags like color?
+			worldRenderer.begin(2, DefaultVertexFormats.POSITION);
+			//worldRenderer.addVertexData(sprite.getFrameTextureData(index));
+			//sprite.updateAnimation();
+			double u = sprite.getInterpolatedU(20d);
+			double v = sprite.getInterpolatedV(15d);
+			//System.out.println("u: "+u+", v: "+v);
+			//ThreadLocal<VertexLighterFlat> lighterFlat = new ThreadLocal<VertexLighterFlat>();
+			//VertexLighterFlat lighter = lighterFlat.get();
+			//quad.pipe(lighter);
+			//worldRenderer.tex(u, v);
+			//dispatcher.renderBlock(state, pos, world, worldRenderer);
+			worldRenderer.pos(-0.5D, -0.25D, 0.0D).tex(u, v).normal(0.0F, 1.0F, 0.0F).endVertex();
+			worldRenderer.pos(0.5D, -0.25D, 0.0D).tex(v, v).normal(0.0F, 1.0F, 0.0F).endVertex();
+			worldRenderer.pos(0.5D, 0.75D, 0.0D).tex(v, u).normal(0.0F, 1.0F, 0.0F).endVertex();
+			worldRenderer.pos(-0.5D, 0.75D, 0.0D).tex(u, u).normal(0.0F, 1.0F, 0.0F).endVertex();
+			//LightUtil.renderQuadColor(worldRenderer, quad, -1);
+			//worldRenderer.addVertexData(quad.getVertexData());
+			worldRenderer.addVertexData(sprite.getFrameTextureData(1)[0]);
+			Tessellator.getInstance().draw();
+			GlStateManager.popMatrix();
+			GlStateManager.popAttrib();
+
+		}
+		catch (Exception e) {
+			e.printStackTrace();
+		}*/
+
+
+		////////////////////////
 
 		if (this.translucent) 
 			GlStateManager.enableBlend(); //enables transparency

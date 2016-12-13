@@ -15,6 +15,7 @@ import net.minecraft.block.BlockCrops;
 import net.minecraft.block.BlockLeaves;
 import net.minecraft.block.BlockLiquid;
 import net.minecraft.block.BlockOre;
+import net.minecraft.block.BlockSlab;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.ItemModelMesher;
@@ -35,6 +36,7 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.text.translation.I18n;
 import net.minecraftforge.common.util.EnumHelper;
 import net.minecraftforge.fml.relauncher.ReflectionHelper;
 import net.minecraftforge.fml.relauncher.Side;
@@ -43,6 +45,7 @@ import twopiradians.blockArmor.client.ClientProxy;
 import twopiradians.blockArmor.common.BlockArmor;
 import twopiradians.blockArmor.common.config.Config;
 
+@SuppressWarnings("deprecation")
 public class ArmorSet {
 
 	public static ArrayList<ArmorSet> allSets;
@@ -94,7 +97,6 @@ public class ArmorSet {
 	@SideOnly(Side.CLIENT)
 	private Field[] frameFields;
 
-	@SuppressWarnings("deprecation")
 	public ArmorSet(ItemStack stack, boolean hasSetEffect) {
 		this.stack = stack;
 		this.item = stack.getItem();
@@ -280,7 +282,10 @@ public class ArmorSet {
 
 	/**Returns armor set corresponding to given block and meta, or null if none exists*/
 	public static ArmorSet getSet(Block block, int meta) {
-		return getSet(Item.getItemFromBlock(block), meta);
+		for (ArmorSet set : allSets)
+			if (set.block == block && set.meta == meta)
+				return set;
+		return null;
 	}
 
 	/**Returns armor set corresponding to given item and meta, or null if none exists*/
@@ -300,17 +305,18 @@ public class ArmorSet {
 	}
 
 	/**Should an armor set be made from this item*/
-	@SuppressWarnings("deprecation")
 	private static boolean isValid(ItemStack stack) {
 		if (stack == null || !(stack.getItem() instanceof ItemBlock) || 
-				stack.getItem().getRegistryName().getResourcePath().contains("ore"))
+				stack.getItem().getRegistryName().getResourcePath().contains("ore") || 
+				!I18n.canTranslate(stack.getItem().getUnlocalizedName()) || stack.getDisplayName().contains("Ore"))
 			return false;
 
 		Block block = ((ItemBlock)stack.getItem()).getBlock();
 		if (block instanceof BlockLiquid || block instanceof BlockContainer || block.hasTileEntity() || 
 				block instanceof BlockOre || block instanceof BlockCrops || block instanceof BlockBush ||
-				block == Blocks.BARRIER || block instanceof BlockLeaves || block == Blocks.MONSTER_EGG || 
-				block == Blocks.GRASS)
+				block == Blocks.BARRIER || block instanceof BlockLeaves || block == Blocks.MONSTER_EGG ||
+				block instanceof BlockSlab/* || 
+				block == Blocks.GRASS*/)
 			return false;
 
 		//Check if full block
@@ -328,71 +334,81 @@ public class ArmorSet {
 
 	/**Initialize set's texture variable*/
 	@SideOnly(Side.CLIENT)
-	public int initTextures() {
+	public int initTextures() {//FIXME sprites may be null
 		int numTextures = 0;
 
 		this.sprites = new TextureAtlasSprite[EntityEquipmentSlot.values().length];
 		this.frameFields = new Field[EntityEquipmentSlot.values().length];
 
-		//Gets textures from item model's BakedQuads (textures for each side)
-		IBlockState state = this.block.getDefaultState();
-		List<BakedQuad> list = new ArrayList<BakedQuad>();
-		ItemModelMesher mesher = Minecraft.getMinecraft().getRenderItem().getItemModelMesher();
-		list.addAll(mesher.getItemModel(this.stack).getQuads(state, null, 0));
-		for (EnumFacing facing : EnumFacing.VALUES)
-			list.addAll(mesher.getItemModel(this.stack).getQuads(state, facing, 0));
-		for (BakedQuad quad : list) { //there's at least one texture per face
-			ResourceLocation loc1 = new ResourceLocation(quad.getSprite().getIconName());
-
-			TextureAtlasSprite sprite = Minecraft.getMinecraft().getTextureMapBlocks().getAtlasSprite(loc1.toString());
-			Field field = sprite.getFrameCount() > 1 ? ReflectionHelper.findField(TextureAtlasSprite.class, new String[] {"frameCounter", "field_110973_g"}) : null;
-
-			if (quad.getFace() == EnumFacing.UP) {
-				this.sprites[EntityEquipmentSlot.HEAD.getIndex()] = sprite;
-				this.frameFields[EntityEquipmentSlot.HEAD.getIndex()] = field;
-			}
-			else if (quad.getFace() == EnumFacing.NORTH) {
-				this.sprites[EntityEquipmentSlot.CHEST.getIndex()] = sprite;
-				this.frameFields[EntityEquipmentSlot.CHEST.getIndex()] = field;
-			}
-			else if (quad.getFace() == EnumFacing.SOUTH) {
-				this.sprites[EntityEquipmentSlot.LEGS.getIndex()] = sprite;
-				this.frameFields[EntityEquipmentSlot.LEGS.getIndex()] = field;
-			}
-			else if (quad.getFace() == EnumFacing.DOWN) {
-				this.sprites[EntityEquipmentSlot.FEET.getIndex()] = sprite;
-				this.frameFields[EntityEquipmentSlot.FEET.getIndex()] = field;
-			}
-
-			if (sprite.getIconName().equals(TextureMap.LOCATION_MISSING_TEXTURE.getResourcePath())) {
-				BlockArmor.logger.debug("Missing texture for: "+this.stack.getDisplayName() + ", Face: "+quad.getFace());
-				if (((ClientProxy)BlockArmor.proxy).shouldRetryFindingTextures)
-					return -1;
-			}
-
-			numTextures++;
-		}
-
-		//Check for block texture overrides - location must be registered in ClientProxy TextureStitchEvent.Pre
-		ResourceLocation texture = new ResourceLocation(BlockArmor.MODID+":textures/items/"+item.getRegistryName().getResourcePath().toLowerCase().replace(" ", "_")+".png");
 		try {
-			Minecraft.getMinecraft().getResourceManager().getResource(texture); //does texture exist?
-			texture = new ResourceLocation(texture.getResourceDomain(), texture.getResourcePath().replace("textures/", "").replace(".png", ""));
-			TextureAtlasSprite sprite = Minecraft.getMinecraft().getTextureMapBlocks().getAtlasSprite(texture.toString());
-			this.sprites[EntityEquipmentSlot.HEAD.getIndex()] = sprite;
-			this.frameFields[EntityEquipmentSlot.HEAD.getIndex()] = null;
-			this.sprites[EntityEquipmentSlot.CHEST.getIndex()] = sprite;
-			this.frameFields[EntityEquipmentSlot.CHEST.getIndex()] = null;
-			this.sprites[EntityEquipmentSlot.LEGS.getIndex()] = sprite;
-			this.frameFields[EntityEquipmentSlot.LEGS.getIndex()] = null;
-			this.sprites[EntityEquipmentSlot.FEET.getIndex()] = sprite;
-			this.frameFields[EntityEquipmentSlot.FEET.getIndex()] = null;
-			BlockArmor.logger.debug("Override texture found at: "+texture.toString());
-		} catch (Exception e) {
-			//BlockArmor.logger.info("No texture found at: "+texture.toString());
-		}
+			/*if (block == Blocks.GRASS)
+			System.out.println(""); //TODO remove
+			 */		
+			//Gets textures from item model's BakedQuads (textures for each side)
+			IBlockState state = this.block.getDefaultState();
+			List<BakedQuad> list = new ArrayList<BakedQuad>();
+			ItemModelMesher mesher = Minecraft.getMinecraft().getRenderItem().getItemModelMesher();
+			list.addAll(mesher.getItemModel(this.stack).getQuads(state, null, 0));
+			for (EnumFacing facing : EnumFacing.VALUES)
+				list.addAll(mesher.getItemModel(this.stack).getQuads(state, facing, 0));
+			for (BakedQuad quad : list) { //there's at least one texture per face
+				ResourceLocation loc1 = new ResourceLocation(quad.getSprite().getIconName());
 
-		this.isTranslucent = this.block.getBlockLayer() != BlockRenderLayer.SOLID && this.block != Blocks.REEDS;
+				TextureAtlasSprite sprite = Minecraft.getMinecraft().getTextureMapBlocks().getAtlasSprite(loc1.toString());
+				if (sprite.getIconName().contains("overlay"))
+					continue;
+				Field field = sprite.getFrameCount() > 1 ? ReflectionHelper.findField(TextureAtlasSprite.class, new String[] {"frameCounter", "field_110973_g"}) : null;
+
+				if (quad.getFace() == EnumFacing.UP) {
+					this.sprites[EntityEquipmentSlot.HEAD.getIndex()] = sprite;
+					this.frameFields[EntityEquipmentSlot.HEAD.getIndex()] = field;
+				}
+				else if (quad.getFace() == EnumFacing.NORTH) {
+					this.sprites[EntityEquipmentSlot.CHEST.getIndex()] = sprite;
+					this.frameFields[EntityEquipmentSlot.CHEST.getIndex()] = field;
+				}
+				else if (quad.getFace() == EnumFacing.SOUTH) {
+					this.sprites[EntityEquipmentSlot.LEGS.getIndex()] = sprite;
+					this.frameFields[EntityEquipmentSlot.LEGS.getIndex()] = field;
+				}
+				else if (quad.getFace() == EnumFacing.DOWN) {
+					this.sprites[EntityEquipmentSlot.FEET.getIndex()] = sprite;
+					this.frameFields[EntityEquipmentSlot.FEET.getIndex()] = field;
+				}
+
+				if (sprite.getIconName().equals(TextureMap.LOCATION_MISSING_TEXTURE.getResourcePath())) {
+					BlockArmor.logger.debug("Missing texture for: "+this.stack.getDisplayName() + ", Face: "+quad.getFace());
+					if (((ClientProxy)BlockArmor.proxy).shouldRetryFindingTextures)
+						return -1;
+				}
+
+				numTextures++;
+			}
+
+			//Check for block texture overrides - location must be registered in ClientProxy TextureStitchEvent.Pre
+			ResourceLocation texture = new ResourceLocation(BlockArmor.MODID+":textures/items/"+item.getRegistryName().getResourcePath().toLowerCase().replace(" ", "_")+".png");
+			try {
+				Minecraft.getMinecraft().getResourceManager().getResource(texture); //does texture exist?
+				texture = new ResourceLocation(texture.getResourceDomain(), texture.getResourcePath().replace("textures/", "").replace(".png", ""));
+				TextureAtlasSprite sprite = Minecraft.getMinecraft().getTextureMapBlocks().getAtlasSprite(texture.toString());
+				this.sprites[EntityEquipmentSlot.HEAD.getIndex()] = sprite;
+				this.frameFields[EntityEquipmentSlot.HEAD.getIndex()] = null;
+				this.sprites[EntityEquipmentSlot.CHEST.getIndex()] = sprite;
+				this.frameFields[EntityEquipmentSlot.CHEST.getIndex()] = null;
+				this.sprites[EntityEquipmentSlot.LEGS.getIndex()] = sprite;
+				this.frameFields[EntityEquipmentSlot.LEGS.getIndex()] = null;
+				this.sprites[EntityEquipmentSlot.FEET.getIndex()] = sprite;
+				this.frameFields[EntityEquipmentSlot.FEET.getIndex()] = null;
+				BlockArmor.logger.debug("Override texture found at: "+texture.toString());
+			} catch (Exception e) {
+				//BlockArmor.logger.info("No texture found at: "+texture.toString());
+			}
+
+			this.isTranslucent = this.block.getBlockLayer() != BlockRenderLayer.SOLID && this.block != Blocks.REEDS;
+		}
+		catch (Exception e) {
+			BlockArmor.logger.warn("Unable to find all textures for: "+stack.getDisplayName());
+		}
 
 		return numTextures;
 	}
