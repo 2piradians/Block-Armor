@@ -305,7 +305,7 @@ public class ArmorSet {
 	}
 
 	/**Should an armor set be made from this item*/
-	private static boolean isValid(ItemStack stack) {
+	private static boolean isValid(ItemStack stack) {//FIXME deny unlocalized names (displayName().equals(unlocalizedName) or contains(.name))
 		if (stack == null || !(stack.getItem() instanceof ItemBlock) || 
 				stack.getItem().getRegistryName().getResourcePath().contains("ore")/* || 
 				!I18n.canTranslate(stack.getItem().getUnlocalizedName())*/ || stack.getDisplayName().contains("Ore"))
