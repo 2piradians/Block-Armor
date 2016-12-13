@@ -84,6 +84,8 @@ public class ItemBlockArmor extends ItemArmor
 	public String getArmorTexture(ItemStack stack, Entity entity, EntityEquipmentSlot slot, String type)
 	{
 		TextureAtlasSprite sprite = ArmorSet.getSprite(this);
+		if (sprite == null)
+			return null;
 		String texture = sprite.getIconName()+".png";
 		int index = texture.indexOf(":");
 		texture = texture.substring(0, index+1)+"textures/"+texture.substring(index+1);
@@ -95,6 +97,8 @@ public class ItemBlockArmor extends ItemArmor
 	public ModelBiped getArmorModel(EntityLivingBase entity, ItemStack stack, EntityEquipmentSlot slot, ModelBiped oldModel)
 	{
 		TextureAtlasSprite sprite = ArmorSet.getSprite(this);
+		if (sprite == null)
+			return oldModel;
 		int width = sprite.getIconWidth();
 		int height = sprite.getIconHeight() * sprite.getFrameCount();
 		boolean isTranslucent = ArmorSet.getSet(this).isTranslucent;
