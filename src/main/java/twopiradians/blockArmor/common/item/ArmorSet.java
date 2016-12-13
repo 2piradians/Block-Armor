@@ -307,8 +307,8 @@ public class ArmorSet {
 	/**Should an armor set be made from this item*/
 	private static boolean isValid(ItemStack stack) {
 		if (stack == null || !(stack.getItem() instanceof ItemBlock) || 
-				stack.getItem().getRegistryName().getResourcePath().contains("ore") || 
-				!I18n.canTranslate(stack.getItem().getUnlocalizedName()) || stack.getDisplayName().contains("Ore"))
+				stack.getItem().getRegistryName().getResourcePath().contains("ore")/* || 
+				!I18n.canTranslate(stack.getItem().getUnlocalizedName())*/ || stack.getDisplayName().contains("Ore"))
 			return false;
 
 		Block block = ((ItemBlock)stack.getItem()).getBlock();
