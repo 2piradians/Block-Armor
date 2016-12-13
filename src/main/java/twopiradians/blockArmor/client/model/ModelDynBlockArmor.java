@@ -157,62 +157,60 @@ public final class ModelDynBlockArmor implements IModel, IModelCustomData, IRete
 			for (ArmorSet set : ArmorSet.allSets) {
 				ItemBlockArmor[] armor = new ItemBlockArmor[] {set.helmet, set.chestplate, set.leggings, set.boots};
 				for (ItemBlockArmor item : armor) {
-					try {
-						//Initialize variables
-						TextureAtlasSprite sprite = ArmorSet.getSprite(item);
-						ImmutableList.Builder<BakedQuad> builder = ImmutableList.builder();
-						IModelState state = new SimpleModelState(transformMap);
-						TRSRTransformation transform = TRSRTransformation.identity();
-						state = new ModelStateComposition(state, transform);
-						VertexFormat format = DefaultVertexFormats.ITEM;
-						String armorType = "";
-						EntityEquipmentSlot slot = item.getEquipmentSlot();
-						if (slot == EntityEquipmentSlot.HEAD)
-							armorType = "helmet";
-						else if (slot == EntityEquipmentSlot.CHEST)
-							armorType = "chestplate";
-						else if (slot == EntityEquipmentSlot.LEGS)
-							armorType = "leggings";
-						else if (slot == EntityEquipmentSlot.FEET)
-							armorType = "boots";
+					//Initialize variables
+					TextureAtlasSprite sprite = ArmorSet.getSprite(item);
+					if (sprite == null)
+						BlockArmor.logger.warn("Missing sprite for: "+new ItemStack(item).getDisplayName());
+					ImmutableList.Builder<BakedQuad> builder = ImmutableList.builder();
+					IModelState state = new SimpleModelState(transformMap);
+					TRSRTransformation transform = TRSRTransformation.identity();
+					state = new ModelStateComposition(state, transform);
+					VertexFormat format = DefaultVertexFormats.ITEM;
+					String armorType = "";
+					EntityEquipmentSlot slot = item.getEquipmentSlot();
+					if (slot == EntityEquipmentSlot.HEAD)
+						armorType = "helmet";
+					else if (slot == EntityEquipmentSlot.CHEST)
+						armorType = "chestplate";
+					else if (slot == EntityEquipmentSlot.LEGS)
+						armorType = "leggings";
+					else if (slot == EntityEquipmentSlot.FEET)
+						armorType = "boots";
 
-						//Block texture background
-						//builder.add(ItemTextureQuadConverter.genQuad(format, transform, 0, 0, 16, 16, NORTH_Z_BASE, sprite, EnumFacing.NORTH, 0xffffffff));
-						//builder.add(ItemTextureQuadConverter.genQuad(format, transform, 0, 0, 16, 16, SOUTH_Z_BASE, sprite, EnumFacing.SOUTH, 0xffffffff));	            
+					//Block texture background
+					//builder.add(ItemTextureQuadConverter.genQuad(format, transform, 0, 0, 16, 16, NORTH_Z_BASE, sprite, EnumFacing.NORTH, 0xffffffff));
+					//builder.add(ItemTextureQuadConverter.genQuad(format, transform, 0, 0, 16, 16, SOUTH_Z_BASE, sprite, EnumFacing.SOUTH, 0xffffffff));	            
 
-						//Base texture and model
-						ResourceLocation baseLocation = new ResourceLocation(BlockArmor.MODID+":items/icons/block_armor_"+armorType+"_base");
-						IBakedModel model = (new ItemLayerModel(ImmutableList.of(baseLocation))).bake(state, format, new Function<ResourceLocation, TextureAtlasSprite>() {
-							public TextureAtlasSprite apply(ResourceLocation location)
-							{
-								return Minecraft.getMinecraft().getTextureMapBlocks().getAtlasSprite(location.toString());
-							}
-						});
-						builder.addAll(model.getQuads(null, null, 0));
+					//Base texture and model
+					ResourceLocation baseLocation = new ResourceLocation(BlockArmor.MODID+":items/icons/block_armor_"+armorType+"_base");
+					IBakedModel model = (new ItemLayerModel(ImmutableList.of(baseLocation))).bake(state, format, new Function<ResourceLocation, TextureAtlasSprite>() {
+						public TextureAtlasSprite apply(ResourceLocation location)
+						{
+							return Minecraft.getMinecraft().getTextureMapBlocks().getAtlasSprite(location.toString());
+						}
+					});
+					builder.addAll(model.getQuads(null, null, 0));
 
-						//Template texture for left half
-						String templateLocation = new ResourceLocation(BlockArmor.MODID+":items/icons/block_armor_"+armorType+"1_template").toString();
-						TextureAtlasSprite templateTexture = Minecraft.getMinecraft().getTextureMapBlocks().getAtlasSprite(templateLocation);
-						builder.addAll(ItemTextureQuadConverter.convertTexture(format, transform, templateTexture, sprite, NORTH_Z_FLUID, EnumFacing.NORTH, 0xffffffff));
-						builder.addAll(ItemTextureQuadConverter.convertTexture(format, transform, templateTexture, sprite, SOUTH_Z_FLUID, EnumFacing.SOUTH, 0xffffffff));
+					//Template texture for left half
+					String templateLocation = new ResourceLocation(BlockArmor.MODID+":items/icons/block_armor_"+armorType+"1_template").toString();
+					TextureAtlasSprite templateTexture = Minecraft.getMinecraft().getTextureMapBlocks().getAtlasSprite(templateLocation);
+					builder.addAll(ItemTextureQuadConverter.convertTexture(format, transform, templateTexture, sprite, NORTH_Z_FLUID, EnumFacing.NORTH, 0xffffffff));
+					builder.addAll(ItemTextureQuadConverter.convertTexture(format, transform, templateTexture, sprite, SOUTH_Z_FLUID, EnumFacing.SOUTH, 0xffffffff));
 
-						//Template texture for right half
-						templateLocation = new ResourceLocation(BlockArmor.MODID+":items/icons/block_armor_"+armorType+"2_template").toString();
-						templateTexture = Minecraft.getMinecraft().getTextureMapBlocks().getAtlasSprite(templateLocation);
-						builder.addAll(ItemTextureQuadConverter.convertTexture(format, transform, templateTexture, sprite, NORTH_Z_FLUID, EnumFacing.NORTH, 0xffffffff));
-						builder.addAll(ItemTextureQuadConverter.convertTexture(format, transform, templateTexture, sprite, SOUTH_Z_FLUID, EnumFacing.SOUTH, 0xffffffff));
+					//Template texture for right half
+					templateLocation = new ResourceLocation(BlockArmor.MODID+":items/icons/block_armor_"+armorType+"2_template").toString();
+					templateTexture = Minecraft.getMinecraft().getTextureMapBlocks().getAtlasSprite(templateLocation);
+					builder.addAll(ItemTextureQuadConverter.convertTexture(format, transform, templateTexture, sprite, NORTH_Z_FLUID, EnumFacing.NORTH, 0xffffffff));
+					builder.addAll(ItemTextureQuadConverter.convertTexture(format, transform, templateTexture, sprite, SOUTH_Z_FLUID, EnumFacing.SOUTH, 0xffffffff));
 
-						//Cover texture
-						String coverLocation = new ResourceLocation(BlockArmor.MODID+":items/icons/block_armor_"+armorType+"_cover").toString();
-						TextureAtlasSprite coverTexture = Minecraft.getMinecraft().getTextureMapBlocks().getAtlasSprite(coverLocation);
-						builder.add(ItemTextureQuadConverter.genQuad(format, transform, 0, 0, 16, 16, NORTH_Z_BASE, coverTexture, EnumFacing.NORTH, 0xffffffff));
-						builder.add(ItemTextureQuadConverter.genQuad(format, transform, 0, 0, 16, 16, SOUTH_Z_BASE, coverTexture, EnumFacing.SOUTH, 0xffffffff));
+					//Cover texture
+					String coverLocation = new ResourceLocation(BlockArmor.MODID+":items/icons/block_armor_"+armorType+"_cover").toString();
+					TextureAtlasSprite coverTexture = Minecraft.getMinecraft().getTextureMapBlocks().getAtlasSprite(coverLocation);
+					builder.add(ItemTextureQuadConverter.genQuad(format, transform, 0, 0, 16, 16, NORTH_Z_BASE, coverTexture, EnumFacing.NORTH, 0xffffffff));
+					builder.add(ItemTextureQuadConverter.genQuad(format, transform, 0, 0, 16, 16, SOUTH_Z_BASE, coverTexture, EnumFacing.SOUTH, 0xffffffff));
 
-						itemQuadsMap.put(item, builder.build());
-						numIcons++;
-					} catch (Exception e) {
-						BlockArmor.logger.warn("Unabled to create inventory icon for: "+new ItemStack(item).getDisplayName());
-					}
+					itemQuadsMap.put(item, builder.build());
+					numIcons++;
 				}
 			}
 			return numIcons;
