@@ -43,10 +43,8 @@ public class GuiArmorDisplay extends GuiScreen
 		//initialize armors with all armor that has a set effect
 		armors = new ArrayList<ItemBlockArmor>();
 		for (ItemBlockArmor armor : ModItems.allArmors)
-			if (ArmorSet.getSet(armor).hasSetEffect) {
-				armor.entityWearing = guiPlayer;
+			if (ArmorSet.getSet(armor).hasSetEffect)
 				armors.add(armor);
-			}
 	}
 
 	@Override

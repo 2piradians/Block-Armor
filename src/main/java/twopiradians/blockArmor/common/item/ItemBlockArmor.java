@@ -7,6 +7,7 @@ import java.util.UUID;
 import com.google.common.collect.Multimap;
 
 import net.minecraft.block.BlockLiquid;
+import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.model.ModelBiped;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
@@ -45,25 +46,6 @@ import twopiradians.blockArmor.common.block.ModBlocks;
 
 public class ItemBlockArmor extends ItemArmor
 {
-	//FIXME ALL non-static fields need to be removed and/or replaced with nbt or static fields
-
-	//combine cooldowns into one universal nbt cooldown
-	private int xpCooldown = 50;
-	private int endstoneCooldown = 100; 
-	private int slimeCooldown = 10;
-
-	//move entityWearing to nbt 
-	/**Keeps track of current player for getAttributeModifiers method*/
-	public EntityLivingBase entityWearing;
-
-	//only used on client, so can replaced with EntityPlayerSP#movementInput#jump
-	/**Player's isJumping field*/
-	private EntityPlayer playerField;
-	/**Keeps track of which player's isJumping field is being used*/
-	private Field isJumpingField;
-
-	//^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
 	public static final UUID MOVEMENT_SPEED_UUID = UUID.fromString("308e48ee-a300-4846-9b56-05e53e35eb8f");
 	public static final UUID ATTACK_SPEED_UUID = UUID.fromString("3094e67f-88f1-4d81-a59d-655d4e7e8065");
 	public static final UUID ATTACK_STRENGTH_UUID = UUID.fromString("d7dfa4ea-1cdf-4dd9-8842-883d7448cb00");
@@ -133,7 +115,9 @@ public class ItemBlockArmor extends ItemArmor
 			return map;
 
 		ArmorSet set = ArmorSet.getSet(this);
-		if (ArmorSet.isWearingFullSet(entityWearing, set) && ArmorSet.isSetEffectEnabled(set))
+		if (!stack.hasTagCompound())
+			stack.setTagCompound(new NBTTagCompound());
+		if (stack.getTagCompound().getBoolean("isWearing"))
 		{
 			if (set.block == Blocks.REEDS)
 				map.put(SharedMonsterAttributes.MOVEMENT_SPEED.getAttributeUnlocalizedName(), 
@@ -346,10 +330,21 @@ public class ItemBlockArmor extends ItemArmor
 			return;
 
 		EntityLivingBase entity = (EntityLivingBase) entityIn;
-		entityWearing = entity;
-
-		if (!ArmorSet.isSetEffectEnabled(ArmorSet.getSet(this)))
+	
+		if (!stack.hasTagCompound())
+			stack.setTagCompound(new NBTTagCompound());
+		
+		if (!(ArmorSet.isWearingFullSet(entity, ArmorSet.getSet(this)) && ArmorSet.isSetEffectEnabled(ArmorSet.getSet(this))))
+		{
+			stack.getTagCompound().setBoolean("isWearing", false);
 			return;
+		}
+		
+		stack.getTagCompound().setBoolean("isWearing", true);
+
+		int cooldown = stack.getTagCompound().hasKey("cooldown") ? stack.getTagCompound().getInteger("cooldown") : 0;
+		--cooldown;
+		stack.getTagCompound().setInteger("cooldown", cooldown);
 
 		if (worldIn instanceof WorldServer)
 			((WorldServer)worldIn).getEntityTracker().updateTrackedEntities();
@@ -365,13 +360,6 @@ public class ItemBlockArmor extends ItemArmor
 		if (!ArmorSet.isSetEffectEnabled(set) || !ArmorSet.isWearingFullSet(player, set))
 			return;
 
-		if (player != playerField) //if new player or don't have field yet, get field
-		{ 
-			isJumpingField = ReflectionHelper.findField(EntityLivingBase.class, new String[] {"isJumping", "field_70703_bu"});
-			isJumpingField.setAccessible(true);
-			playerField = player;
-		}
-
 		//dark pris
 		//sink faster in water; respiration, night vision, depth strider in water
 		if (set.block == Blocks.PRISMARINE)
@@ -384,7 +372,7 @@ public class ItemBlockArmor extends ItemArmor
 								&& player.getActivePotionEffect(Potion.getPotionById(16)).getDuration() < 205))
 					player.addPotionEffect(new PotionEffect(Potion.getPotionById(16), 210, 0, false, false));
 				try {
-					if (world.isRemote && !isJumpingField.getBoolean(player) && !player.onGround 
+					if (world.isRemote && !((EntityPlayerSP)player).movementInput.jump  && !player.onGround 
 							&& world.getBlockState(new BlockPos(player.posX, player.posY+2, player.posZ)).getBlock() 
 							instanceof BlockLiquid && player.motionY < 0.0D)
 					{	
@@ -483,9 +471,9 @@ public class ItemBlockArmor extends ItemArmor
 		//gives xp for wearing. From lvl 0 to lvl 30 in one real hour (about)
 		if (!world.isRemote && set.block == Blocks.LAPIS_BLOCK)
 		{
-			if (--xpCooldown == 0)
+			if (itemStack.getTagCompound().getInteger("cooldown") <= 0)
 			{
-				xpCooldown = 50;
+				itemStack.getTagCompound().setInteger("cooldown", 50);
 				player.addExperience(1);
 			}
 		}
@@ -494,9 +482,9 @@ public class ItemBlockArmor extends ItemArmor
 		//teleports in the direction looking when sneaking
 		if (!world.isRemote && set.block == Blocks.END_STONE)
 		{
-			if (--endstoneCooldown <= 0 && player.isSneaking() && !player.capabilities.isFlying)
+			if (itemStack.getTagCompound().getInteger("cooldown") <= 0 && player.isSneaking() && !player.capabilities.isFlying)
 			{    
-				endstoneCooldown = 100;
+				itemStack.getTagCompound().setInteger("cooldown", 100);
 				int distance = player.getRNG().nextInt(10) + 16;
 				double rotX = - Math.sin(player.rotationYaw*Math.PI/180);
 				double rotY = - Math.sin(player.rotationPitch*Math.PI/180);
@@ -547,11 +535,11 @@ public class ItemBlockArmor extends ItemArmor
 		{	
 			if (world.isRemote)
 			{
-				if (--slimeCooldown <= 0 && player.isCollidedHorizontally 
+				if (itemStack.getTagCompound().getInteger("cooldown") <= 0 && player.isCollidedHorizontally 
 						&& Math.sqrt(Math.pow(player.posX - player.prevChasingPosX, 2) + 
 								Math.pow(player.posZ - player.prevChasingPosZ, 2)) >= 0.9D)
 				{	
-					slimeCooldown = 10;
+					itemStack.getTagCompound().setInteger("cooldown", 10);
 					if (player.motionX == 0)
 					{
 						player.motionX = -(player.posX - player.prevChasingPosX)*1.5D;
