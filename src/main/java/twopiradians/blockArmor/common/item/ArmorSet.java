@@ -348,9 +348,11 @@ public class ArmorSet {
 		//Gets textures from item model's BakedQuads (textures for each side)
 		List<BakedQuad> list = new ArrayList<BakedQuad>();
 		ItemModelMesher mesher = Minecraft.getMinecraft().getRenderItem().getItemModelMesher();
-		list.addAll(mesher.getItemModel(this.stack).getQuads(null, null, 0));
-		for (EnumFacing facing : EnumFacing.VALUES)
-			list.addAll(mesher.getItemModel(this.stack).getQuads(null, facing, 0));
+		try { //getting quads may throw exception if a mod's modeler doesn't obey @Nullable
+			list.addAll(mesher.getItemModel(this.stack).getQuads(null, null, 0));
+			for (EnumFacing facing : EnumFacing.VALUES)
+				list.addAll(mesher.getItemModel(this.stack).getQuads(null, facing, 0));
+		} catch (Exception e) {}
 		for (BakedQuad quad : list) {
 			ResourceLocation loc1 = new ResourceLocation(quad.getSprite().getIconName());
 
@@ -428,7 +430,7 @@ public class ArmorSet {
 			return;
 
 		BlockArmor.logger.info("Disabling "+disabledItems.size()+" items that are missing textures");
-		
+
 		for (Item item : disabledItems) {			
 			//remove from creative tab
 			item.setCreativeTab(null);
