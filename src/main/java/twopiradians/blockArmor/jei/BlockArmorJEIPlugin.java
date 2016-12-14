@@ -7,18 +7,31 @@ import mezz.jei.api.IModRegistry;
 import mezz.jei.api.JEIPlugin;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.common.gameevent.TickEvent;
+import twopiradians.blockArmor.client.ClientProxy;
 import twopiradians.blockArmor.common.BlockArmor;
 import twopiradians.blockArmor.common.item.ArmorSet;
 
 @JEIPlugin
 public class BlockArmorJEIPlugin extends BlankModPlugin 
 {
-	private IJeiHelpers helpers;
+	private static IJeiHelpers helpers;
 
 	@Override
 	public void register(IModRegistry registry) {
 		helpers = registry.getJeiHelpers();
-		BlockArmor.jeiPlugin = this;
+		MinecraftForge.EVENT_BUS.register(this);		
+	}
+	
+	@SubscribeEvent
+	public void clientTick(TickEvent.ClientTickEvent event)
+	{
+		if (((ClientProxy)BlockArmor.proxy).reloadJEI) {
+			((ClientProxy)BlockArmor.proxy).reloadJEI = false;
+			this.removeDisabledItems();
+		}
 	}
 
 	/**Removes disabled items from JEI gui*/

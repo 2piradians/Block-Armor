@@ -35,6 +35,8 @@ public class ClientProxy extends CommonProxy
 	private HashMap<String, ModelBlockArmor> modelMaps = Maps.newHashMap();
 	/**Send disable packet next tick (bc can't send packets on world load)*/
 	private boolean sendDisablePacket;
+	/**JEI plugin reads this to check if it should remove items and reload (so JEI plugin stays independent)*/
+	public boolean reloadJEI;
 
 	@Override
 	public void preInit() {
@@ -105,16 +107,18 @@ public class ClientProxy extends CommonProxy
 			numTextures += set.initTextures();
 
 		//textures not loaded yet
-		if (numTextures == 0)
+		if (numTextures == 0) {
+			BlockArmor.logger.info("Textures not loaded yet, clearing disabled items");
+			ArmorSet.disabledItems.clear();
 			return;
+		}
 
 		BlockArmor.logger.info("Found "+numTextures+" block textures for Block Armor");
 
 		//send disabled sets to server and remove their recipes and remove them from creative tabs/JEI
 		this.sendDisablePacket = true;
 		ArmorSet.disableItems();
-		if (BlockArmor.jeiPlugin != null)
-			BlockArmor.jeiPlugin.removeDisabledItems();
+		this.reloadJEI = true;
 
 		//create inventory icons
 		int numIcons = ModelDynBlockArmor.BakedDynBlockArmorOverrideHandler.createInventoryIcons();

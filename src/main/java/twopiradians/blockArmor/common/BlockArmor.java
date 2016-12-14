@@ -31,7 +31,6 @@ import twopiradians.blockArmor.common.item.ArmorSet;
 import twopiradians.blockArmor.common.item.ModItems;
 import twopiradians.blockArmor.common.tileentity.ModTileEntities;
 import twopiradians.blockArmor.creativetab.BlockArmorCreativeTab;
-import twopiradians.blockArmor.jei.BlockArmorJEIPlugin;
 import twopiradians.blockArmor.packets.DisableItemsPacket;
 
 @Mod(modid = BlockArmor.MODID, version = BlockArmor.VERSION, name = BlockArmor.MODNAME, guiFactory = "twopiradians.blockArmor.client.gui.config.BlockArmorGuiFactory")
@@ -46,7 +45,6 @@ public class BlockArmor
 	public static CommonProxy proxy;
 	public static Logger logger;
 	public static SimpleNetworkWrapper network = NetworkRegistry.INSTANCE.newSimpleChannel(MODID);
-	public static BlockArmorJEIPlugin jeiPlugin;
 	/**Should armor display be opened on chat event?*/
 	public static final boolean DISPLAY_ARMOR_GUI = false;
 	private File configFile;

@@ -16,12 +16,10 @@ import net.minecraft.block.BlockLeaves;
 import net.minecraft.block.BlockLiquid;
 import net.minecraft.block.BlockOre;
 import net.minecraft.block.BlockSlab;
-import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.ItemModelMesher;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
@@ -100,6 +98,8 @@ public class ArmorSet {
 	/**Array of fields for TextureAtlasSprite's frameCounter (or null if not animated) sorted by EntityEquipmentSlot id*/
 	@SideOnly(Side.CLIENT)
 	private Field[] frameFields;
+	@SideOnly(Side.CLIENT)
+	private final static TextureAtlasSprite missingSprite = Minecraft.getMinecraft().getTextureMapBlocks().getMissingSprite();
 
 	public ArmorSet(ItemStack stack, boolean hasSetEffect) {
 		this.stack = stack;
@@ -195,10 +195,10 @@ public class ArmorSet {
 		ArmorSet set = ArmorSet.getSet(item);
 		if (set != null) {
 			TextureAtlasSprite sprite = set.sprites[item.getEquipmentSlot().getIndex()];
-			return sprite == null ? Minecraft.getMinecraft().getTextureMapBlocks().getMissingSprite() : sprite;
+			return sprite == null ? missingSprite : sprite;
 		}
 		else
-			return Minecraft.getMinecraft().getTextureMapBlocks().getMissingSprite();
+			return missingSprite;
 	}
 
 	/**Returns current animation frame corresponding to given ItemModArmor*/
@@ -342,18 +342,16 @@ public class ArmorSet {
 	@SideOnly(Side.CLIENT)
 	public int initTextures() {
 		int numTextures = 0;
-
 		this.sprites = new TextureAtlasSprite[EntityEquipmentSlot.values().length];
 		this.frameFields = new Field[EntityEquipmentSlot.values().length];
 
 		//Gets textures from item model's BakedQuads (textures for each side)
-		IBlockState state = this.block.getDefaultState();
 		List<BakedQuad> list = new ArrayList<BakedQuad>();
 		ItemModelMesher mesher = Minecraft.getMinecraft().getRenderItem().getItemModelMesher();
-		list.addAll(mesher.getItemModel(this.stack).getQuads(state, null, 0));
+		list.addAll(mesher.getItemModel(this.stack).getQuads(null, null, 0));
 		for (EnumFacing facing : EnumFacing.VALUES)
-			list.addAll(mesher.getItemModel(this.stack).getQuads(state, facing, 0));
-		for (BakedQuad quad : list) { //there's at least one texture per face
+			list.addAll(mesher.getItemModel(this.stack).getQuads(null, facing, 0));
+		for (BakedQuad quad : list) {
 			ResourceLocation loc1 = new ResourceLocation(quad.getSprite().getIconName());
 
 			TextureAtlasSprite sprite = Minecraft.getMinecraft().getTextureMapBlocks().getAtlasSprite(loc1.toString());
@@ -362,23 +360,29 @@ public class ArmorSet {
 			Field field = sprite.getFrameCount() > 1 ? ReflectionHelper.findField(TextureAtlasSprite.class, new String[] {"frameCounter", "field_110973_g"}) : null;
 
 			if (quad.getFace() == EnumFacing.UP) {
+				if (sprite != missingSprite)
+					numTextures++;
 				this.sprites[EntityEquipmentSlot.HEAD.getIndex()] = sprite;
 				this.frameFields[EntityEquipmentSlot.HEAD.getIndex()] = field;
 			}
 			else if (quad.getFace() == EnumFacing.NORTH) {
+				if (sprite != missingSprite)
+					numTextures++;
 				this.sprites[EntityEquipmentSlot.CHEST.getIndex()] = sprite;
 				this.frameFields[EntityEquipmentSlot.CHEST.getIndex()] = field;
 			}
 			else if (quad.getFace() == EnumFacing.SOUTH) {
+				if (sprite != missingSprite)
+					numTextures++;
 				this.sprites[EntityEquipmentSlot.LEGS.getIndex()] = sprite;
 				this.frameFields[EntityEquipmentSlot.LEGS.getIndex()] = field;
 			}
 			else if (quad.getFace() == EnumFacing.DOWN) {
+				if (sprite != missingSprite)
+					numTextures++;
 				this.sprites[EntityEquipmentSlot.FEET.getIndex()] = sprite;
 				this.frameFields[EntityEquipmentSlot.FEET.getIndex()] = field;
 			}
-
-			numTextures++;
 		}
 
 		//Check for block texture overrides - location must be registered in ClientProxy TextureStitchEvent.Pre
@@ -403,10 +407,10 @@ public class ArmorSet {
 				this.sprites[EntityEquipmentSlot.CHEST.getIndex()] == null || 
 				this.sprites[EntityEquipmentSlot.LEGS.getIndex()] == null || 
 				this.sprites[EntityEquipmentSlot.FEET.getIndex()] == null ||
-				this.sprites[EntityEquipmentSlot.HEAD.getIndex()].equals(TextureMap.LOCATION_MISSING_TEXTURE.getResourcePath()) ||
-				this.sprites[EntityEquipmentSlot.CHEST.getIndex()].equals(TextureMap.LOCATION_MISSING_TEXTURE.getResourcePath()) ||
-				this.sprites[EntityEquipmentSlot.LEGS.getIndex()].equals(TextureMap.LOCATION_MISSING_TEXTURE.getResourcePath()) || 
-				this.sprites[EntityEquipmentSlot.FEET.getIndex()].equals(TextureMap.LOCATION_MISSING_TEXTURE.getResourcePath())) {
+				this.sprites[EntityEquipmentSlot.HEAD.getIndex()] == missingSprite ||
+				this.sprites[EntityEquipmentSlot.CHEST.getIndex()] == missingSprite ||
+				this.sprites[EntityEquipmentSlot.LEGS.getIndex()] == missingSprite || 
+				this.sprites[EntityEquipmentSlot.FEET.getIndex()] == missingSprite) {
 			disabledItems.add(this.helmet);
 			disabledItems.add(this.chestplate);
 			disabledItems.add(this.leggings);
@@ -420,9 +424,11 @@ public class ArmorSet {
 
 	/**Remove recipes for items in disabledItems and set their creative tab to null*/
 	public static void disableItems() {
-		if (disabledItems == null)
+		if (disabledItems == null || disabledItems.isEmpty())
 			return;
 
+		BlockArmor.logger.info("Disabling "+disabledItems.size()+" items that are missing textures");
+		
 		for (Item item : disabledItems) {			
 			//remove from creative tab
 			item.setCreativeTab(null);
@@ -431,7 +437,7 @@ public class ArmorSet {
 			List<IRecipe> recipes = CraftingManager.getInstance().getRecipeList();
 			for (IRecipe recipe : recipes)
 				if (recipe.getRecipeOutput() != null && recipe.getRecipeOutput().getItem() == item) {
-					BlockArmor.logger.info("Disabling item: "+new ItemStack(item).getDisplayName());//TODO switch to debug
+					BlockArmor.logger.debug("Disabling item: "+new ItemStack(item).getDisplayName());
 					recipes.remove(recipe);
 					break;
 				}
