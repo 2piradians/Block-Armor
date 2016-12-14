@@ -31,7 +31,10 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemArmor.ArmorMaterial;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.crafting.CraftingManager;
+import net.minecraft.item.crafting.IRecipe;
 import net.minecraft.util.BlockRenderLayer;
+import net.minecraft.util.EnumBlockRenderType;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.AxisAlignedBB;
@@ -72,8 +75,11 @@ public class ArmorSet {
 
 			add(new ArmorSet(new ItemStack(Blocks.BROWN_MUSHROOM_BLOCK, 1, 0), false));
 			add(new ArmorSet(new ItemStack(Blocks.RED_MUSHROOM_BLOCK, 1, 0), false));
+			add(new ArmorSet(new ItemStack(Blocks.CRAFTING_TABLE, 1, 0), false));
 		}};
 	}
+	/**Armor set items that are missing textures that should be disabled*/
+	public static ArrayList<Item> disabledItems;
 
 	public ItemStack stack;
 	public Item item;
@@ -168,7 +174,7 @@ public class ArmorSet {
 		//checks list of ItemStacks for valid ones and creates set and adds to allSets
 		allSets = new ArrayList<ArmorSet>();
 		allSets.addAll(MANUALLY_ADDED_SETS);
-		for (ItemStack stack : stacks)
+		for (ItemStack stack : stacks)//TODO invalidate sets that would create items with existing names?
 			if (isValid(stack) && ArmorSet.getSet(stack.getItem(), stack.getMetadata()) == null) {
 				String registryName = getItemStackRegistryName(stack);
 				if (!registryNames.contains(registryName)) {
@@ -305,18 +311,19 @@ public class ArmorSet {
 		return null;
 	}
 
-	/**Should an armor set be made from this item*/
+	/**Should an armor set be made from this item*/ //TODO filter out metal blocks, stop replacing gold with golden
 	private static boolean isValid(ItemStack stack) {//FIXME deny unlocalized names (displayName().equals(unlocalizedName) or contains(.name))
 		if (stack == null || !(stack.getItem() instanceof ItemBlock) || 
 				stack.getItem().getRegistryName().getResourcePath().contains("ore") || 
-				stack.getDisplayName().equalsIgnoreCase(stack.getUnlocalizedName()) || stack.getDisplayName().contains("Ore"))
+				stack.getDisplayName().contains(".name") || stack.getDisplayName().contains("Ore") ||
+				stack.getDisplayName().contains("%"))
 			return false;
 
 		Block block = ((ItemBlock)stack.getItem()).getBlock();
 		if (block instanceof BlockLiquid || block instanceof BlockContainer || block.hasTileEntity() || 
 				block instanceof BlockOre || block instanceof BlockCrops || block instanceof BlockBush ||
 				block == Blocks.BARRIER || block instanceof BlockLeaves || block == Blocks.MONSTER_EGG ||
-				block instanceof BlockSlab/* || 
+				block instanceof BlockSlab || block.getRenderType(block.getDefaultState()) != EnumBlockRenderType.MODEL/* || 
 				block == Blocks.GRASS*/)
 			return false;
 
@@ -404,8 +411,37 @@ public class ArmorSet {
 			//BlockArmor.logger.info("No texture found at: "+texture.toString());
 		}
 
+		//If a sprite is missing, disable the set
+		if (getSprite(this.helmet).equals(TextureMap.LOCATION_MISSING_TEXTURE.getResourcePath()) ||
+				getSprite(this.chestplate).equals(TextureMap.LOCATION_MISSING_TEXTURE.getResourcePath()) ||
+				getSprite(this.leggings).equals(TextureMap.LOCATION_MISSING_TEXTURE.getResourcePath()) || 
+				getSprite(this.boots).equals(TextureMap.LOCATION_MISSING_TEXTURE.getResourcePath())) {
+			disabledItems.add(this.helmet);
+			disabledItems.add(this.chestplate);
+			disabledItems.add(this.leggings);
+			disabledItems.add(this.boots);
+		}
+
 		this.isTranslucent = this.block.getBlockLayer() != BlockRenderLayer.SOLID && this.block != Blocks.REEDS;
 
 		return numTextures;
+	}
+
+	/**Disable items in disabledItems*/
+	public static void disableItems() {
+		for (Item item : disabledItems) {
+			BlockArmor.logger.debug("Disabling item: "+new ItemStack(item).getDisplayName());
+			
+			//remove from creative tab
+			item.setCreativeTab(null);
+			
+			//remove recipe
+			List<IRecipe> recipes = CraftingManager.getInstance().getRecipeList();
+			for (IRecipe recipe : recipes)
+				if (recipe.getRecipeOutput() != null && recipe.getRecipeOutput().getItem() == item) {
+					recipes.remove(recipe);
+					break;
+				}
+		}
 	}
 }

@@ -10,6 +10,7 @@ import net.minecraft.block.BlockLiquid;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.model.ModelBiped;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
@@ -23,6 +24,7 @@ import net.minecraft.init.Items;
 import net.minecraft.init.SoundEvents;
 import net.minecraft.inventory.EntityEquipmentSlot;
 import net.minecraft.item.EnumRarity;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemArmor;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -105,6 +107,14 @@ public class ItemBlockArmor extends ItemArmor
 		int frame = ArmorSet.getAnimationFrame(this);
 		//return new ModelBlockArmor(height, width, isTranslucent, frame, slot);
 		return (ModelBiped) BlockArmor.proxy.getBlockArmorModel(height, width, isTranslucent, frame, slot);
+	}
+
+	/**Don't display item in creative tab/JEI if disabled*/
+	@SideOnly(Side.CLIENT)
+	public void getSubItems(Item itemIn, CreativeTabs tab, List<ItemStack> subItems)
+	{
+		if (!ArmorSet.disabledItems.contains(itemIn))
+			subItems.add(new ItemStack(itemIn));
 	}
 
 	/**Change display name based on the block*/

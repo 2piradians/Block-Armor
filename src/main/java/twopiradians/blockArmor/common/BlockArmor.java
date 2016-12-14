@@ -17,7 +17,10 @@ import net.minecraftforge.fml.common.event.FMLMissingMappingsEvent;
 import net.minecraftforge.fml.common.event.FMLMissingMappingsEvent.MissingMapping;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
+import net.minecraftforge.fml.common.network.NetworkRegistry;
+import net.minecraftforge.fml.common.network.simpleimpl.SimpleNetworkWrapper;
 import net.minecraftforge.fml.common.registry.GameRegistry;
+import net.minecraftforge.fml.relauncher.Side;
 import twopiradians.blockArmor.common.block.ModBlocks;
 import twopiradians.blockArmor.common.config.Config;
 import twopiradians.blockArmor.common.events.IgniteTargetEvent;
@@ -27,6 +30,7 @@ import twopiradians.blockArmor.common.item.ArmorSet;
 import twopiradians.blockArmor.common.item.ModItems;
 import twopiradians.blockArmor.common.tileentity.ModTileEntities;
 import twopiradians.blockArmor.creativetab.BlockArmorCreativeTab;
+import twopiradians.blockArmor.packets.DisableSetsPacket;
 
 @Mod(modid = BlockArmor.MODID, version = BlockArmor.VERSION, name = BlockArmor.MODNAME, guiFactory = "twopiradians.blockArmor.client.gui.config.BlockArmorGuiFactory")
 public class BlockArmor
@@ -39,12 +43,14 @@ public class BlockArmor
 	@SidedProxy(clientSide = "twopiradians.blockArmor.client.ClientProxy", serverSide = "twopiradians.blockArmor.common.CommonProxy")
 	public static CommonProxy proxy;
 	public static Logger logger;
+	public static SimpleNetworkWrapper network = NetworkRegistry.INSTANCE.newSimpleChannel(MODID);
 	/**Should armor display be opened on chat event?*/
 	public static final boolean DISPLAY_ARMOR_GUI = false;
 	private File configFile;
 
 	@EventHandler
 	public void preInit(FMLPreInitializationEvent event) {
+		registerPackets();
 		configFile = event.getSuggestedConfigurationFile();
 		logger = event.getModLog();
 		proxy.preInit();
@@ -82,6 +88,11 @@ public class BlockArmor
 		MinecraftForge.EVENT_BUS.register(new Config());
 		MinecraftForge.EVENT_BUS.register(new StopFallDamageEvent());
 		MinecraftForge.EVENT_BUS.register(new IgniteTargetEvent());
+	}
+	
+	private void registerPackets() {
+		int id = 0;
+		network.registerMessage(DisableSetsPacket.Handler.class, DisableSetsPacket.class, id++, Side.SERVER);
 	}
 	
 	/**Replace armor from old versions to new auto-generated armor and ignore other missing mappings*/
