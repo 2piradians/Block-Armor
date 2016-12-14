@@ -13,16 +13,16 @@ import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import twopiradians.blockArmor.common.item.ArmorSet;
 
-public class DisableSetsPacket implements IMessage
+public class DisableItemsPacket implements IMessage
 {
 	protected ArrayList<Item> itemsToDisable;
 
-	public DisableSetsPacket() 
+	public DisableItemsPacket() 
 	{
 
 	}
 
-	public DisableSetsPacket(ArrayList<Item> itemsToDisable) 
+	public DisableItemsPacket(ArrayList<Item> itemsToDisable) 
 	{
 		this.itemsToDisable = itemsToDisable;
 	}
@@ -30,7 +30,9 @@ public class DisableSetsPacket implements IMessage
 	@Override
 	public void fromBytes(ByteBuf buf) 
 	{
-		for (int i=0; i<buf.readInt(); i++)
+		int num = buf.readInt();
+		this.itemsToDisable = new ArrayList<Item>();
+		for (int i=0; i<num; i++)
 			this.itemsToDisable.add(ByteBufUtils.readItemStack(buf).getItem());
 	}
 
@@ -42,10 +44,10 @@ public class DisableSetsPacket implements IMessage
 			ByteBufUtils.writeItemStack(buf, new ItemStack(item));
 	}
 
-	public static class Handler implements IMessageHandler<DisableSetsPacket, IMessage>
+	public static class Handler implements IMessageHandler<DisableItemsPacket, IMessage>
 	{
 		@Override
-		public IMessage onMessage(final DisableSetsPacket packet, final MessageContext ctx) 
+		public IMessage onMessage(final DisableItemsPacket packet, final MessageContext ctx) 
 		{
 			IThreadListener mainThread = (WorldServer) ctx.getServerHandler().playerEntity.worldObj;
 			mainThread.addScheduledTask(new Runnable() 

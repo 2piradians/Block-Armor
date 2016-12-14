@@ -13,6 +13,7 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventHandler;
 import net.minecraftforge.fml.common.SidedProxy;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
+import net.minecraftforge.fml.common.event.FMLLoadCompleteEvent;
 import net.minecraftforge.fml.common.event.FMLMissingMappingsEvent;
 import net.minecraftforge.fml.common.event.FMLMissingMappingsEvent.MissingMapping;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
@@ -30,7 +31,8 @@ import twopiradians.blockArmor.common.item.ArmorSet;
 import twopiradians.blockArmor.common.item.ModItems;
 import twopiradians.blockArmor.common.tileentity.ModTileEntities;
 import twopiradians.blockArmor.creativetab.BlockArmorCreativeTab;
-import twopiradians.blockArmor.packets.DisableSetsPacket;
+import twopiradians.blockArmor.jei.BlockArmorJEIPlugin;
+import twopiradians.blockArmor.packets.DisableItemsPacket;
 
 @Mod(modid = BlockArmor.MODID, version = BlockArmor.VERSION, name = BlockArmor.MODNAME, guiFactory = "twopiradians.blockArmor.client.gui.config.BlockArmorGuiFactory")
 public class BlockArmor
@@ -44,6 +46,7 @@ public class BlockArmor
 	public static CommonProxy proxy;
 	public static Logger logger;
 	public static SimpleNetworkWrapper network = NetworkRegistry.INSTANCE.newSimpleChannel(MODID);
+	public static BlockArmorJEIPlugin jeiPlugin;
 	/**Should armor display be opened on chat event?*/
 	public static final boolean DISPLAY_ARMOR_GUI = false;
 	private File configFile;
@@ -72,6 +75,11 @@ public class BlockArmor
 		registerRecipes();
 		proxy.postInit();
 	}
+	
+	@Mod.EventHandler
+	public void loadComplete(FMLLoadCompleteEvent event) {
+		proxy.loadComplete(event);
+	}
 
 	private void registerRecipes() {
 		for (ArmorSet set : ArmorSet.allSets) {
@@ -92,7 +100,7 @@ public class BlockArmor
 	
 	private void registerPackets() {
 		int id = 0;
-		network.registerMessage(DisableSetsPacket.Handler.class, DisableSetsPacket.class, id++, Side.SERVER);
+		network.registerMessage(DisableItemsPacket.Handler.class, DisableItemsPacket.class, id++, Side.SERVER);
 	}
 	
 	/**Replace armor from old versions to new auto-generated armor and ignore other missing mappings*/

@@ -43,7 +43,6 @@ import net.minecraftforge.common.util.EnumHelper;
 import net.minecraftforge.fml.relauncher.ReflectionHelper;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import twopiradians.blockArmor.client.ClientProxy;
 import twopiradians.blockArmor.common.BlockArmor;
 import twopiradians.blockArmor.common.config.Config;
 
@@ -79,7 +78,7 @@ public class ArmorSet {
 		}};
 	}
 	/**Armor set items that are missing textures that should be disabled*/
-	public static ArrayList<Item> disabledItems;
+	public static ArrayList<Item> disabledItems = new ArrayList<Item>();
 
 	public ItemStack stack;
 	public Item item;
@@ -174,7 +173,7 @@ public class ArmorSet {
 		//checks list of ItemStacks for valid ones and creates set and adds to allSets
 		allSets = new ArrayList<ArmorSet>();
 		allSets.addAll(MANUALLY_ADDED_SETS);
-		for (ItemStack stack : stacks)//TODO invalidate sets that would create items with existing names?
+		for (ItemStack stack : stacks)
 			if (isValid(stack) && ArmorSet.getSet(stack.getItem(), stack.getMetadata()) == null) {
 				String registryName = getItemStackRegistryName(stack);
 				if (!registryNames.contains(registryName)) {
@@ -202,7 +201,7 @@ public class ArmorSet {
 			return Minecraft.getMinecraft().getTextureMapBlocks().getMissingSprite();
 	}
 
-	/**Returns TextureAtlasSprite corresponding to given ItemModArmor*/
+	/**Returns current animation frame corresponding to given ItemModArmor*/
 	@SideOnly(Side.CLIENT)
 	public static int getAnimationFrame(ItemBlockArmor item) {
 		ArmorSet set = ArmorSet.getSet(item);
@@ -311,8 +310,8 @@ public class ArmorSet {
 		return null;
 	}
 
-	/**Should an armor set be made from this item*/ //TODO filter out metal blocks, stop replacing gold with golden
-	private static boolean isValid(ItemStack stack) {//FIXME deny unlocalized names (displayName().equals(unlocalizedName) or contains(.name))
+	/**Should an armor set be made from this item*/ //TODO stop replacing gold with golden
+	private static boolean isValid(ItemStack stack) {
 		if (stack == null || !(stack.getItem() instanceof ItemBlock) || 
 				stack.getItem().getRegistryName().getResourcePath().contains("ore") || 
 				stack.getDisplayName().contains(".name") || stack.getDisplayName().contains("Ore") ||
@@ -323,8 +322,7 @@ public class ArmorSet {
 		if (block instanceof BlockLiquid || block instanceof BlockContainer || block.hasTileEntity() || 
 				block instanceof BlockOre || block instanceof BlockCrops || block instanceof BlockBush ||
 				block == Blocks.BARRIER || block instanceof BlockLeaves || block == Blocks.MONSTER_EGG ||
-				block instanceof BlockSlab || block.getRenderType(block.getDefaultState()) != EnumBlockRenderType.MODEL/* || 
-				block == Blocks.GRASS*/)
+				block instanceof BlockSlab || block.getRenderType(block.getDefaultState()) != EnumBlockRenderType.MODEL)
 			return false;
 
 		//Check if full block
@@ -342,15 +340,12 @@ public class ArmorSet {
 
 	/**Initialize set's texture variable*/
 	@SideOnly(Side.CLIENT)
-	public int initTextures() {//FIXME sprites may be null
+	public int initTextures() {
 		int numTextures = 0;
 
 		this.sprites = new TextureAtlasSprite[EntityEquipmentSlot.values().length];
 		this.frameFields = new Field[EntityEquipmentSlot.values().length];
 
-		/*if (block == Blocks.GRASS)
-			System.out.println(""); //TODO remove
-		 */		
 		//Gets textures from item model's BakedQuads (textures for each side)
 		IBlockState state = this.block.getDefaultState();
 		List<BakedQuad> list = new ArrayList<BakedQuad>();
@@ -383,12 +378,6 @@ public class ArmorSet {
 				this.frameFields[EntityEquipmentSlot.FEET.getIndex()] = field;
 			}
 
-			if (sprite.getIconName().equals(TextureMap.LOCATION_MISSING_TEXTURE.getResourcePath())) {
-				BlockArmor.logger.debug("Missing texture for: "+this.stack.getDisplayName() + ", Face: "+quad.getFace());
-				if (((ClientProxy)BlockArmor.proxy).shouldRetryFindingTextures)
-					return -1;
-			}
-
 			numTextures++;
 		}
 
@@ -407,15 +396,17 @@ public class ArmorSet {
 			this.sprites[EntityEquipmentSlot.FEET.getIndex()] = sprite;
 			this.frameFields[EntityEquipmentSlot.FEET.getIndex()] = null;
 			BlockArmor.logger.debug("Override texture found at: "+texture.toString());
-		} catch (Exception e) {
-			//BlockArmor.logger.info("No texture found at: "+texture.toString());
-		}
+		} catch (Exception e) {}
 
-		//If a sprite is missing, disable the set
-		if (getSprite(this.helmet).equals(TextureMap.LOCATION_MISSING_TEXTURE.getResourcePath()) ||
-				getSprite(this.chestplate).equals(TextureMap.LOCATION_MISSING_TEXTURE.getResourcePath()) ||
-				getSprite(this.leggings).equals(TextureMap.LOCATION_MISSING_TEXTURE.getResourcePath()) || 
-				getSprite(this.boots).equals(TextureMap.LOCATION_MISSING_TEXTURE.getResourcePath())) {
+		//If a sprite is missing, disable the set TODO remove redstone
+		if (this.block == Blocks.REDSTONE_BLOCK || this.sprites[EntityEquipmentSlot.HEAD.getIndex()] == null || 
+				this.sprites[EntityEquipmentSlot.CHEST.getIndex()] == null || 
+				this.sprites[EntityEquipmentSlot.LEGS.getIndex()] == null || 
+				this.sprites[EntityEquipmentSlot.FEET.getIndex()] == null ||
+				this.sprites[EntityEquipmentSlot.HEAD.getIndex()].equals(TextureMap.LOCATION_MISSING_TEXTURE.getResourcePath()) ||
+				this.sprites[EntityEquipmentSlot.CHEST.getIndex()].equals(TextureMap.LOCATION_MISSING_TEXTURE.getResourcePath()) ||
+				this.sprites[EntityEquipmentSlot.LEGS.getIndex()].equals(TextureMap.LOCATION_MISSING_TEXTURE.getResourcePath()) || 
+				this.sprites[EntityEquipmentSlot.FEET.getIndex()].equals(TextureMap.LOCATION_MISSING_TEXTURE.getResourcePath())) {
 			disabledItems.add(this.helmet);
 			disabledItems.add(this.chestplate);
 			disabledItems.add(this.leggings);
@@ -427,18 +418,20 @@ public class ArmorSet {
 		return numTextures;
 	}
 
-	/**Disable items in disabledItems*/
+	/**Remove recipes for items in disabledItems and set their creative tab to null*/
 	public static void disableItems() {
-		for (Item item : disabledItems) {
-			BlockArmor.logger.debug("Disabling item: "+new ItemStack(item).getDisplayName());
-			
+		if (disabledItems == null)
+			return;
+
+		for (Item item : disabledItems) {			
 			//remove from creative tab
 			item.setCreativeTab(null);
-			
+
 			//remove recipe
 			List<IRecipe> recipes = CraftingManager.getInstance().getRecipeList();
 			for (IRecipe recipe : recipes)
 				if (recipe.getRecipeOutput() != null && recipe.getRecipeOutput().getItem() == item) {
+					BlockArmor.logger.info("Disabling item: "+new ItemStack(item).getDisplayName());//TODO switch to debug
 					recipes.remove(recipe);
 					break;
 				}
