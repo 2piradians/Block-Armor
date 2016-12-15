@@ -257,7 +257,7 @@ public class ArmorSet {
 				break;
 			}
 
-		return name.replace("Block of ", "").replace("Block ", "").replace("Gold", "Golden");
+		return name.replace("Block of ", "").replace("Block ", "");
 	}
 
 	/**Determines if entity is wearing a full set of armor of same material*/
@@ -322,7 +322,8 @@ public class ArmorSet {
 		if (block instanceof BlockLiquid || block instanceof BlockContainer || block.hasTileEntity() || 
 				block instanceof BlockOre || block instanceof BlockCrops || block instanceof BlockBush ||
 				block == Blocks.BARRIER || block instanceof BlockLeaves || block == Blocks.MONSTER_EGG ||
-				block instanceof BlockSlab || block.getRenderType(block.getDefaultState()) != EnumBlockRenderType.MODEL)
+				block instanceof BlockSlab || block.getRenderType(block.getDefaultState()) != EnumBlockRenderType.MODEL ||
+				block == Blocks.IRON_BLOCK || block == Blocks.GOLD_BLOCK || block == Blocks.DIAMOND_BLOCK)
 			return false;
 
 		//Check if full block
@@ -407,8 +408,8 @@ public class ArmorSet {
 			BlockArmor.logger.debug("Override texture found at: "+texture.toString());
 		} catch (Exception e) {}
 
-		//If a sprite is missing, disable the set TODO remove redstone
-		if (this.block == Blocks.REDSTONE_BLOCK || this.sprites[EntityEquipmentSlot.HEAD.getIndex()] == null || 
+		//If a sprite is missing, disable the set
+		if (this.sprites[EntityEquipmentSlot.HEAD.getIndex()] == null || 
 				this.sprites[EntityEquipmentSlot.CHEST.getIndex()] == null || 
 				this.sprites[EntityEquipmentSlot.LEGS.getIndex()] == null || 
 				this.sprites[EntityEquipmentSlot.FEET.getIndex()] == null ||

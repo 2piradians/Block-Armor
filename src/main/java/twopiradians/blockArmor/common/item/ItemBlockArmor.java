@@ -58,6 +58,7 @@ public class ItemBlockArmor extends ItemArmor
 	public ItemBlockArmor(ArmorMaterial material, int renderIndex, EntityEquipmentSlot equipmentSlot) 
 	{
 		super(material, renderIndex, equipmentSlot);
+		this.setCreativeTab(null);
 	}
 
 	/**Change armor texture based on block*/

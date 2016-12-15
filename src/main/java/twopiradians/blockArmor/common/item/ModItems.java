@@ -55,11 +55,13 @@ public class ModItems
 				if (BlockArmor.moddedTab == null)
 					BlockArmor.moddedTab = new BlockArmorCreativeTab("tabBlockArmorModded");
 				BlockArmor.moddedTab.orderedStacks.add(new ItemStack(item));
+				item.setCreativeTab(BlockArmor.moddedTab);
 			}
 			else {
 				if (BlockArmor.vanillaTab == null)
 					BlockArmor.vanillaTab = new BlockArmorCreativeTab("tabBlockArmorVanilla");
 				BlockArmor.vanillaTab.orderedStacks.add(new ItemStack(item));
+				item.setCreativeTab(BlockArmor.vanillaTab);
 			}
 		}
 		GameRegistry.register(item);
