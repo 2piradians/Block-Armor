@@ -1,7 +1,6 @@
 package twopiradians.blockArmor.creativetab;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 import net.minecraft.creativetab.CreativeTabs;
@@ -31,13 +30,6 @@ public class BlockArmorCreativeTab extends CreativeTabs
 	public void displayAllRelevantItems(List<ItemStack> list)
 	{
 		list.clear();
-		Iterator<ItemStack> it = orderedStacks.iterator();
-		
-		//remove disabled items from tab
-		while (it.hasNext()) 
-			if (ArmorSet.disabledItems.contains(it.next().getItem()))
-				it.remove();
-		
 		list.addAll(orderedStacks);
 	}
 }

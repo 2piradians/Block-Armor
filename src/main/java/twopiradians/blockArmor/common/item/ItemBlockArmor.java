@@ -66,8 +66,6 @@ public class ItemBlockArmor extends ItemArmor
 	public String getArmorTexture(ItemStack stack, Entity entity, EntityEquipmentSlot slot, String type)
 	{
 		TextureAtlasSprite sprite = ArmorSet.getSprite(this);
-		if (sprite == null)
-			return null;
 		String texture = sprite.getIconName()+".png";
 		int index = texture.indexOf(":");
 		texture = texture.substring(0, index+1)+"textures/"+texture.substring(index+1);
@@ -79,8 +77,6 @@ public class ItemBlockArmor extends ItemArmor
 	public ModelBiped getArmorModel(EntityLivingBase entity, ItemStack stack, EntityEquipmentSlot slot, ModelBiped oldModel)
 	{
 		TextureAtlasSprite sprite = ArmorSet.getSprite(this);
-		if (sprite == null)
-			return oldModel;
 		int width = sprite.getIconWidth();
 		int height = sprite.getIconHeight() * sprite.getFrameCount();
 		boolean isTranslucent = ArmorSet.getSet(this).isTranslucent;
@@ -93,8 +89,13 @@ public class ItemBlockArmor extends ItemArmor
 	@SideOnly(Side.CLIENT)
 	public void getSubItems(Item itemIn, CreativeTabs tab, List<ItemStack> subItems)
 	{
-		if (!ArmorSet.disabledItems.contains(itemIn))
-			subItems.add(new ItemStack(itemIn));
+		if (ArmorSet.disabledItems != null) {
+			for (ItemStack stack : ArmorSet.disabledItems)
+				if (stack.getItem() == itemIn)
+					return;
+		}
+		
+		subItems.add(new ItemStack(itemIn));
 	}
 
 	/**Change display name based on the block*/
@@ -328,16 +329,16 @@ public class ItemBlockArmor extends ItemArmor
 			return;
 
 		EntityLivingBase entity = (EntityLivingBase) entityIn;
-	
+
 		if (!stack.hasTagCompound())
 			stack.setTagCompound(new NBTTagCompound());
-		
+
 		if (!(ArmorSet.isWearingFullSet(entity, ArmorSet.getSet(this)) && ArmorSet.isSetEffectEnabled(ArmorSet.getSet(this))))
 		{
 			stack.getTagCompound().setBoolean("isWearing", false);
 			return;
 		}
-		
+
 		stack.getTagCompound().setBoolean("isWearing", true);
 
 		int cooldown = stack.getTagCompound().hasKey("cooldown") ? stack.getTagCompound().getInteger("cooldown") : 0;

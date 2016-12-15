@@ -10,12 +10,13 @@ import net.minecraft.client.resources.IReloadableResourceManager;
 import net.minecraft.client.resources.IResourceManager;
 import net.minecraft.client.resources.IResourceManagerReloadListener;
 import net.minecraft.inventory.EntityEquipmentSlot;
-import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.client.event.TextureStitchEvent;
 import net.minecraftforge.client.model.ModelLoaderRegistry;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.world.WorldEvent;
+import net.minecraftforge.fml.common.Loader;
 import net.minecraftforge.fml.common.event.FMLLoadCompleteEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
@@ -27,6 +28,7 @@ import twopiradians.blockArmor.common.CommonProxy;
 import twopiradians.blockArmor.common.block.ModBlocks;
 import twopiradians.blockArmor.common.item.ArmorSet;
 import twopiradians.blockArmor.common.item.ModItems;
+import twopiradians.blockArmor.jei.BlockArmorJEIPlugin;
 import twopiradians.blockArmor.packets.DisableItemsPacket;
 
 public class ClientProxy extends CommonProxy
@@ -76,11 +78,22 @@ public class ClientProxy extends CommonProxy
 	@Override
 	public void loadComplete(FMLLoadCompleteEvent event)
 	{
-		//set MC to map textures when resources reloaded
+		//set MC to map textures and reload JEI (if present) when resources reloaded
 		((IReloadableResourceManager) Minecraft.getMinecraft().getResourceManager()).registerReloadListener(new IResourceManagerReloadListener() {
 			@Override
 			public void onResourceManagerReload(IResourceManager resourceManager) {
 				mapTextures();
+				
+				//If there are disabled items, reload JEI to make sure they're added to the JEI blacklist
+				if (ArmorSet.disabledItems != null && !ArmorSet.disabledItems.isEmpty() &&
+						Loader.isModLoaded("JEI") && BlockArmorJEIPlugin.helpers != null)
+					try {//reload only seems to be needed when compiled
+						BlockArmor.logger.info("Reloading JEI...");
+						BlockArmorJEIPlugin.helpers.reload();
+					} catch (Exception e) {
+						BlockArmor.logger.error("Another mod caused an exception while reloading JEI: ");
+						e.printStackTrace();
+					}
 			}
 		});
 	}
@@ -102,7 +115,7 @@ public class ClientProxy extends CommonProxy
 
 		//find block textures
 		int numTextures = 0;
-		ArmorSet.disabledItems = new ArrayList<Item>();
+		ArmorSet.disabledItems = new ArrayList<ItemStack>();
 		for (ArmorSet set : ArmorSet.allSets) 
 			numTextures += set.initTextures();
 
