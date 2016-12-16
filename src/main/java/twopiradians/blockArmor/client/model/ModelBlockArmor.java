@@ -23,13 +23,15 @@ public class ModelBlockArmor extends ModelBiped
 	private ModelRenderer bipedRightFoot;
 	private ModelRenderer bipedLeftFoot;
 	private boolean translucent;
+	private int color;
 
-	public ModelBlockArmor(int textureHeight, int textureWidth, boolean isTranslucent, int frame, EntityEquipmentSlot slot)
+	public ModelBlockArmor(int textureHeight, int textureWidth, boolean isTranslucent, int frame, int color, EntityEquipmentSlot slot)
 	{		
 		int size = Math.max(1, textureWidth / 16);
 		this.textureHeight = textureHeight / size;
 		this.textureWidth = textureWidth / size;
 		this.translucent = isTranslucent;
+		this.color = color;
 		int yOffset = this.textureWidth * frame;
 
 		//Initialization and rotation points
@@ -165,8 +167,8 @@ public class ModelBlockArmor extends ModelBiped
 		list.addAll(mesher.getItemModel(stack).getQuads(Blocks.GRASS.getDefaultState(), EnumFacing.UP, 0));
 		BakedQuad quad = list.get(0);*/
 
-		/*	int color = Minecraft.getMinecraft().getItemColors().getColorFromItemstack(stack, 3); //TODO colors seem to work, need to differentiate with different sides/quads
-		if (color != -1) { //TODO possibly add support for overlays?
+		/*	int color = Minecraft.getMinecraft().getItemColors().getColorFromItemstack(stack, 3);
+		if (color != -1) { 
 			color = color | -16777216;
 			float cb = color & 0xFF;
 			float cg = (color >>> 8) & 0xFF;
@@ -235,9 +237,21 @@ public class ModelBlockArmor extends ModelBiped
 		catch (Exception e) {
 			e.printStackTrace();
 		}*/
-
-
 		////////////////////////
+
+
+		if (color != -1) { //add color if needed
+			color = color | -16777216;
+			float cb = color & 0xFF;
+			float cg = (color >>> 8) & 0xFF;
+			float cr = (color >>> 16) & 0xFF;
+
+			float red = cr/255f;
+			float green = cg/255f;
+			float blue = cb/255f;
+
+			GlStateManager.color(red, green, blue);
+		}
 
 		if (this.translucent) 
 			GlStateManager.enableBlend(); //enables transparency

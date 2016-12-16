@@ -98,6 +98,10 @@ public class ArmorSet {
 	/**Array of fields for TextureAtlasSprite's frameCounter (or null if not animated) sorted by EntityEquipmentSlot id*/
 	@SideOnly(Side.CLIENT)
 	private Field[] frameFields;
+	/**Array of ints for quad's color (or -1 if none) sorted by EntityEquipmentSlot id*/
+	@SideOnly(Side.CLIENT)
+	private int[] colors;
+	/**Minecraft's default missing texture sprite, assigned in initTextures()*/
 	@SideOnly(Side.CLIENT)
 	private static TextureAtlasSprite missingSprite;
 
@@ -219,6 +223,16 @@ public class ArmorSet {
 		else
 			return 0;
 	}
+	
+	/**Returns color corresponding to given ItemModArmor*/
+	@SideOnly(Side.CLIENT)
+	public static int getColor(ItemBlockArmor item) {
+		ArmorSet set = ArmorSet.getSet(item);
+		if (set != null)
+			return set.colors[item.getEquipmentSlot().getIndex()];
+		else
+			return -1;
+	}
 
 	/**Used to uniformly create registry name*/
 	public static String getItemStackRegistryName(ItemStack stack) {
@@ -310,7 +324,7 @@ public class ArmorSet {
 		return null;
 	}
 
-	/**Should an armor set be made from this item*/ //TODO stop replacing gold with golden
+	/**Should an armor set be made from this item*/
 	private static boolean isValid(ItemStack stack) {
 		if (stack == null || !(stack.getItem() instanceof ItemBlock) || 
 				stack.getItem().getRegistryName().getResourcePath().contains("ore") || 
@@ -348,6 +362,7 @@ public class ArmorSet {
 		int numTextures = 0;
 		this.sprites = new TextureAtlasSprite[EntityEquipmentSlot.values().length];
 		this.frameFields = new Field[EntityEquipmentSlot.values().length];
+		this.colors = new int[EntityEquipmentSlot.values().length];
 
 		//Gets textures from item model's BakedQuads (textures for each side)
 		List<BakedQuad> list = new ArrayList<BakedQuad>();
@@ -361,33 +376,39 @@ public class ArmorSet {
 			ResourceLocation loc1 = new ResourceLocation(quad.getSprite().getIconName());
 
 			TextureAtlasSprite sprite = Minecraft.getMinecraft().getTextureMapBlocks().getAtlasSprite(loc1.toString());
-			if (sprite.getIconName().contains("overlay"))
-				continue;
 			Field field = sprite.getFrameCount() > 1 ? ReflectionHelper.findField(TextureAtlasSprite.class, new String[] {"frameCounter", "field_110973_g"}) : null;
+			int color = quad.hasTintIndex() ? Minecraft.getMinecraft().getItemColors().getColorFromItemstack(this.stack, quad.getTintIndex()) : -1;
+
+			if (sprite.getIconName().contains("overlay")) //overlays not supported by forge so we can't account for them
+				continue;
 
 			if (quad.getFace() == EnumFacing.UP) {
 				if (sprite != missingSprite)
 					numTextures++;
 				this.sprites[EntityEquipmentSlot.HEAD.getIndex()] = sprite;
 				this.frameFields[EntityEquipmentSlot.HEAD.getIndex()] = field;
+				this.colors[EntityEquipmentSlot.HEAD.getIndex()] = color;
 			}
 			else if (quad.getFace() == EnumFacing.NORTH) {
 				if (sprite != missingSprite)
 					numTextures++;
 				this.sprites[EntityEquipmentSlot.CHEST.getIndex()] = sprite;
 				this.frameFields[EntityEquipmentSlot.CHEST.getIndex()] = field;
+				this.colors[EntityEquipmentSlot.CHEST.getIndex()] = color;
 			}
 			else if (quad.getFace() == EnumFacing.SOUTH) {
 				if (sprite != missingSprite)
 					numTextures++;
 				this.sprites[EntityEquipmentSlot.LEGS.getIndex()] = sprite;
 				this.frameFields[EntityEquipmentSlot.LEGS.getIndex()] = field;
+				this.colors[EntityEquipmentSlot.LEGS.getIndex()] = color;
 			}
 			else if (quad.getFace() == EnumFacing.DOWN) {
 				if (sprite != missingSprite)
 					numTextures++;
 				this.sprites[EntityEquipmentSlot.FEET.getIndex()] = sprite;
 				this.frameFields[EntityEquipmentSlot.FEET.getIndex()] = field;
+				this.colors[EntityEquipmentSlot.FEET.getIndex()] = color;
 			}
 		}
 

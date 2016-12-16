@@ -190,18 +190,20 @@ public final class ModelDynBlockArmor implements IModel, IModelCustomData, IRete
 						}
 					});
 					builder.addAll(model.getQuads(null, null, 0));
-
+					
+					int color = ArmorSet.getColor(item);
+					
 					//Template texture for left half
 					String templateLocation = new ResourceLocation(BlockArmor.MODID+":items/icons/block_armor_"+armorType+"1_template").toString();
 					TextureAtlasSprite templateTexture = Minecraft.getMinecraft().getTextureMapBlocks().getAtlasSprite(templateLocation);
-					builder.addAll(ItemTextureQuadConverter.convertTexture(format, transform, templateTexture, sprite, NORTH_Z_FLUID, EnumFacing.NORTH, 0xffffffff));
-					builder.addAll(ItemTextureQuadConverter.convertTexture(format, transform, templateTexture, sprite, SOUTH_Z_FLUID, EnumFacing.SOUTH, 0xffffffff));
+					builder.addAll(ItemTextureQuadConverter.convertTexture(format, transform, templateTexture, sprite, NORTH_Z_FLUID, EnumFacing.NORTH, color));
+					builder.addAll(ItemTextureQuadConverter.convertTexture(format, transform, templateTexture, sprite, SOUTH_Z_FLUID, EnumFacing.SOUTH, color));
 
 					//Template texture for right half
 					templateLocation = new ResourceLocation(BlockArmor.MODID+":items/icons/block_armor_"+armorType+"2_template").toString();
 					templateTexture = Minecraft.getMinecraft().getTextureMapBlocks().getAtlasSprite(templateLocation);
-					builder.addAll(ItemTextureQuadConverter.convertTexture(format, transform, templateTexture, sprite, NORTH_Z_FLUID, EnumFacing.NORTH, 0xffffffff));
-					builder.addAll(ItemTextureQuadConverter.convertTexture(format, transform, templateTexture, sprite, SOUTH_Z_FLUID, EnumFacing.SOUTH, 0xffffffff));
+					builder.addAll(ItemTextureQuadConverter.convertTexture(format, transform, templateTexture, sprite, NORTH_Z_FLUID, EnumFacing.NORTH, color));
+					builder.addAll(ItemTextureQuadConverter.convertTexture(format, transform, templateTexture, sprite, SOUTH_Z_FLUID, EnumFacing.SOUTH, color));
 
 					//Cover texture
 					String coverLocation = new ResourceLocation(BlockArmor.MODID+":items/icons/block_armor_"+armorType+"_cover").toString();

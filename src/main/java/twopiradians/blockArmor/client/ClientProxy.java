@@ -58,11 +58,11 @@ public class ClientProxy extends CommonProxy
 	}
 
 	@Override
-	public Object getBlockArmorModel(int height, int width, boolean isTranslucent, int frame, EntityEquipmentSlot slot) {
-		String key = height+""+width+""+isTranslucent+""+frame+""+slot.getName();
+	public Object getBlockArmorModel(int height, int width, boolean isTranslucent, int frame, int color, EntityEquipmentSlot slot) {
+		String key = height+""+width+""+isTranslucent+""+frame+""+color+""+slot.getName();
 		ModelBlockArmor model = modelMaps.get(key);
 		if (model == null) {
-			model = new ModelBlockArmor(height, width, isTranslucent, frame, slot);
+			model = new ModelBlockArmor(height, width, isTranslucent, frame, color, slot);
 			modelMaps.put(key, model);
 		}
 		return model;
