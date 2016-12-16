@@ -9,6 +9,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.resources.IReloadableResourceManager;
 import net.minecraft.client.resources.IResourceManager;
 import net.minecraft.client.resources.IResourceManagerReloadListener;
+import net.minecraft.init.Blocks;
 import net.minecraft.inventory.EntityEquipmentSlot;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
@@ -20,6 +21,7 @@ import net.minecraftforge.fml.common.Loader;
 import net.minecraftforge.fml.common.event.FMLLoadCompleteEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
+import net.minecraftforge.fml.relauncher.Side;
 import twopiradians.blockArmor.client.gui.armorDisplay.OpenGuiEvent;
 import twopiradians.blockArmor.client.model.ModelBlockArmor;
 import twopiradians.blockArmor.client.model.ModelDynBlockArmor;
@@ -37,8 +39,6 @@ public class ClientProxy extends CommonProxy
 	private HashMap<String, ModelBlockArmor> modelMaps = Maps.newHashMap();
 	/**Send disable packet next tick (bc can't send packets on world load)*/
 	private boolean sendDisablePacket;
-	/**JEI plugin reads this to check if it should remove items and reload (so JEI plugin stays independent)*/
-	public boolean reloadJEI;
 
 	@Override
 	public void preInit() {
@@ -57,9 +57,9 @@ public class ClientProxy extends CommonProxy
 		ModItems.registerRenders();
 	}
 
-	@Override
-	public Object getBlockArmorModel(int height, int width, boolean isTranslucent, int frame, int color, EntityEquipmentSlot slot) {
-		String key = height+""+width+""+isTranslucent+""+frame+""+color+""+slot.getName();
+	@Override//TODO get model by frame and set alpha after
+	public Object getBlockArmorModel(int height, int width, boolean isTranslucent, float frame, int color, EntityEquipmentSlot slot) {
+		String key = height+""+width+""+isTranslucent+""+(int)frame+""+color+""+slot.getName();
 		ModelBlockArmor model = modelMaps.get(key);
 		if (model == null) {
 			model = new ModelBlockArmor(height, width, isTranslucent, frame, color, slot);
@@ -83,7 +83,7 @@ public class ClientProxy extends CommonProxy
 			@Override
 			public void onResourceManagerReload(IResourceManager resourceManager) {
 				mapTextures();
-				
+
 				//If there are disabled items, reload JEI to make sure they're added to the JEI blacklist
 				if (ArmorSet.disabledItems != null && !ArmorSet.disabledItems.isEmpty() &&
 						Loader.isModLoaded("JEI") && BlockArmorJEIPlugin.helpers != null)
@@ -91,8 +91,7 @@ public class ClientProxy extends CommonProxy
 						BlockArmor.logger.info("Reloading JEI...");
 						BlockArmorJEIPlugin.helpers.reload();
 					} catch (Exception e) {
-						BlockArmor.logger.error("Another mod caused an exception while reloading JEI: ");
-						e.printStackTrace();
+						BlockArmor.logger.error("Another mod caused an exception while reloading JEI: ", e);
 					}
 			}
 		});
@@ -106,6 +105,19 @@ public class ClientProxy extends CommonProxy
 			this.sendDisablePacket = false;
 			BlockArmor.network.sendToServer(new DisableItemsPacket(ArmorSet.disabledItems));
 		}
+
+		//(ticks at same rate as TextureAtlasSprite's updateAnimation())
+		if (!Minecraft.getMinecraft().isGamePaused() && event.side == Side.CLIENT) 
+			for (ArmorSet set : ArmorSet.allSets) 
+				for (int i=0; i<4; i++) { //through valid slots
+					if (set.animations[i] != null) {//if animated
+						set.frames[i] += 0.5f/set.animations[i].getFrameTimeSingle((int) set.frames[i]);
+						if (set.frames[i] > set.animations[i].getFrameCount()-1)
+							set.frames[i] -= set.animations[i].getFrameCount()-1;
+						if (set.block == Blocks.SEA_LANTERN)
+							System.out.println(set.frames[i]);
+					}
+				}
 	}
 
 	/**Resets model and item quads and maps block textures (called when client joins world or resource pack loaded)*/
@@ -131,7 +143,6 @@ public class ClientProxy extends CommonProxy
 		//send disabled sets to server and remove their recipes and remove them from creative tabs/JEI
 		this.sendDisablePacket = true;
 		ArmorSet.disableItems();
-		this.reloadJEI = true;
 
 		//create inventory icons
 		int numIcons = ModelDynBlockArmor.BakedDynBlockArmorOverrideHandler.createInventoryIcons();

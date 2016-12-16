@@ -20,6 +20,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.ItemModelMesher;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import net.minecraft.client.resources.data.AnimationMetadataSection;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
@@ -95,7 +96,16 @@ public class ArmorSet {
 	/**Array of sprites for the block's texture sorted by EntityEquipmentSlot id*/
 	@SideOnly(Side.CLIENT)
 	private TextureAtlasSprite[] sprites;
-	/**Array of fields for TextureAtlasSprite's frameCounter (or null if not animated) sorted by EntityEquipmentSlot id*/
+	/**Array of AnimationMetadataSection for TextureAtlasSprite's animation (or null if not animated) sorted by EntityEquipmentSlot id*/
+	@SideOnly(Side.CLIENT)
+	public AnimationMetadataSection[] animations;
+	/**Array of floats for TextureAtlasSprite's current frame (including decimals between frames) sorted by EntityEquipmentSlot id*/
+	@SideOnly(Side.CLIENT)
+	public float[] frames;
+/*	*//**Array of ints for TextureAtlasSprite's max amount of frames sorted by EntityEquipmentSlot id*//*
+	@SideOnly(Side.CLIENT)
+	public int[] maxFrames;//TODO
+*/	/**Array of fields for TextureAtlasSprite's frameCounter (or null if not animated) sorted by EntityEquipmentSlot id*/
 	@SideOnly(Side.CLIENT)
 	private Field[] frameFields;
 	/**Array of ints for quad's color (or -1 if none) sorted by EntityEquipmentSlot id*/
@@ -104,6 +114,9 @@ public class ArmorSet {
 	/**Minecraft's default missing texture sprite, assigned in initTextures()*/
 	@SideOnly(Side.CLIENT)
 	private static TextureAtlasSprite missingSprite;
+	/**Ticks set by ClientProxy's clientTick() to match TextureAtlasSprite's updateAnimation()*/
+	@SideOnly(Side.CLIENT)
+	public static int tickCounter;
 
 	public ArmorSet(ItemStack stack, boolean hasSetEffect) {
 		this.stack = stack;
@@ -207,6 +220,16 @@ public class ArmorSet {
 
 	/**Returns current animation frame corresponding to given ItemModArmor*/
 	@SideOnly(Side.CLIENT)
+	public static float getAnimationFrame(ItemBlockArmor item) {
+		ArmorSet set = ArmorSet.getSet(item);
+		if (set != null) 
+			return set.frames[item.getEquipmentSlot().getIndex()];
+		else
+			return 0;
+	}
+
+	/**Returns current animation frame corresponding to given ItemModArmor*//*
+	@SideOnly(Side.CLIENT)
 	public static int getAnimationFrame(ItemBlockArmor item) {
 		ArmorSet set = ArmorSet.getSet(item);
 		if (set != null) {
@@ -222,8 +245,8 @@ public class ArmorSet {
 		}
 		else
 			return 0;
-	}
-	
+	}*/
+
 	/**Returns color corresponding to given ItemModArmor*/
 	@SideOnly(Side.CLIENT)
 	public static int getColor(ItemBlockArmor item) {
@@ -362,7 +385,11 @@ public class ArmorSet {
 		int numTextures = 0;
 		this.sprites = new TextureAtlasSprite[EntityEquipmentSlot.values().length];
 		this.frameFields = new Field[EntityEquipmentSlot.values().length];
+		this.animations = new AnimationMetadataSection[EntityEquipmentSlot.values().length];
+		this.frames = new float[EntityEquipmentSlot.values().length];
 		this.colors = new int[EntityEquipmentSlot.values().length];
+		for (int i=0; i<colors.length; i++)
+			this.colors[i] = -1;
 
 		//Gets textures from item model's BakedQuads (textures for each side)
 		List<BakedQuad> list = new ArrayList<BakedQuad>();
@@ -377,6 +404,7 @@ public class ArmorSet {
 
 			TextureAtlasSprite sprite = Minecraft.getMinecraft().getTextureMapBlocks().getAtlasSprite(loc1.toString());
 			Field field = sprite.getFrameCount() > 1 ? ReflectionHelper.findField(TextureAtlasSprite.class, new String[] {"frameCounter", "field_110973_g"}) : null;
+			AnimationMetadataSection animation = (AnimationMetadataSection) (sprite.getFrameCount() > 1 ? ReflectionHelper.getPrivateValue(TextureAtlasSprite.class, sprite, 3) : null); //animationMetadata
 			int color = quad.hasTintIndex() ? Minecraft.getMinecraft().getItemColors().getColorFromItemstack(this.stack, quad.getTintIndex()) : -1;
 
 			if (sprite.getIconName().contains("overlay")) //overlays not supported by forge so we can't account for them
@@ -387,6 +415,7 @@ public class ArmorSet {
 					numTextures++;
 				this.sprites[EntityEquipmentSlot.HEAD.getIndex()] = sprite;
 				this.frameFields[EntityEquipmentSlot.HEAD.getIndex()] = field;
+				this.animations[EntityEquipmentSlot.HEAD.getIndex()] = animation;
 				this.colors[EntityEquipmentSlot.HEAD.getIndex()] = color;
 			}
 			else if (quad.getFace() == EnumFacing.NORTH) {
@@ -394,6 +423,7 @@ public class ArmorSet {
 					numTextures++;
 				this.sprites[EntityEquipmentSlot.CHEST.getIndex()] = sprite;
 				this.frameFields[EntityEquipmentSlot.CHEST.getIndex()] = field;
+				this.animations[EntityEquipmentSlot.CHEST.getIndex()] = animation;
 				this.colors[EntityEquipmentSlot.CHEST.getIndex()] = color;
 			}
 			else if (quad.getFace() == EnumFacing.SOUTH) {
@@ -401,6 +431,7 @@ public class ArmorSet {
 					numTextures++;
 				this.sprites[EntityEquipmentSlot.LEGS.getIndex()] = sprite;
 				this.frameFields[EntityEquipmentSlot.LEGS.getIndex()] = field;
+				this.animations[EntityEquipmentSlot.LEGS.getIndex()] = animation;
 				this.colors[EntityEquipmentSlot.LEGS.getIndex()] = color;
 			}
 			else if (quad.getFace() == EnumFacing.DOWN) {
@@ -408,6 +439,7 @@ public class ArmorSet {
 					numTextures++;
 				this.sprites[EntityEquipmentSlot.FEET.getIndex()] = sprite;
 				this.frameFields[EntityEquipmentSlot.FEET.getIndex()] = field;
+				this.animations[EntityEquipmentSlot.FEET.getIndex()] = animation;
 				this.colors[EntityEquipmentSlot.FEET.getIndex()] = color;
 			}
 		}
@@ -420,12 +452,16 @@ public class ArmorSet {
 			TextureAtlasSprite sprite = Minecraft.getMinecraft().getTextureMapBlocks().getAtlasSprite(texture.toString());
 			this.sprites[EntityEquipmentSlot.HEAD.getIndex()] = sprite;
 			this.frameFields[EntityEquipmentSlot.HEAD.getIndex()] = null;
+			this.animations[EntityEquipmentSlot.HEAD.getIndex()] = null;
 			this.sprites[EntityEquipmentSlot.CHEST.getIndex()] = sprite;
 			this.frameFields[EntityEquipmentSlot.CHEST.getIndex()] = null;
+			this.animations[EntityEquipmentSlot.CHEST.getIndex()] = null;
 			this.sprites[EntityEquipmentSlot.LEGS.getIndex()] = sprite;
 			this.frameFields[EntityEquipmentSlot.LEGS.getIndex()] = null;
+			this.animations[EntityEquipmentSlot.LEGS.getIndex()] = null;
 			this.sprites[EntityEquipmentSlot.FEET.getIndex()] = sprite;
 			this.frameFields[EntityEquipmentSlot.FEET.getIndex()] = null;
+			this.animations[EntityEquipmentSlot.FEET.getIndex()] = null;
 			BlockArmor.logger.debug("Override texture found at: "+texture.toString());
 		} catch (Exception e) {}
 

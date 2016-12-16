@@ -39,6 +39,7 @@ import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import twopiradians.blockArmor.client.model.ModelBlockArmor;
 import twopiradians.blockArmor.common.BlockArmor;
 import twopiradians.blockArmor.common.block.ModBlocks;
 
@@ -81,10 +82,14 @@ public class ItemBlockArmor extends ItemArmor
 		int width = sprite.getIconWidth();
 		int height = sprite.getIconHeight() * sprite.getFrameCount();
 		boolean isTranslucent = ArmorSet.getSet(this).isTranslucent;
-		int frame = ArmorSet.getAnimationFrame(this);
+		float frame = ArmorSet.getAnimationFrame(this);
+		//System.out.println("frame: "+frame); TODO remove
 		int color = ArmorSet.getColor(this);
-		//return new ModelBlockArmor(height, width, isTranslucent, frame, color, slot);
-		return (ModelBiped) BlockArmor.proxy.getBlockArmorModel(height, width, isTranslucent, frame, color, slot);
+		//ModelBlockArmor model = new ModelBlockArmor(height, width, isTranslucent, frame, color, slot);
+		ModelBlockArmor model =  (ModelBlockArmor) BlockArmor.proxy.getBlockArmorModel(height, width, isTranslucent, frame, color, slot);
+		model.alpha = frame - (int) frame;
+		//System.out.println(model.alpha);
+		return model;
 	}
 
 	/**Don't display item in creative tab/JEI if disabled*/
