@@ -56,9 +56,6 @@ public class ItemBlockArmor extends ItemArmor
 	private static final String TEXT_FORMATTING_SET_EFFECT_DESCRIPTION = TextFormatting.WHITE+"";
 	private static final String TEXT_FORMATTING_SET_EFFECT_EXTRA = TextFormatting.GREEN+"";
 
-	private int tmpCount;
-	private int tmpFrame;
-
 	public ItemBlockArmor(ArmorMaterial material, int renderIndex, EntityEquipmentSlot equipmentSlot) 
 	{
 		super(material, renderIndex, equipmentSlot);
@@ -85,22 +82,15 @@ public class ItemBlockArmor extends ItemArmor
 		int width = sprite.getIconWidth();
 		int height = sprite.getIconHeight() * sprite.getFrameCount();
 		boolean isTranslucent = ArmorSet.getSet(this).isTranslucent;
-		float frame = ArmorSet.getAnimationFrame(this);
-		//System.out.println("frame: "+frame); TODO remove
+		int currentFrame = ArmorSet.getCurrentAnimationFrame(this);
+		int nextFrame = ArmorSet.getNextAnimationFrame(this);
 		int color = ArmorSet.getColor(this);
-		//ModelBlockArmor model = new ModelBlockArmor(height, width, isTranslucent, frame, color, slot);
-		ModelBlockArmor model =  (ModelBlockArmor) BlockArmor.proxy.getBlockArmorModel(height, width, isTranslucent, (int)frame, color, slot);
-		model.alpha = frame - (int) frame;
-
-/*		if (stack.getDisplayName().equals("Sea Lantern Chestplate"))
-			if ((int) frame == tmpFrame) 
-				tmpCount++;
-			else {
-				System.out.println("frame: "+tmpFrame+", count: "+tmpCount);
-				tmpFrame = (int) frame;
-				tmpCount = 1;
-			}*/
-
+		float alpha = ArmorSet.getAlpha(this);
+		//ModelBlockArmor model = new ModelBlockArmor(height, width, currentFrame, nextFrame, slot);
+		ModelBlockArmor model =  (ModelBlockArmor) BlockArmor.proxy.getBlockArmorModel(height, width, currentFrame, nextFrame, slot);
+		model.translucent = isTranslucent;
+		model.color = color;
+		model.alpha = alpha;
 		return model;
 	}
 

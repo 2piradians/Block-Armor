@@ -10,11 +10,9 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class ModelPlane extends ModelBox {
 
-	private TexturedQuad quadToDraw;
-	private TexturedQuad normalQuad;
-	private TexturedQuad offsetQuad;
+	private TexturedQuad quad;
 
-	public ModelPlane(ModelRenderer renderer, int textureX, int textureY, float offX, float offY, float offZ, int width, int height, int depth, boolean flip, int yOffset)
+	public ModelPlane(ModelRenderer renderer, int textureX, int textureY, float offX, float offY, float offZ, int width, int height, int depth, boolean flip)
 	{
 		super(renderer, textureX, textureY, offX, offY, offZ, width, height, depth, 0, false);
 
@@ -29,7 +27,6 @@ public class ModelPlane extends ModelBox {
 		float f2 = offZ + (float)depth;
 
 		for (int i=0; i<2; i++) {
-			textureY += i*yOffset;
 			//1 = bottom right, 2 = bottom left, 3 = top left, 4 = top right
 			if (width == 0) {//y-z plane
 				vertex1 = new PositionTextureVertex(offX, f1, f2, 0.0F, 8.0F);//6
@@ -40,10 +37,7 @@ public class ModelPlane extends ModelBox {
 					posVerts = new PositionTextureVertex[] {vertex3, vertex2, vertex1, vertex4};
 				else
 					posVerts = new PositionTextureVertex[] {vertex2, vertex3, vertex4, vertex1};
-				if (i == 0)
-					this.normalQuad = new TexturedQuad(posVerts, textureX + depth, textureY + depth, textureX, textureY + depth + height, renderer.textureWidth, renderer.textureHeight);//???
-				else
-					this.offsetQuad = new TexturedQuad(posVerts, textureX + depth, textureY + depth, textureX, textureY + depth + height, renderer.textureWidth, renderer.textureHeight);//???
+					this.quad = new TexturedQuad(posVerts, textureX + depth, textureY + depth, textureX, textureY + depth + height, renderer.textureWidth, renderer.textureHeight);//???
 			}
 			else if (height == 0) {
 				vertex1 = new PositionTextureVertex(f, offY, f2, 0.0F, 8.0F);//4
@@ -54,10 +48,7 @@ public class ModelPlane extends ModelBox {
 					posVerts = new PositionTextureVertex[] {vertex3, vertex2, vertex1, vertex4};
 				else
 					posVerts = new PositionTextureVertex[] {vertex2, vertex3, vertex4, vertex1};
-				if (i == 0)
-					this.normalQuad = new TexturedQuad(posVerts, textureX + depth, textureY, textureX + depth + width, textureY + depth, renderer.textureWidth, renderer.textureHeight);//2
-				else
-					this.offsetQuad = new TexturedQuad(posVerts, textureX + depth, textureY, textureX + depth + width, textureY + depth, renderer.textureWidth, renderer.textureHeight);//2
+					this.quad = new TexturedQuad(posVerts, textureX + depth, textureY, textureX + depth + width, textureY + depth, renderer.textureWidth, renderer.textureHeight);//2
 			}
 			else if (depth == 0) {//x-z plane
 				vertex1 = new PositionTextureVertex(f, f1, offZ, 0.0F, 8.0F);//1
@@ -68,27 +59,15 @@ public class ModelPlane extends ModelBox {
 					posVerts = new PositionTextureVertex[] {vertex3, vertex4, vertex1, vertex2};
 				else
 					posVerts = new PositionTextureVertex[] {vertex4, vertex3, vertex2, vertex1};
-				if (i == 0)
-					this.normalQuad = new TexturedQuad(posVerts, textureX + depth, textureY + depth, textureX + depth + width, textureY + depth + height, renderer.textureWidth, renderer.textureHeight);//4
-				else
-					this.offsetQuad = new TexturedQuad(posVerts, textureX + depth, textureY + depth, textureX + depth + width, textureY + depth + height, renderer.textureWidth, renderer.textureHeight);//4
+					this.quad = new TexturedQuad(posVerts, textureX + depth, textureY + depth, textureX + depth + width, textureY + depth + height, renderer.textureWidth, renderer.textureHeight);//4
 			}//1 = bottom right, 2 = bottom left, 3 = top left, 4 = top right
 		}
-		this.quadToDraw = this.normalQuad;
-	}
-
-	public void useOffsetQuad(boolean useOffset) {
-		if (useOffset)
-			this.quadToDraw = this.offsetQuad;
-		else 
-			this.quadToDraw = this.normalQuad;
 	}
 
 	@Override
 	@SideOnly(Side.CLIENT)
 	public void render(VertexBuffer renderer, float scale)
 	{
-		quadToDraw.draw(renderer, scale);
-		//System.out.println(quadToDraw == offsetQuad);
+		this.quad.draw(renderer, scale);
 	}
 }

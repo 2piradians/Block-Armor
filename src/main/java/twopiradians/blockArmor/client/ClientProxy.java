@@ -56,12 +56,13 @@ public class ClientProxy extends CommonProxy
 		ModItems.registerRenders();
 	}
 
-	@Override//TODO get model by frame and set alpha after
-	public Object getBlockArmorModel(int height, int width, boolean isTranslucent, int frame, int color, EntityEquipmentSlot slot) {
-		String key = height+""+width+""+isTranslucent+""+frame+""+color+""+slot.getName();
+	/**Get model based on model's constructor parameters*/
+	@Override
+	public Object getBlockArmorModel(int height, int width, int currentFrame, int nextFrame, EntityEquipmentSlot slot) {
+		String key = height+""+width+""+currentFrame+""+nextFrame+""+slot.getName();
 		ModelBlockArmor model = modelMaps.get(key);
 		if (model == null) {
-			model = new ModelBlockArmor(height, width, isTranslucent, frame, color, slot);
+			model = new ModelBlockArmor(height, width, currentFrame, nextFrame, slot);
 			modelMaps.put(key, model);
 		}
 		return model;
@@ -105,7 +106,7 @@ public class ClientProxy extends CommonProxy
 			BlockArmor.network.sendToServer(new DisableItemsPacket(ArmorSet.disabledItems));
 		}
 
-		//(ticks at same rate as TextureAtlasSprite's updateAnimation()) TODO it's not doing all frames?!
+		//manage all animated set's frames (ticks at same rate as TextureAtlasSprite's updateAnimation())
 		if (!Minecraft.getMinecraft().isGamePaused() && event.side == Side.CLIENT) 
 			for (ArmorSet set : ArmorSet.allSets) 
 				for (int i=0; i<4; i++) { //through valid slots
@@ -113,8 +114,6 @@ public class ClientProxy extends CommonProxy
 						set.frames[i] += 0.5f/set.animations[i].getFrameTimeSingle((int) set.frames[i]);
 						if (set.frames[i] >= set.animations[i].getFrameCount())
 							set.frames[i] -= set.animations[i].getFrameCount();
-						//if (set.block == Blocks.SEA_LANTERN)
-							//System.out.println(set.frames[i]);
 					}
 				}
 	}
