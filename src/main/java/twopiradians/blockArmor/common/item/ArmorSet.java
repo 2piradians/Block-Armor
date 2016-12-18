@@ -363,6 +363,24 @@ public class ArmorSet {
 				block instanceof BlockSlab || block.getRenderType(block.getDefaultState()) != EnumBlockRenderType.MODEL ||
 				block == Blocks.IRON_BLOCK || block == Blocks.GOLD_BLOCK || block == Blocks.DIAMOND_BLOCK)
 			return false;
+		
+		String registryName = block.getRegistryName().toString();
+		if (registryName.equalsIgnoreCase("evilcraft:darkBlock") || 
+				registryName.equalsIgnoreCase("evilcraft:obscuredGlass") ||
+				registryName.equalsIgnoreCase("evilcraft:hardenedBlood") ||
+				registryName.equalsIgnoreCase("evilcraft:darkPowerGemBlock") ||
+				registryName.equalsIgnoreCase("darkutils:filter") || 
+				registryName.equalsIgnoreCase("darkutils:filter_inverted") ||
+				registryName.equalsIgnoreCase("agriculturalrevolution:rustedanalyser") ||
+				registryName.equalsIgnoreCase("agriculturalrevolution:rustedbot") ||
+				registryName.equalsIgnoreCase("agriculturalrevolution:rustedmutationstation") ||
+				registryName.equalsIgnoreCase("agriculturalrevolution:rustedinscriber") ||
+				registryName.equalsIgnoreCase("agriculturalrevolution:rustedhydrophonic") ||
+				registryName.equalsIgnoreCase("agriculturalrevolution:rustedresearch") ||
+				registryName.equalsIgnoreCase("agriculturalrevolution:rustedpipe") ||
+				registryName.equalsIgnoreCase("agriculturalrevolution:rustedironscaff") ||
+				registryName.equalsIgnoreCase("tconstruct:clear_glass"))
+			return false;
 
 		//Check if full block
 		ArrayList<AxisAlignedBB> list = new ArrayList<AxisAlignedBB>();

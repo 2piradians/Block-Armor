@@ -14,20 +14,16 @@ import net.minecraft.entity.EnumCreatureAttribute;
 import net.minecraft.entity.SharedMonsterAttributes;
 import net.minecraft.entity.ai.attributes.AttributeModifier;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.init.MobEffects;
 import net.minecraft.inventory.EntityEquipmentSlot;
 import net.minecraft.item.ItemStack;
-import net.minecraft.potion.PotionEffect;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.util.text.translation.I18n;
-import net.minecraftforge.client.event.GuiScreenEvent.PotionShiftEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import twopiradians.blockArmor.common.BlockArmor;
 import twopiradians.blockArmor.common.item.ArmorSet;
 import twopiradians.blockArmor.common.item.ItemBlockArmor;
-import twopiradians.blockArmor.common.item.ModItems;
 
 @SuppressWarnings({"deprecation", "unused"})
 @SideOnly(Side.CLIENT)
@@ -46,12 +42,18 @@ public class GuiArmorDisplay extends GuiScreen
 		armors = new ArrayList<ItemBlockArmor>();
 		for (ArmorSet set : ArmorSet.allSets)
 			if ((BlockArmor.GUI_MODE == 0 && !set.isFromModdedBlock) ||
-					(BlockArmor.GUI_MODE == 1/* && set.isFromModdedBlock*/) ||
+					(BlockArmor.GUI_MODE == 1 && set.isFromModdedBlock) || 
 					(BlockArmor.GUI_MODE == 2 && set.hasSetEffect)) {
-				armors.add(set.helmet);
-				armors.add(set.chestplate);
-				armors.add(set.leggings);
-				armors.add(set.boots);
+				boolean add = true;
+				for (ItemStack stack : ArmorSet.disabledItems)
+					if (stack.getItem() == set.helmet)
+						add = false;
+				if (add) {
+					armors.add(set.helmet);
+					armors.add(set.chestplate);
+					armors.add(set.leggings);
+					armors.add(set.boots);
+				}
 			}
 		guiPlayer.setInvisible(BlockArmor.GUI_MODE == 0 || BlockArmor.GUI_MODE == 1);
 	}
@@ -74,7 +76,7 @@ public class GuiArmorDisplay extends GuiScreen
 		if (BlockArmor.GUI_MODE == 0)
 			GlStateManager.scale(1.47f, 1.445f, scale);
 		else if (BlockArmor.GUI_MODE == 1)
-			GlStateManager.scale(1.47f, 1.445f, scale);
+			GlStateManager.scale(1.47f*2, 1.445f*2, scale);
 		else if (BlockArmor.GUI_MODE == 1)
 			GlStateManager.scale(2.5f, 1.31f, scale);
 		this.drawTexturedModalRect(0, 0, 0, 0, this.width, this.height);
@@ -101,11 +103,11 @@ public class GuiArmorDisplay extends GuiScreen
 			}
 			else if (BlockArmor.GUI_MODE == 1) {
 				scale = 29f;
-				double heightBetween = 44.3d;
-				int perRow = 17;
+				double heightBetween = 45.2d;
+				int perRow = 17*2;
 				int row = index/4 / perRow;
-				spaceBetween = 21.8d + (row==7?1.3d:0);
-				GlStateManager.translate(-160+(index/4 % perRow)*spaceBetween, row*heightBetween, row);
+				spaceBetween = 21.8d;
+				GlStateManager.translate(-160+(index/4 % perRow)*spaceBetween, row*heightBetween+(row>15?100:0), row);
 			}
 			else if (BlockArmor.GUI_MODE == 2) {
 				scale = 50f;
