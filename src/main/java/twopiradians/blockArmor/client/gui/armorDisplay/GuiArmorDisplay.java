@@ -34,7 +34,7 @@ import twopiradians.blockArmor.common.item.ModItems;
 public class GuiArmorDisplay extends GuiScreen
 {
 	private final ResourceLocation backgroundPageTexture0 = new ResourceLocation(BlockArmor.MODID+":textures/gui/armor_display_background0.jpg");
-	private final ResourceLocation backgroundPageTexture1 = new ResourceLocation(BlockArmor.MODID+":textures/gui/armor_display_background1.png");
+	private final ResourceLocation backgroundPageTexture2 = new ResourceLocation(BlockArmor.MODID+":textures/gui/armor_display_background2.png");
 	private EntityGuiPlayer guiPlayer;
 	private float partialTicks;
 	/**List of all armors with set effects*/
@@ -46,13 +46,14 @@ public class GuiArmorDisplay extends GuiScreen
 		armors = new ArrayList<ItemBlockArmor>();
 		for (ArmorSet set : ArmorSet.allSets)
 			if ((BlockArmor.GUI_MODE == 0 && !set.isFromModdedBlock) ||
-					(BlockArmor.GUI_MODE == 1 && set.hasSetEffect)) {
+					(BlockArmor.GUI_MODE == 1/* && set.isFromModdedBlock*/) ||
+					(BlockArmor.GUI_MODE == 2 && set.hasSetEffect)) {
 				armors.add(set.helmet);
 				armors.add(set.chestplate);
 				armors.add(set.leggings);
 				armors.add(set.boots);
 			}
-		guiPlayer.setInvisible(BlockArmor.GUI_MODE == 0);
+		guiPlayer.setInvisible(BlockArmor.GUI_MODE == 0 || BlockArmor.GUI_MODE == 1);
 	}
 
 	@Override
@@ -64,13 +65,15 @@ public class GuiArmorDisplay extends GuiScreen
 	public void drawScreen(int mouseX, int mouseY, float partialTicks) {
 		//background
 		GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
-		if (BlockArmor.GUI_MODE == 0)
+		if (BlockArmor.GUI_MODE == 0 || BlockArmor.GUI_MODE == 1)
 			mc.getTextureManager().bindTexture(backgroundPageTexture0);
-		else if (BlockArmor.GUI_MODE == 1)
-			mc.getTextureManager().bindTexture(backgroundPageTexture1);
+		else if (BlockArmor.GUI_MODE == 2)
+			mc.getTextureManager().bindTexture(backgroundPageTexture2);
 		GlStateManager.pushMatrix();
 		float scale = 1f;
 		if (BlockArmor.GUI_MODE == 0)
+			GlStateManager.scale(1.47f, 1.445f, scale);
+		else if (BlockArmor.GUI_MODE == 1)
 			GlStateManager.scale(1.47f, 1.445f, scale);
 		else if (BlockArmor.GUI_MODE == 1)
 			GlStateManager.scale(2.5f, 1.31f, scale);
@@ -97,6 +100,14 @@ public class GuiArmorDisplay extends GuiScreen
 				GlStateManager.translate(-160+(index/4 % perRow)*spaceBetween, row*heightBetween, row);
 			}
 			else if (BlockArmor.GUI_MODE == 1) {
+				scale = 29f;
+				double heightBetween = 44.3d;
+				int perRow = 17;
+				int row = index/4 / perRow;
+				spaceBetween = 21.8d + (row==7?1.3d:0);
+				GlStateManager.translate(-160+(index/4 % perRow)*spaceBetween, row*heightBetween, row);
+			}
+			else if (BlockArmor.GUI_MODE == 2) {
 				scale = 50f;
 				spaceBetween = 22.5d;
 				if (index/4 < 7)
@@ -119,7 +130,7 @@ public class GuiArmorDisplay extends GuiScreen
 			this.mc.entityRenderer.disableLightmap();
 			GlStateManager.popMatrix();
 			//render tooltip
-			if (BlockArmor.GUI_MODE == 1) {
+			if (BlockArmor.GUI_MODE == 2) {
 				ItemStack stack = new ItemStack(armors.get(index));
 				GlStateManager.pushMatrix();
 				scale = 0.65f;

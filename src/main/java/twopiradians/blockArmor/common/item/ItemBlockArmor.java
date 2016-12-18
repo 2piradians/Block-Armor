@@ -340,14 +340,14 @@ public class ItemBlockArmor extends ItemArmor
 		EntityLivingBase entity = (EntityLivingBase) entityIn;
 
 		ArmorSet set = ArmorSet.getSet(this);
-		
+
 		if (ArmorSet.isSetEffectEnabled(set))
-		this.doEnchantments(stack, entity);
-		
+			this.doEnchantments(stack, entity);
+
 		if (!stack.hasTagCompound())
 			stack.setTagCompound(new NBTTagCompound());
 
-		if (!ArmorSet.isWearingFullSet(entity, set) && !ArmorSet.isSetEffectEnabled(set))
+		if (!ArmorSet.isWearingFullSet(entity, set) || !ArmorSet.isSetEffectEnabled(set))
 		{
 			stack.getTagCompound().setBoolean("isWearing", false);
 			return;

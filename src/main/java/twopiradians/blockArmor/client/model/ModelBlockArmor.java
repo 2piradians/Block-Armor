@@ -213,69 +213,36 @@ public class ModelBlockArmor extends ModelBiped
 	@Override
 	public void render(Entity entityIn, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch, float scale)
 	{
-		/*int pass = 0;
-		boolean this.renderingEnchantment = ageInTicks == this.ageInTicks && entity == entityIn;
-		if (this.renderingEnchantment) {//rendering enchantment
-			if (renderedEnchantment) {//second pass
-				//this.ageInTicks = 0;
-				//renderedEnchantment = false;
-				pass = 2;
-			}
-			else {//first pass
-				//renderedEnchantment = false;
-				pass = 1;
-			}
-		}
-		//else
-			//renderedEnchantment = false;
-		//renderedEnchantment = this.renderingEnchantment;
-		this.ageInTicks = ageInTicks;
-		this.entity = entityIn;*/
+		this.actualRender(false, entityIn, limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch, scale);
 
-		/*		ItemStack stack = Iterators.toArray(entityIn.getEquipmentAndArmor().iterator(), ItemStack.class)[4];
-		if (stack != null)
-			System.out.println(this.renderingEnchantment + stack.getDisplayName());*/
-        //GlStateManager.disableBlend();
-
-		//if (!this.renderingEnchantment) 
-		{
-			this.actualRender(false, this.renderingEnchantment, entityIn, limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch, scale);
-
-			//If animated, switch to offset models, render animation overlay, then switch back to normal models
-			if (alpha > 0 && offsetBipedHead != null/* && !this.renderingEnchantment*/) {
-				bipedHead = this.offsetBipedHead;
-				bipedBody = this.offsetBipedBody;
-				bipedRightArm = this.offsetBipedRightArm;
-				bipedLeftArm = this.offsetBipedLeftArm;
-				bipedRightLeg = this.offsetBipedRightLeg;
-				bipedLeftLeg = this.offsetBipedLeftLeg;
-				bipedWaist = this.offsetBipedWaist;
-				bipedRightFoot = this.offsetBipedRightFoot;
-				bipedLeftFoot = this.offsetBipedLeftFoot;
-				this.actualRender(true, this.renderingEnchantment, entityIn, limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch, scale);
-				bipedHead = this.normalBipedHead;
-				bipedBody = this.normalBipedBody;
-				bipedRightArm = this.normalBipedRightArm;
-				bipedLeftArm = this.normalBipedLeftArm;
-				bipedRightLeg = this.normalBipedRightLeg;
-				bipedLeftLeg = this.normalBipedLeftLeg;
-				bipedWaist = this.normalBipedWaist;
-				bipedRightFoot = this.normalBipedRightFoot;
-				bipedLeftFoot = this.normalBipedLeftFoot;
-			}
-		}
-		//else
-		{
+		//If animated, switch to offset models, render animation overlay, then switch back to normal models
+		if (alpha > 0 && offsetBipedHead != null && !this.renderingEnchantment) {
+			bipedHead = this.offsetBipedHead;
+			bipedBody = this.offsetBipedBody;
+			bipedRightArm = this.offsetBipedRightArm;
+			bipedLeftArm = this.offsetBipedLeftArm;
+			bipedRightLeg = this.offsetBipedRightLeg;
+			bipedLeftLeg = this.offsetBipedLeftLeg;
+			bipedWaist = this.offsetBipedWaist;
+			bipedRightFoot = this.offsetBipedRightFoot;
+			bipedLeftFoot = this.offsetBipedLeftFoot;
+			this.actualRender(true, entityIn, limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch, scale);
+			bipedHead = this.normalBipedHead;
+			bipedBody = this.normalBipedBody;
+			bipedRightArm = this.normalBipedRightArm;
+			bipedLeftArm = this.normalBipedLeftArm;
+			bipedRightLeg = this.normalBipedRightLeg;
+			bipedLeftLeg = this.normalBipedLeftLeg;
+			bipedWaist = this.normalBipedWaist;
+			bipedRightFoot = this.normalBipedRightFoot;
+			bipedLeftFoot = this.normalBipedLeftFoot;
 		}
 
 		this.renderingEnchantment = true;
 	}
 
-	private void actualRender(boolean animationOverlay, boolean renderingEnchantment, Entity entityIn, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch, float scale)
+	private void actualRender(boolean animationOverlay, Entity entityIn, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch, float scale)
 	{
-		/*if (this.renderingEnchantment)
-			return;*/
-
 		this.setRotationAngles(limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch, scale, entityIn);
 
 		float red = 1.0f;
@@ -294,16 +261,14 @@ public class ModelBlockArmor extends ModelBiped
 		}
 
 		if (!this.renderingEnchantment)
-		GlStateManager.color(red, green, blue, animationOverlay ? alpha : 1.0f);
+			GlStateManager.color(red, green, blue, animationOverlay ? alpha : 1.0f);
 
-		//GlStateManager.pushAttrib();
 		GlStateManager.pushMatrix();
 
-		if ((this.translucent || animationOverlay)/* && !this.renderingEnchantment*/) {
+		if (this.translucent || animationOverlay) 
+		{
 			GlStateManager.enableBlend(); //enables transparency
-	        //GlStateManager.depthFunc(514);
-	        //GlStateManager.depthMask(false);
-	        //GlStateManager.blendFunc(GlStateManager.SourceFactor.SRC_COLOR, GlStateManager.DestFactor.ONE);
+			GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
 		}
 
 		if (this.isChild)
@@ -340,17 +305,9 @@ public class ModelBlockArmor extends ModelBiped
 			this.bipedLeftFoot.render(scale);
 		}
 
-		if ((this.translucent || animationOverlay)/* && !this.renderingEnchantment*/) 
-		{
-	        //GlStateManager.depthMask(true);
-			//GlStateManager.enableLighting();
-			//GlStateManager.enableBlend();
+		if (this.translucent || animationOverlay) 
 			GlStateManager.disableBlend(); //disable transparency
-	        //GlStateManager.depthFunc(515);
-	        //GlStateManager.depthMask(false);
-		}
 
-		//GlStateManager.popAttrib();
 		GlStateManager.popMatrix();
 	}
 
