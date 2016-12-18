@@ -339,10 +339,15 @@ public class ItemBlockArmor extends ItemArmor
 
 		EntityLivingBase entity = (EntityLivingBase) entityIn;
 
+		ArmorSet set = ArmorSet.getSet(this);
+		
+		if (ArmorSet.isSetEffectEnabled(set))
+		this.doEnchantments(stack, entity);
+		
 		if (!stack.hasTagCompound())
 			stack.setTagCompound(new NBTTagCompound());
 
-		if (!(ArmorSet.isWearingFullSet(entity, ArmorSet.getSet(this)) && ArmorSet.isSetEffectEnabled(ArmorSet.getSet(this))))
+		if (!ArmorSet.isWearingFullSet(entity, set) && !ArmorSet.isSetEffectEnabled(set))
 		{
 			stack.getTagCompound().setBoolean("isWearing", false);
 			return;
@@ -356,8 +361,6 @@ public class ItemBlockArmor extends ItemArmor
 
 		if (worldIn instanceof WorldServer)
 			((WorldServer)worldIn).getEntityTracker().updateTrackedEntities();
-
-		this.doEnchantments(stack, entity);
 	}
 
 	/**Handles most of the armor set special effects and bonuses.*/
