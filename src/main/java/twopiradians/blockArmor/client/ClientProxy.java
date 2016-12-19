@@ -127,9 +127,7 @@ public class ClientProxy extends CommonProxy
 		int numTextures = 0;
 		ArmorSet.disabledItems = new ArrayList<ItemStack>();
 		for (ArmorSet set : ArmorSet.allSets)
-			try {
-				numTextures += set.initTextures();
-			} catch (Exception e) {}
+			numTextures += set.initTextures();
 
 		//textures not loaded yet
 		if (numTextures == 0) {

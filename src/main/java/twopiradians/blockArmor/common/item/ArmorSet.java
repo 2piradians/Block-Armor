@@ -410,7 +410,7 @@ public class ArmorSet {
 
 	/**Initialize set's texture variable*/
 	@SideOnly(Side.CLIENT)
-	public int initTextures() throws Exception {
+	public int initTextures() {
 		if (missingSprite == null)
 			missingSprite = Minecraft.getMinecraft().getTextureMapBlocks().getMissingSprite();
 
@@ -424,52 +424,55 @@ public class ArmorSet {
 
 		//Gets textures from item model's BakedQuads (textures for each side)
 		List<BakedQuad> list = new ArrayList<BakedQuad>();
-		ItemModelMesher mesher = Minecraft.getMinecraft().getRenderItem().getItemModelMesher();
+		try {
+			ItemModelMesher mesher = Minecraft.getMinecraft().getRenderItem().getItemModelMesher();
 
-		//getting quads may throw exception if a mod's modeler doesn't obey @Nullable
-		list.addAll(mesher.getItemModel(this.stack).getQuads(null, null, 0));
-		for (EnumFacing facing : EnumFacing.VALUES)
-			list.addAll(mesher.getItemModel(this.stack).getQuads(null, facing, 0));
+			//getting quads may throw exception if a mod's modeler doesn't obey @Nullable
+			list.addAll(mesher.getItemModel(this.stack).getQuads(null, null, 0));
+			for (EnumFacing facing : EnumFacing.VALUES)
+				list.addAll(mesher.getItemModel(this.stack).getQuads(null, facing, 0));
 
-		for (BakedQuad quad : list) {
-			ResourceLocation loc1 = new ResourceLocation(quad.getSprite().getIconName());
+			for (BakedQuad quad : list) {
+				ResourceLocation loc1 = new ResourceLocation(quad.getSprite().getIconName());
 
-			TextureAtlasSprite sprite = Minecraft.getMinecraft().getTextureMapBlocks().getAtlasSprite(loc1.toString());
-			AnimationMetadataSection animation = (AnimationMetadataSection) (sprite.getFrameCount() > 1 ? ReflectionHelper.getPrivateValue(TextureAtlasSprite.class, sprite, 3) : null); //animationMetadata
-			int color = quad.hasTintIndex() ? Minecraft.getMinecraft().getItemColors().getColorFromItemstack(this.stack, quad.getTintIndex()) : -1;
+				TextureAtlasSprite sprite = Minecraft.getMinecraft().getTextureMapBlocks().getAtlasSprite(loc1.toString());
+				AnimationMetadataSection animation = (AnimationMetadataSection) (sprite.getFrameCount() > 1 ? ReflectionHelper.getPrivateValue(TextureAtlasSprite.class, sprite, 3) : null); //animationMetadata
+				int color = quad.hasTintIndex() ? Minecraft.getMinecraft().getItemColors().getColorFromItemstack(this.stack, quad.getTintIndex()) : -1;
 
-			if (sprite.getIconName().contains("overlay")) //overlays not supported by forge so we can't account for them
-				continue;
+				if (sprite.getIconName().contains("overlay")) //overlays not supported by forge so we can't account for them
+					continue;
 
-			if (quad.getFace() == EnumFacing.UP) {
-				if (sprite != missingSprite)
-					numTextures++;
-				this.sprites[EntityEquipmentSlot.HEAD.getIndex()] = sprite;
-				this.animations[EntityEquipmentSlot.HEAD.getIndex()] = animation;
-				this.colors[EntityEquipmentSlot.HEAD.getIndex()] = color;
-			}
-			else if (quad.getFace() == EnumFacing.NORTH) {
-				if (sprite != missingSprite)
-					numTextures++;
-				this.sprites[EntityEquipmentSlot.CHEST.getIndex()] = sprite;
-				this.animations[EntityEquipmentSlot.CHEST.getIndex()] = animation;
-				this.colors[EntityEquipmentSlot.CHEST.getIndex()] = color;
-			}
-			else if (quad.getFace() == EnumFacing.SOUTH) {
-				if (sprite != missingSprite)
-					numTextures++;
-				this.sprites[EntityEquipmentSlot.LEGS.getIndex()] = sprite;
-				this.animations[EntityEquipmentSlot.LEGS.getIndex()] = animation;
-				this.colors[EntityEquipmentSlot.LEGS.getIndex()] = color;
-			}
-			else if (quad.getFace() == EnumFacing.DOWN) {
-				if (sprite != missingSprite)
-					numTextures++;
-				this.sprites[EntityEquipmentSlot.FEET.getIndex()] = sprite;
-				this.animations[EntityEquipmentSlot.FEET.getIndex()] = animation;
-				this.colors[EntityEquipmentSlot.FEET.getIndex()] = color;
+				if (quad.getFace() == EnumFacing.UP) {
+					if (sprite != missingSprite)
+						numTextures++;
+					this.sprites[EntityEquipmentSlot.HEAD.getIndex()] = sprite;
+					this.animations[EntityEquipmentSlot.HEAD.getIndex()] = animation;
+					this.colors[EntityEquipmentSlot.HEAD.getIndex()] = color;
+				}
+				else if (quad.getFace() == EnumFacing.NORTH) {
+					if (sprite != missingSprite)
+						numTextures++;
+					this.sprites[EntityEquipmentSlot.CHEST.getIndex()] = sprite;
+					this.animations[EntityEquipmentSlot.CHEST.getIndex()] = animation;
+					this.colors[EntityEquipmentSlot.CHEST.getIndex()] = color;
+				}
+				else if (quad.getFace() == EnumFacing.SOUTH) {
+					if (sprite != missingSprite)
+						numTextures++;
+					this.sprites[EntityEquipmentSlot.LEGS.getIndex()] = sprite;
+					this.animations[EntityEquipmentSlot.LEGS.getIndex()] = animation;
+					this.colors[EntityEquipmentSlot.LEGS.getIndex()] = color;
+				}
+				else if (quad.getFace() == EnumFacing.DOWN) {
+					if (sprite != missingSprite)
+						numTextures++;
+					this.sprites[EntityEquipmentSlot.FEET.getIndex()] = sprite;
+					this.animations[EntityEquipmentSlot.FEET.getIndex()] = animation;
+					this.colors[EntityEquipmentSlot.FEET.getIndex()] = color;
+				}
 			}
 		}
+		catch (Exception e) {}
 
 		//Check for block texture overrides - location must be registered in ClientProxy TextureStitchEvent.Pre
 		ResourceLocation texture = new ResourceLocation(BlockArmor.MODID+":textures/items/"+item.getRegistryName().getResourcePath().toLowerCase().replace(" ", "_")+".png");
