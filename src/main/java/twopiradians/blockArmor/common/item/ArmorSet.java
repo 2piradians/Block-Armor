@@ -286,6 +286,14 @@ public class ArmorSet {
 			name = stack.getDisplayName();
 		else
 			name = "";
+		
+		//manually set display names
+		name = name.replace("Block of ", "") 
+		.replace("Block ", "")
+		.replace(" Block", "")
+		.replace("Sugar Canes", "Sugar Cane")
+		.replace("Bricks", "Brick")
+		.replace("Planks", "Plank");
 
 		if (slot != null)
 			switch (slot) {
@@ -305,7 +313,7 @@ public class ArmorSet {
 				break;
 			}
 
-		return name.replace("Block of ", "").replace("Block ", "");
+		return name;
 	}
 
 	/**Determines if entity is wearing a full set of armor of same material*/
