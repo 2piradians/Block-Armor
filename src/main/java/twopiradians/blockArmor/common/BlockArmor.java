@@ -18,11 +18,13 @@ import net.minecraftforge.fml.common.event.FMLMissingMappingsEvent;
 import net.minecraftforge.fml.common.event.FMLMissingMappingsEvent.MissingMapping;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
+import net.minecraftforge.fml.common.event.FMLServerStartingEvent;
 import net.minecraftforge.fml.common.network.NetworkRegistry;
 import net.minecraftforge.fml.common.network.simpleimpl.SimpleNetworkWrapper;
 import net.minecraftforge.fml.common.registry.GameRegistry;
 import net.minecraftforge.fml.relauncher.Side;
 import twopiradians.blockArmor.common.block.ModBlocks;
+import twopiradians.blockArmor.common.command.CommandDev;
 import twopiradians.blockArmor.common.config.Config;
 import twopiradians.blockArmor.common.events.IgniteTargetEvent;
 import twopiradians.blockArmor.common.events.IncreaseFortuneEvent;
@@ -74,6 +76,12 @@ public class BlockArmor
 		ModItems.postInit();
 		registerRecipes();
 		proxy.postInit();
+	}
+	
+	@EventHandler
+	public void serverLoad(FMLServerStartingEvent event)
+	{
+		event.registerServerCommand(new CommandDev());
 	}
 	
 	@Mod.EventHandler
