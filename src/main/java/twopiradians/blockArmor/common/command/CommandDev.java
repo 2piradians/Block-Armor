@@ -1,12 +1,14 @@
 package twopiradians.blockArmor.common.command;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
 
 import com.google.common.collect.Maps;
 
+import net.minecraft.command.CommandBase;
 import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommand;
 import net.minecraft.command.ICommandSender;
@@ -104,7 +106,7 @@ public class CommandDev implements ICommand
 		if (args.length == 1)
 			return ALL_COMMAND_NAMES;
 		else if (args.length == 2 && args[0].equalsIgnoreCase(ARMOR))
-			return new ArrayList<String>(blockNamesMap.keySet());
+			return CommandBase.getListOfStringsMatchingLastWord(args, (Collection<String>)blockNamesMap.keySet());
 		else
 			return new ArrayList<String>();
 	}
