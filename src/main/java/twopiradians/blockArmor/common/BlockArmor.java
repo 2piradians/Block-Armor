@@ -46,9 +46,9 @@ public class BlockArmor
 	public static Logger logger;
 	public static SimpleNetworkWrapper network = NetworkRegistry.INSTANCE.newSimpleChannel(MODID);
 	/**Should armor display be opened on chat event?*/
-	public static final boolean DISPLAY_ARMOR_GUI = false;
+	public static final boolean DISPLAY_ARMOR_GUI = true;
 	/**0 = vanilla sets, 1 = modded sets, 2 = set effects*/
-	public static final int GUI_MODE = 1;
+	public static final int GUI_MODE = 2;
 	private File configFile;
 
 	@EventHandler

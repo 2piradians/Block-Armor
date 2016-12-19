@@ -126,8 +126,10 @@ public class ClientProxy extends CommonProxy
 		//find block textures
 		int numTextures = 0;
 		ArmorSet.disabledItems = new ArrayList<ItemStack>();
-		for (ArmorSet set : ArmorSet.allSets) 
-			numTextures += set.initTextures();
+		for (ArmorSet set : ArmorSet.allSets)
+			try {
+				numTextures += set.initTextures();
+			} catch (Exception e) {}
 
 		//textures not loaded yet
 		if (numTextures == 0) {

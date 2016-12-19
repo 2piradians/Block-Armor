@@ -111,9 +111,14 @@ public class ArmorSet {
 	public ArmorSet(ItemStack stack, boolean hasSetEffect) {
 		this.stack = stack;
 		this.item = stack.getItem();
-		ResourceLocation loc = (ResourceLocation)Item.REGISTRY.getNameForObject(this.item);
-		if (!loc.getResourceDomain().equals("minecraft"))
+		try {
+			ResourceLocation loc = (ResourceLocation)Item.REGISTRY.getNameForObject(this.item);
+			if (!loc.getResourceDomain().equals("minecraft"))
+				isFromModdedBlock = true;
+		}
+		catch (Exception e) {
 			isFromModdedBlock = true;
+		}
 		this.meta = stack.getMetadata();
 		if (item == Items.REEDS)
 			this.block = Blocks.REEDS;
@@ -183,7 +188,7 @@ public class ArmorSet {
 		for (ItemStack stack : stacks)
 			if (isValid(stack) && ArmorSet.getSet(stack.getItem(), stack.getMetadata()) == null) {
 				String registryName = getItemStackRegistryName(stack);
-				if (!registryNames.contains(registryName)) {
+				if (!registryNames.contains(registryName) && !registryName.equals("")) {
 					allSets.add(new ArmorSet(stack, false));
 					registryNames.add(registryName);
 					BlockArmor.logger.debug("Created ArmorSet for: "+stack.getDisplayName());
@@ -207,7 +212,7 @@ public class ArmorSet {
 		else
 			return missingSprite;
 	}
-	
+
 	/**Returns current alpha for animation overlay corresponding to given ItemModArmor*/
 	@SideOnly(Side.CLIENT)
 	public static float getAlpha(ItemBlockArmor item) {
@@ -232,7 +237,7 @@ public class ArmorSet {
 		else
 			return 0;
 	}
-	
+
 	/**Returns next animation frame corresponding to given ItemModArmor*/
 	@SideOnly(Side.CLIENT)
 	public static int getNextAnimationFrame(ItemBlockArmor item) {
@@ -260,9 +265,14 @@ public class ArmorSet {
 
 	/**Used to uniformly create registry name*/
 	public static String getItemStackRegistryName(ItemStack stack) {
-		String registryName = stack.getItem().getRegistryName().getResourcePath().toLowerCase().replace(" ", "_");
-		registryName += (stack.getHasSubtypes() ? "_"+stack.getMetadata() : "");
-		return registryName;
+		try {
+			String registryName = stack.getItem().getRegistryName().getResourcePath().toLowerCase().replace(" ", "_");
+			registryName += (stack.getHasSubtypes() ? "_"+stack.getMetadata() : "");
+			return registryName;
+		} 
+		catch (Exception e) {
+			return "";
+		}
 	}
 
 	/**Change display name based on the block*/
@@ -350,54 +360,57 @@ public class ArmorSet {
 
 	/**Should an armor set be made from this item*/
 	private static boolean isValid(ItemStack stack) {
-		if (stack == null || !(stack.getItem() instanceof ItemBlock) || 
-				stack.getItem().getRegistryName().getResourcePath().contains("ore") || 
-				stack.getDisplayName().contains(".name") || stack.getDisplayName().contains("Ore") ||
-				stack.getDisplayName().contains("%"))
-			return false;
-
-		Block block = ((ItemBlock)stack.getItem()).getBlock();
-		if (block instanceof BlockLiquid || block instanceof BlockContainer || block.hasTileEntity() || 
-				block instanceof BlockOre || block instanceof BlockCrops || block instanceof BlockBush ||
-				block == Blocks.BARRIER || block instanceof BlockLeaves || block == Blocks.MONSTER_EGG ||
-				block instanceof BlockSlab || block.getRenderType(block.getDefaultState()) != EnumBlockRenderType.MODEL ||
-				block == Blocks.IRON_BLOCK || block == Blocks.GOLD_BLOCK || block == Blocks.DIAMOND_BLOCK)
-			return false;
-		
-		String registryName = block.getRegistryName().toString();
-		if (registryName.equalsIgnoreCase("evilcraft:darkBlock") || 
-				registryName.equalsIgnoreCase("evilcraft:obscuredGlass") ||
-				registryName.equalsIgnoreCase("evilcraft:hardenedBlood") ||
-				registryName.equalsIgnoreCase("evilcraft:darkPowerGemBlock") ||
-				registryName.equalsIgnoreCase("darkutils:filter") || 
-				registryName.equalsIgnoreCase("darkutils:filter_inverted") ||
-				registryName.equalsIgnoreCase("agriculturalrevolution:rustedanalyser") ||
-				registryName.equalsIgnoreCase("agriculturalrevolution:rustedbot") ||
-				registryName.equalsIgnoreCase("agriculturalrevolution:rustedmutationstation") ||
-				registryName.equalsIgnoreCase("agriculturalrevolution:rustedinscriber") ||
-				registryName.equalsIgnoreCase("agriculturalrevolution:rustedhydrophonic") ||
-				registryName.equalsIgnoreCase("agriculturalrevolution:rustedresearch") ||
-				registryName.equalsIgnoreCase("agriculturalrevolution:rustedpipe") ||
-				registryName.equalsIgnoreCase("agriculturalrevolution:rustedironscaff") ||
-				registryName.equalsIgnoreCase("tconstruct:clear_glass"))
-			return false;
-
-		//Check if full block
-		ArrayList<AxisAlignedBB> list = new ArrayList<AxisAlignedBB>();
 		try {
-			block.addCollisionBoxToList(block.getDefaultState(), null, new BlockPos(0,0,0), Block.FULL_BLOCK_AABB, list, null);
-		} catch (Exception e) {
-			return false;
-		}
-		if (list.size() != 1 || !list.get(0).equals(Block.FULL_BLOCK_AABB)) 
-			return false;
+			if (stack == null || !(stack.getItem() instanceof ItemBlock) || 
+					stack.getItem().getRegistryName().getResourcePath().contains("ore") || 
+					stack.getDisplayName().contains(".name") || stack.getDisplayName().contains("Ore") ||
+					stack.getDisplayName().contains("%"))
+				return false;
 
-		return true;
+			Block block = ((ItemBlock)stack.getItem()).getBlock();
+			if (block instanceof BlockLiquid || block instanceof BlockContainer || block.hasTileEntity() || 
+					block instanceof BlockOre || block instanceof BlockCrops || block instanceof BlockBush ||
+					block == Blocks.BARRIER || block instanceof BlockLeaves || block == Blocks.MONSTER_EGG ||
+					block instanceof BlockSlab || block.getRenderType(block.getDefaultState()) != EnumBlockRenderType.MODEL ||
+					block == Blocks.IRON_BLOCK || block == Blocks.GOLD_BLOCK || block == Blocks.DIAMOND_BLOCK)
+				return false;
+
+			String registryName = block.getRegistryName().toString();
+			if (registryName.equalsIgnoreCase("evilcraft:darkBlock") || 
+					registryName.equalsIgnoreCase("evilcraft:obscuredGlass") ||
+					registryName.equalsIgnoreCase("evilcraft:hardenedBlood") ||
+					registryName.equalsIgnoreCase("evilcraft:darkPowerGemBlock") ||
+					registryName.equalsIgnoreCase("darkutils:filter") || 
+					registryName.equalsIgnoreCase("darkutils:filter_inverted") ||
+					registryName.equalsIgnoreCase("agriculturalrevolution:rustedanalyser") ||
+					registryName.equalsIgnoreCase("agriculturalrevolution:rustedbot") ||
+					registryName.equalsIgnoreCase("agriculturalrevolution:rustedmutationstation") ||
+					registryName.equalsIgnoreCase("agriculturalrevolution:rustedinscriber") ||
+					registryName.equalsIgnoreCase("agriculturalrevolution:rustedhydrophonic") ||
+					registryName.equalsIgnoreCase("agriculturalrevolution:rustedresearch") ||
+					registryName.equalsIgnoreCase("agriculturalrevolution:rustedpipe") ||
+					registryName.equalsIgnoreCase("agriculturalrevolution:rustedironscaff") ||
+					registryName.equalsIgnoreCase("tconstruct:clear_glass"))
+				return false;
+
+			//Check if full block
+			ArrayList<AxisAlignedBB> list = new ArrayList<AxisAlignedBB>();
+			try {
+				block.addCollisionBoxToList(block.getDefaultState(), null, new BlockPos(0,0,0), Block.FULL_BLOCK_AABB, list, null);
+			} catch (Exception e) {
+				return false;
+			}
+			if (list.size() != 1 || !list.get(0).equals(Block.FULL_BLOCK_AABB)) 
+				return false;
+
+			return true;
+		}
+		catch (Exception e) { return false; }
 	}
 
 	/**Initialize set's texture variable*/
 	@SideOnly(Side.CLIENT)
-	public int initTextures() {
+	public int initTextures() throws Exception {
 		if (missingSprite == null)
 			missingSprite = Minecraft.getMinecraft().getTextureMapBlocks().getMissingSprite();
 
@@ -412,11 +425,12 @@ public class ArmorSet {
 		//Gets textures from item model's BakedQuads (textures for each side)
 		List<BakedQuad> list = new ArrayList<BakedQuad>();
 		ItemModelMesher mesher = Minecraft.getMinecraft().getRenderItem().getItemModelMesher();
-		try { //getting quads may throw exception if a mod's modeler doesn't obey @Nullable
-			list.addAll(mesher.getItemModel(this.stack).getQuads(null, null, 0));
-			for (EnumFacing facing : EnumFacing.VALUES)
-				list.addAll(mesher.getItemModel(this.stack).getQuads(null, facing, 0));
-		} catch (Exception e) {}
+
+		//getting quads may throw exception if a mod's modeler doesn't obey @Nullable
+		list.addAll(mesher.getItemModel(this.stack).getQuads(null, null, 0));
+		for (EnumFacing facing : EnumFacing.VALUES)
+			list.addAll(mesher.getItemModel(this.stack).getQuads(null, facing, 0));
+
 		for (BakedQuad quad : list) {
 			ResourceLocation loc1 = new ResourceLocation(quad.getSprite().getIconName());
 

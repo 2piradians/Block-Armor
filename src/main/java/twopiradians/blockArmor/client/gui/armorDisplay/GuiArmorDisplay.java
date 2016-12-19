@@ -4,11 +4,13 @@ import java.util.ArrayList;
 import java.util.Map.Entry;
 
 import com.google.common.collect.Multimap;
+import com.mojang.realmsclient.gui.ChatFormatting;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.RenderHelper;
+import net.minecraft.enchantment.Enchantment;
 import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.EnumCreatureAttribute;
 import net.minecraft.entity.SharedMonsterAttributes;
@@ -16,6 +18,7 @@ import net.minecraft.entity.ai.attributes.AttributeModifier;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.EntityEquipmentSlot;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagList;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.util.text.translation.I18n;
@@ -29,6 +32,7 @@ import twopiradians.blockArmor.common.item.ItemBlockArmor;
 @SideOnly(Side.CLIENT)
 public class GuiArmorDisplay extends GuiScreen
 {
+	private final ResourceLocation backgroundPageTextureWhite = new ResourceLocation(BlockArmor.MODID+":textures/gui/white.png");
 	private final ResourceLocation backgroundPageTexture0 = new ResourceLocation(BlockArmor.MODID+":textures/gui/armor_display_background0.jpg");
 	private final ResourceLocation backgroundPageTexture2 = new ResourceLocation(BlockArmor.MODID+":textures/gui/armor_display_background2.png");
 	private EntityGuiPlayer guiPlayer;
@@ -70,7 +74,7 @@ public class GuiArmorDisplay extends GuiScreen
 		if (BlockArmor.GUI_MODE == 0 || BlockArmor.GUI_MODE == 1)
 			mc.getTextureManager().bindTexture(backgroundPageTexture0);
 		else if (BlockArmor.GUI_MODE == 2)
-			mc.getTextureManager().bindTexture(backgroundPageTexture2);
+			mc.getTextureManager().bindTexture(backgroundPageTextureWhite);
 		GlStateManager.pushMatrix();
 		float scale = 1f;
 		if (BlockArmor.GUI_MODE == 0)
@@ -83,12 +87,22 @@ public class GuiArmorDisplay extends GuiScreen
 		GlStateManager.popMatrix();
 
 		//iterate through each set of armor
+		this.partialTicks += 0.3f;
 		for (int index=0; index<armors.size(); index+=4) {
+			ItemStack helmet = new ItemStack(armors.get(index));
+			ItemStack chestplate = new ItemStack(armors.get(index+1));
+			ItemStack leggings = new ItemStack(armors.get(index+2));
+			ItemStack boots = new ItemStack(armors.get(index+3));
 			//equip gui player
-			guiPlayer.setItemStackToSlot(EntityEquipmentSlot.HEAD, new ItemStack(armors.get(index)));
-			guiPlayer.setItemStackToSlot(EntityEquipmentSlot.CHEST, new ItemStack(armors.get(index+1)));
-			guiPlayer.setItemStackToSlot(EntityEquipmentSlot.LEGS, new ItemStack(armors.get(index+2)));
-			guiPlayer.setItemStackToSlot(EntityEquipmentSlot.FEET, new ItemStack(armors.get(index+3)));
+			guiPlayer.setItemStackToSlot(EntityEquipmentSlot.HEAD, helmet);
+			guiPlayer.setItemStackToSlot(EntityEquipmentSlot.CHEST, chestplate);
+			guiPlayer.setItemStackToSlot(EntityEquipmentSlot.LEGS, leggings);
+			guiPlayer.setItemStackToSlot(EntityEquipmentSlot.FEET, boots);
+			//update items
+			helmet.getItem().onUpdate(helmet, guiPlayer.worldObj, guiPlayer, EntityEquipmentSlot.HEAD.getIndex(), false);
+			chestplate.getItem().onUpdate(chestplate, guiPlayer.worldObj, guiPlayer, EntityEquipmentSlot.CHEST.getIndex(), false);
+			leggings.getItem().onUpdate(leggings, guiPlayer.worldObj, guiPlayer, EntityEquipmentSlot.LEGS.getIndex(), false);
+			boots.getItem().onUpdate(boots, guiPlayer.worldObj, guiPlayer, EntityEquipmentSlot.FEET.getIndex(), false);
 			//draw gui player
 			GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
 			GlStateManager.pushMatrix();
@@ -113,9 +127,9 @@ public class GuiArmorDisplay extends GuiScreen
 				scale = 50f;
 				spaceBetween = 22.5d;
 				if (index/4 < 7)
-					GlStateManager.translate(-250+index*spaceBetween, 5, 0);
+					GlStateManager.translate(-250+index*spaceBetween, 2, 0);
 				else
-					GlStateManager.translate(-915+index*(spaceBetween+2), 175, 0);
+					GlStateManager.translate(-915+index*(spaceBetween+2), 179, 0);
 			}
 			GlStateManager.scale(scale, scale, scale);
 			GlStateManager.rotate(180F, 0F, 0F, 1F);
@@ -125,7 +139,6 @@ public class GuiArmorDisplay extends GuiScreen
 			GlStateManager.rotate(-10.0F, -1F, 0F, 0.5f);
 			guiPlayer.rotationYawHead = 0.0F;
 			guiPlayer.renderYawOffset = 0.0F;
-			this.partialTicks += 0.05F;
 			mc.getRenderManager().setPlayerViewY(-20f);
 			mc.getRenderManager().doRenderEntity(guiPlayer, -4D, -1.5D, 5.0D, 0.0F, this.partialTicks, true);
 			RenderHelper.disableStandardItemLighting();
@@ -135,17 +148,17 @@ public class GuiArmorDisplay extends GuiScreen
 			if (BlockArmor.GUI_MODE == 2) {
 				ItemStack stack = new ItemStack(armors.get(index));
 				GlStateManager.pushMatrix();
-				scale = 0.65f;
+				scale = 0.651f;
 				if (index/4 < 7)
-					GlStateManager.translate(40+index*spaceBetween, 120, 0);
+					GlStateManager.translate(40+index*spaceBetween, 116, 0);
 				else
-					GlStateManager.translate(-625+index*(spaceBetween+2), 290, 0);
+					GlStateManager.translate(-625+index*(spaceBetween+2), 293, 0);
 				GlStateManager.scale(scale, scale, scale);
 				int length = 0;
 				ArrayList<String> tooltip = new ArrayList<String>();
 				tooltip.add(TextFormatting.AQUA+""+TextFormatting.UNDERLINE+stack.getDisplayName().replace("Helmet", "Armor"));
 				armors.get(index).addFullSetEffectTooltip(tooltip);
-				this.addStatTooltips(tooltip, index, guiPlayer);
+				this.addStatTooltips(tooltip, new ItemStack[] {helmet, chestplate, leggings, boots});
 				for (String string : tooltip)
 					if (this.fontRendererObj.getStringWidth(string) > length)
 						length = this.fontRendererObj.getStringWidth(string);
@@ -159,12 +172,27 @@ public class GuiArmorDisplay extends GuiScreen
 	}
 
 	//partially copied from ItemStack.getTooltip()
-	private ArrayList<String> addStatTooltips(ArrayList<String> tooltip, int index, EntityPlayer player) {
+	private ArrayList<String> addStatTooltips(ArrayList<String> tooltip, ItemStack[] armor) {
 		ArrayList<Multimap<String, AttributeModifier>> list = new ArrayList<Multimap<String, AttributeModifier>>();
-		list.add(new ItemStack(armors.get(index)).getAttributeModifiers(EntityEquipmentSlot.HEAD));
-		list.add(new ItemStack(armors.get(index+1)).getAttributeModifiers(EntityEquipmentSlot.CHEST));
-		list.add(new ItemStack(armors.get(index+2)).getAttributeModifiers(EntityEquipmentSlot.LEGS));
-		list.add(new ItemStack(armors.get(index+3)).getAttributeModifiers(EntityEquipmentSlot.FEET));
+		list.add(armor[0].getAttributeModifiers(EntityEquipmentSlot.HEAD));
+		list.add(armor[1].getAttributeModifiers(EntityEquipmentSlot.CHEST));
+		list.add(armor[2].getAttributeModifiers(EntityEquipmentSlot.LEGS));
+		list.add(armor[3].getAttributeModifiers(EntityEquipmentSlot.FEET));
+
+		//add boot enchantments
+		if (armor[3].hasTagCompound())
+		{
+			NBTTagList nbttaglist = armor[3].getEnchantmentTagList();
+			if (nbttaglist != null)
+				for (int j = 0; j < nbttaglist.tagCount(); ++j)
+				{
+					int k = nbttaglist.getCompoundTagAt(j).getShort("id");
+					int l = nbttaglist.getCompoundTagAt(j).getShort("lvl");
+
+					if (Enchantment.getEnchantmentByID(k) != null)
+						tooltip.add(ChatFormatting.GRAY+Enchantment.getEnchantmentByID(k).getTranslatedName(l));
+				}
+		}
 
 		boolean flag = false;
 		ArrayList<Double> finalD0s = new ArrayList<Double>();
@@ -180,13 +208,13 @@ public class GuiArmorDisplay extends GuiScreen
 					flag = false;
 					if (attributemodifier.getID() == ItemBlockArmor.ATTACK_STRENGTH_UUID)
 					{
-						d0 = d0 + player.getEntityAttribute(SharedMonsterAttributes.ATTACK_DAMAGE).getBaseValue();
-						d0 = d0 + (double)EnchantmentHelper.getModifierForCreature(new ItemStack(armors.get(index)), EnumCreatureAttribute.UNDEFINED);
+						d0 = d0 + guiPlayer.getEntityAttribute(SharedMonsterAttributes.ATTACK_DAMAGE).getBaseValue();
+						d0 = d0 + (double)EnchantmentHelper.getModifierForCreature(armor[0], EnumCreatureAttribute.UNDEFINED);
 						flag = true;
 					}
 					else if (attributemodifier.getID() == ItemBlockArmor.ATTACK_SPEED_UUID)
 					{
-						d0 += player.getEntityAttribute(SharedMonsterAttributes.ATTACK_SPEED).getBaseValue();
+						d0 += guiPlayer.getEntityAttribute(SharedMonsterAttributes.ATTACK_SPEED).getBaseValue();
 						flag = true;
 					}
 					double d1;
