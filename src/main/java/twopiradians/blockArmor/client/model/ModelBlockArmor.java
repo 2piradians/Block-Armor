@@ -273,7 +273,7 @@ public class ModelBlockArmor extends ModelBiped
 				blue = color2.getBlue()/255f;
 			}
 			else {//pulse
-				double pulse = (Math.cos(ageInTicks/5f)+1d)/3d;
+				double pulse = (Math.cos(ageInTicks/5f)+1d)/3d+0.01d;
 				red += pulse * color[0];
 				green += pulse * color[1];
 				blue += pulse * color[2];

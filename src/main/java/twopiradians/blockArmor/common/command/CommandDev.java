@@ -101,7 +101,7 @@ public class CommandDev implements ICommand
 						devColors.put(((EntityPlayer) sender).getPersistentID(), color);
 				}
 				catch (Exception e) {
-					sender.addChatMessage(new TextComponentTranslation(TextFormatting.RED+"Color must be 3 floats between -1 and 1"));
+					sender.addChatMessage(new TextComponentTranslation(TextFormatting.RED+"Color must be 3 floats (-1 to 1 for standard results)"));
 				}
 			}
 		}
