@@ -215,7 +215,7 @@ public class ItemBlockArmor extends ItemArmor
 			return EnumRarity.COMMON;
 	}
 
-	/**Deals with armor tooltips.*/
+	/**Deals with armor tooltips*/
 	@Override
 	@SideOnly(Side.CLIENT)
 	public void addInformation(ItemStack stack, EntityPlayer player, List<String> tooltip, boolean advanced)
