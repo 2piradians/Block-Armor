@@ -34,7 +34,7 @@ public class GuiArmorDisplay extends GuiScreen
 {
 	private final ResourceLocation backgroundPageTextureWhite = new ResourceLocation(BlockArmor.MODID+":textures/gui/white.png");
 	private final ResourceLocation backgroundPageTexture0 = new ResourceLocation(BlockArmor.MODID+":textures/gui/armor_display_background0.jpg");
-	private final ResourceLocation backgroundPageTexture2 = new ResourceLocation(BlockArmor.MODID+":textures/gui/armor_display_background2.png");
+	//private final ResourceLocation backgroundPageTexture2 = new ResourceLocation(BlockArmor.MODID+":textures/gui/armor_display_background2.png");
 	private EntityGuiPlayer guiPlayer;
 	private float partialTicks;
 	/**List of all armors with set effects*/
