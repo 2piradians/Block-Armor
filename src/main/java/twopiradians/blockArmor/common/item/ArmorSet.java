@@ -37,6 +37,7 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.text.TextFormatting;
 import net.minecraftforge.common.util.EnumHelper;
 import net.minecraftforge.fml.relauncher.ReflectionHelper;
 import net.minecraftforge.fml.relauncher.Side;
@@ -313,6 +314,8 @@ public class ArmorSet {
 				.replace("Sugar Canes", "Sugar Cane")
 				.replace("Bricks", "Brick")
 				.replace("Planks", "Plank");
+		
+		name = TextFormatting.getTextWithoutFormattingCodes(name);
 
 		if (slot != null)
 			switch (slot) {

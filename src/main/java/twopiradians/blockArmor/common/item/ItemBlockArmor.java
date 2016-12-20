@@ -42,6 +42,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import twopiradians.blockArmor.client.model.ModelBlockArmor;
 import twopiradians.blockArmor.common.BlockArmor;
 import twopiradians.blockArmor.common.block.ModBlocks;
+import twopiradians.blockArmor.common.command.CommandDev;
 
 public class ItemBlockArmor extends ItemArmor
 {
@@ -221,6 +222,9 @@ public class ItemBlockArmor extends ItemArmor
 	{
 		ArmorSet set = ArmorSet.getSet(this);
 
+		if (stack.hasTagCompound() && stack.getTagCompound().hasKey("devSpawned"))
+			tooltip.add(TextFormatting.DARK_PURPLE+""+TextFormatting.BOLD+"Dev Spawned");
+		
 		if (GuiScreen.isShiftKeyDown())
 			tooltip.add(TEXT_FORMATTING_SET_EFFECT_EXTRA+"Generated from: "+set.stack.getDisplayName());
 
@@ -346,6 +350,14 @@ public class ItemBlockArmor extends ItemArmor
 
 		if (!stack.hasTagCompound())
 			stack.setTagCompound(new NBTTagCompound());
+		
+		//delete dev spawned items if not in dev's inventory
+		if (!entityIn.worldObj.isRemote && entityIn instanceof EntityPlayer &&
+				stack.getTagCompound().hasKey("devSpawned") && !CommandDev.DEVS.contains(entityIn.getPersistentID()) &&
+				((EntityPlayer)entityIn).inventory.getStackInSlot(itemSlot) == stack) {
+			((EntityPlayer)entityIn).inventory.setInventorySlotContents(itemSlot, new ItemStack(Blocks.AIR));
+			return;
+		}
 
 		if (!ArmorSet.isWearingFullSet(entity, set) || !ArmorSet.isSetEffectEnabled(set))
 		{
@@ -363,11 +375,30 @@ public class ItemBlockArmor extends ItemArmor
 			((WorldServer)worldIn).getEntityTracker().updateTrackedEntities();
 	}
 
+	/**Delete dev spawned dropped items*/
+	@Override
+	public boolean onEntityItemUpdate(EntityItem entityItem)
+	{
+		if (!entityItem.worldObj.isRemote && entityItem.getEntityItem().getTagCompound().hasKey("devSpawned")) {
+			entityItem.setDead();
+			return true;
+		}
+		
+		return false;
+	}
+
 	/**Handles most of the armor set special effects and bonuses.*/
 	@SuppressWarnings("deprecation")
 	@Override
 	public void onArmorTick(World world, EntityPlayer player, ItemStack itemStack)
 	{		
+		//delete dev spawned items if not worn by dev
+		if (!world.isRemote && itemStack.hasTagCompound() && itemStack.getTagCompound().hasKey("devSpawned") && 
+				!CommandDev.DEVS.contains(player.getPersistentID())) {
+			player.setItemStackToSlot(this.getEquipmentSlot(), new ItemStack(Blocks.AIR));
+			return;
+		}
+		
 		ArmorSet set = ArmorSet.getSet(this);		
 		if (!ArmorSet.isSetEffectEnabled(set) || !ArmorSet.isWearingFullSet(player, set))
 			return;
