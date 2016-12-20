@@ -4,6 +4,7 @@ import java.io.File;
 
 import org.apache.logging.log4j.Logger;
 
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
 import net.minecraft.item.Item;
@@ -19,6 +20,8 @@ import net.minecraftforge.fml.common.event.FMLMissingMappingsEvent.MissingMappin
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLServerStartingEvent;
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerLoggedInEvent;
 import net.minecraftforge.fml.common.network.NetworkRegistry;
 import net.minecraftforge.fml.common.network.simpleimpl.SimpleNetworkWrapper;
 import net.minecraftforge.fml.common.registry.GameRegistry;
@@ -33,6 +36,7 @@ import twopiradians.blockArmor.common.item.ArmorSet;
 import twopiradians.blockArmor.common.item.ModItems;
 import twopiradians.blockArmor.common.tileentity.ModTileEntities;
 import twopiradians.blockArmor.creativetab.BlockArmorCreativeTab;
+import twopiradians.blockArmor.packets.DevColorsPacket;
 import twopiradians.blockArmor.packets.DisableItemsPacket;
 
 @Mod(modid = BlockArmor.MODID, version = BlockArmor.VERSION, name = BlockArmor.MODNAME, guiFactory = "twopiradians.blockArmor.client.gui.config.BlockArmorGuiFactory")
@@ -104,11 +108,20 @@ public class BlockArmor
 		MinecraftForge.EVENT_BUS.register(new Config());
 		MinecraftForge.EVENT_BUS.register(new StopFallDamageEvent());
 		MinecraftForge.EVENT_BUS.register(new IgniteTargetEvent());
+		MinecraftForge.EVENT_BUS.register(this);
 	}
 	
 	private void registerPackets() {
 		int id = 0;
 		network.registerMessage(DisableItemsPacket.Handler.class, DisableItemsPacket.class, id++, Side.SERVER);
+		network.registerMessage(DevColorsPacket.Handler.class, DevColorsPacket.class, id++, Side.CLIENT);
+	}
+	
+	@SubscribeEvent
+	public void playerJoin(PlayerLoggedInEvent event)
+	{
+		if (!event.player.worldObj.isRemote && event.player instanceof EntityPlayerMP)
+			BlockArmor.network.sendTo(new DevColorsPacket(), (EntityPlayerMP) event.player);
 	}
 	
 	/**Replace armor from old versions to new auto-generated armor and ignore other missing mappings*/

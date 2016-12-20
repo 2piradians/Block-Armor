@@ -18,12 +18,14 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.util.text.TextFormatting;
+import twopiradians.blockArmor.common.BlockArmor;
 import twopiradians.blockArmor.common.item.ArmorSet;
+import twopiradians.blockArmor.packets.DevColorsPacket;
 
 public class CommandDev implements ICommand 
 {
 	/**Map of Armor Sets and their block's display name (with space replaced by underscore)*/
-	private static HashMap<String, ArmorSet> blockNamesMap = Maps.newHashMap();
+	private static HashMap<String, ArmorSet> setMap = Maps.newHashMap();
 	private static final String ARMOR = "armor";
 	private static final String COLOR = "color";
 	/**List of command names*/
@@ -39,16 +41,16 @@ public class CommandDev implements ICommand
 
 	/**Add block to list of all block names for created Armor Sets*/
 	public static void addBlockName(ArmorSet set) {
-		if (!blockNamesMap.containsKey(set)) {
+		if (!setMap.containsKey(set)) {
 			String name = "";
 			try {
-				name = new ItemStack(set.block).getDisplayName();
+				name = set.stack.getDisplayName();
 				name = name.replace(" ", "_");
 			}
 			catch (Exception e) {}
 
 			if (!name.equals(""))
-				blockNamesMap.put(name, set);
+				setMap.put(name, set);
 		}
 	}
 
@@ -81,7 +83,7 @@ public class CommandDev implements ICommand
 	{
 		if (sender instanceof EntityPlayer) {
 			if (args.length == 2 && args[0].equalsIgnoreCase(ARMOR)) {
-				ArmorSet set = blockNamesMap.get(args[1]);
+				ArmorSet set = setMap.get(args[1]);
 				if (set != null) {
 					((EntityPlayer) sender).inventory.addItemStackToInventory(new ItemStack(set.helmet));
 					((EntityPlayer) sender).inventory.addItemStackToInventory(new ItemStack(set.chestplate));
@@ -99,6 +101,7 @@ public class CommandDev implements ICommand
 						devColors.remove(((EntityPlayer) sender).getPersistentID());
 					else
 						devColors.put(((EntityPlayer) sender).getPersistentID(), color);
+					BlockArmor.network.sendToAll(new DevColorsPacket());
 				}
 				catch (Exception e) {
 					sender.addChatMessage(new TextComponentTranslation(TextFormatting.RED+"Color must be 3 floats (-1 to 1 for standard results)"));
@@ -121,7 +124,7 @@ public class CommandDev implements ICommand
 		if (args.length == 1)
 			return  CommandBase.getListOfStringsMatchingLastWord(args, ALL_COMMAND_NAMES);
 		else if (args.length == 2 && args[0].equalsIgnoreCase(ARMOR))
-			return CommandBase.getListOfStringsMatchingLastWord(args, (Collection<String>)blockNamesMap.keySet());
+			return CommandBase.getListOfStringsMatchingLastWord(args, (Collection<String>)setMap.keySet());
 		else if (args.length < 5 && args[0].equalsIgnoreCase(COLOR))
 			return new ArrayList<String>() {{add("0"); add("-1");}};
 			else
