@@ -14,6 +14,7 @@ import net.minecraft.command.ICommand;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.EntityEquipmentSlot;
+import net.minecraft.item.ItemAir;
 import net.minecraft.item.ItemStack;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.math.BlockPos;
@@ -92,7 +93,7 @@ public class CommandDev implements ICommand
 							EntityEquipmentSlot.CHEST, EntityEquipmentSlot.LEGS, EntityEquipmentSlot.FEET};
 					for (EntityEquipmentSlot slot : slots) {
 						ItemStack stack = ((EntityPlayer) sender).getItemStackFromSlot(slot);
-						if (stack == null || stack.getItem() instanceof ItemBlockArmor)
+						if (stack == null || stack.getItem() instanceof ItemAir || stack.getItem() instanceof ItemBlockArmor)
 							((EntityPlayer) sender).setItemStackToSlot(slot, new ItemStack(set.getArmorForSlot(slot)));
 					}
 					sender.addChatMessage(new TextComponentTranslation(TextFormatting.GREEN+"Spawned set for "+args[1].replace("_", " ")));
