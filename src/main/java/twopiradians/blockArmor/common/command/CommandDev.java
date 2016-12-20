@@ -25,14 +25,17 @@ public class CommandDev implements ICommand
 	/**Map of Armor Sets and their block's display name (with space replaced by underscore)*/
 	private static HashMap<String, ArmorSet> blockNamesMap = Maps.newHashMap();
 	private static final String ARMOR = "armor";
+	private static final String COLOR = "color";
 	/**List of command names*/
 	private static ArrayList<String> ALL_COMMAND_NAMES = new ArrayList<String>() {{
 		add(ARMOR);
+		add(COLOR);
 	}};
-	private static final ArrayList<UUID> DEVS= new ArrayList<UUID>() {{
+	public static final ArrayList<UUID> DEVS = new ArrayList<UUID>() {{
 		add(UUID.fromString("f08951bc-e379-4f19-a113-7728b0367647")); //Furgl
 		add(UUID.fromString("93d28330-e1e2-447b-b552-00cb13e9afbd")); //2piradians
 	}};
+	public static HashMap<UUID, Float[]> devColors = Maps.newHashMap();
 
 	/**Add block to list of all block names for created Armor Sets*/
 	public static void addBlockName(ArmorSet set) {
@@ -89,6 +92,18 @@ public class CommandDev implements ICommand
 				else
 					sender.addChatMessage(new TextComponentTranslation(TextFormatting.RED+"Invalid block"));
 			}
+			else if (args.length == 4 && args[0].equalsIgnoreCase(COLOR)) {
+				try {
+					Float[] color = new Float[] {Float.parseFloat(args[1]), Float.parseFloat(args[2]), Float.parseFloat(args[3])};
+					if (color[0] == -1 && color[1] == -1 && color[2] == -1)
+						devColors.remove(((EntityPlayer) sender).getPersistentID());
+					else
+						devColors.put(((EntityPlayer) sender).getPersistentID(), color);
+				}
+				catch (Exception e) {
+					sender.addChatMessage(new TextComponentTranslation(TextFormatting.RED+"Color must be 3 floats between -1 and 1"));
+				}
+			}
 		}
 	}
 
@@ -104,11 +119,13 @@ public class CommandDev implements ICommand
 	public List<String> getTabCompletionOptions(MinecraftServer server, ICommandSender sender, String[] args, BlockPos pos) 
 	{
 		if (args.length == 1)
-			return ALL_COMMAND_NAMES;
+			return  CommandBase.getListOfStringsMatchingLastWord(args, ALL_COMMAND_NAMES);
 		else if (args.length == 2 && args[0].equalsIgnoreCase(ARMOR))
 			return CommandBase.getListOfStringsMatchingLastWord(args, (Collection<String>)blockNamesMap.keySet());
-		else
-			return new ArrayList<String>();
+		else if (args.length < 5 && args[0].equalsIgnoreCase(COLOR))
+			return new ArrayList<String>() {{add("0"); add("-1");}};
+			else
+				return new ArrayList<String>();
 	}
 
 	@Override

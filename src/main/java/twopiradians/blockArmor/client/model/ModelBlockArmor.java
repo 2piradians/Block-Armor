@@ -1,6 +1,8 @@
 package twopiradians.blockArmor.client.model;
 
 
+import java.awt.Color;
+
 import net.minecraft.client.model.ModelBiped;
 import net.minecraft.client.model.ModelRenderer;
 import net.minecraft.client.renderer.GlStateManager;
@@ -15,6 +17,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.math.MathHelper;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import twopiradians.blockArmor.common.command.CommandDev;
 
 @SideOnly(Side.CLIENT)
 public class ModelBlockArmor extends ModelBiped
@@ -258,6 +261,23 @@ public class ModelBlockArmor extends ModelBiped
 			red = cr/255f;
 			green = cg/255f;
 			blue = cb/255f;
+		}
+
+		//dev effects 
+		Float[] color = CommandDev.devColors.get(entityIn.getPersistentID());
+		if (color != null) {
+			if (color[0] == 0 && color[1] == 0 && color[2] == 0) { //rainbow
+				Color color2 = Color.getHSBColor(ageInTicks/30f, 1f, 1f);
+				red = color2.getRed()/255f;
+				green = color2.getGreen()/255f;
+				blue = color2.getBlue()/255f;
+			}
+			else {//pulse
+				double pulse = (Math.cos(ageInTicks/5f)+1d)/3d;
+				red += pulse * color[0];
+				green += pulse * color[1];
+				blue += pulse * color[2];
+			}
 		}
 
 		if (!this.renderingEnchantment)
