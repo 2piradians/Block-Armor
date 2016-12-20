@@ -15,6 +15,7 @@ import net.minecraft.command.ICommandSender;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.EntityEquipmentSlot;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.TextComponentTranslation;
@@ -92,8 +93,12 @@ public class CommandDev implements ICommand
 							EntityEquipmentSlot.CHEST, EntityEquipmentSlot.LEGS, EntityEquipmentSlot.FEET};
 					for (EntityEquipmentSlot slot : slots) {
 						ItemStack stack = ((EntityPlayer) sender).getItemStackFromSlot(slot);
+						ItemStack newStack = new ItemStack(set.getArmorForSlot(slot));
+						NBTTagCompound nbt = new NBTTagCompound();
+						nbt.setBoolean("devSpawned", true);
+						newStack.setTagCompound(nbt);
 						if (stack == null || stack.getItem() instanceof ItemBlockArmor)
-							((EntityPlayer) sender).setItemStackToSlot(slot, new ItemStack(set.getArmorForSlot(slot)));
+							((EntityPlayer) sender).setItemStackToSlot(slot, newStack);
 					}
 					sender.addChatMessage(new TextComponentTranslation(TextFormatting.GREEN+"Spawned set for "+args[1].replace("_", " ")));
 				}
