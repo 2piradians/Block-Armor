@@ -132,7 +132,7 @@ public class CommandDev implements ICommand
 		else if (args.length == 2 && args[0].equalsIgnoreCase(ARMOR))
 			return CommandBase.getListOfStringsMatchingLastWord(args, (Collection<String>)setMap.keySet());
 		else if (args.length < 5 && args[0].equalsIgnoreCase(COLOR))
-			return new ArrayList<String>() {{add("0"); add("-1");}};
+			return new ArrayList<String>() {{add("-1"); add("0");}};
 			else
 				return new ArrayList<String>();
 	}

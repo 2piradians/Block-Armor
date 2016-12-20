@@ -364,6 +364,7 @@ public class ItemBlockArmor extends ItemArmor
 	}
 
 	/**Handles most of the armor set special effects and bonuses.*/
+	@SuppressWarnings("deprecation")
 	@Override
 	public void onArmorTick(World world, EntityPlayer player, ItemStack itemStack)
 	{		
@@ -452,7 +453,8 @@ public class ItemBlockArmor extends ItemArmor
 							&& world.isAirBlock(new BlockPos(player.posX+x, player.posY+y, player.posZ+z)))
 							{
 								if (world.getBlockState(new BlockPos(player.posX+x, player.posY+y-1, 
-										player.posZ+z)).getBlock().isVisuallyOpaque())
+										player.posZ+z)).getBlock().isVisuallyOpaque(world.getBlockState(new BlockPos(player.posX+x, player.posY+y-1, 
+												player.posZ+z))))
 									world.setBlockState(new BlockPos(player.posX+x, player.posY+y, 
 											player.posZ+z), Blocks.SNOW_LAYER.getDefaultState());
 								else if (world.getBlockState(new BlockPos(player.posX+x, player.posY+y-1, 

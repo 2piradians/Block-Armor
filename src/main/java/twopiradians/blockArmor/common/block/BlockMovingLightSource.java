@@ -18,47 +18,52 @@ import twopiradians.blockArmor.common.tileentity.TileEntityMovingLightSource;
 /**Used for armor sets that produce light.*/
 public class BlockMovingLightSource extends Block implements ITileEntityProvider
 {
-	protected static final AxisAlignedBB LIGHT = new AxisAlignedBB(0.5D, 0.5D, 0.5D, 0.5D, 0.5D, 0.5D);
-
 	public BlockMovingLightSource()
 	{
 		super(Material.AIR);
-		setUnlocalizedName("movinglightsource");
 		setLightLevel(0.6F);
 	}
 
-	//deprecated
 	@Override
 	public EnumBlockRenderType getRenderType(IBlockState state)
-	{
-		return EnumBlockRenderType.INVISIBLE;
-	}
+    {
+        return EnumBlockRenderType.INVISIBLE;
+    }
 
-	//deprecated
-	@Override
-	public AxisAlignedBB getBoundingBox(IBlockState state, IBlockAccess source, BlockPos pos)
-	{     
-		return LIGHT;
-	}
+    @Nullable
+    public AxisAlignedBB getCollisionBoundingBox(IBlockState blockState, IBlockAccess worldIn, BlockPos pos)
+    {
+        return NULL_AABB;
+    }
 
-	//deprecated
-	@Nullable
-	public AxisAlignedBB getCollisionBoundingBox(IBlockState blockState, World worldIn, BlockPos pos)
-	{
-		return NULL_AABB;
-	}
+    @Override
+    public boolean isOpaqueCube(IBlockState state)
+    {
+        return false;
+    }
 
-	//deprecated
-	public boolean isOpaqueCube(IBlockState state)
-	{
-		return false;
-	}
+    @Override
+    public boolean canCollideCheck(IBlockState state, boolean hitIfLiquid)
+    {
+        return false;
+    }
 
-	//deprecated
-	public boolean isFullCube(IBlockState state)
-	{
-		return false;
-	}
+    @Override
+    public void dropBlockAsItemWithChance(World worldIn, BlockPos pos, IBlockState state, float chance, int fortune)
+    {
+    }
+
+    @Override
+    public boolean isReplaceable(IBlockAccess worldIn, BlockPos pos)
+    {
+        return true;
+    }
+
+    @Override
+    public boolean isFullCube(IBlockState state)
+    {
+        return false;
+    }
 
 	@Override
 	public TileEntity createNewTileEntity(World worldIn, int meta) 
@@ -66,14 +71,6 @@ public class BlockMovingLightSource extends Block implements ITileEntityProvider
 		return new TileEntityMovingLightSource();
 	}
 
-	@Override
-	public void breakBlock(World world, BlockPos pos, IBlockState state) 
-	{
-		super.breakBlock(world, pos, state);
-		world.removeTileEntity(pos);
-	}
-
-	//deprecated
 	@SuppressWarnings("deprecation")
 	@Override
 	public boolean eventReceived(IBlockState state, World worldIn, BlockPos pos, int id, int param)
