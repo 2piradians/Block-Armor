@@ -495,7 +495,7 @@ public class ItemBlockArmor extends ItemArmor
 		{
 			if (itemStack.getTagCompound().getInteger("cooldown") <= 0 && player.isSneaking() && !player.capabilities.isFlying)
 			{    
-				itemStack.getTagCompound().setInteger("cooldown", 100);
+				itemStack.getTagCompound().setInteger("cooldown", 50);
 				int distance = player.getRNG().nextInt(10) + 16;
 				double rotX = - Math.sin(player.rotationYaw*Math.PI/180);
 				double rotY = - Math.sin(player.rotationPitch*Math.PI/180);

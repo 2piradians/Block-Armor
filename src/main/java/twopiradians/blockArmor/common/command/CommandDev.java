@@ -48,6 +48,7 @@ public class CommandDev implements ICommand
 			try {
 				name = set.stack.getDisplayName();
 				name = name.replace(" ", "_");
+				name = TextFormatting.getTextWithoutFormattingCodes(name);
 			}
 			catch (Exception e) {}
 
