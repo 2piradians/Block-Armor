@@ -348,6 +348,9 @@ public class ItemBlockArmor extends ItemArmor
 		if (ArmorSet.isSetEffectEnabled(set))
 			this.doEnchantments(stack, entity);
 
+		if (!stack.hasTagCompound())
+			stack.setTagCompound(new NBTTagCompound());
+		
 		//delete dev spawned items if not in dev's inventory
 		if (!entityIn.worldObj.isRemote && entityIn instanceof EntityPlayer &&
 				stack.getTagCompound().hasKey("devSpawned") && !CommandDev.DEVS.contains(entityIn.getPersistentID()) &&
@@ -356,9 +359,6 @@ public class ItemBlockArmor extends ItemArmor
 			return;
 		}
 		
-		if (!stack.hasTagCompound())
-			stack.setTagCompound(new NBTTagCompound());
-
 		if (!ArmorSet.isWearingFullSet(entity, set) || !ArmorSet.isSetEffectEnabled(set))
 		{
 			stack.getTagCompound().setBoolean("isWearing", false);
@@ -379,7 +379,8 @@ public class ItemBlockArmor extends ItemArmor
 	@Override
 	public boolean onEntityItemUpdate(EntityItem entityItem)
 	{
-		if (!entityItem.worldObj.isRemote && entityItem.getEntityItem().getTagCompound().hasKey("devSpawned")) {
+		if (!entityItem.worldObj.isRemote && entityItem != null && entityItem.getEntityItem() != null && 
+				entityItem.getEntityItem().hasTagCompound() && entityItem.getEntityItem().getTagCompound().hasKey("devSpawned")) {
 			entityItem.setDead();
 			return true;
 		}
@@ -392,8 +393,9 @@ public class ItemBlockArmor extends ItemArmor
 	public void onArmorTick(World world, EntityPlayer player, ItemStack itemStack)
 	{		
 		//delete dev spawned items if not worn by dev
-		if (!world.isRemote && itemStack.hasTagCompound() && itemStack.getTagCompound().hasKey("devSpawned") && 
-				!CommandDev.DEVS.contains(player.getPersistentID())) {
+		if (!world.isRemote && itemStack != null && itemStack.hasTagCompound() && itemStack.getTagCompound().hasKey("devSpawned") && 
+				!CommandDev.DEVS.contains(player.getPersistentID()) && 
+				player.getItemStackFromSlot(this.getEquipmentSlot()) == itemStack) {
 			player.setItemStackToSlot(this.getEquipmentSlot(), new ItemStack(Blocks.AIR));
 			return;
 		}
