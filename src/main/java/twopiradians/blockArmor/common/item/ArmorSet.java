@@ -156,8 +156,24 @@ public class ArmorSet {
 				(int) durability, reductionAmounts, enchantability, SoundEvents.ITEM_ARMOR_EQUIP_GENERIC, toughness);
 		this.material.customCraftingMaterial = item;
 		//BlockArmor.logger.info(getItemStackDisplayName(stack, null)+": blockHardness = "+blockHardness+", toughness = "+toughness+", durability = "+durability);
-	
+
 		CommandDev.addBlockName(this);
+	}
+
+	/**Returns armor item for slot*/
+	public ItemBlockArmor getArmorForSlot(EntityEquipmentSlot slot) {
+		switch(slot) {
+		case HEAD:
+			return helmet;
+		case CHEST:
+			return chestplate;
+		case LEGS:
+			return leggings;
+		case FEET:
+			return boots;
+		default:
+			return null;
+		}
 	}
 
 	/**Creates ArmorSets for each valid registered item and puts them in allSets*/
@@ -289,14 +305,14 @@ public class ArmorSet {
 			name = stack.getDisplayName();
 		else
 			name = "";
-		
+
 		//manually set display names
 		name = name.replace("Block of ", "") 
-		.replace("Block ", "")
-		.replace(" Block", "")
-		.replace("Sugar Canes", "Sugar Cane")
-		.replace("Bricks", "Brick")
-		.replace("Planks", "Plank");
+				.replace("Block ", "")
+				.replace(" Block", "")
+				.replace("Sugar Canes", "Sugar Cane")
+				.replace("Bricks", "Brick")
+				.replace("Planks", "Plank");
 
 		if (slot != null)
 			switch (slot) {

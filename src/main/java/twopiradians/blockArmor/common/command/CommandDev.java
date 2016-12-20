@@ -13,6 +13,7 @@ import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommand;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.inventory.EntityEquipmentSlot;
 import net.minecraft.item.ItemStack;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.math.BlockPos;
@@ -20,6 +21,7 @@ import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.util.text.TextFormatting;
 import twopiradians.blockArmor.common.BlockArmor;
 import twopiradians.blockArmor.common.item.ArmorSet;
+import twopiradians.blockArmor.common.item.ItemBlockArmor;
 import twopiradians.blockArmor.packets.DevColorsPacket;
 
 public class CommandDev implements ICommand 
@@ -84,11 +86,14 @@ public class CommandDev implements ICommand
 		if (sender instanceof EntityPlayer) {
 			if (args.length == 2 && args[0].equalsIgnoreCase(ARMOR)) {
 				ArmorSet set = setMap.get(args[1]);
-				if (set != null) {
-					((EntityPlayer) sender).inventory.addItemStackToInventory(new ItemStack(set.helmet));
-					((EntityPlayer) sender).inventory.addItemStackToInventory(new ItemStack(set.chestplate));
-					((EntityPlayer) sender).inventory.addItemStackToInventory(new ItemStack(set.leggings));
-					((EntityPlayer) sender).inventory.addItemStackToInventory(new ItemStack(set.boots));
+				if (set != null) { //replace empty armor slots or slots with ItemBlockArmor with new set's armor
+					EntityEquipmentSlot[] slots = new EntityEquipmentSlot[] {EntityEquipmentSlot.HEAD,
+							EntityEquipmentSlot.CHEST, EntityEquipmentSlot.LEGS, EntityEquipmentSlot.FEET};
+					for (EntityEquipmentSlot slot : slots) {
+						ItemStack stack = ((EntityPlayer) sender).getItemStackFromSlot(slot);
+						if (stack == null || stack.getItem() instanceof ItemBlockArmor)
+							((EntityPlayer) sender).setItemStackToSlot(slot, new ItemStack(set.getArmorForSlot(slot)));
+					}
 					sender.addChatMessage(new TextComponentTranslation(TextFormatting.GREEN+"Spawned set for "+args[1].replace("_", " ")));
 				}
 				else
