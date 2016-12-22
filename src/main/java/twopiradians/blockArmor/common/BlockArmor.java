@@ -39,9 +39,9 @@ import twopiradians.blockArmor.creativetab.BlockArmorCreativeTab;
 import twopiradians.blockArmor.packets.DevColorsPacket;
 import twopiradians.blockArmor.packets.DisableItemsPacket;
 
-@Mod(modid = BlockArmor.MODID, version = BlockArmor.VERSION, name = BlockArmor.MODNAME, guiFactory = "twopiradians.blockArmor.client.gui.config.BlockArmorGuiFactory", updateJSON = "https://raw.githubusercontent.com/Furgl/AutoPickup/1.11/update.json")
+@Mod(modid = BlockArmor.MODID, version = BlockArmor.VERSION, name = BlockArmor.MODNAME, guiFactory = "twopiradians.blockArmor.client.gui.config.BlockArmorGuiFactory", updateJSON = "https://raw.githubusercontent.com/2piradians/Block-Armor/1.10.2/update.json")
 public class BlockArmor
-{
+{ 
 	public static final String MODNAME = "Block Armor"; 
 	public static final String MODID = "blockarmor";
 	public static final String VERSION = "2.0.1";
