@@ -161,9 +161,9 @@ public class ModelBlockArmor extends ModelBiped
 
 		case LEGS:
 			//WAIST
-			this.bipedWaist.cubeList.add(new ModelPlane(bipedWaist, 3, 1+yOffset, -4.5F, 6.5F, -2.5F, 9, 6, 0, false)); //front
-			this.bipedWaist.cubeList.add(new ModelPlane(bipedWaist, 5, -4+yOffset, -4.5F, 6.5F, -2.5F, 0, 6, 5, true)); //right 
-			this.bipedWaist.cubeList.add(new ModelPlane(bipedWaist, 5, -4+yOffset, 4.5F, 6.5F, -2.5F, 0, 6, 5, false)); //left 
+			this.bipedWaist.cubeList.add(new ModelPlane(bipedWaist, 3, 0+yOffset, -4.5F, 6.5F, -2.5F, 9, 6, 0, false)); //front
+			this.bipedWaist.cubeList.add(new ModelPlane(bipedWaist, 5, -5+yOffset, -4.5F, 6.5F, -2.5F, 0, 6, 5, true)); //right 
+			this.bipedWaist.cubeList.add(new ModelPlane(bipedWaist, 5, -5+yOffset, 4.5F, 6.5F, -2.5F, 0, 6, 5, false)); //left 
 			this.bipedWaist.cubeList.add(new ModelPlane(bipedWaist, 3, 1+yOffset, -4.5F, 6.5F, 2.5F, 9, 6, 0, true)); //back
 
 			//RIGHT LEG
@@ -285,8 +285,8 @@ public class ModelBlockArmor extends ModelBiped
 
 		GlStateManager.pushMatrix();
 
-		if (this.translucent || animationOverlay) 
-		{
+		if ((this.translucent || animationOverlay) && !this.renderingEnchantment) 
+		{	
 			GlStateManager.enableBlend(); //enables transparency
 			GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
 		}
@@ -325,7 +325,7 @@ public class ModelBlockArmor extends ModelBiped
 			this.bipedLeftFoot.render(scale);
 		}
 
-		if (this.translucent || animationOverlay) 
+		if ((this.translucent || animationOverlay) && !this.renderingEnchantment) 
 			GlStateManager.disableBlend(); //disable transparency
 
 		GlStateManager.popMatrix();

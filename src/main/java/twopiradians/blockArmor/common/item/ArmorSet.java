@@ -67,13 +67,34 @@ public class ArmorSet {
 			add(new ArmorSet(new ItemStack(Blocks.END_STONE, 1, 0), true));
 			add(new ArmorSet(new ItemStack(Blocks.SLIME_BLOCK, 1, 0), true));
 			add(new ArmorSet(new ItemStack(Items.REEDS, 1, 0), true));
+			add(new ArmorSet(new ItemStack(Blocks.PRISMARINE, 1, 0), true));
+			add(new ArmorSet(new ItemStack(Blocks.PRISMARINE, 1, 1), true));
 			add(new ArmorSet(new ItemStack(Blocks.PRISMARINE, 1, 2), true));
 			add(new ArmorSet(new ItemStack(Blocks.BRICK_BLOCK, 1, 0), true));
 			add(new ArmorSet(new ItemStack(Blocks.QUARTZ_BLOCK, 1, 0), true));
+			add(new ArmorSet(new ItemStack(Blocks.CACTUS, 1, 0), true));
+			add(new ArmorSet(new ItemStack(Blocks.DISPENSER, 1, 0), true));
 
+			//Sets to get effects
+			add(new ArmorSet(new ItemStack(Blocks.ENCHANTING_TABLE, 1, 0), true));
+			add(new ArmorSet(new ItemStack(Blocks.BEACON, 1, 0), true));
+			add(new ArmorSet(new ItemStack(Blocks.TNT, 1, 0), true));
+			add(new ArmorSet(new ItemStack(Blocks.FURNACE, 1, 0), true));
+			add(new ArmorSet(new ItemStack(Blocks.SPONGE, 1, 0), true));
+			add(new ArmorSet(new ItemStack(Blocks.SPONGE, 1, 1), true));
+			add(new ArmorSet(new ItemStack(Blocks.CRAFTING_TABLE, 1, 0), true));
+		//	add(new ArmorSet(new ItemStack(Blocks.CHEST, 1, 0), true));
+			
+			//Creative only sets with effects
+			add(new ArmorSet(new ItemStack(Blocks.COMMAND_BLOCK, 1, 0), true));
+			add(new ArmorSet(new ItemStack(Blocks.CHAIN_COMMAND_BLOCK, 1, 0), true));
+			add(new ArmorSet(new ItemStack(Blocks.REPEATING_COMMAND_BLOCK, 1, 0), true));
+		//	add(new ArmorSet(new ItemStack(Blocks.LAVA, 1, 0), true));
+		//	add(new ArmorSet(new ItemStack(Blocks.WATER, 1, 0), true));
+
+			//Manual Sets with no effects
 			add(new ArmorSet(new ItemStack(Blocks.BROWN_MUSHROOM_BLOCK, 1, 0), false));
 			add(new ArmorSet(new ItemStack(Blocks.RED_MUSHROOM_BLOCK, 1, 0), false));
-			add(new ArmorSet(new ItemStack(Blocks.CRAFTING_TABLE, 1, 0), false));
 		}};
 	}
 	/**Armor set items that are missing textures that should be disabled*/

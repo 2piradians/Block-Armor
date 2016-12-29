@@ -1,11 +1,16 @@
 package twopiradians.blockArmor.common.item;
 
+import java.util.Iterator;
 import java.util.List;
+import java.util.Queue;
 import java.util.UUID;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
 
 import net.minecraft.block.BlockLiquid;
+import net.minecraft.block.material.Material;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.model.ModelBiped;
@@ -18,6 +23,7 @@ import net.minecraft.entity.SharedMonsterAttributes;
 import net.minecraft.entity.ai.attributes.AttributeModifier;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.projectile.EntityArrow;
 import net.minecraft.init.Blocks;
 import net.minecraft.init.Enchantments;
 import net.minecraft.init.Items;
@@ -26,15 +32,22 @@ import net.minecraft.inventory.EntityEquipmentSlot;
 import net.minecraft.item.EnumRarity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemArmor;
+import net.minecraft.item.ItemArrow;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.potion.Potion;
 import net.minecraft.potion.PotionEffect;
+import net.minecraft.server.management.PlayerInteractionManager;
+import net.minecraft.util.DamageSource;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.util.SoundCategory;
+import net.minecraft.util.Tuple;
+import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.TextFormatting;
+import net.minecraft.world.Explosion;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
 import net.minecraftforge.fml.relauncher.Side;
@@ -427,9 +440,78 @@ public class ItemBlockArmor extends ItemArmor
 			}
 		}
 
+		//TNT
+		if (set.block == Blocks.TNT && this.armorType != EntityEquipmentSlot.CHEST)
+		{
+			if (player.isSneaking() && player.isAllowEdit())
+			{
+				if (!world.isRemote)
+				{
+					Explosion explosion = new Explosion(world, player, player.posX, player.posY + 0.49D, player.posZ, 
+							(this.getMaxDamage(new ItemStack(this)) - this.getDamage(new ItemStack(this))) / 4.0f, false, true);
+					if (net.minecraftforge.event.ForgeEventFactory.onExplosionStart(world, explosion)) 
+						return;
+					explosion.doExplosionA();
+					explosion.doExplosionB(true); 
+					player.setItemStackToSlot(EntityEquipmentSlot.HEAD, new ItemStack(Blocks.AIR));
+					player.setItemStackToSlot(EntityEquipmentSlot.CHEST, new ItemStack(Blocks.AIR));
+					player.setItemStackToSlot(EntityEquipmentSlot.LEGS, new ItemStack(Blocks.AIR));
+					player.setItemStackToSlot(EntityEquipmentSlot.FEET, new ItemStack(Blocks.AIR));
+				}
+			}
+		}
+
 		//only allow boots past this point
 		if (this.armorType != EntityEquipmentSlot.FEET)
 			return;
+
+		//Repeating Command Block
+		if (set.block == Blocks.REPEATING_COMMAND_BLOCK)
+		{
+			if (!world.isRemote && player.isSneaking())
+				world.setWorldTime(world.getWorldTime() + 9);
+		}
+
+		//Dispenser
+		if (set.block == Blocks.DISPENSER)
+		{
+			if (player.isSneaking() && itemStack.getTagCompound().getInteger("cooldown") <= 0)
+			{
+				if(!world.isRemote)
+				{
+					int numArrows = 16;
+					for(int i = 0; i < numArrows; i++)
+					{
+						itemStack.getTagCompound().setInteger("cooldown", 40);
+						ItemArrow itemArrow = (ItemArrow) Items.ARROW;
+						EntityArrow entityArrow = itemArrow.createArrow(world, new ItemStack(itemArrow), player);
+						entityArrow.setAim(player, 0.0F, player.rotationYaw + i*(360/numArrows), 0.0F, 2.0F, 0.0F);
+						world.spawnEntityInWorld(entityArrow);
+						entityArrow.pickupStatus = EntityArrow.PickupStatus.DISALLOWED;
+					}
+				}
+				world.playSound((EntityPlayer)null, player.posX, player.posY, player.posZ, SoundEvents.ENTITY_ARROW_SHOOT, SoundCategory.PLAYERS, 1.0F, world.rand.nextFloat() + 0.5f);
+			}
+		}
+
+		//Cactus
+		//damages entities collided with; thorns enchant
+		if (set.block == Blocks.CACTUS)
+		{
+			AxisAlignedBB axisAlignedBB = player.getEntityBoundingBox();
+			List<?> list = player.worldObj.getEntitiesWithinAABB(EntityLivingBase.class, axisAlignedBB);
+
+			if (!list.isEmpty()) 
+			{
+				Iterator<?> iterator = list.iterator();            
+				while (iterator.hasNext())
+				{
+					EntityLivingBase entityCollided = (EntityLivingBase)iterator.next();
+					if(entityCollided != player) 	
+						entityCollided.attackEntityFrom(DamageSource.cactus, 0.5F);    
+				}
+			}
+		}
 
 		//Netherrack
 		//gives fire protection; while sneaking gives off particles and light; ignites target when attacked
@@ -786,6 +868,48 @@ public class ItemBlockArmor extends ItemArmor
 					&& ((EntityLivingBase) entity).getItemStackFromSlot(EntityEquipmentSlot.FEET) == stack
 					&& !wasEnchanted)
 				stack.addEnchantment(Enchantments.FIRE_PROTECTION, 4);
+			else if (stack.isItemEnchanted() && !ArmorSet.isWearingFullSet((EntityLivingBase) entity, set))
+			{
+				if (list != null)
+				{
+					for (int i = 0; i < list.tagCount(); i++) 
+					{
+						NBTTagCompound compound = list.getCompoundTagAt(i);
+						id = compound.getShort("id");
+						e = Enchantment.getEnchantmentByID(id);
+						if (e == null || id != targetId)
+							continue;
+						NBTTagCompound stackCompound = stack.getTagCompound();
+						if (stackCompound == null)
+							return;
+						list.removeTag(i);
+						if (list.tagCount() <= 0)
+							stackCompound.removeTag("ench");
+						return;
+					}
+				}
+			}
+		}
+		//Thorns
+		if (set.block == Blocks.CACTUS)
+		{
+			NBTTagList list = stack.getEnchantmentTagList();	
+			int targetId = 7;
+			int id = 0;
+			boolean wasEnchanted = false; 
+			Enchantment e;
+			if (list != null)
+			{
+				for (int i = 0; i < list.tagCount(); i++) 
+				{
+					NBTTagCompound compound = list.getCompoundTagAt(i);
+					id = compound.getShort("id");
+					if (id == 7)
+						wasEnchanted = true;
+				}
+			}
+			if (entity instanceof EntityLivingBase && ArmorSet.isWearingFullSet((EntityLivingBase) entity, set) && !wasEnchanted)
+				stack.addEnchantment(Enchantments.THORNS, 1);
 			else if (stack.isItemEnchanted() && !ArmorSet.isWearingFullSet((EntityLivingBase) entity, set))
 			{
 				if (list != null)
