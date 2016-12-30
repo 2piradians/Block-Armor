@@ -29,6 +29,7 @@ import net.minecraftforge.fml.relauncher.Side;
 import twopiradians.blockArmor.common.block.ModBlocks;
 import twopiradians.blockArmor.common.command.CommandDev;
 import twopiradians.blockArmor.common.config.Config;
+import twopiradians.blockArmor.common.events.AutoSmeltEvent;
 import twopiradians.blockArmor.common.events.IgniteTargetEvent;
 import twopiradians.blockArmor.common.events.IncreaseFortuneEvent;
 import twopiradians.blockArmor.common.events.StopFallDamageEvent;
@@ -108,6 +109,7 @@ public class BlockArmor
 		MinecraftForge.EVENT_BUS.register(new Config());
 		MinecraftForge.EVENT_BUS.register(new StopFallDamageEvent());
 		MinecraftForge.EVENT_BUS.register(new IgniteTargetEvent());
+		MinecraftForge.EVENT_BUS.register(new AutoSmeltEvent());
 		MinecraftForge.EVENT_BUS.register(this);
 	}
 	

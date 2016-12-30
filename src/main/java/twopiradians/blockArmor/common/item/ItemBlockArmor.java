@@ -10,7 +10,6 @@ import com.google.common.collect.Multimap;
 
 import net.minecraft.block.BlockLiquid;
 import net.minecraft.block.material.Material;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.model.ModelBiped;
@@ -38,7 +37,6 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.potion.Potion;
 import net.minecraft.potion.PotionEffect;
-import net.minecraft.server.management.PlayerInteractionManager;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumParticleTypes;
@@ -440,36 +438,185 @@ public class ItemBlockArmor extends ItemArmor
 			}
 		}
 
-		//TNT
-		if (set.block == Blocks.TNT && this.armorType != EntityEquipmentSlot.CHEST)
-		{
-			if (player.isSneaking() && player.isAllowEdit())
-			{
-				if (!world.isRemote)
-				{
-					Explosion explosion = new Explosion(world, player, player.posX, player.posY + 0.49D, player.posZ, 
-							(this.getMaxDamage(new ItemStack(this)) - this.getDamage(new ItemStack(this))) / 4.0f, false, true);
-					if (net.minecraftforge.event.ForgeEventFactory.onExplosionStart(world, explosion)) 
-						return;
-					explosion.doExplosionA();
-					explosion.doExplosionB(true); 
-					player.setItemStackToSlot(EntityEquipmentSlot.HEAD, new ItemStack(Blocks.AIR));
-					player.setItemStackToSlot(EntityEquipmentSlot.CHEST, new ItemStack(Blocks.AIR));
-					player.setItemStackToSlot(EntityEquipmentSlot.LEGS, new ItemStack(Blocks.AIR));
-					player.setItemStackToSlot(EntityEquipmentSlot.FEET, new ItemStack(Blocks.AIR));
-				}
-			}
-		}
-
 		//only allow boots past this point
 		if (this.armorType != EntityEquipmentSlot.FEET)
 			return;
 
+		//Wet Sponge
+		if (set.block == Blocks.SPONGE && set.meta == 1)
+		{
+			if (itemStack.getTagCompound().getInteger("cooldown") <= 0)
+			{
+				int headDamage = player.getItemStackFromSlot((EntityEquipmentSlot.HEAD)).getItemDamage();
+				int chestDamage = player.getItemStackFromSlot((EntityEquipmentSlot.CHEST)).getItemDamage();
+				int legDamage = player.getItemStackFromSlot((EntityEquipmentSlot.LEGS)).getItemDamage();
+				int feetDamage = player.getItemStackFromSlot((EntityEquipmentSlot.FEET)).getItemDamage();
+				ArmorSet set2 = ArmorSet.getSet(Blocks.SPONGE, 0);
+				player.setItemStackToSlot(EntityEquipmentSlot.HEAD, new ItemStack(set2.getArmorForSlot(EntityEquipmentSlot.HEAD)));
+				player.setItemStackToSlot(EntityEquipmentSlot.CHEST, new ItemStack(set2.getArmorForSlot(EntityEquipmentSlot.CHEST)));
+				player.setItemStackToSlot(EntityEquipmentSlot.LEGS, new ItemStack(set2.getArmorForSlot(EntityEquipmentSlot.LEGS)));
+				player.setItemStackToSlot(EntityEquipmentSlot.FEET, new ItemStack(set2.getArmorForSlot(EntityEquipmentSlot.FEET)));
+				player.getItemStackFromSlot(EntityEquipmentSlot.HEAD).damageItem(headDamage, player);
+				player.getItemStackFromSlot(EntityEquipmentSlot.CHEST).damageItem(chestDamage, player);
+				player.getItemStackFromSlot(EntityEquipmentSlot.LEGS).damageItem(legDamage, player);
+				player.getItemStackFromSlot(EntityEquipmentSlot.FEET).damageItem(feetDamage, player);
+			}
+		}
+
+		//Sponge
+		if (set.block == Blocks.SPONGE && set.meta == 0)
+		{
+			if (!world.isRemote && player.isSneaking() && player.isAllowEdit()
+					&& player.worldObj.getBlockState(new BlockPos(player.posX, player.posY, player.posZ)).getBlock() instanceof BlockLiquid) {
+				Queue<Tuple<BlockPos, Integer>> queue = Lists.<Tuple<BlockPos, Integer>>newLinkedList();
+				List<BlockPos> list = Lists.<BlockPos>newArrayList();
+				queue.add(new Tuple(player.getPosition(), Integer.valueOf(0)));
+				int i = 0;
+
+				while (!((Queue)queue).isEmpty()) {
+					Tuple<BlockPos, Integer> tuple = (Tuple)queue.poll();
+					BlockPos blockpos = (BlockPos)tuple.getFirst();
+					int j = ((Integer)tuple.getSecond()).intValue();
+
+					for (EnumFacing enumfacing : EnumFacing.values()) {
+						BlockPos blockpos1 = blockpos.offset(enumfacing);
+
+						if (world.getBlockState(blockpos1).getBlock() instanceof BlockLiquid) {
+							world.setBlockState(blockpos1, Blocks.AIR.getDefaultState(), 2);
+							list.add(blockpos1);
+							++i;
+
+							if (j < 6) {
+								queue.add(new Tuple(blockpos1, Integer.valueOf(j + 1)));
+							}
+						}
+					}
+					if (i > 64) { break;}
+				}
+
+				for (BlockPos blockpos2 : list) {
+					world.notifyNeighborsOfStateChange(blockpos2, Blocks.AIR, false);
+				}
+				world.playSound((EntityPlayer)null, player.posX, player.posY, player.posZ, SoundEvents.ITEM_BUCKET_FILL, 
+						SoundCategory.PLAYERS, 1.0F, world.rand.nextFloat() + 0.5f);
+				int headDamage = player.getItemStackFromSlot((EntityEquipmentSlot.HEAD)).getItemDamage();
+				int chestDamage = player.getItemStackFromSlot((EntityEquipmentSlot.CHEST)).getItemDamage();
+				int legDamage = player.getItemStackFromSlot((EntityEquipmentSlot.LEGS)).getItemDamage();
+				int feetDamage = player.getItemStackFromSlot((EntityEquipmentSlot.FEET)).getItemDamage();
+				ArmorSet set2 = ArmorSet.getSet(Blocks.SPONGE, 1);
+				player.setItemStackToSlot(EntityEquipmentSlot.HEAD, new ItemStack(set2.getArmorForSlot(EntityEquipmentSlot.HEAD)));
+				player.setItemStackToSlot(EntityEquipmentSlot.CHEST, new ItemStack(set2.getArmorForSlot(EntityEquipmentSlot.CHEST)));
+				player.setItemStackToSlot(EntityEquipmentSlot.LEGS, new ItemStack(set2.getArmorForSlot(EntityEquipmentSlot.LEGS)));
+				player.setItemStackToSlot(EntityEquipmentSlot.FEET, new ItemStack(set2.getArmorForSlot(EntityEquipmentSlot.FEET)));
+				player.getItemStackFromSlot(EntityEquipmentSlot.HEAD).damageItem(headDamage, player);
+				player.getItemStackFromSlot(EntityEquipmentSlot.CHEST).damageItem(chestDamage, player);
+				player.getItemStackFromSlot(EntityEquipmentSlot.LEGS).damageItem(legDamage, player);
+				player.getItemStackFromSlot(EntityEquipmentSlot.FEET).damageItem(feetDamage, player);
+				itemStack = player.getItemStackFromSlot(EntityEquipmentSlot.FEET);
+				if (!itemStack.hasTagCompound())
+					itemStack.setTagCompound(new NBTTagCompound());
+				itemStack.getTagCompound().setInteger("cooldown", 60);
+			}
+		}
+
+		//Emerald
+		if (set.block == Blocks.EMERALD_BLOCK)
+		{
+			if (!world.isRemote)
+				player.addPotionEffect(new PotionEffect(Potion.getPotionById(3), 5, 1, true, false));
+		}
+
+		//TNT
+		if (set.block == Blocks.TNT)
+		{
+			if (player.isSneaking() && player.isAllowEdit() && itemStack.getTagCompound().getInteger("cooldown") <= 0) {
+
+				itemStack.getTagCompound().setInteger("cooldown", 10);
+
+				if (!world.isRemote)
+				{
+					Explosion explosion = new Explosion(world, player, player.posX, player.posY + 0.49D, player.posZ, 6.0f, false, true);
+					if (net.minecraftforge.event.ForgeEventFactory.onExplosionStart(world, explosion)) 
+						return;
+					explosion.doExplosionA();
+					explosion.doExplosionB(true); 
+					player.getItemStackFromSlot(EntityEquipmentSlot.HEAD).damageItem(player.getItemStackFromSlot(EntityEquipmentSlot.HEAD).getMaxDamage()/9, player);
+					player.getItemStackFromSlot(EntityEquipmentSlot.CHEST).damageItem(player.getItemStackFromSlot(EntityEquipmentSlot.CHEST).getMaxDamage()/9, player);
+					player.getItemStackFromSlot(EntityEquipmentSlot.LEGS).damageItem(player.getItemStackFromSlot(EntityEquipmentSlot.LEGS).getMaxDamage()/9, player);
+					player.getItemStackFromSlot(EntityEquipmentSlot.FEET).damageItem(player.getItemStackFromSlot(EntityEquipmentSlot.FEET).getMaxDamage()/9, player);
+				}
+			}
+		}
+
 		//Repeating Command Block
 		if (set.block == Blocks.REPEATING_COMMAND_BLOCK)
 		{
-			if (!world.isRemote && player.isSneaking())
+			if (player.isSneaking())
 				world.setWorldTime(world.getWorldTime() + 9);
+		}
+
+		if (set.block == Blocks.PISTON)
+		{
+			if (player.isSneaking() && itemStack.getTagCompound().getInteger("cooldown") <= 0) {
+				itemStack.getTagCompound().setInteger("cooldown", 40);
+
+				AxisAlignedBB axisAlignedBB = player.getEntityBoundingBox().expand(5, 5, 5);
+				List<?> list = player.worldObj.getEntitiesWithinAABB(EntityLivingBase.class, axisAlignedBB);
+				list.remove(player);
+
+				if (!list.isEmpty()) {
+					Iterator<?> iterator = list.iterator();            
+					while (iterator.hasNext())
+					{
+						EntityLivingBase entityCollided = (EntityLivingBase)iterator.next();
+						double xVel = entityCollided.posX - player.posX;
+						double yVel = entityCollided.posY - player.posY;
+						double zVel = entityCollided.posZ - player.posZ;
+						double velScale = 5 / Math.sqrt(xVel * xVel + yVel * yVel + zVel * zVel);
+						entityCollided.addVelocity(velScale*xVel, velScale*yVel, velScale*zVel);    
+					}
+					world.playSound((EntityPlayer)null, player.posX, player.posY, player.posZ, SoundEvents.BLOCK_PISTON_EXTEND, SoundCategory.PLAYERS, 1.0F, world.rand.nextFloat() + 0.5f);
+				}
+			}
+		}
+
+		if (set.block == Blocks.STICKY_PISTON)
+		{
+			if (player.isSneaking() && itemStack.getTagCompound().getInteger("cooldown") <= 0) {
+				itemStack.getTagCompound().setInteger("cooldown", 40);
+
+				AxisAlignedBB axisAlignedBB = player.getEntityBoundingBox().expand(5, 5, 5);
+				List<?> list = player.worldObj.getEntitiesWithinAABB(EntityLivingBase.class, axisAlignedBB);
+				list.remove(player);
+
+				if (!list.isEmpty()) {
+					Iterator<?> iterator = list.iterator();            
+					while (iterator.hasNext())
+					{
+						EntityLivingBase entityCollided = (EntityLivingBase)iterator.next();
+						double xVel = entityCollided.posX - player.posX;
+						double yVel = entityCollided.posY - player.posY;
+						double zVel = entityCollided.posZ - player.posZ;
+						double velScale = 2 / Math.sqrt(xVel * xVel + yVel * yVel + zVel * zVel);
+						entityCollided.addVelocity(-velScale*xVel, -velScale*yVel, -velScale*zVel);    
+					}
+					world.playSound((EntityPlayer)null, player.posX, player.posY, player.posZ, SoundEvents.BLOCK_PISTON_CONTRACT, SoundCategory.PLAYERS, 1.0F, world.rand.nextFloat() + 0.5f);
+				}
+			}
+		}
+
+		//Beacon
+		if (set.block == Blocks.BEACON)
+		{
+			if (!world.isRemote)
+			{
+				player.addPotionEffect(new PotionEffect(Potion.getPotionById(1), 5, 1, true, false));
+				player.addPotionEffect(new PotionEffect(Potion.getPotionById(3), 5, 1, true, false));
+				player.addPotionEffect(new PotionEffect(Potion.getPotionById(5), 5, 1, true, false));
+				player.addPotionEffect(new PotionEffect(Potion.getPotionById(8), 5, 1, true, false));
+				player.addPotionEffect(new PotionEffect(Potion.getPotionById(11), 5, 1, true, false));
+				player.addPotionEffect(new PotionEffect(Potion.getPotionById(10), 5, 0, true, false));
+			}
 		}
 
 		//Dispenser
@@ -500,15 +647,14 @@ public class ItemBlockArmor extends ItemArmor
 		{
 			AxisAlignedBB axisAlignedBB = player.getEntityBoundingBox();
 			List<?> list = player.worldObj.getEntitiesWithinAABB(EntityLivingBase.class, axisAlignedBB);
+			list.remove(player);
 
-			if (!list.isEmpty()) 
-			{
+			if (!list.isEmpty()) {
 				Iterator<?> iterator = list.iterator();            
 				while (iterator.hasNext())
 				{
 					EntityLivingBase entityCollided = (EntityLivingBase)iterator.next();
-					if(entityCollided != player) 	
-						entityCollided.attackEntityFrom(DamageSource.cactus, 0.5F);    
+					entityCollided.attackEntityFrom(DamageSource.cactus, 0.5F);    
 				}
 			}
 		}

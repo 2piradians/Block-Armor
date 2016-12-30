@@ -11,10 +11,12 @@ import net.minecraft.block.Block;
 import net.minecraft.block.BlockBush;
 import net.minecraft.block.BlockContainer;
 import net.minecraft.block.BlockCrops;
+import net.minecraft.block.BlockDynamicLiquid;
 import net.minecraft.block.BlockLeaves;
 import net.minecraft.block.BlockLiquid;
 import net.minecraft.block.BlockOre;
 import net.minecraft.block.BlockSlab;
+import net.minecraft.block.BlockStaticLiquid;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.ItemModelMesher;
 import net.minecraft.client.renderer.block.model.BakedQuad;
@@ -46,7 +48,7 @@ import twopiradians.blockArmor.common.BlockArmor;
 import twopiradians.blockArmor.common.command.CommandDev;
 import twopiradians.blockArmor.common.config.Config;
 
-@SuppressWarnings("deprecation")
+@SuppressWarnings({ "deprecation", "serial" })
 public class ArmorSet {
 	public static ArrayList<ArmorSet> allSets;
 	/**Map of sets that have been auto generated and whether or not they are enabled in config*/
@@ -74,12 +76,14 @@ public class ArmorSet {
 			add(new ArmorSet(new ItemStack(Blocks.QUARTZ_BLOCK, 1, 0), true));
 			add(new ArmorSet(new ItemStack(Blocks.CACTUS, 1, 0), true));
 			add(new ArmorSet(new ItemStack(Blocks.DISPENSER, 1, 0), true));
-
-			//Sets to get effects
-			add(new ArmorSet(new ItemStack(Blocks.ENCHANTING_TABLE, 1, 0), true));
 			add(new ArmorSet(new ItemStack(Blocks.BEACON, 1, 0), true));
 			add(new ArmorSet(new ItemStack(Blocks.TNT, 1, 0), true));
+			add(new ArmorSet(new ItemStack(Blocks.PISTON, 1, 0), true));
+			add(new ArmorSet(new ItemStack(Blocks.STICKY_PISTON, 1, 0), true));
 			add(new ArmorSet(new ItemStack(Blocks.FURNACE, 1, 0), true));
+			
+			//Sets to get effects
+			add(new ArmorSet(new ItemStack(Blocks.ENCHANTING_TABLE, 1, 0), true));
 			add(new ArmorSet(new ItemStack(Blocks.SPONGE, 1, 0), true));
 			add(new ArmorSet(new ItemStack(Blocks.SPONGE, 1, 1), true));
 			add(new ArmorSet(new ItemStack(Blocks.CRAFTING_TABLE, 1, 0), true));
@@ -89,12 +93,14 @@ public class ArmorSet {
 			add(new ArmorSet(new ItemStack(Blocks.COMMAND_BLOCK, 1, 0), true));
 			add(new ArmorSet(new ItemStack(Blocks.CHAIN_COMMAND_BLOCK, 1, 0), true));
 			add(new ArmorSet(new ItemStack(Blocks.REPEATING_COMMAND_BLOCK, 1, 0), true));
+		
 		//	add(new ArmorSet(new ItemStack(Blocks.LAVA, 1, 0), true));
 		//	add(new ArmorSet(new ItemStack(Blocks.WATER, 1, 0), true));
 
 			//Manual Sets with no effects
 			add(new ArmorSet(new ItemStack(Blocks.BROWN_MUSHROOM_BLOCK, 1, 0), false));
 			add(new ArmorSet(new ItemStack(Blocks.RED_MUSHROOM_BLOCK, 1, 0), false));
+			add(new ArmorSet(new ItemStack(Blocks.DROPPER, 1, 0), false));
 		}};
 	}
 	/**Armor set items that are missing textures that should be disabled*/
