@@ -24,6 +24,9 @@ public class StopFallDamageEvent
 
 		if (ArmorSet.isWearingFullSet(event.getEntityLiving(), set) && ArmorSet.isSetEffectEnabled(set))
 		{
+			if (!(event.getEntity() instanceof EntityPlayer))
+				return;
+			
 			EntityPlayer player = (EntityPlayer) event.getEntity();
 			event.setDamageMultiplier(0);
 

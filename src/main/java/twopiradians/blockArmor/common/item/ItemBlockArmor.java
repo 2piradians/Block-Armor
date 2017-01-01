@@ -1,8 +1,11 @@
 package twopiradians.blockArmor.common.item;
 
+import java.util.Iterator;
 import java.util.List;
+import java.util.Queue;
 import java.util.UUID;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
 
 import net.minecraft.block.BlockLiquid;
@@ -16,8 +19,10 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.SharedMonsterAttributes;
 import net.minecraft.entity.ai.attributes.AttributeModifier;
+import net.minecraft.entity.item.EntityArmorStand;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.projectile.EntityArrow;
 import net.minecraft.init.Blocks;
 import net.minecraft.init.Enchantments;
 import net.minecraft.init.Items;
@@ -26,15 +31,21 @@ import net.minecraft.inventory.EntityEquipmentSlot;
 import net.minecraft.item.EnumRarity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemArmor;
+import net.minecraft.item.ItemArrow;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.potion.Potion;
 import net.minecraft.potion.PotionEffect;
+import net.minecraft.util.DamageSource;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.util.SoundCategory;
+import net.minecraft.util.Tuple;
+import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.TextFormatting;
+import net.minecraft.world.Explosion;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
 import net.minecraftforge.fml.relauncher.Side;
@@ -224,7 +235,7 @@ public class ItemBlockArmor extends ItemArmor
 
 		if (stack.hasTagCompound() && stack.getTagCompound().hasKey("devSpawned"))
 			tooltip.add(TextFormatting.DARK_PURPLE+""+TextFormatting.BOLD+"Dev Spawned");
-		
+
 		if (GuiScreen.isShiftKeyDown())
 			tooltip.add(TEXT_FORMATTING_SET_EFFECT_EXTRA+"Generated from: "+set.stack.getDisplayName());
 
@@ -350,7 +361,7 @@ public class ItemBlockArmor extends ItemArmor
 
 		if (!stack.hasTagCompound())
 			stack.setTagCompound(new NBTTagCompound());
-		
+
 		//delete dev spawned items if not in dev's inventory
 		if (!entityIn.worldObj.isRemote && entityIn instanceof EntityPlayer &&
 				stack.getTagCompound().hasKey("devSpawned") && !CommandDev.DEVS.contains(entityIn.getPersistentID()) &&
@@ -358,7 +369,7 @@ public class ItemBlockArmor extends ItemArmor
 			((EntityPlayer)entityIn).inventory.setInventorySlotContents(itemSlot, new ItemStack(Blocks.AIR));
 			return;
 		}
-		
+
 		if (!ArmorSet.isWearingFullSet(entity, set) || !ArmorSet.isSetEffectEnabled(set))
 		{
 			stack.getTagCompound().setBoolean("isWearing", false);
@@ -374,7 +385,7 @@ public class ItemBlockArmor extends ItemArmor
 		if (worldIn instanceof WorldServer)
 			((WorldServer)worldIn).getEntityTracker().updateTrackedEntities();
 	}
-	
+
 	/**Delete dev spawned dropped items*/
 	@Override
 	public boolean onEntityItemUpdate(EntityItem entityItem)
@@ -384,7 +395,7 @@ public class ItemBlockArmor extends ItemArmor
 			entityItem.setDead();
 			return true;
 		}
-		
+
 		return false;
 	}
 
@@ -399,7 +410,7 @@ public class ItemBlockArmor extends ItemArmor
 			player.setItemStackToSlot(this.getEquipmentSlot(), new ItemStack(Blocks.AIR));
 			return;
 		}
-		
+
 		ArmorSet set = ArmorSet.getSet(this);		
 		if (!ArmorSet.isSetEffectEnabled(set) || !ArmorSet.isWearingFullSet(player, set))
 			return;
@@ -414,7 +425,7 @@ public class ItemBlockArmor extends ItemArmor
 				if (!player.isPotionActive(Potion.getPotionById(16)) 
 						|| (player.isPotionActive(Potion.getPotionById(16))
 								&& player.getActivePotionEffect(Potion.getPotionById(16)).getDuration() < 205))
-					player.addPotionEffect(new PotionEffect(Potion.getPotionById(16), 210, 0, false, false));
+					player.addPotionEffect(new PotionEffect(Potion.getPotionById(16), 210, 0, true, true)); //night vision
 				try {
 					if (world.isRemote && !((EntityPlayerSP)player).movementInput.jump  && !player.onGround 
 							&& world.getBlockState(new BlockPos(player.posX, player.posY+2, player.posZ)).getBlock() 
@@ -429,6 +440,245 @@ public class ItemBlockArmor extends ItemArmor
 		//only allow boots past this point
 		if (this.armorType != EntityEquipmentSlot.FEET)
 			return;
+
+		//Wet Sponge
+		if (set.block == Blocks.SPONGE && set.meta == 1)
+		{
+			if (itemStack.getTagCompound().getInteger("cooldown") <= 0)
+			{
+				int headDamage = player.getItemStackFromSlot((EntityEquipmentSlot.HEAD)).getItemDamage();
+				int chestDamage = player.getItemStackFromSlot((EntityEquipmentSlot.CHEST)).getItemDamage();
+				int legDamage = player.getItemStackFromSlot((EntityEquipmentSlot.LEGS)).getItemDamage();
+				int feetDamage = player.getItemStackFromSlot((EntityEquipmentSlot.FEET)).getItemDamage();
+				ArmorSet set2 = ArmorSet.getSet(Blocks.SPONGE, 0);
+				player.setItemStackToSlot(EntityEquipmentSlot.HEAD, new ItemStack(set2.getArmorForSlot(EntityEquipmentSlot.HEAD)));
+				player.setItemStackToSlot(EntityEquipmentSlot.CHEST, new ItemStack(set2.getArmorForSlot(EntityEquipmentSlot.CHEST)));
+				player.setItemStackToSlot(EntityEquipmentSlot.LEGS, new ItemStack(set2.getArmorForSlot(EntityEquipmentSlot.LEGS)));
+				player.setItemStackToSlot(EntityEquipmentSlot.FEET, new ItemStack(set2.getArmorForSlot(EntityEquipmentSlot.FEET)));
+				player.getItemStackFromSlot(EntityEquipmentSlot.HEAD).damageItem(headDamage, player);
+				player.getItemStackFromSlot(EntityEquipmentSlot.CHEST).damageItem(chestDamage, player);
+				player.getItemStackFromSlot(EntityEquipmentSlot.LEGS).damageItem(legDamage, player);
+				player.getItemStackFromSlot(EntityEquipmentSlot.FEET).damageItem(feetDamage, player);
+			}
+		}
+
+		//Sponge
+		if (set.block == Blocks.SPONGE && set.meta == 0)
+		{
+			if (!world.isRemote && player.isSneaking() && player.isAllowEdit()
+					&& player.worldObj.getBlockState(new BlockPos(player.posX, player.posY, player.posZ)).getBlock() instanceof BlockLiquid) {
+				Queue<Tuple<BlockPos, Integer>> queue = Lists.<Tuple<BlockPos, Integer>>newLinkedList();
+				List<BlockPos> list = Lists.<BlockPos>newArrayList();
+				queue.add(new Tuple(player.getPosition(), Integer.valueOf(0)));
+				int i = 0;
+
+				while (!((Queue)queue).isEmpty()) {
+					Tuple<BlockPos, Integer> tuple = (Tuple)queue.poll();
+					BlockPos blockpos = (BlockPos)tuple.getFirst();
+					int j = ((Integer)tuple.getSecond()).intValue();
+
+					for (EnumFacing enumfacing : EnumFacing.values()) {
+						BlockPos blockpos1 = blockpos.offset(enumfacing);
+
+						if (world.getBlockState(blockpos1).getBlock() instanceof BlockLiquid) {
+							world.setBlockState(blockpos1, Blocks.AIR.getDefaultState(), 2);
+							list.add(blockpos1);
+							++i;
+
+							if (j < 6) {
+								queue.add(new Tuple(blockpos1, Integer.valueOf(j + 1)));
+							}
+						}
+					}
+					if (i > 64) { break;}
+				}
+
+				for (BlockPos blockpos2 : list) {
+					world.notifyNeighborsOfStateChange(blockpos2, Blocks.AIR);
+				}
+				world.playSound((EntityPlayer)null, player.posX, player.posY, player.posZ, SoundEvents.ITEM_BUCKET_FILL, 
+						SoundCategory.PLAYERS, 1.0F, world.rand.nextFloat() + 0.5f);
+				int headDamage = player.getItemStackFromSlot((EntityEquipmentSlot.HEAD)).getItemDamage();
+				int chestDamage = player.getItemStackFromSlot((EntityEquipmentSlot.CHEST)).getItemDamage();
+				int legDamage = player.getItemStackFromSlot((EntityEquipmentSlot.LEGS)).getItemDamage();
+				int feetDamage = player.getItemStackFromSlot((EntityEquipmentSlot.FEET)).getItemDamage();
+				ArmorSet set2 = ArmorSet.getSet(Blocks.SPONGE, 1);
+				player.setItemStackToSlot(EntityEquipmentSlot.HEAD, new ItemStack(set2.getArmorForSlot(EntityEquipmentSlot.HEAD)));
+				player.setItemStackToSlot(EntityEquipmentSlot.CHEST, new ItemStack(set2.getArmorForSlot(EntityEquipmentSlot.CHEST)));
+				player.setItemStackToSlot(EntityEquipmentSlot.LEGS, new ItemStack(set2.getArmorForSlot(EntityEquipmentSlot.LEGS)));
+				player.setItemStackToSlot(EntityEquipmentSlot.FEET, new ItemStack(set2.getArmorForSlot(EntityEquipmentSlot.FEET)));
+				player.getItemStackFromSlot(EntityEquipmentSlot.HEAD).damageItem(headDamage, player);
+				player.getItemStackFromSlot(EntityEquipmentSlot.CHEST).damageItem(chestDamage, player);
+				player.getItemStackFromSlot(EntityEquipmentSlot.LEGS).damageItem(legDamage, player);
+				player.getItemStackFromSlot(EntityEquipmentSlot.FEET).damageItem(feetDamage, player);
+				itemStack = player.getItemStackFromSlot(EntityEquipmentSlot.FEET);
+				if (!itemStack.hasTagCompound())
+					itemStack.setTagCompound(new NBTTagCompound());
+				itemStack.getTagCompound().setInteger("cooldown", 60);
+			}
+		}
+
+		//Emerald
+		if (set.block == Blocks.EMERALD_BLOCK)
+		{
+			if (!world.isRemote)
+				player.addPotionEffect(new PotionEffect(Potion.getPotionById(3), 5, 1, true, true)); //haste
+		}
+
+		//TNT
+		if (set.block == Blocks.TNT)
+		{
+			if (player.isSneaking() && player.isAllowEdit() && itemStack.getTagCompound().getInteger("cooldown") <= 0) {
+
+				itemStack.getTagCompound().setInteger("cooldown", 10);
+
+				if (!world.isRemote)
+				{
+					Explosion explosion = new Explosion(world, player, player.posX, player.posY + 0.49D, player.posZ, 6.0f, false, true);
+					if (net.minecraftforge.event.ForgeEventFactory.onExplosionStart(world, explosion)) 
+						return;
+					explosion.doExplosionA();
+					explosion.doExplosionB(true); 
+					player.getItemStackFromSlot(EntityEquipmentSlot.HEAD).damageItem(player.getItemStackFromSlot(EntityEquipmentSlot.HEAD).getMaxDamage()/9, player);
+					player.getItemStackFromSlot(EntityEquipmentSlot.CHEST).damageItem(player.getItemStackFromSlot(EntityEquipmentSlot.CHEST).getMaxDamage()/9, player);
+					player.getItemStackFromSlot(EntityEquipmentSlot.LEGS).damageItem(player.getItemStackFromSlot(EntityEquipmentSlot.LEGS).getMaxDamage()/9, player);
+					player.getItemStackFromSlot(EntityEquipmentSlot.FEET).damageItem(player.getItemStackFromSlot(EntityEquipmentSlot.FEET).getMaxDamage()/9, player);
+				}
+			}
+		}
+
+		//Repeating Command Block
+		if (set.block == Blocks.REPEATING_COMMAND_BLOCK)
+		{
+			if (player.isSneaking())
+				world.setWorldTime(world.getWorldTime() - 11);
+		}
+
+		//Chain Command Block
+		if (set.block == Blocks.CHAIN_COMMAND_BLOCK)
+		{
+			if (player.isSneaking())
+				world.setWorldTime(world.getWorldTime() - 1);
+		}
+
+		//Command Block
+		if (set.block == Blocks.COMMAND_BLOCK)
+		{
+			if (player.isSneaking())
+				world.setWorldTime(world.getWorldTime() + 9);
+		}
+
+
+		if (set.block == Blocks.PISTON)
+		{
+			if (player.isSneaking() && itemStack.getTagCompound().getInteger("cooldown") <= 0) {
+				itemStack.getTagCompound().setInteger("cooldown", 40);
+
+				AxisAlignedBB axisAlignedBB = player.getEntityBoundingBox().expand(5, 5, 5);
+				List<?> list = player.worldObj.getEntitiesWithinAABB(EntityLivingBase.class, axisAlignedBB);
+				list.remove(player);
+				for (int i=0; i<list.size(); i++)
+					if (list.get(i) instanceof EntityArmorStand)
+						list.remove(i--);
+
+				if (!list.isEmpty()) {
+					Iterator<?> iterator = list.iterator();            
+					while (iterator.hasNext())
+					{
+						EntityLivingBase entityCollided = (EntityLivingBase)iterator.next();
+						double xVel = entityCollided.posX - player.posX;
+						double yVel = entityCollided.posY - player.posY;
+						double zVel = entityCollided.posZ - player.posZ;
+						double velScale = 5 / Math.sqrt(xVel * xVel + yVel * yVel + zVel * zVel);
+						entityCollided.addVelocity(velScale*xVel, velScale*yVel, velScale*zVel);    
+					}
+					world.playSound((EntityPlayer)null, player.posX, player.posY, player.posZ, SoundEvents.BLOCK_PISTON_EXTEND, SoundCategory.PLAYERS, 1.0F, world.rand.nextFloat() + 0.5f);
+				}
+			}
+		}
+
+		if (set.block == Blocks.STICKY_PISTON)
+		{
+			if (player.isSneaking() && itemStack.getTagCompound().getInteger("cooldown") <= 0) {
+				itemStack.getTagCompound().setInteger("cooldown", 40);
+
+				AxisAlignedBB axisAlignedBB = player.getEntityBoundingBox().expand(5, 5, 5);
+				List<?> list = player.worldObj.getEntitiesWithinAABB(EntityLivingBase.class, axisAlignedBB);
+				list.remove(player);
+				for (int i=0; i<list.size(); i++)
+					if (list.get(i) instanceof EntityArmorStand)
+						list.remove(i--);
+
+				if (!list.isEmpty()) {
+					Iterator<?> iterator = list.iterator();            
+					while (iterator.hasNext())
+					{
+						EntityLivingBase entityCollided = (EntityLivingBase)iterator.next();
+						double xVel = entityCollided.posX - player.posX;
+						double yVel = entityCollided.posY - player.posY;
+						double zVel = entityCollided.posZ - player.posZ;
+						double velScale = 2 / Math.sqrt(xVel * xVel + yVel * yVel + zVel * zVel);
+						entityCollided.addVelocity(-velScale*xVel, -velScale*yVel, -velScale*zVel);    
+					}
+					world.playSound((EntityPlayer)null, player.posX, player.posY, player.posZ, SoundEvents.BLOCK_PISTON_CONTRACT, SoundCategory.PLAYERS, 1.0F, world.rand.nextFloat() + 0.5f);
+				}
+			}
+		}
+
+		//Beacon
+		if (set.block == Blocks.BEACON)
+		{
+			if (!world.isRemote)
+			{
+				player.addPotionEffect(new PotionEffect(Potion.getPotionById(1), 5, 1, true, true)); //speed
+				player.addPotionEffect(new PotionEffect(Potion.getPotionById(3), 5, 1, true, true)); //haste
+				player.addPotionEffect(new PotionEffect(Potion.getPotionById(5), 5, 1, true, true)); //strength
+				player.addPotionEffect(new PotionEffect(Potion.getPotionById(8), 5, 1, true, true)); //jump boost
+				player.addPotionEffect(new PotionEffect(Potion.getPotionById(11), 5, 1, true, true)); //resistance
+				player.addPotionEffect(new PotionEffect(Potion.getPotionById(10), 5, 0, true, true)); //regen
+			}
+		}
+
+		//Dispenser
+		if (set.block == Blocks.DISPENSER)
+		{
+			if (player.isSneaking() && itemStack.getTagCompound().getInteger("cooldown") <= 0)
+			{
+				if(!world.isRemote)
+				{
+					int numArrows = 16;
+					for(int i = 0; i < numArrows; i++)
+					{
+						itemStack.getTagCompound().setInteger("cooldown", 40);
+						ItemArrow itemArrow = (ItemArrow) Items.ARROW;
+						EntityArrow entityArrow = itemArrow.createArrow(world, new ItemStack(itemArrow), player);
+						entityArrow.setAim(player, 0.0F, player.rotationYaw + i*(360/numArrows), 0.0F, 2.0F, 0.0F);
+						world.spawnEntityInWorld(entityArrow);
+						entityArrow.pickupStatus = EntityArrow.PickupStatus.DISALLOWED;
+					}
+				}
+				world.playSound((EntityPlayer)null, player.posX, player.posY, player.posZ, SoundEvents.ENTITY_ARROW_SHOOT, SoundCategory.PLAYERS, 1.0F, world.rand.nextFloat() + 0.5f);
+			}
+		}
+
+		//Cactus
+		//damages entities collided with; thorns enchant
+		if (set.block == Blocks.CACTUS)
+		{
+			AxisAlignedBB axisAlignedBB = player.getEntityBoundingBox();
+			List<?> list = player.worldObj.getEntitiesWithinAABB(EntityLivingBase.class, axisAlignedBB);
+			list.remove(player);
+
+			if (!list.isEmpty()) {
+				Iterator<?> iterator = list.iterator();            
+				while (iterator.hasNext())
+				{
+					EntityLivingBase entityCollided = (EntityLivingBase)iterator.next();
+					entityCollided.attackEntityFrom(DamageSource.cactus, 0.5F);    
+				}
+			}
+		}
+
 
 		//Netherrack
 		//gives fire protection; while sneaking gives off particles and light; ignites target when attacked
@@ -567,9 +817,13 @@ public class ItemBlockArmor extends ItemArmor
 						((WorldServer)world).spawnParticle(EnumParticleTypes.PORTAL, player.posX+2*world.rand.nextDouble(), player.posY+world.rand.nextDouble()+1.0D, player.posZ+2*world.rand.nextDouble(), 1, 0, 0, 0, 1, new int[0]);
 					}
 				}
-				else  //no valid pos found
+				else { //no valid pos found
 					world.playSound((EntityPlayer)null, player.posX, player.posY, player.posZ, SoundEvents.BLOCK_NOTE_BASS, 
-							SoundCategory.PLAYERS, 1.0F, world.rand.nextFloat() + 0.5F);			}
+							SoundCategory.PLAYERS, 1.0F, world.rand.nextFloat() + 0.5F);		
+					itemStack.getTagCompound().setInteger("cooldown", 10);
+
+				}
+			}
 		}
 
 		//Slime

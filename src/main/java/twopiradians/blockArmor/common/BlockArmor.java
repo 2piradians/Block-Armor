@@ -29,6 +29,7 @@ import net.minecraftforge.fml.relauncher.Side;
 import twopiradians.blockArmor.common.block.ModBlocks;
 import twopiradians.blockArmor.common.command.CommandDev;
 import twopiradians.blockArmor.common.config.Config;
+import twopiradians.blockArmor.common.events.AutoSmeltEvent;
 import twopiradians.blockArmor.common.events.IgniteTargetEvent;
 import twopiradians.blockArmor.common.events.IncreaseFortuneEvent;
 import twopiradians.blockArmor.common.events.StopFallDamageEvent;
@@ -44,7 +45,7 @@ public class BlockArmor
 { 
 	public static final String MODNAME = "Block Armor"; 
 	public static final String MODID = "blockarmor";
-	public static final String VERSION = "2.0.1";
+	public static final String VERSION = "2.1";
 	public static BlockArmorCreativeTab vanillaTab;
 	public static BlockArmorCreativeTab moddedTab;
 	@SidedProxy(clientSide = "twopiradians.blockArmor.client.ClientProxy", serverSide = "twopiradians.blockArmor.common.CommonProxy")
@@ -108,6 +109,7 @@ public class BlockArmor
 		MinecraftForge.EVENT_BUS.register(new Config());
 		MinecraftForge.EVENT_BUS.register(new StopFallDamageEvent());
 		MinecraftForge.EVENT_BUS.register(new IgniteTargetEvent());
+		MinecraftForge.EVENT_BUS.register(new AutoSmeltEvent());
 		MinecraftForge.EVENT_BUS.register(this);
 	}
 	
