@@ -9,7 +9,6 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
 
 import net.minecraft.block.BlockLiquid;
-import net.minecraft.block.material.Material;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.model.ModelBiped;
@@ -20,6 +19,7 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.SharedMonsterAttributes;
 import net.minecraft.entity.ai.attributes.AttributeModifier;
+import net.minecraft.entity.item.EntityArmorStand;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.projectile.EntityArrow;
@@ -426,7 +426,7 @@ public class ItemBlockArmor extends ItemArmor
 				if (!player.isPotionActive(Potion.getPotionById(16)) 
 						|| (player.isPotionActive(Potion.getPotionById(16))
 								&& player.getActivePotionEffect(Potion.getPotionById(16)).getDuration() < 205))
-					player.addPotionEffect(new PotionEffect(Potion.getPotionById(16), 210, 0, false, false));
+					player.addPotionEffect(new PotionEffect(Potion.getPotionById(16), 210, 0, true, true)); //night vision
 				try {
 					if (world.isRemote && !((EntityPlayerSP)player).movementInput.jump  && !player.onGround 
 							&& world.getBlockState(new BlockPos(player.posX, player.posY+2, player.posZ)).getBlock() 
@@ -523,7 +523,7 @@ public class ItemBlockArmor extends ItemArmor
 		if (set.block == Blocks.EMERALD_BLOCK)
 		{
 			if (!world.isRemote)
-				player.addPotionEffect(new PotionEffect(Potion.getPotionById(3), 5, 1, true, false));
+				player.addPotionEffect(new PotionEffect(Potion.getPotionById(3), 5, 1, true, true)); //haste
 		}
 
 		//TNT
@@ -552,6 +552,20 @@ public class ItemBlockArmor extends ItemArmor
 		if (set.block == Blocks.REPEATING_COMMAND_BLOCK)
 		{
 			if (player.isSneaking())
+				world.setWorldTime(world.getWorldTime() - 11);
+		}
+
+		//Chain Command Block
+		if (set.block == Blocks.CHAIN_COMMAND_BLOCK)
+		{
+			if (player.isSneaking())
+				world.setWorldTime(world.getWorldTime() - 1);
+		}
+
+		//Command Block
+		if (set.block == Blocks.COMMAND_BLOCK)
+		{
+			if (player.isSneaking())
 				world.setWorldTime(world.getWorldTime() + 9);
 		}
 
@@ -563,6 +577,9 @@ public class ItemBlockArmor extends ItemArmor
 				AxisAlignedBB axisAlignedBB = player.getEntityBoundingBox().expand(5, 5, 5);
 				List<?> list = player.worldObj.getEntitiesWithinAABB(EntityLivingBase.class, axisAlignedBB);
 				list.remove(player);
+				for (int i=0; i<list.size(); i++)
+					if (list.get(i) instanceof EntityArmorStand)
+						list.remove(i--);
 
 				if (!list.isEmpty()) {
 					Iterator<?> iterator = list.iterator();            
@@ -588,6 +605,9 @@ public class ItemBlockArmor extends ItemArmor
 				AxisAlignedBB axisAlignedBB = player.getEntityBoundingBox().expand(5, 5, 5);
 				List<?> list = player.worldObj.getEntitiesWithinAABB(EntityLivingBase.class, axisAlignedBB);
 				list.remove(player);
+				for (int i=0; i<list.size(); i++)
+					if (list.get(i) instanceof EntityArmorStand)
+						list.remove(i--);
 
 				if (!list.isEmpty()) {
 					Iterator<?> iterator = list.iterator();            
@@ -610,12 +630,12 @@ public class ItemBlockArmor extends ItemArmor
 		{
 			if (!world.isRemote)
 			{
-				player.addPotionEffect(new PotionEffect(Potion.getPotionById(1), 5, 1, true, false));
-				player.addPotionEffect(new PotionEffect(Potion.getPotionById(3), 5, 1, true, false));
-				player.addPotionEffect(new PotionEffect(Potion.getPotionById(5), 5, 1, true, false));
-				player.addPotionEffect(new PotionEffect(Potion.getPotionById(8), 5, 1, true, false));
-				player.addPotionEffect(new PotionEffect(Potion.getPotionById(11), 5, 1, true, false));
-				player.addPotionEffect(new PotionEffect(Potion.getPotionById(10), 5, 0, true, false));
+				player.addPotionEffect(new PotionEffect(Potion.getPotionById(1), 5, 1, true, true)); //speed
+				player.addPotionEffect(new PotionEffect(Potion.getPotionById(3), 5, 1, true, true)); //haste
+				player.addPotionEffect(new PotionEffect(Potion.getPotionById(5), 5, 1, true, true)); //strength
+				player.addPotionEffect(new PotionEffect(Potion.getPotionById(8), 5, 1, true, true)); //jump boost
+				player.addPotionEffect(new PotionEffect(Potion.getPotionById(11), 5, 1, true, true)); //resistance
+				player.addPotionEffect(new PotionEffect(Potion.getPotionById(10), 5, 0, true, true)); //regen
 			}
 		}
 
@@ -797,9 +817,12 @@ public class ItemBlockArmor extends ItemArmor
 						((WorldServer)world).spawnParticle(EnumParticleTypes.PORTAL, player.posX+2*world.rand.nextDouble(), player.posY+world.rand.nextDouble()+1.0D, player.posZ+2*world.rand.nextDouble(), 1, 0, 0, 0, 1, new int[0]);
 					}
 				}
-				else  //no valid pos found
+				else { //no valid pos found
 					world.playSound((EntityPlayer)null, player.posX, player.posY, player.posZ, SoundEvents.BLOCK_NOTE_BASS, 
-							SoundCategory.PLAYERS, 1.0F, world.rand.nextFloat() + 0.5F);			}
+							SoundCategory.PLAYERS, 1.0F, world.rand.nextFloat() + 0.5F);	
+					itemStack.getTagCompound().setInteger("cooldown", 10);
+				}
+			}
 		}
 
 		//Slime
