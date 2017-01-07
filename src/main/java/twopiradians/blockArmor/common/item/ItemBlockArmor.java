@@ -19,7 +19,6 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.SharedMonsterAttributes;
 import net.minecraft.entity.ai.attributes.AttributeModifier;
-import net.minecraft.entity.item.EntityArmorStand;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.projectile.EntityArrow;
@@ -36,7 +35,6 @@ import net.minecraft.item.ItemArrow;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
-import net.minecraft.potion.Potion;
 import net.minecraft.potion.PotionEffect;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.EnumFacing;
@@ -455,6 +453,9 @@ public class ItemBlockArmor extends ItemArmor
 		ArmorSet set = ArmorSet.getSet(this);		
 		if (!ArmorSet.isSetEffectEnabled(set) || !ArmorSet.isWearingFullSet(player, set))
 			return;
+		
+		if (!itemStack.hasTagCompound())
+			itemStack.setTagCompound(new NBTTagCompound());
 
 		//dark pris
 		//sink faster in water; respiration, night vision, depth strider in water
@@ -466,7 +467,7 @@ public class ItemBlockArmor extends ItemArmor
 					player.addPotionEffect(new PotionEffect(MobEffects.NIGHT_VISION, 210, 0, true, true));
 				try {
 					if (world.isRemote && !((EntityPlayerSP)player).movementInput.jump  && !player.onGround 
-							&& world.getBlockState(new BlockPos(player.posX, player.posY+2, player.posZ)).getBlock() 
+							&& world.getBlockState(new BlockPos(player).up(2)).getBlock() 
 							instanceof BlockLiquid && player.motionY < 0.0D) {	
 						player.motionY = Math.max(-0.3D, player.motionY * 1.2D);
 					}
@@ -493,8 +494,8 @@ public class ItemBlockArmor extends ItemArmor
 
 		//Sponge
 		else if (set.block == Blocks.SPONGE && set.meta == 0) {
-			if (!world.isRemote && player.canPlayerEdit(new BlockPos(player.posX, player.posY, player.posZ), player.getHorizontalFacing(), new ItemStack(Blocks.DIRT))
-					&& player.isSneaking() && player.worldObj.getBlockState(new BlockPos(player.posX, player.posY, player.posZ)).getBlock() instanceof BlockLiquid) {
+			if (!world.isRemote && player.isAllowEdit()	&& player.isSneaking() 
+					&& player.worldObj.getBlockState(new BlockPos(player)).getBlock() instanceof BlockLiquid) {
 				Queue<Tuple<BlockPos, Integer>> queue = Lists.<Tuple<BlockPos, Integer>>newLinkedList();
 				List<BlockPos> list = Lists.<BlockPos>newArrayList();
 				queue.add(new Tuple(player.getPosition(), Integer.valueOf(0)));
@@ -544,9 +545,9 @@ public class ItemBlockArmor extends ItemArmor
 		else if (set.block == Blocks.TNT) {
 			if (player.isSneaking() && itemStack.getTagCompound().getInteger("cooldown") <= 0) {
 
-				itemStack.getTagCompound().setInteger("cooldown", 10);
+				itemStack.getTagCompound().setInteger("cooldown", 20);
 
-				if (!world.isRemote && player.canPlayerEdit(new BlockPos(player.posX, player.posY, player.posZ), player.getHorizontalFacing(), new ItemStack(Blocks.DIRT)))	{
+				if (!world.isRemote && player.isAllowEdit()) {
 					Explosion explosion = new Explosion(world, player, player.posX, player.posY + 0.49D, player.posZ, 6.0f, false, true);
 					if (net.minecraftforge.event.ForgeEventFactory.onExplosionStart(world, explosion)) 
 						return;
@@ -598,6 +599,7 @@ public class ItemBlockArmor extends ItemArmor
 			}
 		}
 
+		//Sticky Piston
 		else if (set.block == Blocks.STICKY_PISTON) {
 			if (player.isSneaking() && itemStack.getTagCompound().getInteger("cooldown") <= 0) {
 				itemStack.getTagCompound().setInteger("cooldown", 40);
@@ -685,12 +687,11 @@ public class ItemBlockArmor extends ItemArmor
 				if (world.rand.nextInt(20) == 0)
 					world.playSound(null, player.posX, player.posY, player.posZ, SoundEvents.ITEM_FIRECHARGE_USE, 
 							player.getSoundCategory(), 0.5f, world.rand.nextFloat());
-				if (world.getBlockState(new BlockPos(player.posX, player.posY+1, player.posZ)) 
+				if (world.getBlockState(new BlockPos(player).up(1)) 
 						!= ModBlocks.movinglightsource.getDefaultState()
-						&& world.getBlockState(new BlockPos(player.posX, player.posY+1, player.posZ)) == Blocks.AIR.getDefaultState()
+						&& world.getBlockState(new BlockPos(player).up(1)) == Blocks.AIR.getDefaultState()
 						&& !world.isRemote)
-					world.setBlockState(new BlockPos(player.posX, player.posY+1, player.posZ), 
-							ModBlocks.movinglightsource.getDefaultState());
+					world.setBlockState(new BlockPos(player).up(1), ModBlocks.movinglightsource.getDefaultState());
 			}
 		}
 
@@ -699,10 +700,10 @@ public class ItemBlockArmor extends ItemArmor
 		else if (set.block == Blocks.REDSTONE_BLOCK)
 		{
 			if (player.isSneaking()
-					&& world.getBlockState(new BlockPos(player.posX, player.posY+1, player.posZ)) != 
+					&& world.getBlockState(new BlockPos(player).up(1)) != 
 					ModBlocks.movinglightsource.getDefaultState()
-					&& world.getBlockState(new BlockPos(player.posX, player.posY+1, player.posZ)) == Blocks.AIR.getDefaultState())
-				world.setBlockState(new BlockPos(player.posX, player.posY+1, player.posZ), ModBlocks.movinglightsource.getDefaultState());
+					&& world.getBlockState(new BlockPos(player).up(1)) == Blocks.AIR.getDefaultState())
+				world.setBlockState(new BlockPos(player).up(1), ModBlocks.movinglightsource.getDefaultState());
 		}
 
 		//Snow
@@ -720,8 +721,7 @@ public class ItemBlockArmor extends ItemArmor
 				for (int x=-radius/2; x<=radius/2; x++)
 					for (int z=-radius/2; z<=radius/2; z++)
 						for (int y=0; y<=2; y++)
-							if (player.canPlayerEdit(new BlockPos(player.posX+x, player.posY+y, player.posZ+z), player.getHorizontalFacing(), new ItemStack(Blocks.DIRT)) 
-									&& world.rand.nextInt(100) == 0 && world.isAirBlock(new BlockPos(player.posX+x, player.posY+y, player.posZ+z))) {
+							if (player.isAllowEdit() && world.rand.nextInt(100) == 0 && world.isAirBlock(new BlockPos(player.posX+x, player.posY+y, player.posZ+z))) {
 								if (world.getBlockState(new BlockPos(player.posX+x, player.posY+y-1, 
 										player.posZ+z)).getBlock().isVisuallyOpaque())
 									world.setBlockState(new BlockPos(player.posX+x, player.posY+y, 
@@ -831,7 +831,7 @@ public class ItemBlockArmor extends ItemArmor
 		//can breath under water if less than two blocks from surface; speed boost
 		else if (set.block == Blocks.REEDS && !world.isRemote) {
 			if (player.isInWater() && player.ticksExisted % 10 == 0 
-					&& world.getBlockState(new BlockPos(player.posX, player.posY+3, player.posZ)).getBlock() == Blocks.AIR)
+					&& world.getBlockState(new BlockPos(player).up(3)).getBlock() == Blocks.AIR)
 				player.setAir(300);
 		}
 	}
