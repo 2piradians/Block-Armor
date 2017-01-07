@@ -19,7 +19,6 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.SharedMonsterAttributes;
 import net.minecraft.entity.ai.attributes.AttributeModifier;
-import net.minecraft.entity.item.EntityArmorStand;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.projectile.EntityArrow;
@@ -241,8 +240,15 @@ public class ItemBlockArmor extends ItemArmor
 		if (GuiScreen.isShiftKeyDown())
 			tooltip.add(TEXT_FORMATTING_SET_EFFECT_EXTRA+"Generated from: "+set.stack.getDisplayName());
 
-		if (set.hasSetEffect)
+		if (set.hasSetEffect) {
 			tooltip = this.addFullSetEffectTooltip(tooltip);
+			ItemStack feetStack = player.getItemStackFromSlot(EntityEquipmentSlot.FEET);
+			if (!feetStack.hasTagCompound())
+				feetStack.setTagCompound(new NBTTagCompound());
+			int cooldown = feetStack.getTagCompound().getInteger("cooldown");
+			if (ArmorSet.isWearingFullSet(player, set) && cooldown > 0)
+				tooltip.add(TEXT_FORMATTING_SET_EFFECT_EXTRA+"Cooldown: " + (int) Math.ceil(cooldown/20) + " seconds remaining.");
+		}
 	}
 
 	/**Deals with armor tooltips.*/
@@ -298,6 +304,7 @@ public class ItemBlockArmor extends ItemArmor
 		{
 			tooltip.add(TEXT_FORMATTING_SET_EFFECT_DESCRIPTION+"Increases fortune level!");
 			tooltip.add(TEXT_FORMATTING_SET_EFFECT_DESCRIPTION+"Increases luck.");
+			tooltip.add(TEXT_FORMATTING_SET_EFFECT_DESCRIPTION+"Increases haste.");
 			if (GuiScreen.isShiftKeyDown())
 				tooltip.add(TEXT_FORMATTING_SET_EFFECT_EXTRA+"More Goodies!");
 		}
@@ -343,7 +350,36 @@ public class ItemBlockArmor extends ItemArmor
 		}
 		else if (set.block == Blocks.LAPIS_BLOCK)
 			tooltip.add(TEXT_FORMATTING_SET_EFFECT_DESCRIPTION+"Gives xp for wearing!");
-		//TODO add tooltips for new sets
+		else if (set.block == Blocks.REPEATING_COMMAND_BLOCK)
+			tooltip.add(TEXT_FORMATTING_SET_EFFECT_DESCRIPTION+"Rewinds time when sneaking!");
+		else if (set.block == Blocks.CHAIN_COMMAND_BLOCK)
+			tooltip.add(TEXT_FORMATTING_SET_EFFECT_DESCRIPTION+"Stops time when sneaking!");
+		else if (set.block == Blocks.COMMAND_BLOCK)
+			tooltip.add(TEXT_FORMATTING_SET_EFFECT_DESCRIPTION+"Speeds up time when sneaking!");
+		else if (set.block == Blocks.BEACON)
+			tooltip.add(TEXT_FORMATTING_SET_EFFECT_DESCRIPTION+"Gives all beacon effects!");
+		else if (set.block == Blocks.TNT)
+			tooltip.add(TEXT_FORMATTING_SET_EFFECT_DESCRIPTION+"Creates explosion upon sneaking!");
+		else if (set.block == Blocks.FURNACE)
+			tooltip.add(TEXT_FORMATTING_SET_EFFECT_DESCRIPTION+"Smelts blocks when harvested.");
+		else if (set.block == Blocks.CACTUS)
+		{
+			tooltip.add(TEXT_FORMATTING_SET_EFFECT_DESCRIPTION+"Gives thorns enchant.");
+			tooltip.add(TEXT_FORMATTING_SET_EFFECT_DESCRIPTION+"Damages enemies when collided.");
+		}
+		else if (set.block == Blocks.DISPENSER)
+			tooltip.add(TEXT_FORMATTING_SET_EFFECT_DESCRIPTION+"Fires arrows when sneaking!");
+		else if (set.block == Blocks.PISTON)
+			tooltip.add(TEXT_FORMATTING_SET_EFFECT_DESCRIPTION+"Pushes mobs away when sneaking.");
+		else if (set.block == Blocks.STICKY_PISTON)
+			tooltip.add(TEXT_FORMATTING_SET_EFFECT_DESCRIPTION+"Pulls mobs in when sneaking.");
+		else if (set.block == Blocks.SPONGE && set.meta == 0)
+		{
+			tooltip.add(TEXT_FORMATTING_SET_EFFECT_DESCRIPTION+"Absorbs liquids!");
+			tooltip.add(TEXT_FORMATTING_SET_EFFECT_DESCRIPTION+"Turns into wet sponge armor afterwards.");
+		}
+		else if (set.block == Blocks.SPONGE && set.meta == 1)
+			tooltip.add(TEXT_FORMATTING_SET_EFFECT_DESCRIPTION+"Turns into dry sponge armor.");
 
 		return tooltip;
 	}
@@ -373,8 +409,7 @@ public class ItemBlockArmor extends ItemArmor
 			return;
 		}
 
-		if (!ArmorSet.isWearingFullSet(entity, set) || !ArmorSet.isSetEffectEnabled(set))
-		{
+		if (!ArmorSet.isWearingFullSet(entity, set) || !ArmorSet.isSetEffectEnabled(set)) {
 			stack.getTagCompound().setBoolean("isWearing", false);
 			return;
 		}
@@ -423,8 +458,7 @@ public class ItemBlockArmor extends ItemArmor
 		//sink faster in water; respiration, night vision, depth strider in water
 		if (set.block == Blocks.PRISMARINE)	{
 			if (player.isInWater() 
-					&& world.getBlockState(new BlockPos(player.posX, player.posY+1.7, player.posZ)).getBlock() instanceof BlockLiquid)
-			{ 
+					&& world.getBlockState(new BlockPos(player.posX, player.posY+1.7, player.posZ)).getBlock() instanceof BlockLiquid) { 
 				if (!player.isPotionActive(Potion.getPotionById(16)) 
 						|| (player.isPotionActive(Potion.getPotionById(16))
 								&& player.getActivePotionEffect(Potion.getPotionById(16)).getDuration() < 205))
@@ -432,8 +466,7 @@ public class ItemBlockArmor extends ItemArmor
 				try {
 					if (world.isRemote && !((EntityPlayerSP)player).movementInput.jump  && !player.onGround 
 							&& world.getBlockState(new BlockPos(player.posX, player.posY+2, player.posZ)).getBlock() 
-							instanceof BlockLiquid && player.motionY < 0.0D)
-					{	
+							instanceof BlockLiquid && player.motionY < 0.0D) {	
 						player.motionY = Math.max(-0.3D, player.motionY * 1.2D);
 					}
 				} catch (Exception e) { }
@@ -445,41 +478,31 @@ public class ItemBlockArmor extends ItemArmor
 			return;
 
 		//Wet Sponge
+		//changes to normal sponge armor when cooldown is complete
 		if (set.block == Blocks.SPONGE && set.meta == 1) {
-			if (itemStack.getTagCompound().getInteger("cooldown") <= 0)
-			{
-				//TODO redo by only changing item AND do it by iterating through "slots"
-				int headDamage = player.getItemStackFromSlot((EntityEquipmentSlot.HEAD)).getItemDamage();
-				int chestDamage = player.getItemStackFromSlot((EntityEquipmentSlot.CHEST)).getItemDamage();
-				int legDamage = player.getItemStackFromSlot((EntityEquipmentSlot.LEGS)).getItemDamage();
-				int feetDamage = player.getItemStackFromSlot((EntityEquipmentSlot.FEET)).getItemDamage();
+			if (itemStack.getTagCompound().getInteger("cooldown") <= 0) {
+				
 				ArmorSet set2 = ArmorSet.getSet(Blocks.SPONGE, 0);
-
-				//HINT (needs tweaking still):
 				EntityEquipmentSlot[] slots = new EntityEquipmentSlot[] {EntityEquipmentSlot.HEAD,
 						EntityEquipmentSlot.CHEST, EntityEquipmentSlot.LEGS, EntityEquipmentSlot.FEET};
-				ItemStack oldStack = player.getItemStackFromSlot(slots[0]);
-				NBTTagCompound nbt = new NBTTagCompound();
-				oldStack.writeToNBT(nbt);
-				ResourceLocation resourcelocation = (ResourceLocation)Item.REGISTRY.getNameForObject(set2.getArmorForSlot(slots[0]));
-				nbt.setString("id", resourcelocation == null ? "minecraft:air" : resourcelocation.toString());
-				ItemStack newStack = new ItemStack(nbt);
-
-				player.setItemStackToSlot(EntityEquipmentSlot.HEAD, new ItemStack(set2.getArmorForSlot(EntityEquipmentSlot.HEAD)));
-				player.setItemStackToSlot(EntityEquipmentSlot.CHEST, new ItemStack(set2.getArmorForSlot(EntityEquipmentSlot.CHEST)));
-				player.setItemStackToSlot(EntityEquipmentSlot.LEGS, new ItemStack(set2.getArmorForSlot(EntityEquipmentSlot.LEGS)));
-				player.setItemStackToSlot(EntityEquipmentSlot.FEET, new ItemStack(set2.getArmorForSlot(EntityEquipmentSlot.FEET)));
-				player.getItemStackFromSlot(EntityEquipmentSlot.HEAD).damageItem(headDamage, player);
-				player.getItemStackFromSlot(EntityEquipmentSlot.CHEST).damageItem(chestDamage, player);
-				player.getItemStackFromSlot(EntityEquipmentSlot.LEGS).damageItem(legDamage, player);
-				player.getItemStackFromSlot(EntityEquipmentSlot.FEET).damageItem(feetDamage, player);
+				
+				for (EntityEquipmentSlot slot : slots) {
+					ItemStack oldStack = player.getItemStackFromSlot(slot);
+					NBTTagCompound nbt = new NBTTagCompound();
+					oldStack.writeToNBT(nbt);
+					ResourceLocation resourcelocation = (ResourceLocation)Item.REGISTRY.getNameForObject(set2.getArmorForSlot(slot));
+					nbt.setString("id", resourcelocation == null ? "minecraft:air" : resourcelocation.toString());
+					ItemStack newStack = new ItemStack(nbt);
+					player.setItemStackToSlot(slot, newStack);
+				}
 			}
 		}
 
 		//Sponge
-		else if (set.block == Blocks.SPONGE && set.meta == 0) {//TODO check that player can edit each block removed
-			if (!world.isRemote && player.isSneaking()/* && player.isAllowEdit()*/
-					&& player.worldObj.getBlockState(new BlockPos(player.posX, player.posY, player.posZ)).getBlock() instanceof BlockLiquid) {
+		//drains water like placing a sponge; converts to wet sponge armor during cooldown
+		else if (set.block == Blocks.SPONGE && set.meta == 0) {
+			if (!world.isRemote && player.canPlayerEdit(new BlockPos(player.posX, player.posY, player.posZ), player.getHorizontalFacing(), new ItemStack(Blocks.DIRT))
+					&& player.isSneaking()	&& player.worldObj.getBlockState(new BlockPos(player.posX, player.posY, player.posZ)).getBlock() instanceof BlockLiquid) {
 				Queue<Tuple<BlockPos, Integer>> queue = Lists.<Tuple<BlockPos, Integer>>newLinkedList();
 				List<BlockPos> list = Lists.<BlockPos>newArrayList();
 				queue.add(new Tuple(player.getPosition(), Integer.valueOf(0)));
@@ -511,51 +534,37 @@ public class ItemBlockArmor extends ItemArmor
 				world.playSound((EntityPlayer)null, player.posX, player.posY, player.posZ, SoundEvents.ITEM_BUCKET_FILL, 
 						SoundCategory.PLAYERS, 1.0F, world.rand.nextFloat() + 0.5f);
 
-				//TODO redo by only changing item AND do it by iterating through slots
-				int headDamage = player.getItemStackFromSlot((EntityEquipmentSlot.HEAD)).getItemDamage();
-				int chestDamage = player.getItemStackFromSlot((EntityEquipmentSlot.CHEST)).getItemDamage();
-				int legDamage = player.getItemStackFromSlot((EntityEquipmentSlot.LEGS)).getItemDamage();
-				int feetDamage = player.getItemStackFromSlot((EntityEquipmentSlot.FEET)).getItemDamage();
 				ArmorSet set2 = ArmorSet.getSet(Blocks.SPONGE, 1);
-
-				//HINT (needs tweaking still):
 				EntityEquipmentSlot[] slots = new EntityEquipmentSlot[] {EntityEquipmentSlot.HEAD,
 						EntityEquipmentSlot.CHEST, EntityEquipmentSlot.LEGS, EntityEquipmentSlot.FEET};
-				ItemStack oldStack = player.getItemStackFromSlot(slots[0]);
-				NBTTagCompound nbt = new NBTTagCompound();
-				oldStack.writeToNBT(nbt);
-				ResourceLocation resourcelocation = (ResourceLocation)Item.REGISTRY.getNameForObject(set2.getArmorForSlot(slots[0]));
-				nbt.setString("id", resourcelocation == null ? "minecraft:air" : resourcelocation.toString());
-				ItemStack newStack = new ItemStack(nbt);
 
-				player.setItemStackToSlot(EntityEquipmentSlot.HEAD, new ItemStack(set2.getArmorForSlot(EntityEquipmentSlot.HEAD)));
-				player.setItemStackToSlot(EntityEquipmentSlot.CHEST, new ItemStack(set2.getArmorForSlot(EntityEquipmentSlot.CHEST)));
-				player.setItemStackToSlot(EntityEquipmentSlot.LEGS, new ItemStack(set2.getArmorForSlot(EntityEquipmentSlot.LEGS)));
-				player.setItemStackToSlot(EntityEquipmentSlot.FEET, new ItemStack(set2.getArmorForSlot(EntityEquipmentSlot.FEET)));
-				player.getItemStackFromSlot(EntityEquipmentSlot.HEAD).damageItem(headDamage, player);
-				player.getItemStackFromSlot(EntityEquipmentSlot.CHEST).damageItem(chestDamage, player);
-				player.getItemStackFromSlot(EntityEquipmentSlot.LEGS).damageItem(legDamage, player);
-				player.getItemStackFromSlot(EntityEquipmentSlot.FEET).damageItem(feetDamage, player);
-				itemStack = player.getItemStackFromSlot(EntityEquipmentSlot.FEET);
-				if (!itemStack.hasTagCompound())
-					itemStack.setTagCompound(new NBTTagCompound());
+				for (EntityEquipmentSlot slot : slots) {
+					ItemStack oldStack = player.getItemStackFromSlot(slot);
+					NBTTagCompound nbt = new NBTTagCompound();
+					oldStack.writeToNBT(nbt);
+					ResourceLocation resourcelocation = (ResourceLocation)Item.REGISTRY.getNameForObject(set2.getArmorForSlot(slot));
+					nbt.setString("id", resourcelocation == null ? "minecraft:air" : resourcelocation.toString());
+					ItemStack newStack = new ItemStack(nbt);
+					player.setItemStackToSlot(slot, newStack);
+				}
 				itemStack.getTagCompound().setInteger("cooldown", 60);
 			}
 		}
 
 		//Emerald
-		else if (set.block == Blocks.EMERALD_BLOCK)	{
-			if (!world.isRemote)
-				player.addPotionEffect(new PotionEffect(Potion.getPotionById(3), 5, 1, true, true)); //haste
-		}
+		//gives haste while wearing
+		//uses IncreasedFortuneEvent
+		else if (set.block == Blocks.EMERALD_BLOCK && !world.isRemote)
+			player.addPotionEffect(new PotionEffect(MobEffects.HASTE, 5, 1, true, true));
 
 		//TNT
-		else if (set.block == Blocks.TNT) { //TODO check each block before destroying
-			if (player.isSneaking()/* && player.isAllowEdit() */&& itemStack.getTagCompound().getInteger("cooldown") <= 0) {
+		//creates explosion upon sneaking
+		else if (set.block == Blocks.TNT) {
+			if (player.isSneaking() && itemStack.getTagCompound().getInteger("cooldown") <= 0) {
 
-				itemStack.getTagCompound().setInteger("cooldown", 10);
+				itemStack.getTagCompound().setInteger("cooldown", 20);
 
-				if (!world.isRemote)
+				if (!world.isRemote && player.canPlayerEdit(new BlockPos(player.posX, player.posY, player.posZ), player.getHorizontalFacing(), new ItemStack(Blocks.DIRT)))
 				{
 					Explosion explosion = new Explosion(world, player, player.posX, player.posY + 0.49D, player.posZ, 6.0f, false, true);
 					if (net.minecraftforge.event.ForgeEventFactory.onExplosionStart(world, explosion)) 
@@ -571,34 +580,34 @@ public class ItemBlockArmor extends ItemArmor
 		}
 
 		//Repeating Command Block
+		//rewinds time while sneaking
 		else if (set.block == Blocks.REPEATING_COMMAND_BLOCK) {
 			if (player.isSneaking())
 				world.setWorldTime(world.getWorldTime() - 11);
 		}
 
 		//Chain Command Block
+		//stops time while sneaking
 		else if (set.block == Blocks.CHAIN_COMMAND_BLOCK) {
 			if (player.isSneaking())
 				world.setWorldTime(world.getWorldTime() - 1);
 		}
 
 		//Command Block
+		//speeds up time to 10x while sneaking
 		else if (set.block == Blocks.COMMAND_BLOCK)	{
 			if (player.isSneaking())
 				world.setWorldTime(world.getWorldTime() + 9);
 		}
 
 		//Piston
+		//pushes away entities within 5 blocks upon sneaking
 		else if (set.block == Blocks.PISTON) {
 			if (player.isSneaking() && itemStack.getTagCompound().getInteger("cooldown") <= 0) {
 				itemStack.getTagCompound().setInteger("cooldown", 40);
 
 				AxisAlignedBB aabb = player.getEntityBoundingBox().expand(5, 5, 5);
-				List<Entity> list = player.worldObj.getEntitiesWithinAABBExcludingEntity(player, aabb);//player.worldObj.getEntitiesWithinAABB(EntityLivingBase.class, axisAlignedBB);
-				/*list.remove(player);
-				for (int i=0; i<list.size(); i++)
-					if (list.get(i) instanceof EntityArmorStand)
-						list.remove(i--);*/
+				List<Entity> list = player.worldObj.getEntitiesWithinAABBExcludingEntity(player, aabb);
 
 				if (!list.isEmpty()) {
 					Iterator<Entity> iterator = list.iterator();            
@@ -619,16 +628,13 @@ public class ItemBlockArmor extends ItemArmor
 		}
 
 		//Sticky Piston
+		//pulls in entities within 5 blocks upon sneaking
 		else if (set.block == Blocks.STICKY_PISTON)	{
 			if (player.isSneaking() && itemStack.getTagCompound().getInteger("cooldown") <= 0) {
 				itemStack.getTagCompound().setInteger("cooldown", 40);
 
 				AxisAlignedBB aabb = player.getEntityBoundingBox().expand(5, 5, 5);
-				List<Entity> list = player.worldObj.getEntitiesWithinAABBExcludingEntity(player, aabb);//player.worldObj.getEntitiesWithinAABB(EntityLivingBase.class, axisAlignedBB);
-				/*list.remove(player);
-				for (int i=0; i<list.size(); i++)
-					if (list.get(i) instanceof EntityArmorStand)
-						list.remove(i--);*/
+				List<Entity> list = player.worldObj.getEntitiesWithinAABBExcludingEntity(player, aabb);
 
 				if (!list.isEmpty()) {
 					Iterator<Entity> iterator = list.iterator();            
@@ -649,18 +655,19 @@ public class ItemBlockArmor extends ItemArmor
 		}
 
 		//Beacon
+		//gives all effects of a beacon while wearing
 		else if (set.block == Blocks.BEACON && !world.isRemote)
 		{
-			//FIXME use MobEffects fields instead of potion ids
-			player.addPotionEffect(new PotionEffect(Potion.getPotionById(1), 5, 1, true, true)); //speed
-			player.addPotionEffect(new PotionEffect(Potion.getPotionById(3), 5, 1, true, true)); //haste
-			player.addPotionEffect(new PotionEffect(Potion.getPotionById(5), 5, 1, true, true)); //strength
-			player.addPotionEffect(new PotionEffect(Potion.getPotionById(8), 5, 1, true, true)); //jump boost
-			player.addPotionEffect(new PotionEffect(Potion.getPotionById(11), 5, 1, true, true)); //resistance
-			player.addPotionEffect(new PotionEffect(Potion.getPotionById(10), 5, 0, true, true)); //regen
+			player.addPotionEffect(new PotionEffect(MobEffects.SPEED, 5, 1, true, true));
+			player.addPotionEffect(new PotionEffect(MobEffects.HASTE, 5, 1, true, true));
+			player.addPotionEffect(new PotionEffect(MobEffects.STRENGTH, 5, 1, true, true));
+			player.addPotionEffect(new PotionEffect(MobEffects.JUMP_BOOST, 5, 1, true, true));
+			player.addPotionEffect(new PotionEffect(MobEffects.RESISTANCE, 5, 1, true, true));
+			player.addPotionEffect(new PotionEffect(MobEffects.REGENERATION, 5, 0, true, true));
 		}
 
 		//Dispenser
+		//shoots arrows in circle around player while sneaking
 		else if (set.block == Blocks.DISPENSER)	{
 			if (player.isSneaking() && itemStack.getTagCompound().getInteger("cooldown") <= 0 && !world.isRemote)
 			{
@@ -681,18 +688,20 @@ public class ItemBlockArmor extends ItemArmor
 		//Cactus
 		//damages entities collided with; thorns enchant
 		else if (set.block == Blocks.CACTUS) {
-			AxisAlignedBB axisAlignedBB = player.getEntityBoundingBox();
-			List<EntityLivingBase> list = player.worldObj.getEntitiesWithinAABB(EntityLivingBase.class, axisAlignedBB);
-			list.remove(player);
+			if (itemStack.getTagCompound().getInteger("cooldown") <= 0)	{
+				AxisAlignedBB axisAlignedBB = player.getEntityBoundingBox();
+				List<EntityLivingBase> list = player.worldObj.getEntitiesWithinAABB(EntityLivingBase.class, axisAlignedBB);
+				list.remove(player);
 
-			if (!list.isEmpty()) {
-				Iterator<EntityLivingBase> iterator = list.iterator();            
-				while (iterator.hasNext())
-				{
-					EntityLivingBase entityCollided = iterator.next();
-					entityCollided.attackEntityFrom(DamageSource.cactus, 1.0F);   
-					//TODO add sound, maybe this one (same as baby guardian's):
-					world.playSound((EntityPlayer)null, player.posX + 0.5D, player.posY + 0.5D, player.posZ + 0.5D, SoundEvents.ENTITY_BLAZE_HURT, SoundCategory.PLAYERS, 1.0F, world.rand.nextFloat() * 0.4F + 8F);
+				if (!list.isEmpty()) {
+					Iterator<EntityLivingBase> iterator = list.iterator();            
+					while (iterator.hasNext())
+					{
+						itemStack.getTagCompound().setInteger("cooldown", 20);
+						EntityLivingBase entityCollided = iterator.next();
+						if (entityCollided.attackEntityFrom(DamageSource.cactus, 1.0F))  
+							world.playSound((EntityPlayer)null, player.posX + 0.5D, player.posY + 0.5D, player.posZ + 0.5D, SoundEvents.ENTITY_BLAZE_HURT, SoundCategory.PLAYERS, 1.0F, world.rand.nextFloat() * 0.4F + 8F);
+					}
 				}
 			}
 		}
@@ -701,8 +710,7 @@ public class ItemBlockArmor extends ItemArmor
 		//gives fire protection; while sneaking gives off particles and light; ignites target when attacked
 		else if (set.block == Blocks.NETHERRACK) {
 			int radius = 3;
-			if (player.isSneaking() && !player.isInWater())
-			{
+			if (player.isSneaking() && !player.isInWater()) {
 				if (!world.isRemote && player.ticksExisted % 2 == 0)
 					((WorldServer)world).spawnParticle(EnumParticleTypes.LAVA, player.posX+(world.rand.nextDouble()-0.5D)*radius, 
 							player.posY+world.rand.nextDouble()+1.0D, player.posZ+(world.rand.nextDouble()-0.5D)*radius, 
@@ -740,12 +748,12 @@ public class ItemBlockArmor extends ItemArmor
 			if (world.rand.nextInt(5) == 0)
 				world.playSound(player, player.posX, player.posY, player.posZ, SoundEvents.WEATHER_RAIN, 
 						player.getSoundCategory(), 1.0f, world.rand.nextFloat());
-			if (!world.isRemote) {
+			if (!world.isRemote) {//{world.getMinecraftServer().isBlockProtected(worldIn, pos, playerIn)
 				for (int x=-radius/2; x<=radius/2; x++)
 					for (int z=-radius/2; z<=radius/2; z++)
-						for (int y=0; y<=2; y++)//FIXME check if player can edit each block
-							if (/*player.capabilities.allowEdit && */world.rand.nextInt(100) == 0 
-							&& world.isAirBlock(new BlockPos(player.posX+x, player.posY+y, player.posZ+z)))
+						for (int y=0; y<=2; y++)
+							if (player.canPlayerEdit(new BlockPos(player.posX+x, player.posY+y, player.posZ+z), player.getHorizontalFacing(), new ItemStack(Blocks.DIRT)) 
+									&& world.rand.nextInt(100) == 0 && world.isAirBlock(new BlockPos(player.posX+x, player.posY+y, player.posZ+z)))
 							{
 								if (world.getBlockState(new BlockPos(player.posX+x, player.posY+y-1, 
 										player.posZ+z)).getBlock().isVisuallyOpaque(world.getBlockState(new BlockPos(player.posX+x, player.posY+y-1, 

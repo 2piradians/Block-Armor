@@ -79,12 +79,12 @@ public class ArmorSet {
 			add(new ArmorSet(new ItemStack(Blocks.PISTON, 1, 0), true));
 			add(new ArmorSet(new ItemStack(Blocks.STICKY_PISTON, 1, 0), true));
 			add(new ArmorSet(new ItemStack(Blocks.FURNACE, 1, 0), true));
-			
-			//Sets to get effects
-			add(new ArmorSet(new ItemStack(Blocks.ENCHANTING_TABLE, 1, 0), true));
 			add(new ArmorSet(new ItemStack(Blocks.SPONGE, 1, 0), true));
 			add(new ArmorSet(new ItemStack(Blocks.SPONGE, 1, 1), true));
-			add(new ArmorSet(new ItemStack(Blocks.CRAFTING_TABLE, 1, 0), true));
+			
+			//Sets to get effects
+			add(new ArmorSet(new ItemStack(Blocks.ENCHANTING_TABLE, 1, 0), false));
+			add(new ArmorSet(new ItemStack(Blocks.CRAFTING_TABLE, 1, 0), false));
 		//	add(new ArmorSet(new ItemStack(Blocks.CHEST, 1, 0), true));
 			
 			//Creative only sets with effects
