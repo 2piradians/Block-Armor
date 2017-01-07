@@ -242,12 +242,16 @@ public class ItemBlockArmor extends ItemArmor
 
 		if (set.hasSetEffect){
 			tooltip = this.addFullSetEffectTooltip(tooltip);
-			ItemStack feetStack = player.getItemStackFromSlot(EntityEquipmentSlot.FEET);
-			if (!feetStack.hasTagCompound())
-				feetStack.setTagCompound(new NBTTagCompound());
-			int cooldown = feetStack.getTagCompound().getInteger("cooldown");
-			if (ArmorSet.isWearingFullSet(player, set) && cooldown > 0)
-				tooltip.add(TEXT_FORMATTING_SET_EFFECT_EXTRA+"Cooldown: " + (int) Math.ceil(cooldown/20) + " seconds remaining.");
+			if (ArmorSet.isWearingFullSet(player, set)) {
+				ItemStack feetStack = player.getItemStackFromSlot(EntityEquipmentSlot.FEET);
+				if (!feetStack.hasTagCompound())
+					feetStack.setTagCompound(new NBTTagCompound());
+				int cooldown = feetStack.getTagCompound().getInteger("cooldown");
+				if (cooldown > 19)
+					tooltip.add(TEXT_FORMATTING_SET_EFFECT_EXTRA+"Cooldown: " + (int) Math.ceil(cooldown/20d) + " seconds remaining.");
+				else if (cooldown > 0 && cooldown < 20)
+					tooltip.add(TEXT_FORMATTING_SET_EFFECT_EXTRA+"Cooldown: " + (int) Math.ceil(cooldown/20d) + " second remaining.");
+			}
 		}
 	}
 
@@ -417,8 +421,7 @@ public class ItemBlockArmor extends ItemArmor
 		stack.getTagCompound().setBoolean("isWearing", true);
 
 		int cooldown = stack.getTagCompound().hasKey("cooldown") ? stack.getTagCompound().getInteger("cooldown") : 0;
-		--cooldown;
-		stack.getTagCompound().setInteger("cooldown", cooldown);
+		stack.getTagCompound().setInteger("cooldown", --cooldown);
 
 		if (worldIn instanceof WorldServer)
 			((WorldServer)worldIn).getEntityTracker().updateTrackedEntities();
@@ -457,9 +460,9 @@ public class ItemBlockArmor extends ItemArmor
 		//sink faster in water; respiration, night vision, depth strider in water
 		if (set.block == Blocks.PRISMARINE) {
 			if (player.isInWater() && world.getBlockState(new BlockPos(player.posX, player.posY+1.7, player.posZ)).getBlock() instanceof BlockLiquid) { 
-				if (!player.isPotionActive(Potion.getPotionById(16)) 
-						|| (player.isPotionActive(Potion.getPotionById(16))
-								&& player.getActivePotionEffect(Potion.getPotionById(16)).getDuration() < 205))
+				if (!player.isPotionActive(MobEffects.NIGHT_VISION) 
+						|| (player.isPotionActive(MobEffects.NIGHT_VISION)
+								&& player.getActivePotionEffect(MobEffects.NIGHT_VISION).getDuration() < 205))
 					player.addPotionEffect(new PotionEffect(MobEffects.NIGHT_VISION, 210, 0, true, true));
 				try {
 					if (world.isRemote && !((EntityPlayerSP)player).movementInput.jump  && !player.onGround 
@@ -574,22 +577,21 @@ public class ItemBlockArmor extends ItemArmor
 			if (player.isSneaking() && itemStack.getTagCompound().getInteger("cooldown") <= 0) {
 				itemStack.getTagCompound().setInteger("cooldown", 40);
 
-				AxisAlignedBB axisAlignedBB = player.getEntityBoundingBox().expand(5, 5, 5);
-				List<?> list = player.worldObj.getEntitiesWithinAABB(EntityLivingBase.class, axisAlignedBB);
-				list.remove(player);
-				for (int i=0; i<list.size(); i++)
-					if (list.get(i) instanceof EntityArmorStand)
-						list.remove(i--);
+				AxisAlignedBB aabb = player.getEntityBoundingBox().expand(5, 5, 5);
+				List<Entity> list = player.worldObj.getEntitiesWithinAABBExcludingEntity(player, aabb);
 
 				if (!list.isEmpty()) {
-					Iterator<?> iterator = list.iterator();            
-					while (iterator.hasNext()) {
-						EntityLivingBase entityCollided = (EntityLivingBase)iterator.next();
-						double xVel = entityCollided.posX - player.posX;
-						double yVel = entityCollided.posY - player.posY;
-						double zVel = entityCollided.posZ - player.posZ;
-						double velScale = 5 / Math.sqrt(xVel * xVel + yVel * yVel + zVel * zVel);
-						entityCollided.addVelocity(velScale*xVel, velScale*yVel, velScale*zVel);    
+					Iterator<Entity> iterator = list.iterator();            
+					while (iterator.hasNext())
+					{
+						Entity entityCollided = iterator.next();
+						if (!entityCollided.isImmuneToExplosions()) {
+							double xVel = entityCollided.posX - player.posX;
+							double yVel = entityCollided.posY - player.posY;
+							double zVel = entityCollided.posZ - player.posZ;
+							double velScale = 5 / Math.sqrt(xVel * xVel + yVel * yVel + zVel * zVel);
+							entityCollided.addVelocity(velScale*xVel, velScale*yVel, velScale*zVel); 
+						}
 					}
 					world.playSound((EntityPlayer)null, player.posX, player.posY, player.posZ, SoundEvents.BLOCK_PISTON_EXTEND, SoundCategory.PLAYERS, 1.0F, world.rand.nextFloat() + 0.5f);
 				}
@@ -600,22 +602,21 @@ public class ItemBlockArmor extends ItemArmor
 			if (player.isSneaking() && itemStack.getTagCompound().getInteger("cooldown") <= 0) {
 				itemStack.getTagCompound().setInteger("cooldown", 40);
 
-				AxisAlignedBB axisAlignedBB = player.getEntityBoundingBox().expand(5, 5, 5);
-				List<?> list = player.worldObj.getEntitiesWithinAABB(EntityLivingBase.class, axisAlignedBB);
-				list.remove(player);
-				for (int i=0; i<list.size(); i++)
-					if (list.get(i) instanceof EntityArmorStand)
-						list.remove(i--);
+				AxisAlignedBB aabb = player.getEntityBoundingBox().expand(5, 5, 5);
+				List<Entity> list = player.worldObj.getEntitiesWithinAABBExcludingEntity(player, aabb);
 
 				if (!list.isEmpty()) {
-					Iterator<?> iterator = list.iterator();            
-					while (iterator.hasNext()) {
-						EntityLivingBase entityCollided = (EntityLivingBase)iterator.next();
-						double xVel = entityCollided.posX - player.posX;
-						double yVel = entityCollided.posY - player.posY;
-						double zVel = entityCollided.posZ - player.posZ;
-						double velScale = 2 / Math.sqrt(xVel * xVel + yVel * yVel + zVel * zVel);
-						entityCollided.addVelocity(-velScale*xVel, -velScale*yVel, -velScale*zVel);    
+					Iterator<Entity> iterator = list.iterator();            
+					while (iterator.hasNext())
+					{
+						Entity entityCollided = iterator.next();
+						if (!entityCollided.isImmuneToExplosions()) {
+							double xVel = entityCollided.posX - player.posX;
+							double yVel = entityCollided.posY - player.posY;
+							double zVel = entityCollided.posZ - player.posZ;
+							double velScale = 2 / Math.sqrt(xVel * xVel + yVel * yVel + zVel * zVel);
+							entityCollided.addVelocity(-velScale*xVel, -velScale*yVel, -velScale*zVel);  
+						}
 					}
 					world.playSound((EntityPlayer)null, player.posX, player.posY, player.posZ, SoundEvents.BLOCK_PISTON_CONTRACT, SoundCategory.PLAYERS, 1.0F, world.rand.nextFloat() + 0.5f);
 				}

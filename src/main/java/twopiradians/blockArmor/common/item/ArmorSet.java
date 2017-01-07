@@ -67,6 +67,8 @@ public class ArmorSet {
 			add(new ArmorSet(new ItemStack(Blocks.END_STONE, 1, 0), true));
 			add(new ArmorSet(new ItemStack(Blocks.SLIME_BLOCK, 1, 0), true));
 			add(new ArmorSet(new ItemStack(Items.REEDS, 1, 0), true));
+			add(new ArmorSet(new ItemStack(Blocks.PRISMARINE, 1, 0), true));
+			add(new ArmorSet(new ItemStack(Blocks.PRISMARINE, 1, 1), true));
 			add(new ArmorSet(new ItemStack(Blocks.PRISMARINE, 1, 2), true));
 			add(new ArmorSet(new ItemStack(Blocks.BRICK_BLOCK, 1, 0), true));
 			add(new ArmorSet(new ItemStack(Blocks.QUARTZ_BLOCK, 1, 0), true));

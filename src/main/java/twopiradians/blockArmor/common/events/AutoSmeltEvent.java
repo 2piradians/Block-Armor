@@ -19,20 +19,17 @@ public class AutoSmeltEvent
 	public void onEvent(HarvestDropsEvent event) //only server side
 	{
 		ArmorSet set = ArmorSet.getSet(Blocks.FURNACE, 0);
-		if (ArmorSet.isWearingFullSet(event.getHarvester(), set) && ArmorSet.isSetEffectEnabled(set))
-		{
+		if (ArmorSet.isWearingFullSet(event.getHarvester(), set) && ArmorSet.isSetEffectEnabled(set)) {
 			if (event.getWorld().isRemote || event.isSilkTouching())
 				return;
 
 			ListIterator<ItemStack> dropsIterator = event.getDrops().listIterator();
 
-			while (dropsIterator.hasNext())
-			{
+			while (dropsIterator.hasNext()) {
 				ItemStack oldDrops = dropsIterator.next();
 				ItemStack newDrops = FurnaceRecipes.instance().getSmeltingResult(oldDrops);
 
-				if (!(newDrops.getItem() ==	null))
-				{
+				if (newDrops != null && newDrops.getItem() != null) {
 					newDrops = newDrops.copy();
 					event.getDrops().clear();
 					event.getDrops().add(newDrops);
