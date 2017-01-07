@@ -35,7 +35,6 @@ import net.minecraft.item.ItemArrow;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
-import net.minecraft.potion.Potion;
 import net.minecraft.potion.PotionEffect;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.EnumFacing;
@@ -457,6 +456,9 @@ public class ItemBlockArmor extends ItemArmor
 		if (!ArmorSet.isSetEffectEnabled(set) || !ArmorSet.isWearingFullSet(player, set))
 			return;
 
+		if (!itemStack.hasTagCompound())
+			itemStack.setTagCompound(new NBTTagCompound());
+				
 		//dark pris
 		//sink faster in water; respiration, night vision, depth strider in water
 		if (set.block == Blocks.PRISMARINE)	{
@@ -468,7 +470,7 @@ public class ItemBlockArmor extends ItemArmor
 					player.addPotionEffect(new PotionEffect(MobEffects.NIGHT_VISION, 210, 0, true, true));
 				try {
 					if (world.isRemote && !((EntityPlayerSP)player).movementInput.jump  && !player.onGround 
-							&& world.getBlockState(new BlockPos(player.posX, player.posY+2, player.posZ)).getBlock() 
+							&& world.getBlockState(new BlockPos(player).up(2)).getBlock() 
 							instanceof BlockLiquid && player.motionY < 0.0D) {	
 						player.motionY = Math.max(-0.3D, player.motionY * 1.2D);
 					}
@@ -504,8 +506,8 @@ public class ItemBlockArmor extends ItemArmor
 		//Sponge
 		//drains water like placing a sponge; converts to wet sponge armor during cooldown
 		else if (set.block == Blocks.SPONGE && set.meta == 0) {
-			if (!world.isRemote && player.canPlayerEdit(new BlockPos(player.posX, player.posY, player.posZ), player.getHorizontalFacing(), new ItemStack(Blocks.DIRT))
-					&& player.isSneaking()	&& player.worldObj.getBlockState(new BlockPos(player.posX, player.posY, player.posZ)).getBlock() instanceof BlockLiquid) {
+			if (!world.isRemote && player.isAllowEdit()	&& player.isSneaking() 
+					&& player.worldObj.getBlockState(new BlockPos(player)).getBlock() instanceof BlockLiquid) {
 				Queue<Tuple<BlockPos, Integer>> queue = Lists.<Tuple<BlockPos, Integer>>newLinkedList();
 				List<BlockPos> list = Lists.<BlockPos>newArrayList();
 				queue.add(new Tuple(player.getPosition(), Integer.valueOf(0)));
@@ -567,8 +569,7 @@ public class ItemBlockArmor extends ItemArmor
 
 				itemStack.getTagCompound().setInteger("cooldown", 20);
 
-				if (!world.isRemote && player.canPlayerEdit(new BlockPos(player.posX, player.posY, player.posZ), player.getHorizontalFacing(), new ItemStack(Blocks.DIRT)))
-				{
+				if (!world.isRemote && player.isAllowEdit()) {
 					Explosion explosion = new Explosion(world, player, player.posX, player.posY + 0.49D, player.posZ, 6.0f, false, true);
 					if (net.minecraftforge.event.ForgeEventFactory.onExplosionStart(world, explosion)) 
 						return;
@@ -584,24 +585,18 @@ public class ItemBlockArmor extends ItemArmor
 
 		//Repeating Command Block
 		//rewinds time while sneaking
-		else if (set.block == Blocks.REPEATING_COMMAND_BLOCK) {
-			if (player.isSneaking())
-				world.setWorldTime(world.getWorldTime() - 11);
-		}
+		else if (set.block == Blocks.REPEATING_COMMAND_BLOCK && player.isSneaking())  
+			world.setWorldTime(world.getWorldTime() - 11);
 
 		//Chain Command Block
 		//stops time while sneaking
-		else if (set.block == Blocks.CHAIN_COMMAND_BLOCK) {
-			if (player.isSneaking())
-				world.setWorldTime(world.getWorldTime() - 1);
-		}
+		else if (set.block == Blocks.CHAIN_COMMAND_BLOCK && player.isSneaking())
+			world.setWorldTime(world.getWorldTime() - 1);
 
 		//Command Block
 		//speeds up time to 10x while sneaking
-		else if (set.block == Blocks.COMMAND_BLOCK)	{
-			if (player.isSneaking())
-				world.setWorldTime(world.getWorldTime() + 9);
-		}
+		else if (set.block == Blocks.COMMAND_BLOCK && player.isSneaking())
+			world.setWorldTime(world.getWorldTime() + 9);
 
 		//Piston
 		//pushes away entities within 5 blocks upon sneaking
@@ -614,8 +609,7 @@ public class ItemBlockArmor extends ItemArmor
 
 				if (!list.isEmpty()) {
 					Iterator<Entity> iterator = list.iterator();            
-					while (iterator.hasNext())
-					{
+					while (iterator.hasNext()) {
 						Entity entityCollided = iterator.next();
 						if (!entityCollided.isImmuneToExplosions()) {
 							double xVel = entityCollided.posX - player.posX;
@@ -641,8 +635,7 @@ public class ItemBlockArmor extends ItemArmor
 
 				if (!list.isEmpty()) {
 					Iterator<Entity> iterator = list.iterator();            
-					while (iterator.hasNext())
-					{
+					while (iterator.hasNext()) {
 						Entity entityCollided = iterator.next();
 						if (!entityCollided.isImmuneToExplosions()) {
 							double xVel = entityCollided.posX - player.posX;
@@ -659,8 +652,7 @@ public class ItemBlockArmor extends ItemArmor
 
 		//Beacon
 		//gives all effects of a beacon while wearing
-		else if (set.block == Blocks.BEACON && !world.isRemote)
-		{
+		else if (set.block == Blocks.BEACON && !world.isRemote) {
 			player.addPotionEffect(new PotionEffect(MobEffects.SPEED, 5, 1, true, true));
 			player.addPotionEffect(new PotionEffect(MobEffects.HASTE, 5, 1, true, true));
 			player.addPotionEffect(new PotionEffect(MobEffects.STRENGTH, 5, 1, true, true));
@@ -672,11 +664,9 @@ public class ItemBlockArmor extends ItemArmor
 		//Dispenser
 		//shoots arrows in circle around player while sneaking
 		else if (set.block == Blocks.DISPENSER)	{
-			if (player.isSneaking() && itemStack.getTagCompound().getInteger("cooldown") <= 0 && !world.isRemote)
-			{
+			if (player.isSneaking() && itemStack.getTagCompound().getInteger("cooldown") <= 0 && !world.isRemote) {
 				int numArrows = 16;
-				for(int i = 0; i < numArrows; i++)
-				{
+				for(int i = 0; i < numArrows; i++) {
 					itemStack.getTagCompound().setInteger("cooldown", 40);
 					ItemArrow itemArrow = (ItemArrow) Items.ARROW;
 					EntityArrow entityArrow = itemArrow.createArrow(world, new ItemStack(itemArrow), player);
@@ -698,8 +688,7 @@ public class ItemBlockArmor extends ItemArmor
 
 				if (!list.isEmpty()) {
 					Iterator<EntityLivingBase> iterator = list.iterator();            
-					while (iterator.hasNext())
-					{
+					while (iterator.hasNext()) {
 						itemStack.getTagCompound().setInteger("cooldown", 20);
 						EntityLivingBase entityCollided = iterator.next();
 						if (entityCollided.attackEntityFrom(DamageSource.cactus, 1.0F))  
@@ -721,12 +710,11 @@ public class ItemBlockArmor extends ItemArmor
 				if (world.rand.nextInt(20) == 0)
 					world.playSound(null, player.posX, player.posY, player.posZ, SoundEvents.ITEM_FIRECHARGE_USE, 
 							player.getSoundCategory(), 0.5f, world.rand.nextFloat());
-				if (world.getBlockState(new BlockPos(player.posX, player.posY+1, player.posZ)) 
+				if (world.getBlockState(new BlockPos(player).up(1)) 
 						!= ModBlocks.movinglightsource.getDefaultState()
-						&& world.getBlockState(new BlockPos(player.posX, player.posY+1, player.posZ)) == Blocks.AIR.getDefaultState()
+						&& world.getBlockState(new BlockPos(player).up(1)) == Blocks.AIR.getDefaultState()
 						&& !world.isRemote)
-					world.setBlockState(new BlockPos(player.posX, player.posY+1, player.posZ), 
-							ModBlocks.movinglightsource.getDefaultState());
+					world.setBlockState(new BlockPos(player).up(1), ModBlocks.movinglightsource.getDefaultState());
 			}
 		}
 
@@ -734,10 +722,9 @@ public class ItemBlockArmor extends ItemArmor
 		//gives light while sneaking
 		else if (set.block == Blocks.REDSTONE_BLOCK) {
 			if (player.isSneaking()
-					&& world.getBlockState(new BlockPos(player.posX, player.posY+1, player.posZ)) != 
-					ModBlocks.movinglightsource.getDefaultState()
-					&& world.getBlockState(new BlockPos(player.posX, player.posY+1, player.posZ)) == Blocks.AIR.getDefaultState())
-				world.setBlockState(new BlockPos(player.posX, player.posY+1, player.posZ), ModBlocks.movinglightsource.getDefaultState());
+					&& world.getBlockState(new BlockPos(player).up(1)) != ModBlocks.movinglightsource.getDefaultState()
+					&& world.getBlockState(new BlockPos(player).up(1)) == Blocks.AIR.getDefaultState())
+				world.setBlockState(new BlockPos(player).up(1), ModBlocks.movinglightsource.getDefaultState());
 		}
 
 		//Snow
@@ -755,9 +742,7 @@ public class ItemBlockArmor extends ItemArmor
 				for (int x=-radius/2; x<=radius/2; x++)
 					for (int z=-radius/2; z<=radius/2; z++)
 						for (int y=0; y<=2; y++)
-							if (player.canPlayerEdit(new BlockPos(player.posX+x, player.posY+y, player.posZ+z), player.getHorizontalFacing(), new ItemStack(Blocks.DIRT)) 
-									&& world.rand.nextInt(100) == 0 && world.isAirBlock(new BlockPos(player.posX+x, player.posY+y, player.posZ+z)))
-							{
+							if (player.isAllowEdit() && world.rand.nextInt(100) == 0 && world.isAirBlock(new BlockPos(player.posX+x, player.posY+y, player.posZ+z))) {
 								if (world.getBlockState(new BlockPos(player.posX+x, player.posY+y-1, 
 										player.posZ+z)).getBlock().isVisuallyOpaque(world.getBlockState(new BlockPos(player.posX+x, player.posY+y-1, 
 												player.posZ+z))))
@@ -773,8 +758,7 @@ public class ItemBlockArmor extends ItemArmor
 											player.posZ+z), Blocks.FROSTED_ICE.getDefaultState());
 							}
 				//spawn snowballs
-				if (world.rand.nextInt(100) == 0)
-				{
+				if (world.rand.nextInt(100) == 0) {
 					EntityItem item = new EntityItem(world, player.posX+(world.rand.nextDouble()-0.5D)*radius, 
 							player.posY+world.rand.nextDouble()+1.5D, player.posZ+(world.rand.nextDouble()-0.5D)*radius,
 							new ItemStack(Items.SNOWBALL));
@@ -789,8 +773,7 @@ public class ItemBlockArmor extends ItemArmor
 		//Lapis
 		//gives xp for wearing. From lvl 0 to lvl 30 in one real hour (about)
 		else if (!world.isRemote && set.block == Blocks.LAPIS_BLOCK) {
-			if (itemStack.getTagCompound().getInteger("cooldown") <= 0)
-			{
+			if (itemStack.getTagCompound().getInteger("cooldown") <= 0)	{
 				itemStack.getTagCompound().setInteger("cooldown", 50);
 				player.addExperience(1);
 			}
@@ -799,8 +782,7 @@ public class ItemBlockArmor extends ItemArmor
 		//Endstone   
 		//teleports in the direction looking when sneaking
 		else if (!world.isRemote && set.block == Blocks.END_STONE) {
-			if (itemStack.getTagCompound().getInteger("cooldown") <= 0 && player.isSneaking() && !player.capabilities.isFlying)
-			{    
+			if (itemStack.getTagCompound().getInteger("cooldown") <= 0 && player.isSneaking() && !player.capabilities.isFlying)	{    
 				itemStack.getTagCompound().setInteger("cooldown", 50);
 				int distance = player.getRNG().nextInt(10) + 16;
 				double rotX = - Math.sin(player.rotationYaw*Math.PI/180);
@@ -813,23 +795,20 @@ public class ItemBlockArmor extends ItemArmor
 
 				BlockPos pos = new BlockPos(x, y, z);
 				boolean posFound = false;
-				for (int i = 0; i < 128; ++i)
-				{
+				for (int i = 0; i < 128; ++i) {
 					double newX = 8*(world.rand.nextDouble()-0.5D);
 					double newY = 8*(world.rand.nextDouble()-0.5D);
 					double newZ = 8*(world.rand.nextDouble()-0.5D);
 					if (!posFound && player.worldObj.isAirBlock(pos.add(newX, newY, newZ)) 
 							&& player.worldObj.isAirBlock(pos.add(newX, newY+1, newZ)) 
 							&& !player.worldObj.isAirBlock(pos.add(newX, newY-1, newZ)) 
-							&& !(player.worldObj.getBlockState(pos.add(newX, newY-1, newZ)).getBlock() instanceof BlockLiquid)) 
-					{
+							&& !(player.worldObj.getBlockState(pos.add(newX, newY-1, newZ)).getBlock() instanceof BlockLiquid)) {
 						pos = pos.add(newX, newY, newZ);
 						posFound = true;
 						break;
 					}
 				}
-				if (posFound && player.attemptTeleport(pos.getX()+0.5d, pos.getY(), pos.getZ()+0.5d)) //if pos found and can tp
-				{
+				if (posFound && player.attemptTeleport(pos.getX()+0.5d, pos.getY(), pos.getZ()+0.5d)) {//if pos found and can tp
 					if (player.isRiding())
 						player.dismountRidingEntity();
 					world.playSound((EntityPlayer)null, player.posX, player.posY, player.posZ, SoundEvents.ITEM_CHORUS_FRUIT_TELEPORT, SoundCategory.PLAYERS, 1.0F, 1.0F);
@@ -851,21 +830,16 @@ public class ItemBlockArmor extends ItemArmor
 		//Slime
 		//bounces on landing and off walls at high enough speed
 		//--uses StopFallDamageEvent--
-		else if (!player.isSneaking() && set.block == Blocks.SLIME_BLOCK) {	
-			if (world.isRemote)
-			{
+		else if (world.isRemote && !player.isSneaking() && set.block == Blocks.SLIME_BLOCK) {	
 				if (itemStack.getTagCompound().getInteger("cooldown") <= 0 && player.isCollidedHorizontally 
 						&& Math.sqrt(Math.pow(player.posX - player.prevChasingPosX, 2) + 
-								Math.pow(player.posZ - player.prevChasingPosZ, 2)) >= 0.9D)
-				{	
+								Math.pow(player.posZ - player.prevChasingPosZ, 2)) >= 0.9D) {	
 					itemStack.getTagCompound().setInteger("cooldown", 10);
-					if (player.motionX == 0)
-					{
+					if (player.motionX == 0) {
 						player.motionX = -(player.posX - player.prevChasingPosX)*1.5D;
 						player.motionZ = (player.posZ - player.prevChasingPosZ)*1.5D;
 					}
-					else if (player.motionZ == 0)
-					{
+					else if (player.motionZ == 0) {
 						player.motionX = (player.posX - player.prevChasingPosX)*1.5D;
 						player.motionZ = -(player.posZ - player.prevChasingPosZ)*1.5D;
 					}
@@ -873,17 +847,14 @@ public class ItemBlockArmor extends ItemArmor
 					world.playSound(player, player.posX, player.posY, player.posZ, 
 							SoundEvents.BLOCK_SLIME_FALL, SoundCategory.BLOCKS, 1.0F, 1.0F);
 				}
-			}
 		}
 
 		//sugarcane
 		//can breath under water if less than two blocks from surface; speed boost
 		else if (!world.isRemote && set.block == Blocks.REEDS) {
 			if (player.isInWater() && player.ticksExisted % 10 == 0 
-					&& world.getBlockState(new BlockPos(player.posX, player.posY+3, player.posZ)).getBlock() == Blocks.AIR)
-			{
+					&& world.getBlockState(new BlockPos(player).up(3)).getBlock() == Blocks.AIR)
 				player.setAir(300);
-			}
 		}
 	}
 
