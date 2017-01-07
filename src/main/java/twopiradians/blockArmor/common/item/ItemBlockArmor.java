@@ -721,19 +721,13 @@ public class ItemBlockArmor extends ItemArmor
 				for (int x=-radius/2; x<=radius/2; x++)
 					for (int z=-radius/2; z<=radius/2; z++)
 						for (int y=0; y<=2; y++)
-							if (player.isAllowEdit() && world.rand.nextInt(100) == 0 && world.isAirBlock(new BlockPos(player.posX+x, player.posY+y, player.posZ+z))) {
-								if (world.getBlockState(new BlockPos(player.posX+x, player.posY+y-1, 
-										player.posZ+z)).getBlock().isVisuallyOpaque())
-									world.setBlockState(new BlockPos(player.posX+x, player.posY+y, 
-											player.posZ+z), Blocks.SNOW_LAYER.getDefaultState());
-								else if (world.getBlockState(new BlockPos(player.posX+x, player.posY+y-1, 
-										player.posZ+z)).getBlock() == Blocks.WATER)
-									world.setBlockState(new BlockPos(player.posX+x, player.posY+y-1, 
-											player.posZ+z), Blocks.FROSTED_ICE.getDefaultState());
-								else if (world.getBlockState(new BlockPos(player.posX+x, player.posY+y-1, 
-										player.posZ+z)).getBlock() == Blocks.FROSTED_ICE)
-									world.setBlockState(new BlockPos(player.posX+x, player.posY+y-1, 
-											player.posZ+z), Blocks.FROSTED_ICE.getDefaultState());
+							if (player.isAllowEdit() && world.rand.nextInt(100) == 0 && world.isAirBlock(new BlockPos(player).add(x, y, z))) {
+								if (world.getBlockState(new BlockPos(player).add(x, y-1, z)).getBlock().isVisuallyOpaque())
+									world.setBlockState(new BlockPos(player).add(x, y, z), Blocks.SNOW_LAYER.getDefaultState());
+								else if (world.getBlockState(new BlockPos(player).add(x, y-1, z)).getBlock() == Blocks.WATER)
+									world.setBlockState(new BlockPos(player).add(x, y-1, z), Blocks.FROSTED_ICE.getDefaultState());
+								else if (world.getBlockState(new BlockPos(player).add(x, y-1, z)).getBlock() == Blocks.FROSTED_ICE)
+									world.setBlockState(new BlockPos(player).add(x, y-1, z), Blocks.FROSTED_ICE.getDefaultState());
 							}
 				//spawn snowballs
 				if (world.rand.nextInt(100) == 0) {
