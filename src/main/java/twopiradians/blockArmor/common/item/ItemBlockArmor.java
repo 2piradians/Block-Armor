@@ -242,12 +242,16 @@ public class ItemBlockArmor extends ItemArmor
 
 		if (set.hasSetEffect) {
 			tooltip = this.addFullSetEffectTooltip(tooltip);
-			ItemStack feetStack = player.getItemStackFromSlot(EntityEquipmentSlot.FEET);
-			if (!feetStack.hasTagCompound())
-				feetStack.setTagCompound(new NBTTagCompound());
-			int cooldown = feetStack.getTagCompound().getInteger("cooldown");
-			if (ArmorSet.isWearingFullSet(player, set) && cooldown > 0)
-				tooltip.add(TEXT_FORMATTING_SET_EFFECT_EXTRA+"Cooldown: " + (int) Math.ceil(cooldown/20) + " seconds remaining.");
+			if (ArmorSet.isWearingFullSet(player, set)) {
+				ItemStack feetStack = player.getItemStackFromSlot(EntityEquipmentSlot.FEET);
+				if (!feetStack.hasTagCompound())
+					feetStack.setTagCompound(new NBTTagCompound());
+				int cooldown = feetStack.getTagCompound().getInteger("cooldown");
+				if (cooldown > 19)
+					tooltip.add(TEXT_FORMATTING_SET_EFFECT_EXTRA+"Cooldown: " + (int) Math.ceil(cooldown/20d) + " seconds remaining.");
+				else if (cooldown > 0 && cooldown < 20)
+					tooltip.add(TEXT_FORMATTING_SET_EFFECT_EXTRA+"Cooldown: " + (int) Math.ceil(cooldown/20d) + " second remaining.");
+			}			
 		}
 	}
 
@@ -417,8 +421,7 @@ public class ItemBlockArmor extends ItemArmor
 		stack.getTagCompound().setBoolean("isWearing", true);
 
 		int cooldown = stack.getTagCompound().hasKey("cooldown") ? stack.getTagCompound().getInteger("cooldown") : 0;
-		--cooldown;
-		stack.getTagCompound().setInteger("cooldown", cooldown);
+		stack.getTagCompound().setInteger("cooldown", --cooldown);
 
 		if (worldIn instanceof WorldServer)
 			((WorldServer)worldIn).getEntityTracker().updateTrackedEntities();
@@ -459,9 +462,9 @@ public class ItemBlockArmor extends ItemArmor
 		if (set.block == Blocks.PRISMARINE)	{
 			if (player.isInWater() 
 					&& world.getBlockState(new BlockPos(player.posX, player.posY+1.7, player.posZ)).getBlock() instanceof BlockLiquid) { 
-				if (!player.isPotionActive(Potion.getPotionById(16)) 
-						|| (player.isPotionActive(Potion.getPotionById(16))
-								&& player.getActivePotionEffect(Potion.getPotionById(16)).getDuration() < 205))
+				if (!player.isPotionActive(MobEffects.NIGHT_VISION) 
+						|| (player.isPotionActive(MobEffects.NIGHT_VISION)
+								&& player.getActivePotionEffect(MobEffects.NIGHT_VISION).getDuration() < 205))
 					player.addPotionEffect(new PotionEffect(MobEffects.NIGHT_VISION, 210, 0, true, true));
 				try {
 					if (world.isRemote && !((EntityPlayerSP)player).movementInput.jump  && !player.onGround 
@@ -481,11 +484,11 @@ public class ItemBlockArmor extends ItemArmor
 		//changes to normal sponge armor when cooldown is complete
 		if (set.block == Blocks.SPONGE && set.meta == 1) {
 			if (itemStack.getTagCompound().getInteger("cooldown") <= 0) {
-				
+
 				ArmorSet set2 = ArmorSet.getSet(Blocks.SPONGE, 0);
 				EntityEquipmentSlot[] slots = new EntityEquipmentSlot[] {EntityEquipmentSlot.HEAD,
 						EntityEquipmentSlot.CHEST, EntityEquipmentSlot.LEGS, EntityEquipmentSlot.FEET};
-				
+
 				for (EntityEquipmentSlot slot : slots) {
 					ItemStack oldStack = player.getItemStackFromSlot(slot);
 					NBTTagCompound nbt = new NBTTagCompound();
@@ -681,8 +684,8 @@ public class ItemBlockArmor extends ItemArmor
 					world.spawnEntityInWorld(entityArrow);
 					entityArrow.pickupStatus = EntityArrow.PickupStatus.DISALLOWED;
 				}
+				world.playSound((EntityPlayer)null, player.posX, player.posY, player.posZ, SoundEvents.ENTITY_ARROW_SHOOT, SoundCategory.PLAYERS, 1.0F, world.rand.nextFloat() + 0.5f);
 			}
-			world.playSound((EntityPlayer)null, player.posX, player.posY, player.posZ, SoundEvents.ENTITY_ARROW_SHOOT, SoundCategory.PLAYERS, 1.0F, world.rand.nextFloat() + 0.5f);
 		}
 
 		//Cactus
