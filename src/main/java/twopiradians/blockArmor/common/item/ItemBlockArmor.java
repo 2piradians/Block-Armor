@@ -461,7 +461,7 @@ public class ItemBlockArmor extends ItemArmor
 				
 		//dark pris
 		//sink faster in water; respiration, night vision, depth strider in water
-		if (set.block == Blocks.PRISMARINE)	{
+		if (set.block == Blocks.PRISMARINE && set.meta == 2)	{
 			if (player.isInWater() 
 					&& world.getBlockState(new BlockPos(player.posX, player.posY+1.7, player.posZ)).getBlock() instanceof BlockLiquid) { 
 				if (!player.isPotionActive(MobEffects.NIGHT_VISION) 
