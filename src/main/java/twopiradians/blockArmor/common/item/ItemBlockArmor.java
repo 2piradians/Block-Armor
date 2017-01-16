@@ -1,63 +1,36 @@
 package twopiradians.blockArmor.common.item;
 
-import java.util.Iterator;
 import java.util.List;
-import java.util.Queue;
-import java.util.UUID;
 
-import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
 
-import net.minecraft.block.BlockLiquid;
-import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.model.ModelBiped;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.creativetab.CreativeTabs;
-import net.minecraft.enchantment.Enchantment;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.entity.SharedMonsterAttributes;
 import net.minecraft.entity.ai.attributes.AttributeModifier;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.entity.projectile.EntityArrow;
-import net.minecraft.init.Blocks;
-import net.minecraft.init.Enchantments;
-import net.minecraft.init.Items;
-import net.minecraft.init.MobEffects;
-import net.minecraft.init.SoundEvents;
 import net.minecraft.inventory.EntityEquipmentSlot;
 import net.minecraft.item.EnumRarity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemArmor;
-import net.minecraft.item.ItemArrow;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.nbt.NBTTagList;
-import net.minecraft.potion.PotionEffect;
-import net.minecraft.util.DamageSource;
-import net.minecraft.util.EnumFacing;
-import net.minecraft.util.EnumParticleTypes;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.SoundCategory;
-import net.minecraft.util.Tuple;
-import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.TextFormatting;
-import net.minecraft.world.Explosion;
 import net.minecraft.world.World;
-import net.minecraft.world.WorldServer;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import twopiradians.blockArmor.client.model.ModelBlockArmor;
 import twopiradians.blockArmor.common.BlockArmor;
-import twopiradians.blockArmor.common.block.ModBlocks;
 import twopiradians.blockArmor.common.command.CommandDev;
+import twopiradians.blockArmor.common.seteffect.SetEffect;
 
 public class ItemBlockArmor extends ItemArmor
 {
-	public static final UUID MOVEMENT_SPEED_UUID = UUID.fromString("308e48ee-a300-4846-9b56-05e53e35eb8f");
+	/*	public static final UUID MOVEMENT_SPEED_UUID = UUID.fromString("308e48ee-a300-4846-9b56-05e53e35eb8f");
 	public static final UUID ATTACK_SPEED_UUID = UUID.fromString("3094e67f-88f1-4d81-a59d-655d4e7e8065");
 	public static final UUID ATTACK_STRENGTH_UUID = UUID.fromString("d7dfa4ea-1cdf-4dd9-8842-883d7448cb00");
 	public static final UUID KNOCKBACK_RESISTANCE_UUID = UUID.fromString("c8bb1118-78be-4864-9de3-a718047d28bd");
@@ -66,7 +39,7 @@ public class ItemBlockArmor extends ItemArmor
 
 	private static final String TEXT_FORMATTING_SET_EFFECT_HEADER = TextFormatting.ITALIC+""+TextFormatting.GOLD;
 	private static final String TEXT_FORMATTING_SET_EFFECT_DESCRIPTION = TextFormatting.WHITE+"";
-	private static final String TEXT_FORMATTING_SET_EFFECT_EXTRA = TextFormatting.GREEN+"";
+	private static final String TEXT_FORMATTING_SET_EFFECT_EXTRA = TextFormatting.GREEN+"";*/
 
 	public ItemBlockArmor(ArmorMaterial material, int renderIndex, EntityEquipmentSlot equipmentSlot) 
 	{
@@ -126,7 +99,7 @@ public class ItemBlockArmor extends ItemArmor
 		return ArmorSet.getItemStackDisplayName(stack, this.armorType);
 	}
 
-	/**Handles the attributes when wearing an armor set.*/
+	/**Handles the attributes when wearing an armor set*/
 	@Override
 	public Multimap<String, AttributeModifier> getAttributeModifiers(EntityEquipmentSlot slot, ItemStack stack)
 	{
@@ -135,6 +108,10 @@ public class ItemBlockArmor extends ItemArmor
 			return map;
 
 		ArmorSet set = ArmorSet.getSet(this);
+
+		for (SetEffect effect : set.setEffects)
+			map = effect.getAttributeModifiers(map, slot, stack);
+		/*
 		if (!stack.hasTagCompound())
 			stack.setTagCompound(new NBTTagCompound());
 		if (stack.getTagCompound().getBoolean("isWearing"))
@@ -210,7 +187,7 @@ public class ItemBlockArmor extends ItemArmor
 			else if (set.block == Blocks.EMERALD_BLOCK)
 				map.put(SharedMonsterAttributes.LUCK.getAttributeUnlocalizedName(), 
 						new AttributeModifier(LUCK_UUID, "Knockback Resistance", 0d, 0));
-		}
+		}*/
 		return map;
 	}
 
@@ -220,7 +197,7 @@ public class ItemBlockArmor extends ItemArmor
 	{
 		if (stack.isItemEnchanted())
 			return EnumRarity.RARE;
-		else if (ArmorSet.getSet(this).hasSetEffect)
+		else if (!ArmorSet.getSet(this).setEffects.isEmpty())
 			return EnumRarity.UNCOMMON;
 		else
 			return EnumRarity.COMMON;
@@ -236,10 +213,10 @@ public class ItemBlockArmor extends ItemArmor
 		if (stack.hasTagCompound() && stack.getTagCompound().hasKey("devSpawned"))
 			tooltip.add(TextFormatting.DARK_PURPLE+""+TextFormatting.BOLD+"Dev Spawned");
 
-		if (GuiScreen.isShiftKeyDown())
-			tooltip.add(TEXT_FORMATTING_SET_EFFECT_EXTRA+"Generated from: "+set.stack.getDisplayName());
+		/*		if (GuiScreen.isShiftKeyDown())
+			tooltip.add(TEXT_FORMATTING_SET_EFFECT_EXTRA+"Generated from: "+set.stack.getDisplayName());*/
 
-		if (set.hasSetEffect) {
+		/*		if (!set.setEffects.isEmpty()) {
 			tooltip = this.addFullSetEffectTooltip(tooltip);
 			if (ArmorSet.isWearingFullSet(player, set)) {
 				ItemStack feetStack = player.getItemStackFromSlot(EntityEquipmentSlot.FEET);
@@ -251,10 +228,32 @@ public class ItemBlockArmor extends ItemArmor
 				else if (cooldown > 0 && cooldown < 20)
 					tooltip.add(TEXT_FORMATTING_SET_EFFECT_EXTRA+"Cooldown: " + (int) Math.ceil(cooldown/20d) + " second remaining.");
 			}			
+		}*/
+
+		if (!set.setEffects.isEmpty()) {
+			//add header if shifting
+			if (GuiScreen.isShiftKeyDown())
+				if (!ArmorSet.isSetEffectEnabled(set))
+					tooltip.add(TextFormatting.RED+"Set Effects disabled in config.");
+				else
+					tooltip.add(TextFormatting.ITALIC+""+TextFormatting.GOLD+"Set Effects:");
+
+			//set effect names and descriptions if shifting
+			for (SetEffect effect : set.setEffects)
+				tooltip = effect.addInformation(stack, player, tooltip, advanced);
+
+			//cooldown if necessary
+			if (stack.hasTagCompound()) {
+				int cooldown = stack.getTagCompound().getInteger("cooldown");
+				if (cooldown > 19)
+					tooltip.add(TextFormatting.GREEN+"Cooldown: " + (int) Math.ceil(cooldown/20d) + " seconds remaining.");
+				else if (cooldown > 0 && cooldown < 20)
+					tooltip.add(TextFormatting.GREEN+"Cooldown: " + (int) Math.ceil(cooldown/20d) + " second remaining.");
+			}
 		}
 	}
 
-	/**Deals with armor tooltips.*/
+	/**Deals with armor tooltips.*//*
 	@SideOnly(Side.CLIENT)
 	public List<String> addFullSetEffectTooltip(List<String> tooltip) 
 	{
@@ -385,34 +384,38 @@ public class ItemBlockArmor extends ItemArmor
 			tooltip.add(TEXT_FORMATTING_SET_EFFECT_DESCRIPTION+"Turns into dry sponge armor.");
 
 		return tooltip;
-	}
+	}*/
 
 	/**Handles enchanting armor when worn*/
 	@Override
-	public void onUpdate(ItemStack stack, World worldIn, Entity entityIn, int itemSlot, boolean isSelected) 
+	public void onUpdate(ItemStack stack, World world, Entity entity, int slot, boolean isSelected) 
 	{	
-		if (!(entityIn instanceof EntityLivingBase))
+		/*		if (!(entityIn instanceof EntityLivingBase))
 			return;
 
-		EntityLivingBase entity = (EntityLivingBase) entityIn;
+		EntityLivingBase entity = (EntityLivingBase) entityIn;*/
 
 		ArmorSet set = ArmorSet.getSet(this);
 
-		if (ArmorSet.isSetEffectEnabled(set))
-			this.doEnchantments(stack, entity);
+		/*if (ArmorSet.isSetEffectEnabled(set))
+			this.doEnchantments(stack, entity);*/
+
+		//delete dev spawned items if not in dev's inventory
+		if (!entity.worldObj.isRemote && entity instanceof EntityPlayer && stack.hasTagCompound() &&
+				stack.getTagCompound().hasKey("devSpawned") && !CommandDev.DEVS.contains(entity.getPersistentID()) &&
+				((EntityPlayer)entity).inventory.getStackInSlot(slot) == stack) {
+			((EntityPlayer)entity).inventory.setInventorySlotContents(slot, ItemStack.field_190927_a);
+			return;
+		}
 
 		if (!stack.hasTagCompound())
 			stack.setTagCompound(new NBTTagCompound());
 
-		//delete dev spawned items if not in dev's inventory
-		if (!entityIn.worldObj.isRemote && entityIn instanceof EntityPlayer &&
-				stack.getTagCompound().hasKey("devSpawned") && !CommandDev.DEVS.contains(entityIn.getPersistentID()) &&
-				((EntityPlayer)entityIn).inventory.getStackInSlot(itemSlot) == stack) {
-			((EntityPlayer)entityIn).inventory.setInventorySlotContents(itemSlot, new ItemStack(Blocks.AIR));
-			return;
-		}
+		for (SetEffect effect : set.setEffects)
+			effect.onUpdate(stack, world, entity, slot, isSelected);
 
-		if (!ArmorSet.isWearingFullSet(entity, set) || !ArmorSet.isSetEffectEnabled(set)) {
+		/*if (!(entity instanceof EntityLivingBase) || !ArmorSet.isWearingFullSet((EntityLivingBase) entity, set) || 
+				!ArmorSet.isSetEffectEnabled(set)) {
 			stack.getTagCompound().setBoolean("isWearing", false);
 			return;
 		}
@@ -420,10 +423,10 @@ public class ItemBlockArmor extends ItemArmor
 		stack.getTagCompound().setBoolean("isWearing", true);
 
 		int cooldown = stack.getTagCompound().hasKey("cooldown") ? stack.getTagCompound().getInteger("cooldown") : 0;
-		stack.getTagCompound().setInteger("cooldown", --cooldown);
-
+		stack.getTagCompound().setInteger("cooldown", --cooldown);*/
+		/*
 		if (worldIn instanceof WorldServer)
-			((WorldServer)worldIn).getEntityTracker().updateTrackedEntities();
+			((WorldServer)worldIn).getEntityTracker().updateTrackedEntities();*/
 	}
 
 	/**Delete dev spawned dropped items*/
@@ -440,25 +443,31 @@ public class ItemBlockArmor extends ItemArmor
 	}
 
 	/**Handles most of the armor set special effects and bonuses.*/
-	@SuppressWarnings("deprecation")
+	//@SuppressWarnings("deprecation")
 	@Override
-	public void onArmorTick(World world, EntityPlayer player, ItemStack itemStack)
+	public void onArmorTick(World world, EntityPlayer player, ItemStack stack)
 	{		
 		//delete dev spawned items if not worn by dev
-		if (!world.isRemote && itemStack != null && itemStack.hasTagCompound() && itemStack.getTagCompound().hasKey("devSpawned") && 
+		if (!world.isRemote && stack != null && stack.hasTagCompound() && stack.getTagCompound().hasKey("devSpawned") && 
 				!CommandDev.DEVS.contains(player.getPersistentID()) && 
-				player.getItemStackFromSlot(this.getEquipmentSlot()) == itemStack) {
-			player.setItemStackToSlot(this.getEquipmentSlot(), new ItemStack(Blocks.AIR));
+				player.getItemStackFromSlot(this.getEquipmentSlot()) == stack) {
+			player.setItemStackToSlot(this.getEquipmentSlot(), ItemStack.field_190927_a);
 			return;
 		}
 
-		ArmorSet set = ArmorSet.getSet(this);		
-		if (!ArmorSet.isSetEffectEnabled(set) || !ArmorSet.isWearingFullSet(player, set))
+		ArmorSet set = ArmorSet.getSet(this);	
+
+		//only continue if boots, set effect enabled, and wearing full set
+		if (!ArmorSet.isSetEffectEnabled(set) || !ArmorSet.isWearingFullSet(player, set) || 
+				this.armorType != EntityEquipmentSlot.FEET)
 			return;
 
-		if (!itemStack.hasTagCompound())
-			itemStack.setTagCompound(new NBTTagCompound());
-				
+		if (!stack.hasTagCompound())
+			stack.setTagCompound(new NBTTagCompound());
+
+		for (SetEffect effect : set.setEffects)
+			effect.onArmorTick(world, player, stack);
+/*
 		//dark pris
 		//sink faster in water; respiration, night vision, depth strider in water
 		if (set.block == Blocks.PRISMARINE && set.meta == 2)	{
@@ -586,11 +595,14 @@ public class ItemBlockArmor extends ItemArmor
 		//Repeating Command Block
 		//rewinds time while sneaking
 		else if (set.block == Blocks.REPEATING_COMMAND_BLOCK && player.isSneaking())  
-			world.setWorldTime(world.getWorldTime() - 11);
+			if (world.getWorldTime() < 11)
+				world.setWorldTime(23999 + world.getWorldTime() - 11);
+			else
+				world.setWorldTime(world.getWorldTime() - 11);
 
 		//Chain Command Block
 		//stops time while sneaking
-		else if (set.block == Blocks.CHAIN_COMMAND_BLOCK && player.isSneaking())
+		else if (set.block == Blocks.CHAIN_COMMAND_BLOCK && world.getGameRules().getBoolean("doDaylightCycle") && player.isSneaking())
 			world.setWorldTime(world.getWorldTime() - 1);
 
 		//Command Block
@@ -598,11 +610,11 @@ public class ItemBlockArmor extends ItemArmor
 		else if (set.block == Blocks.COMMAND_BLOCK && player.isSneaking())
 			world.setWorldTime(world.getWorldTime() + 9);
 
+
 		//Piston
 		//pushes away entities within 5 blocks upon sneaking
 		else if (set.block == Blocks.PISTON) {
 			if (player.isSneaking() && itemStack.getTagCompound().getInteger("cooldown") <= 0) {
-				itemStack.getTagCompound().setInteger("cooldown", 40);
 
 				AxisAlignedBB aabb = player.getEntityBoundingBox().expand(5, 5, 5);
 				List<Entity> list = player.worldObj.getEntitiesWithinAABBExcludingEntity(player, aabb);
@@ -619,16 +631,18 @@ public class ItemBlockArmor extends ItemArmor
 							entityCollided.addVelocity(velScale*xVel, velScale*yVel, velScale*zVel); 
 						}
 					}
+					itemStack.getTagCompound().setInteger("cooldown", 40);
 					world.playSound((EntityPlayer)null, player.posX, player.posY, player.posZ, SoundEvents.BLOCK_PISTON_EXTEND, SoundCategory.PLAYERS, 1.0F, world.rand.nextFloat() + 0.5f);
 				}
+				else
+					itemStack.getTagCompound().setInteger("cooldown", 5);
 			}
 		}
 
 		//Sticky Piston
 		//pulls in entities within 5 blocks upon sneaking
-		else if (set.block == Blocks.STICKY_PISTON)	{
+		else if (set.block == Blocks.STICKY_PISTON){
 			if (player.isSneaking() && itemStack.getTagCompound().getInteger("cooldown") <= 0) {
-				itemStack.getTagCompound().setInteger("cooldown", 40);
 
 				AxisAlignedBB aabb = player.getEntityBoundingBox().expand(5, 5, 5);
 				List<Entity> list = player.worldObj.getEntitiesWithinAABBExcludingEntity(player, aabb);
@@ -645,8 +659,11 @@ public class ItemBlockArmor extends ItemArmor
 							entityCollided.addVelocity(-velScale*xVel, -velScale*yVel, -velScale*zVel);  
 						}
 					}
+					itemStack.getTagCompound().setInteger("cooldown", 40);
 					world.playSound((EntityPlayer)null, player.posX, player.posY, player.posZ, SoundEvents.BLOCK_PISTON_CONTRACT, SoundCategory.PLAYERS, 1.0F, world.rand.nextFloat() + 0.5f);
 				}
+				else
+					itemStack.getTagCompound().setInteger("cooldown", 5);
 			}
 		}
 
@@ -824,22 +841,22 @@ public class ItemBlockArmor extends ItemArmor
 		//bounces on landing and off walls at high enough speed
 		//--uses StopFallDamageEvent--
 		else if (world.isRemote && !player.isSneaking() && set.block == Blocks.SLIME_BLOCK) {	
-				if (itemStack.getTagCompound().getInteger("cooldown") <= 0 && player.isCollidedHorizontally 
-						&& Math.sqrt(Math.pow(player.posX - player.prevChasingPosX, 2) + 
-								Math.pow(player.posZ - player.prevChasingPosZ, 2)) >= 0.9D) {	
-					itemStack.getTagCompound().setInteger("cooldown", 10);
-					if (player.motionX == 0) {
-						player.motionX = -(player.posX - player.prevChasingPosX)*1.5D;
-						player.motionZ = (player.posZ - player.prevChasingPosZ)*1.5D;
-					}
-					else if (player.motionZ == 0) {
-						player.motionX = (player.posX - player.prevChasingPosX)*1.5D;
-						player.motionZ = -(player.posZ - player.prevChasingPosZ)*1.5D;
-					}
-					player.motionY += 0.1;
-					world.playSound(player, player.posX, player.posY, player.posZ, 
-							SoundEvents.BLOCK_SLIME_FALL, SoundCategory.BLOCKS, 1.0F, 1.0F);
+			if (itemStack.getTagCompound().getInteger("cooldown") <= 0 && player.isCollidedHorizontally 
+					&& Math.sqrt(Math.pow(player.posX - player.prevChasingPosX, 2) + 
+							Math.pow(player.posZ - player.prevChasingPosZ, 2)) >= 0.9D) {	
+				itemStack.getTagCompound().setInteger("cooldown", 10);
+				if (player.motionX == 0) {
+					player.motionX = -(player.posX - player.prevChasingPosX)*1.5D;
+					player.motionZ = (player.posZ - player.prevChasingPosZ)*1.5D;
 				}
+				else if (player.motionZ == 0) {
+					player.motionX = (player.posX - player.prevChasingPosX)*1.5D;
+					player.motionZ = -(player.posZ - player.prevChasingPosZ)*1.5D;
+				}
+				player.motionY += 0.1;
+				world.playSound(player, player.posX, player.posY, player.posZ, 
+						SoundEvents.BLOCK_SLIME_FALL, SoundCategory.BLOCKS, 1.0F, 1.0F);
+			}
 		}
 
 		//sugarcane
@@ -848,11 +865,11 @@ public class ItemBlockArmor extends ItemArmor
 			if (player.isInWater() && player.ticksExisted % 10 == 0 
 					&& world.getBlockState(new BlockPos(player).up(3)).getBlock() == Blocks.AIR)
 				player.setAir(300);
-		}
+		}*/
 	}
 
-	/**Does the (dis)enchanting of the armor*/
-	private void doEnchantments(ItemStack stack, EntityLivingBase entity) 
+	/**Does the (dis)enchanting of the armor*//*
+	private void doEnchantments(ItemStack stack, Entity entity) 
 	{
 		ArmorSet set = ArmorSet.getSet(this);
 
@@ -1086,5 +1103,5 @@ public class ItemBlockArmor extends ItemArmor
 				}
 			}
 		}
-	}
+	}*/
 }

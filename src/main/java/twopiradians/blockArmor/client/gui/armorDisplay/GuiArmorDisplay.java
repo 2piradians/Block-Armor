@@ -15,7 +15,6 @@ import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.EnumCreatureAttribute;
 import net.minecraft.entity.SharedMonsterAttributes;
 import net.minecraft.entity.ai.attributes.AttributeModifier;
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.EntityEquipmentSlot;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagList;
@@ -27,6 +26,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import twopiradians.blockArmor.common.BlockArmor;
 import twopiradians.blockArmor.common.item.ArmorSet;
 import twopiradians.blockArmor.common.item.ItemBlockArmor;
+import twopiradians.blockArmor.common.seteffect.SetEffect;
 
 @SuppressWarnings({"deprecation", "unused"})
 @SideOnly(Side.CLIENT)
@@ -47,7 +47,7 @@ public class GuiArmorDisplay extends GuiScreen
 		for (ArmorSet set : ArmorSet.allSets)
 			if ((BlockArmor.GUI_MODE == 0 && !set.isFromModdedBlock) ||
 					(BlockArmor.GUI_MODE == 1 && set.isFromModdedBlock) || 
-					(BlockArmor.GUI_MODE == 2 && set.hasSetEffect)) {
+					(BlockArmor.GUI_MODE == 2 && !set.setEffects.isEmpty())) {
 				boolean add = true;
 				for (ItemStack stack : ArmorSet.disabledItems)
 					if (stack.getItem() == set.helmet)
@@ -157,7 +157,7 @@ public class GuiArmorDisplay extends GuiScreen
 				int length = 0;
 				ArrayList<String> tooltip = new ArrayList<String>();
 				tooltip.add(TextFormatting.AQUA+""+TextFormatting.UNDERLINE+stack.getDisplayName().replace("Helmet", "Armor"));
-				armors.get(index).addFullSetEffectTooltip(tooltip);
+				//armors.get(index).addFullSetEffectTooltip(tooltip);
 				this.addStatTooltips(tooltip, new ItemStack[] {helmet, chestplate, leggings, boots});
 				for (String string : tooltip)
 					if (this.fontRendererObj.getStringWidth(string) > length)
@@ -206,13 +206,13 @@ public class GuiArmorDisplay extends GuiScreen
 					AttributeModifier attributemodifier = (AttributeModifier)entry.getValue();
 					double d0 = attributemodifier.getAmount();
 					flag = false;
-					if (attributemodifier.getID() == ItemBlockArmor.ATTACK_STRENGTH_UUID)
+					if (attributemodifier.getID() == SetEffect.ATTACK_STRENGTH_UUID)
 					{
 						d0 = d0 + guiPlayer.getEntityAttribute(SharedMonsterAttributes.ATTACK_DAMAGE).getBaseValue();
 						d0 = d0 + (double)EnchantmentHelper.getModifierForCreature(armor[0], EnumCreatureAttribute.UNDEFINED);
 						flag = true;
 					}
-					else if (attributemodifier.getID() == ItemBlockArmor.ATTACK_SPEED_UUID)
+					else if (attributemodifier.getID() == SetEffect.ATTACK_SPEED_UUID)
 					{
 						d0 += guiPlayer.getEntityAttribute(SharedMonsterAttributes.ATTACK_SPEED).getBaseValue();
 						flag = true;

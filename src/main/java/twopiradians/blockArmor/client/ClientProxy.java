@@ -17,7 +17,10 @@ import net.minecraftforge.client.model.ModelLoaderRegistry;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.fml.common.Loader;
+import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLLoadCompleteEvent;
+import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
+import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 import net.minecraftforge.fml.relauncher.Side;
@@ -40,18 +43,21 @@ public class ClientProxy extends CommonProxy
 	private boolean sendDisablePacket;
 
 	@Override
-	public void preInit() {
+	public void preInit(FMLPreInitializationEvent event) {
+		super.preInit(event);
 		ModelLoaderRegistry.registerLoader(ModelDynBlockArmor.LoaderDynBlockArmor.INSTANCE);
 	}
 
 	@Override
-	public void init() {
+	public void init(FMLInitializationEvent event) {
+		super.init(event);
 		MinecraftForge.EVENT_BUS.register(this);
 		MinecraftForge.EVENT_BUS.register(new OpenGuiEvent());
 	}
 
 	@Override
-	public void postInit() {
+	public void postInit(FMLPostInitializationEvent event) {
+		super.postInit(event);
 		ModBlocks.registerRenders();
 		ModItems.registerRenders();
 	}

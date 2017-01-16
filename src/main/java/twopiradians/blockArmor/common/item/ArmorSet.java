@@ -45,6 +45,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import twopiradians.blockArmor.common.BlockArmor;
 import twopiradians.blockArmor.common.command.CommandDev;
 import twopiradians.blockArmor.common.config.Config;
+import twopiradians.blockArmor.common.seteffect.SetEffect;
 
 @SuppressWarnings({ "deprecation", "serial" })
 public class ArmorSet {
@@ -57,48 +58,48 @@ public class ArmorSet {
 	public static final ArrayList<ArmorSet> MANUALLY_ADDED_SETS;
 	static {
 		MANUALLY_ADDED_SETS = new ArrayList<ArmorSet>() {{
-			add(new ArmorSet(new ItemStack(Blocks.BEDROCK, 1, 0), true));
-			add(new ArmorSet(new ItemStack(Blocks.REDSTONE_BLOCK, 1, 0), true));
-			add(new ArmorSet(new ItemStack(Blocks.LAPIS_BLOCK, 1, 0), true));
-			add(new ArmorSet(new ItemStack(Blocks.EMERALD_BLOCK, 1, 0), true));
-			add(new ArmorSet(new ItemStack(Blocks.OBSIDIAN, 1, 0), true));
-			add(new ArmorSet(new ItemStack(Blocks.NETHERRACK, 1, 0), true));
-			add(new ArmorSet(new ItemStack(Blocks.SNOW, 1, 0), true));
-			add(new ArmorSet(new ItemStack(Blocks.END_STONE, 1, 0), true));
-			add(new ArmorSet(new ItemStack(Blocks.SLIME_BLOCK, 1, 0), true));
-			add(new ArmorSet(new ItemStack(Items.REEDS, 1, 0), true));
-			add(new ArmorSet(new ItemStack(Blocks.PRISMARINE, 1, 0), true));
-			add(new ArmorSet(new ItemStack(Blocks.PRISMARINE, 1, 1), true));
-			add(new ArmorSet(new ItemStack(Blocks.PRISMARINE, 1, 2), true));
-			add(new ArmorSet(new ItemStack(Blocks.BRICK_BLOCK, 1, 0), true));
-			add(new ArmorSet(new ItemStack(Blocks.QUARTZ_BLOCK, 1, 0), true));
-			add(new ArmorSet(new ItemStack(Blocks.CACTUS, 1, 0), true));
-			add(new ArmorSet(new ItemStack(Blocks.DISPENSER, 1, 0), true));
-			add(new ArmorSet(new ItemStack(Blocks.BEACON, 1, 0), true));
-			add(new ArmorSet(new ItemStack(Blocks.TNT, 1, 0), true));
-			add(new ArmorSet(new ItemStack(Blocks.PISTON, 1, 0), true));
-			add(new ArmorSet(new ItemStack(Blocks.STICKY_PISTON, 1, 0), true));
-			add(new ArmorSet(new ItemStack(Blocks.FURNACE, 1, 0), true));
-			add(new ArmorSet(new ItemStack(Blocks.SPONGE, 1, 0), true));
-			add(new ArmorSet(new ItemStack(Blocks.SPONGE, 1, 1), true));
+			add(new ArmorSet(new ItemStack(Blocks.BEDROCK, 1, 0)));
+			add(new ArmorSet(new ItemStack(Blocks.REDSTONE_BLOCK, 1, 0)));
+			add(new ArmorSet(new ItemStack(Blocks.LAPIS_BLOCK, 1, 0)));
+			add(new ArmorSet(new ItemStack(Blocks.EMERALD_BLOCK, 1, 0)));
+			add(new ArmorSet(new ItemStack(Blocks.OBSIDIAN, 1, 0)));
+			add(new ArmorSet(new ItemStack(Blocks.NETHERRACK, 1, 0)));
+			add(new ArmorSet(new ItemStack(Blocks.SNOW, 1, 0)));
+			add(new ArmorSet(new ItemStack(Blocks.END_STONE, 1, 0)));
+			add(new ArmorSet(new ItemStack(Blocks.SLIME_BLOCK, 1, 0)));
+			add(new ArmorSet(new ItemStack(Items.REEDS, 1, 0)));
+			add(new ArmorSet(new ItemStack(Blocks.PRISMARINE, 1, 0)));
+			add(new ArmorSet(new ItemStack(Blocks.PRISMARINE, 1, 1)));
+			add(new ArmorSet(new ItemStack(Blocks.PRISMARINE, 1, 2)));
+			add(new ArmorSet(new ItemStack(Blocks.BRICK_BLOCK, 1, 0)));
+			add(new ArmorSet(new ItemStack(Blocks.QUARTZ_BLOCK, 1, 0)));
+			add(new ArmorSet(new ItemStack(Blocks.CACTUS, 1, 0)));
+			add(new ArmorSet(new ItemStack(Blocks.DISPENSER, 1, 0)));
+			add(new ArmorSet(new ItemStack(Blocks.BEACON, 1, 0)));
+			add(new ArmorSet(new ItemStack(Blocks.TNT, 1, 0)));
+			add(new ArmorSet(new ItemStack(Blocks.PISTON, 1, 0)));
+			add(new ArmorSet(new ItemStack(Blocks.STICKY_PISTON, 1, 0)));
+			add(new ArmorSet(new ItemStack(Blocks.FURNACE, 1, 0)));
+			add(new ArmorSet(new ItemStack(Blocks.SPONGE, 1, 0)));
+			add(new ArmorSet(new ItemStack(Blocks.SPONGE, 1, 1)));
 			
 			//Sets to get effects
-			add(new ArmorSet(new ItemStack(Blocks.ENCHANTING_TABLE, 1, 0), false));
-			add(new ArmorSet(new ItemStack(Blocks.CRAFTING_TABLE, 1, 0), false));
+			add(new ArmorSet(new ItemStack(Blocks.ENCHANTING_TABLE, 1, 0)));
+			add(new ArmorSet(new ItemStack(Blocks.CRAFTING_TABLE, 1, 0)));
 		//	add(new ArmorSet(new ItemStack(Blocks.CHEST, 1, 0), true));
 			
 			//Creative only sets with effects
-			add(new ArmorSet(new ItemStack(Blocks.COMMAND_BLOCK, 1, 0), true));
-			add(new ArmorSet(new ItemStack(Blocks.CHAIN_COMMAND_BLOCK, 1, 0), true));
-			add(new ArmorSet(new ItemStack(Blocks.REPEATING_COMMAND_BLOCK, 1, 0), true));
+			add(new ArmorSet(new ItemStack(Blocks.COMMAND_BLOCK, 1, 0)));
+			add(new ArmorSet(new ItemStack(Blocks.CHAIN_COMMAND_BLOCK, 1, 0)));
+			add(new ArmorSet(new ItemStack(Blocks.REPEATING_COMMAND_BLOCK, 1, 0)));
 		
 		//	add(new ArmorSet(new ItemStack(Blocks.LAVA, 1, 0), true));
 		//	add(new ArmorSet(new ItemStack(Blocks.WATER, 1, 0), true));
 
 			//Manual Sets with no effects
-			add(new ArmorSet(new ItemStack(Blocks.BROWN_MUSHROOM_BLOCK, 1, 0), false));
-			add(new ArmorSet(new ItemStack(Blocks.RED_MUSHROOM_BLOCK, 1, 0), false));
-			add(new ArmorSet(new ItemStack(Blocks.DROPPER, 1, 0), false));
+			add(new ArmorSet(new ItemStack(Blocks.BROWN_MUSHROOM_BLOCK, 1, 0)));
+			add(new ArmorSet(new ItemStack(Blocks.RED_MUSHROOM_BLOCK, 1, 0)));
+			add(new ArmorSet(new ItemStack(Blocks.DROPPER, 1, 0)));
 		}};
 	}
 	/**Armor set items that are missing textures that should be disabled*/
@@ -109,12 +110,12 @@ public class ArmorSet {
 	public int meta;
 	public Block block;
 	public ArmorMaterial material;      
-	public boolean hasSetEffect;
 	public ItemBlockArmor helmet;
 	public ItemBlockArmor chestplate;
 	public ItemBlockArmor leggings;
 	public ItemBlockArmor boots;
 	public boolean isFromModdedBlock;
+	public ArrayList<SetEffect> setEffects;
 
 	@SideOnly(Side.CLIENT)
 	public boolean isTranslucent;
@@ -134,7 +135,7 @@ public class ArmorSet {
 	@SideOnly(Side.CLIENT)
 	private static TextureAtlasSprite missingSprite;
 
-	public ArmorSet(ItemStack stack, boolean hasSetEffect) {
+	public ArmorSet(ItemStack stack) {
 		this.stack = stack;
 		this.item = stack.getItem();
 		try {
@@ -150,9 +151,6 @@ public class ArmorSet {
 			this.block = Blocks.REEDS;
 		else
 			this.block = ((ItemBlock) item).getBlock();
-		this.hasSetEffect = hasSetEffect;
-		if (hasSetEffect)
-			setsWithEffects.put(this, true);
 		//calculate values for and set material
 		float blockHardness = 0; 
 		double durability = 5;
@@ -234,7 +232,7 @@ public class ArmorSet {
 			if (isValid(stack) && ArmorSet.getSet(stack.getItem(), stack.getMetadata()) == null) {
 				String registryName = getItemStackRegistryName(stack);
 				if (!registryNames.contains(registryName) && !registryName.equals("")) {
-					allSets.add(new ArmorSet(stack, false));
+					allSets.add(new ArmorSet(stack));
 					registryNames.add(registryName);
 					BlockArmor.logger.debug("Created ArmorSet for: "+stack.getDisplayName());
 				}
@@ -382,7 +380,7 @@ public class ArmorSet {
 
 	/**Returns true if the set has a set effect and is enabled in Config*/
 	public static boolean isSetEffectEnabled(ArmorSet set) {
-		if (set == null || !set.hasSetEffect || Config.setEffects == 1)
+		if (set == null || set.setEffects.isEmpty() || Config.setEffects == 1)
 			return false;
 		if (setsWithEffects.get(set) || Config.setEffects == 0)
 			return true;
