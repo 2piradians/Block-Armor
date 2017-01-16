@@ -37,6 +37,7 @@ public class SetEffect {
 	/**List of all set effects*/
 	public static final ArrayList<SetEffect> SET_EFFECTS = new ArrayList<SetEffect> () {{
 		add(new SetEffectInvisibility());
+		add(new SetEffectIlluminated(0));
 	}};
 	/**Does set effect require button to activate*/
 	protected boolean usesButton;
@@ -46,7 +47,7 @@ public class SetEffect {
 	protected String description;
 	/**Potion effects that will be applied in onArmorTick*/
 	protected ArrayList<PotionEffect> potionEffects = new ArrayList<PotionEffect>();
-
+	
 	/**Goes through allSets and assigns set effects to appropriate sets*/
 	public static void postInit() {
 		for (ArmorSet set : ArmorSet.allSets) {
@@ -57,7 +58,7 @@ public class SetEffect {
 				if (effect.isValid(set.block) && !(effect.usesButton && hasEffectWithButton)) {
 					if (effect.usesButton)
 						hasEffectWithButton = true;
-					set.setEffects.add(effect);
+					set.setEffects.add(effect.create(set.block));
 				}
 			if (!set.setEffects.isEmpty()) {
 				ArmorSet.setsWithEffects.put(set, true);
@@ -74,6 +75,11 @@ public class SetEffect {
 				return true;
 
 		return false;
+	}
+	
+	/**Can be overwritten to return a new instance depending on the given block*/
+	protected SetEffect create(Block block) {
+		return this;
 	}
 	
 	/**Should block be given this set effect*/
