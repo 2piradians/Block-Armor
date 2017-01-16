@@ -24,8 +24,9 @@ import twopiradians.blockArmor.common.item.ArmorSet;
 import twopiradians.blockArmor.common.item.ModItems;
 import twopiradians.blockArmor.common.seteffect.SetEffect;
 import twopiradians.blockArmor.common.tileentity.ModTileEntities;
-import twopiradians.blockArmor.packets.DevColorsPacket;
-import twopiradians.blockArmor.packets.DisableItemsPacket;
+import twopiradians.blockArmor.packet.PacketActivateSetEffect;
+import twopiradians.blockArmor.packet.PacketDevColors;
+import twopiradians.blockArmor.packet.PacketDisableItems;
 
 public class CommonProxy 
 {
@@ -51,8 +52,9 @@ public class CommonProxy
 	
 	private void registerPackets() {
 		int id = 0;
-		BlockArmor.network.registerMessage(DisableItemsPacket.Handler.class, DisableItemsPacket.class, id++, Side.SERVER);
-		BlockArmor.network.registerMessage(DevColorsPacket.Handler.class, DevColorsPacket.class, id++, Side.CLIENT);
+		BlockArmor.network.registerMessage(PacketDisableItems.Handler.class, PacketDisableItems.class, id++, Side.SERVER);
+		BlockArmor.network.registerMessage(PacketDevColors.Handler.class, PacketDevColors.class, id++, Side.CLIENT);
+		BlockArmor.network.registerMessage(PacketActivateSetEffect.Handler.class, PacketActivateSetEffect.class, id++, Side.SERVER);
 	}
 	
 	private void registerEventListeners() {
@@ -78,7 +80,7 @@ public class CommonProxy
 	public void playerJoin(PlayerLoggedInEvent event)
 	{
 		if (!event.player.worldObj.isRemote && event.player instanceof EntityPlayerMP)
-			BlockArmor.network.sendTo(new DevColorsPacket(), (EntityPlayerMP) event.player);
+			BlockArmor.network.sendTo(new PacketDevColors(), (EntityPlayerMP) event.player);
 	}
 	
 	public Object getBlockArmorModel(int height, int width, int currentFrame, int nextFrame, EntityEquipmentSlot slot) {

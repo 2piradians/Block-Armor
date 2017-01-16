@@ -3,9 +3,11 @@ package twopiradians.blockArmor.common.seteffect;
 import net.minecraft.block.Block;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.EnumSkyBlock;
 import net.minecraft.world.World;
+import twopiradians.blockArmor.common.BlockArmor;
 import twopiradians.blockArmor.common.block.BlockMovingLightSource;
 import twopiradians.blockArmor.common.block.ModBlocks;
 
@@ -18,17 +20,28 @@ public class SetEffectIlluminated extends SetEffect {
 		this.lightLevel = Math.min(lightLevel, 15);
 		this.color = TextFormatting.GOLD;
 		this.description = "Produces light level "+this.lightLevel;
+		this.usesButton = true;
+		this.hasCooldown = true;
 	}
 
 	@Override
 	public void onArmorTick(World world, EntityPlayer player, ItemStack stack) {
 		super.onArmorTick(world, player, stack);
 
-		if (world.isRemote && world.getLightFor(EnumSkyBlock.BLOCK, player.getPosition().up()) < lightLevel) {
+		if (!world.isRemote && BlockArmor.key.isKeyPressed && stack.getTagCompound().getInteger("cooldown") <= 0) {
+			boolean deactivated = !stack.getTagCompound().getBoolean("deactivated");
+			stack.getTagCompound().setBoolean("deactivated", deactivated);
+			player.addChatMessage(new TextComponentTranslation(TextFormatting.GRAY+"[Block Armor] "+TextFormatting.ITALIC+"Illuminated set effect "
+					+ (deactivated ? TextFormatting.RED+""+TextFormatting.ITALIC+"disabled." : TextFormatting.GREEN+""+TextFormatting.ITALIC+"enabled.")));
+			stack.getTagCompound().setInteger("cooldown", 1);
+		}
+
+		//set block at head level to BlockMovingLightSource
+		if (world.isRemote && world.isAirBlock(player.getPosition().up()) && 
+				world.getLightFor(EnumSkyBlock.BLOCK, player.getPosition().up()) < lightLevel &&
+				!stack.getTagCompound().getBoolean("deactivated")) 
 			world.setBlockState(player.getPosition().up(), 
 					ModBlocks.movingLightSource.getDefaultState().withProperty(BlockMovingLightSource.LIGHT_LEVEL, lightLevel));
-			System.out.println("placed");
-		}
 	}
 
 	/**Can be overwritten to return a new instance depending on the given block*/

@@ -16,6 +16,7 @@ import net.minecraftforge.client.event.TextureStitchEvent;
 import net.minecraftforge.client.model.ModelLoaderRegistry;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.world.WorldEvent;
+import net.minecraftforge.fml.client.registry.ClientRegistry;
 import net.minecraftforge.fml.common.Loader;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLLoadCompleteEvent;
@@ -25,6 +26,7 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import twopiradians.blockArmor.client.gui.armorDisplay.OpenGuiEvent;
+import twopiradians.blockArmor.client.key.KeyActivateSetEffect;
 import twopiradians.blockArmor.client.model.ModelBlockArmor;
 import twopiradians.blockArmor.client.model.ModelDynBlockArmor;
 import twopiradians.blockArmor.common.BlockArmor;
@@ -33,7 +35,7 @@ import twopiradians.blockArmor.common.block.ModBlocks;
 import twopiradians.blockArmor.common.item.ArmorSet;
 import twopiradians.blockArmor.common.item.ModItems;
 import twopiradians.blockArmor.jei.BlockArmorJEIPlugin;
-import twopiradians.blockArmor.packets.DisableItemsPacket;
+import twopiradians.blockArmor.packet.PacketDisableItems;
 
 public class ClientProxy extends CommonProxy
 {
@@ -53,6 +55,8 @@ public class ClientProxy extends CommonProxy
 		super.init(event);
 		MinecraftForge.EVENT_BUS.register(this);
 		MinecraftForge.EVENT_BUS.register(new OpenGuiEvent());
+		MinecraftForge.EVENT_BUS.register(BlockArmor.key);
+		ClientRegistry.registerKeyBinding(KeyActivateSetEffect.ACTIVATE_SET_EFFECT);
 	}
 
 	@Override
@@ -109,7 +113,7 @@ public class ClientProxy extends CommonProxy
 		//send server packet to remove recipes for disabled items when player loaded (can't send packet on world load)
 		if (sendDisablePacket && Minecraft.getMinecraft().thePlayer != null) {
 			this.sendDisablePacket = false;
-			BlockArmor.network.sendToServer(new DisableItemsPacket(ArmorSet.disabledItems));
+			BlockArmor.network.sendToServer(new PacketDisableItems(ArmorSet.disabledItems));
 		}
 
 		//manage all animated set's frames (ticks at same rate as TextureAtlasSprite's updateAnimation())

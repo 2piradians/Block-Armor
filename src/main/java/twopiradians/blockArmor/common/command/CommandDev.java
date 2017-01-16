@@ -24,7 +24,7 @@ import net.minecraft.util.text.TextFormatting;
 import twopiradians.blockArmor.common.BlockArmor;
 import twopiradians.blockArmor.common.item.ArmorSet;
 import twopiradians.blockArmor.common.item.ItemBlockArmor;
-import twopiradians.blockArmor.packets.DevColorsPacket;
+import twopiradians.blockArmor.packet.PacketDevColors;
 
 public class CommandDev implements ICommand 
 {
@@ -113,7 +113,7 @@ public class CommandDev implements ICommand
 						devColors.remove(((EntityPlayer) sender).getPersistentID());
 					else
 						devColors.put(((EntityPlayer) sender).getPersistentID(), color);
-					BlockArmor.network.sendToAll(new DevColorsPacket());
+					BlockArmor.network.sendToAll(new PacketDevColors());
 				}
 				catch (Exception e) {
 					sender.addChatMessage(new TextComponentTranslation(TextFormatting.RED+"Color must be 3 floats (-1 to 1 for standard results)"));

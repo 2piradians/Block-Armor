@@ -18,6 +18,7 @@ import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLServerStartingEvent;
 import net.minecraftforge.fml.common.network.NetworkRegistry;
 import net.minecraftforge.fml.common.network.simpleimpl.SimpleNetworkWrapper;
+import twopiradians.blockArmor.client.key.KeyActivateSetEffect;
 import twopiradians.blockArmor.common.command.CommandDev;
 import twopiradians.blockArmor.common.item.ArmorSet;
 import twopiradians.blockArmor.creativetab.BlockArmorCreativeTab;
@@ -34,6 +35,7 @@ public class BlockArmor
 	public static CommonProxy proxy;
 	public static Logger logger;
 	public static SimpleNetworkWrapper network = NetworkRegistry.INSTANCE.newSimpleChannel(MODID);
+	public static KeyActivateSetEffect key = new KeyActivateSetEffect();
 	/**Should armor display be opened on chat event?*/
 	public static final boolean DISPLAY_ARMOR_GUI = false;
 	/**0 = vanilla sets, 1 = modded sets, 2 = set effects*/

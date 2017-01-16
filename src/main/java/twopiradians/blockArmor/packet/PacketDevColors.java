@@ -1,4 +1,4 @@
-package twopiradians.blockArmor.packets;
+package twopiradians.blockArmor.packet;
 
 import java.util.ArrayList;
 import java.util.UUID;
@@ -14,9 +14,9 @@ import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import twopiradians.blockArmor.common.command.CommandDev;
 
-public class DevColorsPacket implements IMessage
+public class PacketDevColors implements IMessage
 {
-	public DevColorsPacket() 
+	public PacketDevColors() 
 	{
 
 	}
@@ -47,10 +47,10 @@ public class DevColorsPacket implements IMessage
 		}
 	}
 
-	public static class Handler implements IMessageHandler<DevColorsPacket, IMessage>
+	public static class Handler implements IMessageHandler<PacketDevColors, IMessage>
 	{
 		@Override
-		public IMessage onMessage(final DevColorsPacket packet, final MessageContext ctx) 
+		public IMessage onMessage(final PacketDevColors packet, final MessageContext ctx) 
 		{
 			IThreadListener mainThread = Minecraft.getMinecraft();
 			mainThread.addScheduledTask(new Runnable() 
