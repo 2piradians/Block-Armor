@@ -9,13 +9,9 @@ import net.minecraft.util.text.TextFormatting;
 @SuppressWarnings("deprecation")
 public class SetEffectImmovable extends SetEffect {
 
-	/**Double from 0 to 1 of knockback resistance*/
-	private double knockbackResistance;
-
 	protected SetEffectImmovable(double knockbackResistance) {
-		this.knockbackResistance = knockbackResistance;
 		this.color = TextFormatting.GRAY;
-		this.description = "Gives "+(int)(this.knockbackResistance*100d)+"% knockback resistance";
+		this.description = "Gives "+(int)(knockbackResistance*100d)+"% knockback resistance";
 		this.attributeModifiers.add(new AttributeModifier(KNOCKBACK_RESISTANCE_UUID, 
 				SharedMonsterAttributes.KNOCKBACK_RESISTANCE.getAttributeUnlocalizedName(), knockbackResistance, 0));
 	}

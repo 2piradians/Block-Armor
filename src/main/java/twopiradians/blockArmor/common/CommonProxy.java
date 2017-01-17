@@ -16,10 +16,6 @@ import net.minecraftforge.fml.common.registry.GameRegistry;
 import net.minecraftforge.fml.relauncher.Side;
 import twopiradians.blockArmor.common.block.ModBlocks;
 import twopiradians.blockArmor.common.config.Config;
-import twopiradians.blockArmor.common.events.AutoSmeltEvent;
-import twopiradians.blockArmor.common.events.IgniteTargetEvent;
-import twopiradians.blockArmor.common.events.IncreaseFortuneEvent;
-import twopiradians.blockArmor.common.events.StopFallDamageEvent;
 import twopiradians.blockArmor.common.item.ArmorSet;
 import twopiradians.blockArmor.common.item.ModItems;
 import twopiradians.blockArmor.common.seteffect.SetEffect;
@@ -58,11 +54,7 @@ public class CommonProxy
 	}
 	
 	private void registerEventListeners() {
-		MinecraftForge.EVENT_BUS.register(new IncreaseFortuneEvent());
 		MinecraftForge.EVENT_BUS.register(new Config());
-		MinecraftForge.EVENT_BUS.register(new StopFallDamageEvent());
-		MinecraftForge.EVENT_BUS.register(new IgniteTargetEvent());
-		MinecraftForge.EVENT_BUS.register(new AutoSmeltEvent());
 		MinecraftForge.EVENT_BUS.register(this);
 	}
 	

@@ -182,12 +182,12 @@ public class ArmorSet {
 			for (int i=0; i<16; i++)
 				try {
 					ItemStack stack = block == Blocks.REEDS ? new ItemStack(Items.REEDS, 1, i) : new ItemStack(block, 1, i);
-					
+
 					boolean manuallyAdded = false;
 					for (ItemStack manualStack : MANUALLY_ADDED_SETS)
 						if (stack != null && stack.getItem() == manualStack.getItem() && stack.getMetadata() == manualStack.getMetadata())
 							manuallyAdded = true;
-					
+
 					if (block.equals(Blocks.LOG) && i > 3) //logs after meta 3 are in log2
 						break;
 					if (manuallyAdded || (stack != null && stack.getItem() != null && !stack.getDisplayName().equals("") && 
@@ -336,9 +336,19 @@ public class ArmorSet {
 		return name;
 	}
 
+	/**Returns the armor set that the entity is wearing or null if not wearing a full set*/
+	public static ArmorSet getWornSet(EntityLivingBase entity) {
+		if (entity != null) {
+			ItemStack boots = entity.getItemStackFromSlot(EntityEquipmentSlot.FEET);
+			if (boots != null && boots.getItem() instanceof ItemBlockArmor &&
+					isWearingFullSet(entity, ((ItemBlockArmor)boots.getItem()).set))
+				return ((ItemBlockArmor)boots.getItem()).set;
+		}
+		return null;
+	}
+
 	/**Determines if entity is wearing all armor of given set or any set if set is null*/
-	public static boolean isWearingFullSet(EntityLivingBase entity, @Nullable ArmorSet set)
-	{
+	public static boolean isWearingFullSet(EntityLivingBase entity, @Nullable ArmorSet set) {
 		if (entity != null
 				&& entity.getItemStackFromSlot(EntityEquipmentSlot.HEAD) != null
 				&& entity.getItemStackFromSlot(EntityEquipmentSlot.CHEST) != null
@@ -396,7 +406,7 @@ public class ArmorSet {
 			for (ItemStack manualStack : MANUALLY_ADDED_SETS)
 				if (stack != null && stack.getItem() == manualStack.getItem() && stack.getMetadata() == manualStack.getMetadata())
 					return true;
-			
+
 			if (stack == null || !(stack.getItem() instanceof ItemBlock) || 
 					stack.getItem().getRegistryName().getResourcePath().contains("ore") || 
 					stack.getDisplayName().contains(".name") || stack.getDisplayName().contains("Ore") ||

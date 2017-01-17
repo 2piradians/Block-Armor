@@ -40,18 +40,19 @@ public class ItemBlockArmor extends ItemArmor
 	private static final String TEXT_FORMATTING_SET_EFFECT_HEADER = TextFormatting.ITALIC+""+TextFormatting.GOLD;
 	private static final String TEXT_FORMATTING_SET_EFFECT_DESCRIPTION = TextFormatting.WHITE+"";
 	private static final String TEXT_FORMATTING_SET_EFFECT_EXTRA = TextFormatting.GREEN+"";*/
+	
+	public ArmorSet set;
 
-	public ItemBlockArmor(ArmorMaterial material, int renderIndex, EntityEquipmentSlot equipmentSlot) 
-	{
+	public ItemBlockArmor(ArmorMaterial material, int renderIndex, EntityEquipmentSlot equipmentSlot, ArmorSet set) {
 		super(material, renderIndex, equipmentSlot);
+		this.set = set;
 		this.setCreativeTab(null);
 	}
 
 	/**Change armor texture based on block*/
 	@Override
 	@SideOnly(Side.CLIENT)
-	public String getArmorTexture(ItemStack stack, Entity entity, EntityEquipmentSlot slot, String type)
-	{
+	public String getArmorTexture(ItemStack stack, Entity entity, EntityEquipmentSlot slot, String type) {
 		TextureAtlasSprite sprite = ArmorSet.getSprite(this);
 		String texture = sprite.getIconName()+".png";
 		int index = texture.indexOf(":");
@@ -61,8 +62,7 @@ public class ItemBlockArmor extends ItemArmor
 
 	@Override
 	@SideOnly(Side.CLIENT)
-	public ModelBiped getArmorModel(EntityLivingBase entity, ItemStack stack, EntityEquipmentSlot slot, ModelBiped oldModel)
-	{
+	public ModelBiped getArmorModel(EntityLivingBase entity, ItemStack stack, EntityEquipmentSlot slot, ModelBiped oldModel) {
 		TextureAtlasSprite sprite = ArmorSet.getSprite(this);
 		int width = sprite.getIconWidth();
 		int height = sprite.getIconHeight() * sprite.getFrameCount();
@@ -81,8 +81,7 @@ public class ItemBlockArmor extends ItemArmor
 
 	/**Don't display item in creative tab/JEI if disabled*/
 	@SideOnly(Side.CLIENT)
-	public void getSubItems(Item itemIn, CreativeTabs tab, List<ItemStack> subItems)
-	{
+	public void getSubItems(Item itemIn, CreativeTabs tab, List<ItemStack> subItems) {
 		if (ArmorSet.disabledItems != null) {
 			for (ItemStack stack : ArmorSet.disabledItems)
 				if (stack.getItem() == itemIn)
@@ -94,20 +93,16 @@ public class ItemBlockArmor extends ItemArmor
 
 	/**Change display name based on the block*/
 	@Override
-	public String getItemStackDisplayName(ItemStack stack)
-	{
+	public String getItemStackDisplayName(ItemStack stack) {
 		return ArmorSet.getItemStackDisplayName(stack, this.armorType);
 	}
 
 	/**Handles the attributes when wearing an armor set*/
 	@Override
-	public Multimap<String, AttributeModifier> getAttributeModifiers(EntityEquipmentSlot slot, ItemStack stack)
-	{
+	public Multimap<String, AttributeModifier> getAttributeModifiers(EntityEquipmentSlot slot, ItemStack stack) {
 		Multimap<String, AttributeModifier> map = this.getItemAttributeModifiers(slot);
 		if (slot != this.armorType)
 			return map;
-
-		ArmorSet set = ArmorSet.getSet(this);
 
 		for (SetEffect effect : set.setEffects)
 			map = effect.getAttributeModifiers(map, slot, stack);
@@ -193,8 +188,7 @@ public class ItemBlockArmor extends ItemArmor
 
 	/**Set to have tooltip color show if item has effect*/
 	@Override
-	public EnumRarity getRarity(ItemStack stack)
-	{
+	public EnumRarity getRarity(ItemStack stack) {
 		if (stack.isItemEnchanted())
 			return EnumRarity.RARE;
 		else if (!ArmorSet.getSet(this).setEffects.isEmpty())
@@ -206,10 +200,7 @@ public class ItemBlockArmor extends ItemArmor
 	/**Deals with armor tooltips*/
 	@Override
 	@SideOnly(Side.CLIENT)
-	public void addInformation(ItemStack stack, EntityPlayer player, List<String> tooltip, boolean advanced)
-	{
-		ArmorSet set = ArmorSet.getSet(this);
-
+	public void addInformation(ItemStack stack, EntityPlayer player, List<String> tooltip, boolean advanced) {
 		if (stack.hasTagCompound() && stack.getTagCompound().hasKey("devSpawned"))
 			tooltip.add(TextFormatting.DARK_PURPLE+""+TextFormatting.BOLD+"Dev Spawned");
 
@@ -245,9 +236,9 @@ public class ItemBlockArmor extends ItemArmor
 			//cooldown if necessary
 			if (stack.hasTagCompound()) {
 				int cooldown = stack.getTagCompound().getInteger("cooldown");
-				if (cooldown > 19)
+				if (cooldown > 20)
 					tooltip.add(TextFormatting.GREEN+"Cooldown: " + (int) Math.ceil(cooldown/20d) + " seconds remaining.");
-				else if (cooldown > 0 && cooldown < 20)
+				else if (cooldown > 0)
 					tooltip.add(TextFormatting.GREEN+"Cooldown: " + (int) Math.ceil(cooldown/20d) + " second remaining.");
 			}
 		}
@@ -388,14 +379,11 @@ public class ItemBlockArmor extends ItemArmor
 
 	/**Handles enchanting armor when worn*/
 	@Override
-	public void onUpdate(ItemStack stack, World world, Entity entity, int slot, boolean isSelected) 
-	{	
+	public void onUpdate(ItemStack stack, World world, Entity entity, int slot, boolean isSelected) {	
 		/*		if (!(entityIn instanceof EntityLivingBase))
 			return;
 
 		EntityLivingBase entity = (EntityLivingBase) entityIn;*/
-
-		ArmorSet set = ArmorSet.getSet(this);
 
 		/*if (ArmorSet.isSetEffectEnabled(set))
 			this.doEnchantments(stack, entity);*/
@@ -431,8 +419,7 @@ public class ItemBlockArmor extends ItemArmor
 
 	/**Delete dev spawned dropped items*/
 	@Override
-	public boolean onEntityItemUpdate(EntityItem entityItem)
-	{
+	public boolean onEntityItemUpdate(EntityItem entityItem) {
 		if (!entityItem.worldObj.isRemote && entityItem != null && entityItem.getEntityItem() != null && 
 				entityItem.getEntityItem().hasTagCompound() && entityItem.getEntityItem().getTagCompound().hasKey("devSpawned")) {
 			entityItem.setDead();
@@ -445,8 +432,7 @@ public class ItemBlockArmor extends ItemArmor
 	/**Handles most of the armor set special effects and bonuses.*/
 	//@SuppressWarnings("deprecation")
 	@Override
-	public void onArmorTick(World world, EntityPlayer player, ItemStack stack)
-	{		
+	public void onArmorTick(World world, EntityPlayer player, ItemStack stack) {		
 		//delete dev spawned items if not worn by dev
 		if (!world.isRemote && stack != null && stack.hasTagCompound() && stack.getTagCompound().hasKey("devSpawned") && 
 				!CommandDev.DEVS.contains(player.getPersistentID()) && 
@@ -455,11 +441,8 @@ public class ItemBlockArmor extends ItemArmor
 			return;
 		}
 
-		ArmorSet set = ArmorSet.getSet(this);	
-
-		//only continue if boots, set effect enabled, and wearing full set
-		if (!ArmorSet.isSetEffectEnabled(set) || !ArmorSet.isWearingFullSet(player, set) || 
-				this.armorType != EntityEquipmentSlot.FEET)
+		//only continue if set effect enabled and wearing full set
+		if (!ArmorSet.isSetEffectEnabled(set) || !ArmorSet.isWearingFullSet(player, set))
 			return;
 
 		if (!stack.hasTagCompound())

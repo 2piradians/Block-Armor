@@ -8,6 +8,7 @@ import com.google.common.collect.Multimap;
 
 import net.minecraft.block.Block;
 import net.minecraft.client.gui.GuiScreen;
+import net.minecraft.enchantment.Enchantment;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.ai.attributes.AttributeModifier;
@@ -15,10 +16,12 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.EntityEquipmentSlot;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.nbt.NBTTagList;
 import net.minecraft.potion.PotionEffect;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
 import twopiradians.blockArmor.client.key.KeyActivateSetEffect;
+import twopiradians.blockArmor.common.BlockArmor;
 import twopiradians.blockArmor.common.item.ArmorSet;
 import twopiradians.blockArmor.common.item.ItemBlockArmor;
 
@@ -26,21 +29,33 @@ public class SetEffect {
 
 	public static final UUID ATTACK_SPEED_UUID = UUID.fromString("3094e67f-88f1-4d81-a59d-655d4e7e8065");
 	public static final UUID ATTACK_STRENGTH_UUID = UUID.fromString("d7dfa4ea-1cdf-4dd9-8842-883d7448cb00");
-	//	protected static final UUID MOVEMENT_SPEED_UUID = UUID.fromString("308e48ee-a300-4846-9b56-05e53e35eb8f");
+	protected static final UUID MOVEMENT_SPEED_UUID = UUID.fromString("308e48ee-a300-4846-9b56-05e53e35eb8f");
 	protected static final UUID KNOCKBACK_RESISTANCE_UUID = UUID.fromString("c8bb1118-78be-4864-9de3-a718047d28bd");
-	//	protected static final UUID MAX_HEALTH_UUID = UUID.fromString("0fefa40c-fd5a-4019-a25e-7fffc8dcf621");
-	//	protected static final UUID LUCK_UUID = UUID.fromString("537fd0e2-78ef-4dd3-affb-959ff059b1bd");
-	//
-	//	protected static final String TEXT_FORMATTING_SET_EFFECT_HEADER = TextFormatting.ITALIC+""+TextFormatting.GOLD;
-	//	protected static final String TEXT_FORMATTING_SET_EFFECT_DESCRIPTION = TextFormatting.WHITE+"";
-	//	protected static final String TEXT_FORMATTING_SET_EFFECT_EXTRA = TextFormatting.GREEN+"";
+	protected static final UUID MAX_HEALTH_UUID = UUID.fromString("0fefa40c-fd5a-4019-a25e-7fffc8dcf621");
+	protected static final UUID LUCK_UUID = UUID.fromString("537fd0e2-78ef-4dd3-affb-959ff059b1bd");
 
 	/**List of all set effects*/
-	public static final ArrayList<SetEffect> SET_EFFECTS = new ArrayList<SetEffect> () {{
-		add(new SetEffectInvisibility());
+	private static final ArrayList<SetEffect> SET_EFFECTS = new ArrayList<SetEffect>() {{
+		//effects that use the button
 		add(new SetEffectIlluminated(0));
+		add(new SetEffectSnowy());
+		add(new SetEffectEnder());
+		//effects that don't use the button
+		add(new SetEffectInvisibility());
 		add(new SetEffectImmovable(0));
+		add(new SetEffectLucky());
+		add(new SetEffectFiery());
+		add(new SetEffectFrosty());
+		add(new SetEffectRegrowth());
+		add(new SetEffectPrickly());
+		add(new SetEffectSlimey());
+		add(new SetEffectSpeedy());
+		add(new SetEffectFlame_Resistant());
+		add(new SetEffectAutoSmelt());
+		add(new SetEffectHealth_Boost(0));
+		add(new SetEffectDiving_Suit());
 	}};
+
 	/**Does set effect require button to activate*/
 	protected boolean usesButton;
 	/**Does set effect have a cooldown (and should onUpdate keep track of it)*/
@@ -53,6 +68,8 @@ public class SetEffect {
 	protected ArrayList<PotionEffect> potionEffects = new ArrayList<PotionEffect>();
 	/**AttributeModifiers that will be applied in getAttributeModifiers*/
 	protected ArrayList<AttributeModifier> attributeModifiers = new ArrayList<AttributeModifier>();
+	/**EnchantmentData that will be applied in onUpdate*/
+	protected ArrayList<EnchantmentData> enchantments = new ArrayList<EnchantmentData>();
 
 	/**Goes through allSets and assigns set effects to appropriate sets*/
 	public static void postInit() {
@@ -96,33 +113,75 @@ public class SetEffect {
 		return true;
 	}
 
-	/**Only called for boots*/
+	/**Only called when player wearing full, enabled set*/
 	public void onArmorTick(World world, EntityPlayer player, ItemStack stack) {
-		//apply potion effects
-		for (PotionEffect potionEffect : this.potionEffects)
-			if (this.shouldApplyPotionEffect(potionEffect, world, player, stack))
-				player.addPotionEffect(new PotionEffect(potionEffect));
+		if (!world.isRemote && ((ItemBlockArmor)stack.getItem()).armorType != EntityEquipmentSlot.FEET) {
+			//apply potion effects
+			for (PotionEffect potionEffect : this.potionEffects)
+				if (this.shouldApplyPotionEffect(potionEffect, world, player, stack))
+					player.addPotionEffect(new PotionEffect(potionEffect));
+		}
 	}
 
 	public void onUpdate(ItemStack stack, World world, Entity entity, int slot, boolean isSelected) {
-		//keep track of wearingFullSet nbt if it has attributeModifiers
-		if (!this.attributeModifiers.isEmpty()) {
-			ArmorSet set = ArmorSet.getSet((ItemBlockArmor) stack.getItem());
-			if (!(entity instanceof EntityLivingBase) || !ArmorSet.isWearingFullSet((EntityLivingBase) entity, set) || 
-					!ArmorSet.isSetEffectEnabled(set)) 
-				stack.getTagCompound().setBoolean("wearingFullSet", false);
-			else
-				stack.getTagCompound().setBoolean("wearingFullSet", true);
-		}
+		if (!world.isRemote) {
+			//keep track of wearingFullSet nbt if it has attributeModifiers
+			if (!this.attributeModifiers.isEmpty()) {
+				ArmorSet set = ArmorSet.getSet((ItemBlockArmor) stack.getItem());
+				if (!(entity instanceof EntityLivingBase) || !ArmorSet.isWearingFullSet((EntityLivingBase) entity, set) || 
+						((EntityLivingBase) entity).getItemStackFromSlot(((ItemBlockArmor)stack.getItem()).armorType) != stack ||
+						!ArmorSet.isSetEffectEnabled(set)) 
+					stack.getTagCompound().setBoolean("wearingFullSet", false);
+				else
+					stack.getTagCompound().setBoolean("wearingFullSet", true);
+			}
 
-		//only allow boots past this point
-		if (((ItemBlockArmor)stack.getItem()).armorType != EntityEquipmentSlot.FEET)
-			return;
-		
-		//reduce cooldown
-		if (this.hasCooldown) {
-			int cooldown = stack.getTagCompound().hasKey("cooldown") ? stack.getTagCompound().getInteger("cooldown") : 0;
-			stack.getTagCompound().setInteger("cooldown", --cooldown);
+			//do enchantments
+			if (!this.enchantments.isEmpty()) {
+				NBTTagList enchantNbt = stack.getTagCompound().getTagList("ench", 10);
+				for (EnchantmentData enchant : this.enchantments) {
+					if (((ItemBlockArmor)stack.getItem()).armorType != enchant.slot)
+						continue;
+					//see if it has enchant already
+					boolean hasEnchant = false;
+					for (int i=0; i<enchantNbt.tagCount(); i++) {
+						if (enchantNbt.getCompoundTagAt(i).getShort("id") == (short)Enchantment.getEnchantmentID(enchant.ench) &&
+								enchantNbt.getCompoundTagAt(i).getShort("lvl") >= enchant.level)
+							hasEnchant = true;
+					}
+
+					ArmorSet set = ArmorSet.getSet((ItemBlockArmor) stack.getItem());
+
+					//should remove enchantment
+					if (hasEnchant && (!(entity instanceof EntityLivingBase) || 
+							!ArmorSet.isWearingFullSet((EntityLivingBase) entity, set) || !ArmorSet.isSetEffectEnabled(set))) {
+						for (int i=enchantNbt.tagCount()-1; i>=0; i--)
+							if (enchantNbt.getCompoundTagAt(i).getBoolean(BlockArmor.MODID+" enchant"))
+								enchantNbt.removeTag(i);
+					}
+					//should add enchantment
+					else if (!hasEnchant && 
+							((EntityLivingBase) entity).getItemStackFromSlot(((ItemBlockArmor)stack.getItem()).armorType) == stack &&
+							ArmorSet.isWearingFullSet((EntityLivingBase) entity, set) && ArmorSet.isSetEffectEnabled(set)) {
+						/*					//remove other enchants with same id (will only be lower lvl ones)
+					for (int i=enchantNbt.tagCount()-1; i>=0; i--)
+						if (enchantNbt.getCompoundTagAt(i).getShort("id") == (short)Enchantment.getEnchantmentID(enchant))
+							enchantNbt.removeTag(i);*/
+						NBTTagCompound nbt = new NBTTagCompound();
+						nbt.setShort("id", (short)Enchantment.getEnchantmentID(enchant.ench));
+						nbt.setShort("lvl", enchant.level);
+						nbt.setBoolean(BlockArmor.MODID+" enchant", true);
+						enchantNbt.appendTag(nbt);
+					}
+				}
+				stack.getTagCompound().setTag("ench", enchantNbt);
+			}
+
+			//reduce cooldown
+			if (this.hasCooldown && ((ItemBlockArmor)stack.getItem()).armorType == EntityEquipmentSlot.FEET) {
+				int cooldown = stack.getTagCompound().hasKey("cooldown") ? stack.getTagCompound().getInteger("cooldown") : 0;
+				stack.getTagCompound().setInteger("cooldown", --cooldown);
+			}
 		}
 	}
 
@@ -159,6 +218,24 @@ public class SetEffect {
 
 	@Override
 	public String toString() {
-		return this.getClass().getSimpleName().replace("SetEffect", "");
+		return this.getClass().getSimpleName().replace("SetEffect", "").replace("_", " ");
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		return obj.getClass() == this.getClass();
+	}
+
+	/**Used to store data for enchantments easily*/
+	static class EnchantmentData {
+		public Enchantment ench;
+		public Short level;
+		public EntityEquipmentSlot slot;
+
+		public EnchantmentData(Enchantment ench, Short level, EntityEquipmentSlot slot) {
+			this.ench = ench;
+			this.level = level;
+			this.slot = slot;
+		}
 	}
 }
