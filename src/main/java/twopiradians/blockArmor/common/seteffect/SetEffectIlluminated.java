@@ -28,12 +28,12 @@ public class SetEffectIlluminated extends SetEffect {
 	public void onArmorTick(World world, EntityPlayer player, ItemStack stack) {
 		super.onArmorTick(world, player, stack);
 
-		if (!world.isRemote && BlockArmor.key.isKeyPressed && stack.getTagCompound().getInteger("cooldown") <= 0) {
+		if (!world.isRemote && BlockArmor.key.isKeyDown && stack.getTagCompound().getInteger("cooldown") <= 0) {
 			boolean deactivated = !stack.getTagCompound().getBoolean("deactivated");
 			stack.getTagCompound().setBoolean("deactivated", deactivated);
 			player.addChatMessage(new TextComponentTranslation(TextFormatting.GRAY+"[Block Armor] "+TextFormatting.ITALIC+"Illuminated set effect "
 					+ (deactivated ? TextFormatting.RED+""+TextFormatting.ITALIC+"disabled." : TextFormatting.GREEN+""+TextFormatting.ITALIC+"enabled.")));
-			stack.getTagCompound().setInteger("cooldown", 1);
+			stack.getTagCompound().setInteger("cooldown", 10);
 		}
 
 		//set block at head level to BlockMovingLightSource
@@ -52,7 +52,7 @@ public class SetEffectIlluminated extends SetEffect {
 
 	/**Should block be given this set effect*/
 	@Override
-	protected boolean isValid(Block block) {		
+	protected boolean isValid(Block block, int meta) {		
 		try {
 			int lightLevel = block.getDefaultState().getLightValue();
 			if (lightLevel > 0)

@@ -30,7 +30,7 @@ public class SetEffectImmovable extends SetEffect {
 
 	/**Should block be given this set effect*/
 	@Override
-	protected boolean isValid(Block block) {		
+	protected boolean isValid(Block block, int meta) {		
 		double hardness = 0;
 		try {
 			hardness = block.getBlockHardness(block.getDefaultState(), null, BlockPos.ORIGIN);

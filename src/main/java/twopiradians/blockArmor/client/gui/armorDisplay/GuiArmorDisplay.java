@@ -206,7 +206,7 @@ public class GuiArmorDisplay extends GuiScreen
 					AttributeModifier attributemodifier = (AttributeModifier)entry.getValue();
 					double d0 = attributemodifier.getAmount();
 					flag = false;
-					if (attributemodifier.getID() == SetEffect.ATTACK_STRENGTH_UUID)
+					if (attributemodifier.getID() == SetEffect.ATTACK_DAMAGE_UUID)
 					{
 						d0 = d0 + guiPlayer.getEntityAttribute(SharedMonsterAttributes.ATTACK_DAMAGE).getBaseValue();
 						d0 = d0 + (double)EnchantmentHelper.getModifierForCreature(armor[0], EnumCreatureAttribute.UNDEFINED);

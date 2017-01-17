@@ -6,12 +6,14 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
 import net.minecraft.init.SoundEvents;
+import net.minecraft.inventory.EntityEquipmentSlot;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
 import twopiradians.blockArmor.common.BlockArmor;
+import twopiradians.blockArmor.common.item.ItemBlockArmor;
 
 public class SetEffectSnowy extends SetEffect {
 
@@ -21,12 +23,12 @@ public class SetEffectSnowy extends SetEffect {
 		this.usesButton = true;
 	}
 
-	/**Only called for boots*/
+	/**Only called when player wearing full, enabled set*/
 	@SuppressWarnings("deprecation")
 	public void onArmorTick(World world, EntityPlayer player, ItemStack stack) {
 		super.onArmorTick(world, player, stack);
 
-		if (BlockArmor.key.isKeyDown) {
+		if (BlockArmor.key.isKeyDown && ((ItemBlockArmor)stack.getItem()).armorType != EntityEquipmentSlot.FEET) {
 			int radius = 3;
 			if (!world.isRemote && player.ticksExisted % 2 == 0)
 				((WorldServer)world).spawnParticle(EnumParticleTypes.SNOW_SHOVEL, player.posX+(world.rand.nextDouble()-0.5D)*radius, 
@@ -63,7 +65,7 @@ public class SetEffectSnowy extends SetEffect {
 
 	/**Should block be given this set effect*/
 	@Override
-	protected boolean isValid(Block block) {		
+	protected boolean isValid(Block block, int meta) {		
 		if (SetEffect.registryNameContains(block, new String[] {"snow"}))
 			return true;		
 		return false;

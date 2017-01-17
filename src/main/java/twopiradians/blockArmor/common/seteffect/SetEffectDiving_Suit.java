@@ -30,7 +30,7 @@ public class SetEffectDiving_Suit extends SetEffect {
 
 	/**Should block be given this set effect*/
 	@Override
-	protected boolean isValid(Block block) {		
+	protected boolean isValid(Block block, int meta) {		
 		if (SetEffect.registryNameContains(block, new String[] {"water", "prismarine"}))
 			return true;		
 		return false;

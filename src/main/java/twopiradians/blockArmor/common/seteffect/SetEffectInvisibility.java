@@ -15,7 +15,7 @@ public class SetEffectInvisibility extends SetEffect {
 	
 	/**Should block be given this set effect*/
 	@Override
-	protected boolean isValid(Block block) {		
+	protected boolean isValid(Block block, int meta) {		
 		if (SetEffect.registryNameContains(block, new String[] {"glass"}))
 			return true;
 		return false;

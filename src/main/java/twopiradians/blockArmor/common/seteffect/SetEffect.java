@@ -28,7 +28,7 @@ import twopiradians.blockArmor.common.item.ItemBlockArmor;
 public class SetEffect {
 
 	public static final UUID ATTACK_SPEED_UUID = UUID.fromString("3094e67f-88f1-4d81-a59d-655d4e7e8065");
-	public static final UUID ATTACK_STRENGTH_UUID = UUID.fromString("d7dfa4ea-1cdf-4dd9-8842-883d7448cb00");
+	public static final UUID ATTACK_DAMAGE_UUID = UUID.fromString("d7dfa4ea-1cdf-4dd9-8842-883d7448cb00");
 	protected static final UUID MOVEMENT_SPEED_UUID = UUID.fromString("308e48ee-a300-4846-9b56-05e53e35eb8f");
 	protected static final UUID KNOCKBACK_RESISTANCE_UUID = UUID.fromString("c8bb1118-78be-4864-9de3-a718047d28bd");
 	protected static final UUID MAX_HEALTH_UUID = UUID.fromString("0fefa40c-fd5a-4019-a25e-7fffc8dcf621");
@@ -40,6 +40,9 @@ public class SetEffect {
 		add(new SetEffectIlluminated(0));
 		add(new SetEffectSnowy());
 		add(new SetEffectEnder());
+		add(new SetEffectAbsorbent());
+		add(new SetEffectExplosive());
+		add(new SetEffectTime_Control(null));
 		//effects that don't use the button
 		add(new SetEffectInvisibility());
 		add(new SetEffectImmovable(0));
@@ -54,6 +57,10 @@ public class SetEffect {
 		add(new SetEffectAutoSmelt());
 		add(new SetEffectHealth_Boost(0));
 		add(new SetEffectDiving_Suit());
+		add(new SetEffectExperience_Giving());
+		add(new SetEffectSlippery());
+		add(new SetEffectFalling());
+		add(new SetEffectPowerful());
 	}};
 
 	/**Does set effect require button to activate*/
@@ -78,7 +85,7 @@ public class SetEffect {
 			set.setEffects = new ArrayList<SetEffect>();
 			for (SetEffect effect : SetEffect.SET_EFFECTS)
 				//assign set effect if valid for block and set has max of 1 effect that uses button
-				if (effect.isValid(set.block) && !(effect.usesButton && hasEffectWithButton)) {
+				if (effect.isValid(set.block, set.meta) && !(effect.usesButton && hasEffectWithButton)) {
 					if (effect.usesButton)
 						hasEffectWithButton = true;
 					set.setEffects.add(effect.create(set.block));
@@ -103,8 +110,9 @@ public class SetEffect {
 		return this;
 	}
 
-	/**Should block be given this set effect*/
-	protected boolean isValid(Block block) {
+	/**Should block be given this set effect
+	 * @param meta */
+	protected boolean isValid(Block block, int meta) {
 		return false;
 	}
 
@@ -115,7 +123,7 @@ public class SetEffect {
 
 	/**Only called when player wearing full, enabled set*/
 	public void onArmorTick(World world, EntityPlayer player, ItemStack stack) {
-		if (!world.isRemote && ((ItemBlockArmor)stack.getItem()).armorType != EntityEquipmentSlot.FEET) {
+		if (!world.isRemote && ((ItemBlockArmor)stack.getItem()).armorType == EntityEquipmentSlot.FEET) {
 			//apply potion effects
 			for (PotionEffect potionEffect : this.potionEffects)
 				if (this.shouldApplyPotionEffect(potionEffect, world, player, stack))
@@ -163,10 +171,6 @@ public class SetEffect {
 					else if (!hasEnchant && 
 							((EntityLivingBase) entity).getItemStackFromSlot(((ItemBlockArmor)stack.getItem()).armorType) == stack &&
 							ArmorSet.isWearingFullSet((EntityLivingBase) entity, set) && ArmorSet.isSetEffectEnabled(set)) {
-						/*					//remove other enchants with same id (will only be lower lvl ones)
-					for (int i=enchantNbt.tagCount()-1; i>=0; i--)
-						if (enchantNbt.getCompoundTagAt(i).getShort("id") == (short)Enchantment.getEnchantmentID(enchant))
-							enchantNbt.removeTag(i);*/
 						NBTTagCompound nbt = new NBTTagCompound();
 						nbt.setShort("id", (short)Enchantment.getEnchantmentID(enchant.ench));
 						nbt.setShort("lvl", enchant.level);
