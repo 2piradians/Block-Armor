@@ -2,6 +2,7 @@ package twopiradians.blockArmor.common.seteffect;
 
 import net.minecraft.block.Block;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.inventory.EntityEquipmentSlot;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.util.text.TextFormatting;
@@ -10,6 +11,7 @@ import net.minecraft.world.World;
 import twopiradians.blockArmor.common.BlockArmor;
 import twopiradians.blockArmor.common.block.BlockMovingLightSource;
 import twopiradians.blockArmor.common.block.ModBlocks;
+import twopiradians.blockArmor.common.item.ItemBlockArmor;
 
 @SuppressWarnings("deprecation")
 public class SetEffectIlluminated extends SetEffect {
@@ -21,23 +23,24 @@ public class SetEffectIlluminated extends SetEffect {
 		this.color = TextFormatting.GOLD;
 		this.description = "Produces light level "+this.lightLevel;
 		this.usesButton = true;
-		this.hasCooldown = true;
 	}
 
 	@Override
 	public void onArmorTick(World world, EntityPlayer player, ItemStack stack) {
 		super.onArmorTick(world, player, stack);
 
-		if (!world.isRemote && BlockArmor.key.isKeyDown && stack.getTagCompound().getInteger("cooldown") <= 0) {
+		if (((ItemBlockArmor)stack.getItem()).armorType == EntityEquipmentSlot.FEET &&
+				!world.isRemote && BlockArmor.key.isKeyDown && !player.getCooldownTracker().hasCooldown(stack.getItem())) {
 			boolean deactivated = !stack.getTagCompound().getBoolean("deactivated");
 			stack.getTagCompound().setBoolean("deactivated", deactivated);
 			player.addChatMessage(new TextComponentTranslation(TextFormatting.GRAY+"[Block Armor] "+TextFormatting.ITALIC+"Illuminated set effect "
 					+ (deactivated ? TextFormatting.RED+""+TextFormatting.ITALIC+"disabled." : TextFormatting.GREEN+""+TextFormatting.ITALIC+"enabled.")));
-			stack.getTagCompound().setInteger("cooldown", 10);
+			this.setCooldown(player, 10);
 		}
 
 		//set block at head level to BlockMovingLightSource
-		if (world.isRemote && world.isAirBlock(player.getPosition().up()) && 
+		if (((ItemBlockArmor)stack.getItem()).armorType == EntityEquipmentSlot.FEET &&
+				world.isRemote && world.isAirBlock(player.getPosition().up()) && 
 				world.getLightFor(EnumSkyBlock.BLOCK, player.getPosition().up()) < lightLevel &&
 				!stack.getTagCompound().getBoolean("deactivated")) 
 			world.setBlockState(player.getPosition().up(), 

@@ -24,7 +24,6 @@ public class SetEffectSlimey extends SetEffect {
 	protected SetEffectSlimey() {
 		this.color = TextFormatting.GREEN;
 		this.description = "Bounces off walls and floors";
-		this.hasCooldown = true;
 		MinecraftForge.EVENT_BUS.register(this);
 	}
 
@@ -33,10 +32,10 @@ public class SetEffectSlimey extends SetEffect {
 		super.onArmorTick(world, player, stack);
 
 		if (((ItemBlockArmor)stack.getItem()).armorType == EntityEquipmentSlot.FEET && world.isRemote && !player.isSneaking()) {	
-			if (stack.getTagCompound().getInteger("cooldown") <= 0 && player.isCollidedHorizontally 
+			if (!player.getCooldownTracker().hasCooldown(stack.getItem()) && player.isCollidedHorizontally 
 					&& Math.sqrt(Math.pow(player.posX - player.prevChasingPosX, 2) + 
 							Math.pow(player.posZ - player.prevChasingPosZ, 2)) >= 0.9D) {	
-				stack.getTagCompound().setInteger("cooldown", 10);
+				this.setCooldown(player, 10);
 				if (player.motionX == 0) {
 					player.motionX = -(player.posX - player.prevChasingPosX)*1.5D;
 					player.motionZ = (player.posZ - player.prevChasingPosZ)*1.5D;

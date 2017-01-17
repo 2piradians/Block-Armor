@@ -13,7 +13,6 @@ public class SetEffectExperience_Giving extends SetEffect {
 	protected SetEffectExperience_Giving() {
 		this.color = TextFormatting.DARK_PURPLE;
 		this.description = "Gives experience over time";
-		this.hasCooldown = true;
 	}
 
 	/**Only called when player wearing full, enabled set*/
@@ -21,8 +20,8 @@ public class SetEffectExperience_Giving extends SetEffect {
 		super.onArmorTick(world, player, stack);
 
 		if (((ItemBlockArmor)stack.getItem()).armorType == EntityEquipmentSlot.FEET &&
-				!world.isRemote && stack.getTagCompound().getInteger("cooldown") <= 0) {
-			stack.getTagCompound().setInteger("cooldown", 50);
+				!world.isRemote && !player.getCooldownTracker().hasCooldown(stack.getItem())) {
+			this.setCooldown(player, 50);
 			player.addExperience(1);
 		}
 	}

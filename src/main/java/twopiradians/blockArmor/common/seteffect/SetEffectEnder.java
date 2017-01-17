@@ -21,7 +21,6 @@ public class SetEffectEnder extends SetEffect {
 		this.color = TextFormatting.DARK_PURPLE;
 		this.description = "Teleports in the direction you're looking";
 		this.usesButton = true;
-		this.hasCooldown = true;
 	}
 
 	/**Only called when player wearing full, enabled set*/
@@ -30,8 +29,8 @@ public class SetEffectEnder extends SetEffect {
 		super.onArmorTick(world, player, stack);
 
 		if (!world.isRemote && ((ItemBlockArmor)stack.getItem()).armorType == EntityEquipmentSlot.FEET &&
-				BlockArmor.key.isKeyDown && stack.getTagCompound().getInteger("cooldown") <= 0)	{    
-			stack.getTagCompound().setInteger("cooldown", 50);
+				BlockArmor.key.isKeyDown && !player.getCooldownTracker().hasCooldown(stack.getItem()))	{    
+			this.setCooldown(player, 50);
 			int distance = player.getRNG().nextInt(10) + 16;
 			double rotX = - Math.sin(player.rotationYaw*Math.PI/180);
 			double rotY = - Math.sin(player.rotationPitch*Math.PI/180);
@@ -70,7 +69,7 @@ public class SetEffectEnder extends SetEffect {
 			else { //no valid pos found
 				world.playSound((EntityPlayer)null, player.posX, player.posY, player.posZ, SoundEvents.BLOCK_NOTE_BASS, 
 						SoundCategory.PLAYERS, 1.0F, world.rand.nextFloat() + 0.5F);	
-				stack.getTagCompound().setInteger("cooldown", 10);
+				this.setCooldown(player, 10);
 			}
 		}
 	}

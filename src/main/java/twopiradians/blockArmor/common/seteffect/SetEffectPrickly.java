@@ -22,7 +22,6 @@ public class SetEffectPrickly extends SetEffect {
 	protected SetEffectPrickly() {
 		this.color = TextFormatting.GREEN;
 		this.description = "Pricks colliding enemies and provides thorns";
-		this.hasCooldown = true;
 		this.enchantments.add(new EnchantmentData(Enchantments.THORNS, (short) 1, EntityEquipmentSlot.HEAD));
 		this.enchantments.add(new EnchantmentData(Enchantments.THORNS, (short) 1, EntityEquipmentSlot.CHEST));
 		this.enchantments.add(new EnchantmentData(Enchantments.THORNS, (short) 1, EntityEquipmentSlot.LEGS));
@@ -34,7 +33,7 @@ public class SetEffectPrickly extends SetEffect {
 		super.onArmorTick(world, player, stack);
 
 		if (((ItemBlockArmor)stack.getItem()).armorType == EntityEquipmentSlot.FEET && 
-				!world.isRemote && stack.getTagCompound().getInteger("cooldown") <= 0)	{
+				!world.isRemote && !player.getCooldownTracker().hasCooldown(stack.getItem()))	{
 			AxisAlignedBB axisAlignedBB = player.getEntityBoundingBox();
 			List<EntityLivingBase> list = player.worldObj.getEntitiesWithinAABB(EntityLivingBase.class, axisAlignedBB);
 			list.remove(player);
@@ -44,7 +43,7 @@ public class SetEffectPrickly extends SetEffect {
 				if (iterator.next().attackEntityFrom(DamageSource.cactus, 1.0F)) {
 					world.playSound((EntityPlayer)null, player.getPosition(), SoundEvents.ENTITY_BLAZE_HURT, 
 							SoundCategory.PLAYERS, 1.0F, world.rand.nextFloat() * 0.4F + 8F);
-					stack.getTagCompound().setInteger("cooldown", 20);
+					this.setCooldown(player, 20);
 				}
 			}
 		}

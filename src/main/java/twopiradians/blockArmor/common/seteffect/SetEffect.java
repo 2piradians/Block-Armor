@@ -43,6 +43,9 @@ public class SetEffect {
 		add(new SetEffectAbsorbent());
 		add(new SetEffectExplosive());
 		add(new SetEffectTime_Control(null));
+		add(new SetEffectPusher());
+		add(new SetEffectPuller());
+		add(new SetEffectArrow_Defence());
 		//effects that don't use the button
 		add(new SetEffectInvisibility());
 		add(new SetEffectImmovable(0));
@@ -65,8 +68,6 @@ public class SetEffect {
 
 	/**Does set effect require button to activate*/
 	protected boolean usesButton;
-	/**Does set effect have a cooldown (and should onUpdate keep track of it)*/
-	protected boolean hasCooldown;
 	/**Color of effect for tooltip*/
 	protected TextFormatting color;
 	/**Description of effect for tooltip*/
@@ -120,10 +121,23 @@ public class SetEffect {
 	public boolean shouldApplyPotionEffect(PotionEffect potionEffect, World world, EntityPlayer player, ItemStack stack) {
 		return true;
 	}
+	
+	/**Set cooldown for all worn ItemBlockArmor on player for specified ticks*/
+	public void setCooldown(EntityPlayer player, int ticks) {
+		if (player != null) {
+			EntityEquipmentSlot[] slots = new EntityEquipmentSlot[] {EntityEquipmentSlot.HEAD, EntityEquipmentSlot.CHEST,
+					EntityEquipmentSlot.LEGS, EntityEquipmentSlot.FEET};
+			for (EntityEquipmentSlot slot : slots) {
+				ItemStack stack = player.getItemStackFromSlot(slot);
+				if (stack != null && stack.getItem() instanceof ItemBlockArmor)
+					player.getCooldownTracker().setCooldown(stack.getItem(), ticks);
+			}
+		}
+	}
 
 	/**Only called when player wearing full, enabled set*/
 	public void onArmorTick(World world, EntityPlayer player, ItemStack stack) {
-		if (!world.isRemote && ((ItemBlockArmor)stack.getItem()).armorType == EntityEquipmentSlot.FEET) {
+		if (!world.isRemote && ((ItemBlockArmor)stack.getItem()).armorType == EntityEquipmentSlot.FEET) {			
 			//apply potion effects
 			for (PotionEffect potionEffect : this.potionEffects)
 				if (this.shouldApplyPotionEffect(potionEffect, world, player, stack))
@@ -179,12 +193,6 @@ public class SetEffect {
 					}
 				}
 				stack.getTagCompound().setTag("ench", enchantNbt);
-			}
-
-			//reduce cooldown
-			if (this.hasCooldown && ((ItemBlockArmor)stack.getItem()).armorType == EntityEquipmentSlot.FEET) {
-				int cooldown = stack.getTagCompound().hasKey("cooldown") ? stack.getTagCompound().getInteger("cooldown") : 0;
-				stack.getTagCompound().setInteger("cooldown", --cooldown);
 			}
 		}
 	}

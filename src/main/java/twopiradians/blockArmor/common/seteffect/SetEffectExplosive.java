@@ -14,7 +14,6 @@ public class SetEffectExplosive extends SetEffect {
 	protected SetEffectExplosive() {
 		this.color = TextFormatting.RED;
 		this.description = "Explodes and uses some durability";
-		this.hasCooldown = true;
 		this.usesButton = true;
 	}
 
@@ -23,8 +22,8 @@ public class SetEffectExplosive extends SetEffect {
 		super.onArmorTick(world, player, stack);
 
 		if (!world.isRemote && ((ItemBlockArmor)stack.getItem()).armorType == EntityEquipmentSlot.FEET &&
-				BlockArmor.key.isKeyDown && stack.getTagCompound().getInteger("cooldown") <= 0 && player.isAllowEdit()) {
-			stack.getTagCompound().setInteger("cooldown", 20);
+				BlockArmor.key.isKeyDown && !player.getCooldownTracker().hasCooldown(stack.getItem()) && player.isAllowEdit()) {
+			this.setCooldown(player, 20);
 			world.newExplosion(player, player.posX, player.posY+0.5d, player.posZ, 6f, false, true);
 			player.getItemStackFromSlot(EntityEquipmentSlot.HEAD).damageItem(player.getItemStackFromSlot(EntityEquipmentSlot.HEAD).getMaxDamage()/9, player);
 			player.getItemStackFromSlot(EntityEquipmentSlot.CHEST).damageItem(player.getItemStackFromSlot(EntityEquipmentSlot.CHEST).getMaxDamage()/9, player);

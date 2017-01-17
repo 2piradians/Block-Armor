@@ -32,7 +32,6 @@ public class SetEffectAbsorbent extends SetEffect {
 		this.color = TextFormatting.YELLOW;
 		this.description = "Absorbs nearby liquids";
 		this.usesButton = true;
-		this.hasCooldown = true;
 	}
 
 	/**Only called when player wearing full, enabled set*/
@@ -40,14 +39,14 @@ public class SetEffectAbsorbent extends SetEffect {
 	public void onArmorTick(World world, EntityPlayer player, ItemStack stack) {
 		super.onArmorTick(world, player, stack);
 
-		if (world.isRemote && stack.getTagCompound().getInteger("cooldown") > 0)
+		if (world.isRemote && !player.getCooldownTracker().hasCooldown(stack.getItem()))
 			for (int i=0; i<5; i++)
 				world.spawnParticle(EnumParticleTypes.WATER_DROP, player.posX+(world.rand.nextDouble()-0.5d)*1.0d, 
 						player.posY+(world.rand.nextDouble()+1d)*1.0d,player.posZ+(world.rand.nextDouble()-0.5d)*1.0d, 
 						0.0d, 0.0d, 0.0d, new int[0]);
 
 		if (!world.isRemote && ((ItemBlockArmor)stack.getItem()).armorType == EntityEquipmentSlot.FEET &&
-				stack.getTagCompound().getInteger("cooldown") <= 0) {
+				!player.getCooldownTracker().hasCooldown(stack.getItem())) {
 			ArmorSet set = ArmorSet.getWornSet(player);
 			if (set != null) {
 				//change wet sponge back to normal
@@ -116,7 +115,7 @@ public class SetEffectAbsorbent extends SetEffect {
 					world.playSound((EntityPlayer)null, player.posX, player.posY, player.posZ, SoundEvents.ITEM_BUCKET_FILL, 
 							SoundCategory.PLAYERS, 1.0F, world.rand.nextFloat() + 0.5f);
 
-					stack.getTagCompound().setInteger("cooldown", 60);
+					this.setCooldown(player, 60);
 				}
 
 			}
