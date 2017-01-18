@@ -60,32 +60,32 @@ public class CommandDev implements ICommand
 	}
 
 	@Override
-	public int compareTo(ICommand o) 
-	{
+	public int compareTo(ICommand o) {
 		return 0;
 	}
 
 	@Override
-	public String getCommandName() 
-	{
+	public String getCommandName() {
 		return "dev";
 	}
 
 	@Override
-	public String getCommandUsage(ICommandSender sender) 
-	{
+	public String getCommandUsage(ICommandSender sender) {
 		return "";
 	}
 
 	@Override
-	public List<String> getCommandAliases() 
-	{
+	public List<String> getCommandAliases() {
 		return new ArrayList<String>();
 	}
 
 	@Override
-	public void execute(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException
-	{
+	public void execute(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException {
+		
+	}
+	
+	/**Actually runs the command (for chat event), returns if message was a valid command (and chat should be hidden)*/
+	public boolean runCommand(MinecraftServer server, ICommandSender sender, String[] args) {
 		if (sender instanceof EntityPlayer) {
 			if (args.length == 2 && args[0].equalsIgnoreCase(ARMOR)) {
 				ArmorSet set = setMap.get(args[1]);
@@ -105,6 +105,7 @@ public class CommandDev implements ICommand
 				}
 				else
 					sender.addChatMessage(new TextComponentTranslation(TextFormatting.RED+"Invalid block"));
+				return true;
 			}
 			else if (args.length == 4 && args[0].equalsIgnoreCase(COLOR)) {
 				try {
@@ -118,21 +119,21 @@ public class CommandDev implements ICommand
 				catch (Exception e) {
 					sender.addChatMessage(new TextComponentTranslation(TextFormatting.RED+"Color must be 3 floats (-1 to 1 for standard results)"));
 				}
+				return true;
 			}
 		}
+		return false;
 	}
 
 	@Override
-	public boolean checkPermission(MinecraftServer server, ICommandSender sender) 
-	{
+	public boolean checkPermission(MinecraftServer server, ICommandSender sender) {
 		if (sender instanceof EntityPlayer)
 			return DEVS.contains(((EntityPlayer) sender).getPersistentID());
 		return false;
 	}
 
 	@Override
-	public List<String> getTabCompletionOptions(MinecraftServer server, ICommandSender sender, String[] args, BlockPos pos) 
-	{
+	public List<String> getTabCompletionOptions(MinecraftServer server, ICommandSender sender, String[] args, BlockPos pos) {
 		if (args.length == 1)
 			return  CommandBase.getListOfStringsMatchingLastWord(args, ALL_COMMAND_NAMES);
 		else if (args.length == 2 && args[0].equalsIgnoreCase(ARMOR))
@@ -144,8 +145,7 @@ public class CommandDev implements ICommand
 	}
 
 	@Override
-	public boolean isUsernameIndex(String[] args, int index) 
-	{
+	public boolean isUsernameIndex(String[] args, int index) {
 		return false;
 	}
 }
