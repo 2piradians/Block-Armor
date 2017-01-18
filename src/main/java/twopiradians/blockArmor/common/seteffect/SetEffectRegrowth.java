@@ -27,7 +27,8 @@ public class SetEffectRegrowth extends SetEffect {
 	/**Should block be given this set effect*/
 	@Override
 	protected boolean isValid(Block block, int meta) {		
-		if (block instanceof IGrowable || block instanceof IPlantable)
+		if (block instanceof IGrowable || block instanceof IPlantable || 
+				SetEffect.registryNameContains(block, new String[] {"moss", "plant", "mycelium", "mushroom", "flower"}))
 			return true;	
 		
 		try {

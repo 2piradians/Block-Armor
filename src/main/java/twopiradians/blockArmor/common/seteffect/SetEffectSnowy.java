@@ -11,7 +11,6 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
-import net.minecraft.world.WorldServer;
 import twopiradians.blockArmor.common.BlockArmor;
 import twopiradians.blockArmor.common.item.ItemBlockArmor;
 
@@ -30,14 +29,20 @@ public class SetEffectSnowy extends SetEffect {
 
 		if (BlockArmor.key.isKeyDown && ((ItemBlockArmor)stack.getItem()).armorType != EntityEquipmentSlot.FEET) {
 			int radius = 3;
-			if (!world.isRemote && player.ticksExisted % 2 == 0)
-				((WorldServer)world).spawnParticle(EnumParticleTypes.SNOW_SHOVEL, player.posX+(world.rand.nextDouble()-0.5D)*radius, 
-						player.posY+world.rand.nextDouble()+2D, player.posZ+(world.rand.nextDouble()-0.5D)*radius, 
-						1, 0, 0, 0, 0, new int[0]);
-			if (world.rand.nextInt(5) == 0)
-				world.playSound(player, player.posX, player.posY, player.posZ, SoundEvents.WEATHER_RAIN, 
-						player.getSoundCategory(), 1.0f, world.rand.nextFloat());
-			if (!world.isRemote) {
+			if (world.isRemote) {
+				if (player.ticksExisted % 2 == 0) 
+					world.spawnParticle(EnumParticleTypes.SNOW_SHOVEL, player.posX+(world.rand.nextDouble()-0.5D)*radius, 
+							player.posY+world.rand.nextDouble()+2D, player.posZ+(world.rand.nextDouble()-0.5D)*radius, 
+							0, 0, 0, new int[0]);
+				for (int i=0; i<3; i++)
+					world.spawnParticle(EnumParticleTypes.CLOUD, player.posX+(world.rand.nextDouble()-0.5D)*radius, 
+							player.posY+world.rand.nextDouble()*0.5d+2.5D, player.posZ+(world.rand.nextDouble()-0.5D)*radius, 
+							0, 0, 0, new int[0]);
+				if (world.rand.nextInt(5) == 0)
+					world.playSound(player, player.posX, player.posY, player.posZ, SoundEvents.WEATHER_RAIN, 
+							player.getSoundCategory(), 0.1f, world.rand.nextFloat());
+			}
+			else {
 				for (int x=-radius/2; x<=radius/2; x++)
 					for (int z=-radius/2; z<=radius/2; z++)
 						for (int y=0; y<=2; y++)

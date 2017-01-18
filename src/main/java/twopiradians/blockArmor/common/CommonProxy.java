@@ -79,8 +79,7 @@ public class CommonProxy
 	}
 
 	@SubscribeEvent
-	public void playerJoin(PlayerLoggedInEvent event)
-	{
+	public void playerJoin(PlayerLoggedInEvent event) {
 		if (!event.player.worldObj.isRemote && event.player instanceof EntityPlayerMP)
 			BlockArmor.network.sendTo(new PacketDevColors(), (EntityPlayerMP) event.player);
 	}

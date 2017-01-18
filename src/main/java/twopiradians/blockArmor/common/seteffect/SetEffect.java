@@ -46,6 +46,7 @@ public class SetEffect {
 		add(new SetEffectPusher());
 		add(new SetEffectPuller());
 		add(new SetEffectArrow_Defence());
+		add(new SetEffectBonemealer());
 		//effects that don't use the button
 		add(new SetEffectInvisibility());
 		add(new SetEffectImmovable(0));
@@ -121,7 +122,7 @@ public class SetEffect {
 	public boolean shouldApplyPotionEffect(PotionEffect potionEffect, World world, EntityPlayer player, ItemStack stack) {
 		return true;
 	}
-	
+
 	/**Set cooldown for all worn ItemBlockArmor on player for specified ticks*/
 	public void setCooldown(EntityPlayer player, int ticks) {
 		if (player != null) {
@@ -192,7 +193,8 @@ public class SetEffect {
 						enchantNbt.appendTag(nbt);
 					}
 				}
-				stack.getTagCompound().setTag("ench", enchantNbt);
+				if (!enchantNbt.hasNoTags())
+					stack.getTagCompound().setTag("ench", enchantNbt);
 			}
 		}
 	}
