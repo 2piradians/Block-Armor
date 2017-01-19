@@ -7,7 +7,6 @@ import java.util.UUID;
 import com.google.common.collect.Multimap;
 
 import net.minecraft.block.Block;
-import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
@@ -35,7 +34,7 @@ public class SetEffect {
 	protected static final UUID LUCK_UUID = UUID.fromString("537fd0e2-78ef-4dd3-affb-959ff059b1bd");
 
 	/**List of all set effects*/
-	private static final ArrayList<SetEffect> SET_EFFECTS = new ArrayList<SetEffect>() {{
+	public static final ArrayList<SetEffect> SET_EFFECTS = new ArrayList<SetEffect>() {{
 		//effects that use the button
 		add(new SetEffectIlluminated(0));
 		add(new SetEffectSnowy());
@@ -214,12 +213,12 @@ public class SetEffect {
 	}
 
 	/**Set effect name and description if shifting*/
-	public List<String> addInformation(ItemStack stack, EntityPlayer player, List<String> tooltip, boolean advanced) {
+	public List<String> addInformation(ItemStack stack, boolean isShiftDown, EntityPlayer player, List<String> tooltip, boolean advanced) {
 		ArmorSet set = ArmorSet.getSet((ItemBlockArmor) stack.getItem());
 
 		String string = ArmorSet.isSetEffectEnabled(set) ? "" : TextFormatting.STRIKETHROUGH.toString();
 		string += color+""+TextFormatting.BOLD+this.toString()+TextFormatting.RESET;
-		if (GuiScreen.isShiftKeyDown()) {
+		if (isShiftDown) {
 			string += color+": "+TextFormatting.ITALIC+description+TextFormatting.RESET;
 			if (this.usesButton)
 				string += TextFormatting.BLUE+" <"+TextFormatting.BOLD+KeyActivateSetEffect.ACTIVATE_SET_EFFECT.getDisplayName()

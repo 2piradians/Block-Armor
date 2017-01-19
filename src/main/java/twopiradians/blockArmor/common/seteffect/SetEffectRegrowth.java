@@ -12,7 +12,7 @@ import net.minecraftforge.common.IPlantable;
 public class SetEffectRegrowth extends SetEffect {
 
 	protected SetEffectRegrowth() {
-		this.color = TextFormatting.GREEN;
+		this.color = TextFormatting.DARK_GREEN;
 		this.description = "Slowly regrows and repairs durability";
 	}
 	

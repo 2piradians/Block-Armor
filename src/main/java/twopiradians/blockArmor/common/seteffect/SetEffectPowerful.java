@@ -9,7 +9,7 @@ public class SetEffectPowerful extends SetEffect {
 
 	protected SetEffectPowerful() {
 		this.color = TextFormatting.WHITE;
-		this.description = "Increase attack speed and strength";
+		this.description = "Increases Attack Speed and Strength";
 		this.attributeModifiers.add(new AttributeModifier(ATTACK_SPEED_UUID, 
 				SharedMonsterAttributes.ATTACK_SPEED.getAttributeUnlocalizedName(), 1d, 0));
 		this.attributeModifiers.add(new AttributeModifier(ATTACK_DAMAGE_UUID, 

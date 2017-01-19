@@ -37,10 +37,6 @@ public class BlockArmor
 	public static SimpleNetworkWrapper network = NetworkRegistry.INSTANCE.newSimpleChannel(MODID);
 	public static KeyActivateSetEffect key = new KeyActivateSetEffect();
 	public static CommandDev command = new CommandDev();
-	/**Should armor display be opened on chat event?*/
-	public static final boolean DISPLAY_ARMOR_GUI = false;
-	/**0 = vanilla sets, 1 = modded sets, 2 = set effects*/
-	public static final int GUI_MODE = 2;
 	protected static File configFile;
 
 	@EventHandler

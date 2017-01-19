@@ -10,7 +10,7 @@ public class SetEffectSpeedy extends SetEffect {
 
 	protected SetEffectSpeedy() {
 		this.color = TextFormatting.YELLOW;
-		this.description = "Provides a speed boost";
+		this.description = "Increases Speed";
 		this.attributeModifiers.add(new AttributeModifier(MOVEMENT_SPEED_UUID, 
 				SharedMonsterAttributes.MOVEMENT_SPEED.getAttributeUnlocalizedName(), 0.1d, 0));
 	}

@@ -9,7 +9,7 @@ public class SetEffectFlame_Resistant extends SetEffect {
 
 	protected SetEffectFlame_Resistant() {
 		this.color = TextFormatting.DARK_RED;
-		this.description = "Provides Fire Protection 4";
+		this.description = "Provides Fire Protection IV";
 		this.enchantments.add(new EnchantmentData(Enchantments.FIRE_PROTECTION, (short) 4, EntityEquipmentSlot.HEAD));
 		this.enchantments.add(new EnchantmentData(Enchantments.FIRE_PROTECTION, (short) 4, EntityEquipmentSlot.CHEST));
 		this.enchantments.add(new EnchantmentData(Enchantments.FIRE_PROTECTION, (short) 4, EntityEquipmentSlot.LEGS));

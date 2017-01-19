@@ -18,11 +18,11 @@ public class SetEffectTime_Control extends SetEffect {
 		this.block = block;
 		this.color = TextFormatting.LIGHT_PURPLE;
 		if (block == Blocks.REPEATING_COMMAND_BLOCK)
-			this.description = "Rewind time";
+			this.description = "Rewinds time";
 		else if (block == Blocks.CHAIN_COMMAND_BLOCK)
-			this.description = "Stop Time";
+			this.description = "Stops Time";
 		else if (block == Blocks.COMMAND_BLOCK)
-			this.description = "Accelerate time";
+			this.description = "Accelerates time";
 		else
 			this.description = "";
 		this.usesButton = true;

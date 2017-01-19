@@ -11,7 +11,7 @@ public class SetEffectImmovable extends SetEffect {
 
 	protected SetEffectImmovable(double knockbackResistance) {
 		this.color = TextFormatting.GRAY;
-		this.description = "Gives "+(int)(knockbackResistance*100d)+"% knockback resistance";
+		this.description = "Gives "+(int)(knockbackResistance*100d)+"% Knockback Resistance";
 		this.attributeModifiers.add(new AttributeModifier(KNOCKBACK_RESISTANCE_UUID, 
 				SharedMonsterAttributes.KNOCKBACK_RESISTANCE.getAttributeUnlocalizedName(), knockbackResistance, 0));
 	}

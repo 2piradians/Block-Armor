@@ -8,8 +8,8 @@ import net.minecraft.util.text.TextFormatting;
 public class SetEffectInvisibility extends SetEffect {
 
 	protected SetEffectInvisibility() {
-		this.color = TextFormatting.DARK_GRAY;
-		this.description = "Provides invisibility";
+		this.color = TextFormatting.WHITE;
+		this.description = "Provides Invisibility";
 		this.potionEffects.add(new PotionEffect(MobEffects.INVISIBILITY, 10, 0, true, true));
 	}
 	

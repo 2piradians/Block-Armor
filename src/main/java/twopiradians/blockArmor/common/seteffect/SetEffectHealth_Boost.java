@@ -11,7 +11,7 @@ public class SetEffectHealth_Boost extends SetEffect {
 
 	protected SetEffectHealth_Boost(double healthBoost) {
 		this.color = TextFormatting.RED;
-		this.description = "Increases max health by "+(int)healthBoost;
+		this.description = "Increases Max Health by "+(int)healthBoost/2+" hearts";
 		this.attributeModifiers.add(new AttributeModifier(MAX_HEALTH_UUID, 
 				SharedMonsterAttributes.MAX_HEALTH.getAttributeUnlocalizedName(), healthBoost, 0));
 	}

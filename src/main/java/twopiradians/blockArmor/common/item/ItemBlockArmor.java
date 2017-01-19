@@ -128,7 +128,7 @@ public class ItemBlockArmor extends ItemArmor
 
 			//set effect names and descriptions if shifting
 			for (SetEffect effect : set.setEffects)
-				tooltip = effect.addInformation(stack, player, tooltip, advanced);
+				tooltip = effect.addInformation(stack, GuiScreen.isShiftKeyDown(), player, tooltip, advanced);
 		}
 	}
 

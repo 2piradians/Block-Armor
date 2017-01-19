@@ -9,7 +9,7 @@ public class SetEffectFrosty extends SetEffect {
 
 	protected SetEffectFrosty() {
 		this.color = TextFormatting.AQUA;
-		this.description = "Provides Frost Walking 2";
+		this.description = "Provides Frost Walking II";
 		this.enchantments.add(new EnchantmentData(Enchantments.FROST_WALKER, (short) 2, EntityEquipmentSlot.FEET));
 	}
 

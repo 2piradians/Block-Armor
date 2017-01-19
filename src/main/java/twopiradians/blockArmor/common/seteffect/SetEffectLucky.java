@@ -20,7 +20,7 @@ public class SetEffectLucky extends SetEffect {
 
 	protected SetEffectLucky() {
 		this.color = TextFormatting.DARK_GREEN;
-		this.description = "Increases Fortune level and Luck";
+		this.description = "Increases Fortune and Luck";
 		this.attributeModifiers.add(new AttributeModifier(LUCK_UUID, 
 				SharedMonsterAttributes.LUCK.getAttributeUnlocalizedName(), 1, 0));
 		MinecraftForge.EVENT_BUS.register(this);

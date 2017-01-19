@@ -13,7 +13,7 @@ public class SetEffectSlippery extends SetEffect {
 
 	protected SetEffectSlippery() {
 		this.color = TextFormatting.AQUA;
-		this.description = "Velocity is conserved more while moving";
+		this.description = "Conserves velocity more while moving";
 	}
 
 	/**Only called when player wearing full, enabled set*/

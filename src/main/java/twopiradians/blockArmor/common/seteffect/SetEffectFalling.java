@@ -18,7 +18,7 @@ public class SetEffectFalling extends SetEffect {
 
 	protected SetEffectFalling() {
 		this.color = TextFormatting.GRAY;
-		this.description = "Fall faster in air and sink faster in water while sneaking";
+		this.description = "Falls faster in air and sinks faster in water while sneaking";
 	}
 
 	/**Only called when player wearing full, enabled set*/

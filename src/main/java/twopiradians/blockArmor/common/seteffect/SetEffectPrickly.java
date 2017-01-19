@@ -21,7 +21,7 @@ public class SetEffectPrickly extends SetEffect {
 
 	protected SetEffectPrickly() {
 		this.color = TextFormatting.GREEN;
-		this.description = "Pricks colliding enemies and provides thorns";
+		this.description = "Pricks colliding enemies and provides Thorns";
 		this.enchantments.add(new EnchantmentData(Enchantments.THORNS, (short) 1, EntityEquipmentSlot.HEAD));
 		this.enchantments.add(new EnchantmentData(Enchantments.THORNS, (short) 1, EntityEquipmentSlot.CHEST));
 		this.enchantments.add(new EnchantmentData(Enchantments.THORNS, (short) 1, EntityEquipmentSlot.LEGS));

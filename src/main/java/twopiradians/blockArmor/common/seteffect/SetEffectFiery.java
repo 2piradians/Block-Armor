@@ -13,7 +13,7 @@ import twopiradians.blockArmor.common.item.ArmorSet;
 public class SetEffectFiery extends SetEffect {
 
 	protected SetEffectFiery() {
-		this.color = TextFormatting.DARK_RED;
+		this.color = TextFormatting.RED;
 		this.description = "Ignites enemies after attacking or being attacked";
 		MinecraftForge.EVENT_BUS.register(this);
 	}
