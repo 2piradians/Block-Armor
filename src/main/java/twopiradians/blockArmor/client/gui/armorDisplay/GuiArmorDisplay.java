@@ -20,6 +20,8 @@ import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.EnumCreatureAttribute;
 import net.minecraft.entity.SharedMonsterAttributes;
 import net.minecraft.entity.ai.attributes.AttributeModifier;
+import net.minecraft.init.Blocks;
+import net.minecraft.init.Items;
 import net.minecraft.inventory.EntityEquipmentSlot;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagList;
@@ -39,10 +41,11 @@ public class GuiArmorDisplay extends GuiScreen
 {
 	/**Should armor display be opened on chat event?*/
 	public static final boolean DISPLAY_ARMOR_GUI = true;
-	/**0 = vanilla sets, 1 = modded sets, 2 = set effects w/armor, 3 = set effect tooltips (v2.2+)*/
-	public static final int GUI_MODE = 3;
+	/**0 = vanilla sets, 1 = modded sets, 2 = set effects w/armor, 3 = set effect tooltips (v2.2+), 4 set effect itemstacks (v2.2+)*/
+	public static final int GUI_MODE = 4; //do modes 3 and 4 in normal gui size
 
 	private final ResourceLocation backgroundWhite = new ResourceLocation(BlockArmor.MODID+":textures/gui/white.png");
+	private final ResourceLocation backgroundTooltipColor = new ResourceLocation(BlockArmor.MODID+":textures/gui/tooltip_color.png");
 	private EntityGuiPlayer guiPlayer;
 	private float partialTicks;
 	/**List of all armors with set effects*/
@@ -66,7 +69,7 @@ public class GuiArmorDisplay extends GuiScreen
 			if ((GUI_MODE == 0 && !set.isFromModdedBlock) ||
 					(GUI_MODE == 1 && set.isFromModdedBlock) || 
 					(GUI_MODE == 2 && !set.setEffects.isEmpty()) ||
-					GUI_MODE == 3) {
+					GUI_MODE == 3 || GUI_MODE == 4) {
 				boolean add = true;
 				for (ItemStack stack : ArmorSet.disabledItems)
 					if (stack.getItem() == set.helmet)
@@ -77,13 +80,16 @@ public class GuiArmorDisplay extends GuiScreen
 					armors.add(set.leggings);
 					armors.add(set.boots);
 				}
-				if (GUI_MODE == 3)
+				if (GUI_MODE == 3 || GUI_MODE == 4)
 					for (SetEffect effect : set.setEffects) {
 						String tooltip = effect.addInformation(new ItemStack(set.helmet), true, guiPlayer, new ArrayList<String>(), false).get(0);
 						ArrayList<ItemStack> stacks = new ArrayList<ItemStack>(); 
-						stacks.add(0, set.stack);
+						if (set.block == Blocks.EMERALD_BLOCK)
+							stacks.add(0, new ItemStack(Items.EMERALD));
+						else
+							stacks.add(0, set.stack);
 						if (tooltips.containsKey(tooltip)) 
-							stacks.addAll(tooltips.get(tooltip));
+							stacks.addAll(0, tooltips.get(tooltip));
 						tooltips.put(tooltip, stacks);
 					}						
 			}
@@ -99,7 +105,10 @@ public class GuiArmorDisplay extends GuiScreen
 	public void drawScreen(int mouseX, int mouseY, float partialTicks) {
 		//background
 		GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
-		mc.getTextureManager().bindTexture(backgroundWhite);
+		if (GUI_MODE == 4)
+			mc.getTextureManager().bindTexture(backgroundTooltipColor);
+		else
+			mc.getTextureManager().bindTexture(backgroundWhite);
 		GlStateManager.pushMatrix();
 		float scale = 1f;
 		if (GUI_MODE == 0)
@@ -111,18 +120,16 @@ public class GuiArmorDisplay extends GuiScreen
 		this.drawTexturedModalRect(0, 0, 0, 0, this.width, this.height);
 		GlStateManager.popMatrix();
 
-		if (GUI_MODE == 3) {
+		if (GUI_MODE == 3 || GUI_MODE == 4) {
 			for (int i=0; i<tooltips.size(); i++) {
 				GlStateManager.pushMatrix();
-				scale = 0.651f;
-				int spaceBetween = 100;
+				int spaceBetween = 40;
 				if (i < 11)
-					GlStateManager.translate(120, 15+i*27, 0);
+					GlStateManager.translate(185, 20+i*spaceBetween, 0);
 				else if (i < 23)
-					GlStateManager.translate(330, 15+(i-11)*27, 0);
+					GlStateManager.translate(510, 20+(i-11)*spaceBetween, 0);
 				else
-					GlStateManager.translate(510, 15+(i-23)*27, 0);
-				GlStateManager.scale(scale, scale, scale);
+					GlStateManager.translate(835, 20+(i-23)*spaceBetween, 0);
 				List<String> tooltip = new ArrayList<String>();
 				tooltip.add(tooltips.keySet().toArray(new String[0])[i]);
 				int numStacks = tooltips.get(tooltips.keySet().toArray(new String[0])[i]).size();
@@ -136,12 +143,15 @@ public class GuiArmorDisplay extends GuiScreen
 				for (String string : tooltip)
 					if (this.fontRendererObj.getStringWidth(string) > length)
 						length = this.fontRendererObj.getStringWidth(string);
-				this.drawHoveringText(tooltip, -length/2, 0);
-				RenderHelper.enableGUIStandardItemLighting();
-				length = tooltips.get(tooltips.keySet().toArray(new String[0])[i]).size() * 20;
-				for (int j=0; j<tooltips.get(tooltips.keySet().toArray(new String[0])[i]).size(); j++) 
-					this.itemRender.renderItemIntoGUI(tooltips.get(tooltips.keySet().toArray(new String[0])[i]).get(j), -length/2+j*20+15, 0);
-				RenderHelper.disableStandardItemLighting();
+				if (GUI_MODE == 3)
+					this.drawHoveringText(tooltip, -length/2, 0);
+				else {
+					RenderHelper.enableGUIStandardItemLighting();
+					length = tooltips.get(tooltips.keySet().toArray(new String[0])[i]).size() * 20;
+					for (int j=0; j<tooltips.get(tooltips.keySet().toArray(new String[0])[i]).size(); j++) 
+						this.itemRender.renderItemIntoGUI(tooltips.get(tooltips.keySet().toArray(new String[0])[i]).get(j), -length/2+j*20+15, 0);
+					RenderHelper.disableStandardItemLighting();
+				}
 				GlStateManager.popMatrix();
 			}
 		}
