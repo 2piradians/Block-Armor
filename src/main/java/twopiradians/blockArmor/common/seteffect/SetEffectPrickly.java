@@ -41,7 +41,7 @@ public class SetEffectPrickly extends SetEffect {
 			if (!list.isEmpty()) {
 				Iterator<EntityLivingBase> iterator = list.iterator();
 				if (iterator.next().attackEntityFrom(DamageSource.cactus, 1.0F)) {
-					world.playSound((EntityPlayer)null, player.getPosition(), SoundEvents.ENTITY_BLAZE_HURT, 
+					world.playSound((EntityPlayer)null, player.getPosition(), SoundEvents.ENCHANT_THORNS_HIT, 
 							SoundCategory.PLAYERS, 1.0F, world.rand.nextFloat() * 0.4F + 8F);
 					this.setCooldown(player, 20);
 				}

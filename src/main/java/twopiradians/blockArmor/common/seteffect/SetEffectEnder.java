@@ -29,7 +29,7 @@ public class SetEffectEnder extends SetEffect {
 		super.onArmorTick(world, player, stack);
 
 		if (!world.isRemote && ((ItemBlockArmor)stack.getItem()).armorType == EntityEquipmentSlot.FEET &&
-				BlockArmor.key.isKeyDown && !player.getCooldownTracker().hasCooldown(stack.getItem()))	{    
+				BlockArmor.key.isKeyDown(player) && !player.getCooldownTracker().hasCooldown(stack.getItem()))	{    
 			this.setCooldown(player, 50);
 			int distance = player.getRNG().nextInt(10) + 16;
 			double rotX = - Math.sin(player.rotationYaw*Math.PI/180);

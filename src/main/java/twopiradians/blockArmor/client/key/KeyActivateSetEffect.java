@@ -1,6 +1,13 @@
 package twopiradians.blockArmor.client.key;
 
+import java.util.HashMap;
+import java.util.UUID;
+
+import com.google.common.collect.Maps;
+
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.settings.KeyBinding;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent.ClientTickEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent.Phase;
@@ -13,23 +20,25 @@ public class KeyActivateSetEffect
 {
 	@SideOnly(Side.CLIENT)
 	public static KeyBinding ACTIVATE_SET_EFFECT;
-	/**True for initial button press (used for one-time activation)*/
-	public boolean isKeyPressed;
-	/**True if key is pressed down (used for holding key)*/
-	public boolean isKeyDown;
+	/**True if key is pressed down*/
+	public HashMap<UUID, Boolean> isKeyDown = Maps.newHashMap();
 
 	public KeyActivateSetEffect() {}
+	
+	public boolean isKeyDown(EntityPlayer player) {
+		if (player != null)
+			return isKeyDown.get(player.getPersistentID());
+		return false;
+	}
 
 	@SubscribeEvent
 	@SideOnly(Side.CLIENT)
 	public void playerTick(ClientTickEvent event) {
-		if (event.phase == Phase.END) {
-			boolean isPressed = ACTIVATE_SET_EFFECT.isPressed();
-			boolean isDown = ACTIVATE_SET_EFFECT.isKeyDown();
-			if (isPressed != isKeyPressed || isDown != isKeyDown) {
-				isKeyPressed = isPressed;
-				isKeyDown = isDown;
-				BlockArmor.network.sendToServer(new PacketActivateSetEffect(isKeyPressed, isKeyDown));
+		if (event.phase == Phase.END && Minecraft.getMinecraft().thePlayer != null) {
+			UUID player = Minecraft.getMinecraft().thePlayer.getPersistentID();
+			if (!isKeyDown.containsKey(player) || ACTIVATE_SET_EFFECT.isKeyDown() != isKeyDown.get(player)) {
+				isKeyDown.put(player, ACTIVATE_SET_EFFECT.isKeyDown());
+				BlockArmor.network.sendToServer(new PacketActivateSetEffect(ACTIVATE_SET_EFFECT.isKeyDown(), player));
 			}
 		}
 	}

@@ -22,7 +22,7 @@ public class SetEffectExplosive extends SetEffect {
 		super.onArmorTick(world, player, stack);
 
 		if (!world.isRemote && ((ItemBlockArmor)stack.getItem()).armorType == EntityEquipmentSlot.FEET &&
-				BlockArmor.key.isKeyDown && !player.getCooldownTracker().hasCooldown(stack.getItem()) && player.isAllowEdit()) {
+				BlockArmor.key.isKeyDown(player) && !player.getCooldownTracker().hasCooldown(stack.getItem()) && player.isAllowEdit()) {
 			this.setCooldown(player, 20);
 			world.newExplosion(player, player.posX, player.posY+0.5d, player.posZ, 6f, false, true);
 			player.getItemStackFromSlot(EntityEquipmentSlot.HEAD).damageItem(player.getItemStackFromSlot(EntityEquipmentSlot.HEAD).getMaxDamage()/9, player);

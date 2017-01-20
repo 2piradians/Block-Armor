@@ -32,20 +32,20 @@ public class SetEffectBonemealer extends SetEffect {
 		super.onArmorTick(world, player, stack);
 
 		if (!world.isRemote && ((ItemBlockArmor)stack.getItem()).armorType == EntityEquipmentSlot.FEET &&
-				BlockArmor.key.isKeyDown && !player.getCooldownTracker().hasCooldown(stack.getItem())) {
+				BlockArmor.key.isKeyDown(player) && !player.getCooldownTracker().hasCooldown(stack.getItem())) {
 			int radius = 2;
 			ArrayList<BlockPos> bonemealed = new ArrayList<BlockPos>();
 			for (int x=-radius; x<radius; x++)
 				for (int y=-radius; y<radius; y++)
 					for (int z=-radius; z<radius; z++)
 						if (ItemDye.applyBonemeal(new ItemStack(Items.DYE, 1, EnumDyeColor.WHITE.getMetadata()), 
-								world, player.getPosition().add(x, y, z), player))
+								world, player.getPosition().add(x, y, z), player)) 
 							bonemealed.add(player.getPosition().add(x, y, z));
 			if (!bonemealed.isEmpty()) {
 				this.setCooldown(player, 100);
 				for (BlockPos pos : bonemealed)
-				((WorldServer)world).spawnParticle(EnumParticleTypes.VILLAGER_HAPPY, 
-						pos.getX(), pos.getY()+1d, pos.getZ(), 10, 2, 0.1d, 2, 0, new int[0]);
+					((WorldServer)world).spawnParticle(EnumParticleTypes.VILLAGER_HAPPY, 
+							pos.getX(), pos.getY()+1d, pos.getZ(), 10, 2, 0.1d, 2, 0, new int[0]);
 				world.playSound(null, player.getPosition(), SoundEvents.ITEM_HOE_TILL, 
 						SoundCategory.PLAYERS, 0.5f, world.rand.nextFloat()+0.5f);
 				player.getItemStackFromSlot(EntityEquipmentSlot.HEAD).damageItem(1, player);

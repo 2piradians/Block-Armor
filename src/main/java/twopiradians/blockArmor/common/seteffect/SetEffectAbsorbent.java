@@ -22,6 +22,7 @@ import net.minecraft.util.Tuple;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
+import net.minecraft.world.WorldServer;
 import twopiradians.blockArmor.common.BlockArmor;
 import twopiradians.blockArmor.common.item.ArmorSet;
 import twopiradians.blockArmor.common.item.ItemBlockArmor;
@@ -39,11 +40,9 @@ public class SetEffectAbsorbent extends SetEffect {
 	public void onArmorTick(World world, EntityPlayer player, ItemStack stack) {
 		super.onArmorTick(world, player, stack);
 
-		if (world.isRemote && player.getCooldownTracker().hasCooldown(stack.getItem()))
-			for (int i=0; i<5; i++)
-				world.spawnParticle(EnumParticleTypes.WATER_DROP, player.posX+(world.rand.nextDouble()-0.5d)*1.0d, 
-						player.posY+(world.rand.nextDouble()+1d)*1.0d,player.posZ+(world.rand.nextDouble()-0.5d)*1.0d, 
-						0.0d, 0.0d, 0.0d, new int[0]);
+		if (!world.isRemote && player.getCooldownTracker().hasCooldown(stack.getItem())) 
+				((WorldServer)world).spawnParticle(EnumParticleTypes.WATER_DROP, true, player.posX, player.posY+1.0d,player.posZ, 
+						5, 0.2d, 0.5d, 0.2d, 0, new int[0]);
 
 		if (!world.isRemote && ((ItemBlockArmor)stack.getItem()).armorType == EntityEquipmentSlot.FEET &&
 				!player.getCooldownTracker().hasCooldown(stack.getItem())) {
@@ -65,7 +64,7 @@ public class SetEffectAbsorbent extends SetEffect {
 						player.setItemStackToSlot(slot, newStack);
 					}
 				}
-				else if (!world.isRemote && player.isAllowEdit() && BlockArmor.key.isKeyDown &&
+				else if (!world.isRemote && player.isAllowEdit() && BlockArmor.key.isKeyDown(player) &&
 						player.worldObj.getBlockState(player.getPosition()).getBlock() instanceof BlockLiquid) {
 					//change dry sponge to wet sponge
 					if (set.block == Blocks.SPONGE && set.meta == 0) {

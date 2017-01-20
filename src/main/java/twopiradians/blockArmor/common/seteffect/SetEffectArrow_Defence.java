@@ -27,7 +27,7 @@ public class SetEffectArrow_Defence extends SetEffect {
 		super.onArmorTick(world, player, stack);
 
 		if (!world.isRemote && ((ItemBlockArmor)stack.getItem()).armorType == EntityEquipmentSlot.FEET &&
-				BlockArmor.key.isKeyDown && !player.getCooldownTracker().hasCooldown(stack.getItem())) {
+				BlockArmor.key.isKeyDown(player) && !player.getCooldownTracker().hasCooldown(stack.getItem())) {
 			this.setCooldown(player, 40);
 			int numArrows = 16;
 			for(int i = 0; i < numArrows; i++) {

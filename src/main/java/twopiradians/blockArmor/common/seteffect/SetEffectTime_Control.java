@@ -33,7 +33,7 @@ public class SetEffectTime_Control extends SetEffect {
 		super.onArmorTick(world, player, stack);
 
 		if (((ItemBlockArmor)stack.getItem()).armorType == EntityEquipmentSlot.FEET &&
-				BlockArmor.key.isKeyDown) {
+				BlockArmor.key.isKeyDown(player)) {
 			if (block == Blocks.REPEATING_COMMAND_BLOCK)
 				if (world.getWorldTime() < 21)
 					world.setWorldTime(23999 + world.getWorldTime() - 21);

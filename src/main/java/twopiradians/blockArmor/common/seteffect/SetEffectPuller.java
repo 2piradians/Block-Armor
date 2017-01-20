@@ -29,7 +29,7 @@ public class SetEffectPuller extends SetEffect {
 		super.onArmorTick(world, player, stack);
 
 		if (((ItemBlockArmor)stack.getItem()).armorType == EntityEquipmentSlot.FEET &&
-				BlockArmor.key.isKeyDown && !player.getCooldownTracker().hasCooldown(stack.getItem())) {
+				BlockArmor.key.isKeyDown(player) && !player.getCooldownTracker().hasCooldown(stack.getItem())) {
 			AxisAlignedBB aabb = player.getEntityBoundingBox().expand(5, 5, 5);
 			List<Entity> list = player.worldObj.getEntitiesWithinAABBExcludingEntity(player, aabb);
 
@@ -42,7 +42,8 @@ public class SetEffectPuller extends SetEffect {
 						double yVel = entityCollided.posY - player.posY;
 						double zVel = entityCollided.posZ - player.posZ;
 						double velScale = 2 / Math.sqrt(xVel * xVel + yVel * yVel + zVel * zVel);
-						entityCollided.addVelocity(-velScale*xVel, -velScale*yVel, -velScale*zVel);  
+						entityCollided.addVelocity(-velScale*xVel, -velScale*yVel, -velScale*zVel); 
+						entityCollided.velocityChanged = true;
 					}
 				}
 				this.setCooldown(player, 40);
