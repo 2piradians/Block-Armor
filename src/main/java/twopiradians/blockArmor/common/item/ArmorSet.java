@@ -6,7 +6,6 @@ import java.util.List;
 
 import com.google.common.collect.Iterators;
 import com.google.common.collect.Maps;
-import com.sun.istack.internal.Nullable;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockBush;
@@ -348,7 +347,7 @@ public class ArmorSet {
 	}
 
 	/**Determines if entity is wearing all armor of given set or any set if set is null*/
-	public static boolean isWearingFullSet(EntityLivingBase entity, @Nullable ArmorSet set) {
+	public static boolean isWearingFullSet(EntityLivingBase entity, ArmorSet set) {
 		if (entity != null
 				&& entity.getItemStackFromSlot(EntityEquipmentSlot.HEAD) != null
 				&& entity.getItemStackFromSlot(EntityEquipmentSlot.CHEST) != null
