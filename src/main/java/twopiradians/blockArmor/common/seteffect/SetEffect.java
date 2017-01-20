@@ -19,6 +19,8 @@ import net.minecraft.nbt.NBTTagList;
 import net.minecraft.potion.PotionEffect;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 import twopiradians.blockArmor.client.key.KeyActivateSetEffect;
 import twopiradians.blockArmor.common.BlockArmor;
 import twopiradians.blockArmor.common.item.ArmorSet;
@@ -213,13 +215,17 @@ public class SetEffect {
 	}
 
 	/**Set effect name and description if shifting*/
+	@SideOnly(Side.CLIENT)
 	public List<String> addInformation(ItemStack stack, boolean isShiftDown, EntityPlayer player, List<String> tooltip, boolean advanced) {
 		ArmorSet set = ArmorSet.getSet((ItemBlockArmor) stack.getItem());
 
-		String string = ArmorSet.isSetEffectEnabled(set) ? "" : TextFormatting.STRIKETHROUGH.toString();
-		string += color+""+TextFormatting.BOLD+this.toString()+TextFormatting.RESET;
+		String string = color+""+TextFormatting.BOLD;
+		string += ArmorSet.isSetEffectEnabled(set) ? "" : TextFormatting.STRIKETHROUGH.toString();
+		string += this.toString()+TextFormatting.RESET;
 		if (isShiftDown) {
-			string += color+": "+TextFormatting.ITALIC+description+TextFormatting.RESET;
+			string += color;
+			string += ArmorSet.isSetEffectEnabled(set) ? "" : TextFormatting.STRIKETHROUGH.toString();
+			string += ": "+TextFormatting.ITALIC+description+TextFormatting.RESET;
 			if (this.usesButton)
 				string += TextFormatting.BLUE+" <"+TextFormatting.BOLD+KeyActivateSetEffect.ACTIVATE_SET_EFFECT.getDisplayName()
 				+TextFormatting.RESET+""+TextFormatting.BLUE+">";

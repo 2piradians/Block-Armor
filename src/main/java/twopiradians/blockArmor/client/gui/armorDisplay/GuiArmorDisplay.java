@@ -40,7 +40,7 @@ import twopiradians.blockArmor.common.seteffect.SetEffect;
 public class GuiArmorDisplay extends GuiScreen
 {
 	/**Should armor display be opened on chat event?*/
-	public static final boolean DISPLAY_ARMOR_GUI = true;
+	public static final boolean DISPLAY_ARMOR_GUI = false;
 	/**0 = vanilla sets, 1 = modded sets, 2 = set effects w/armor, 3 = set effect tooltips (v2.2+), 4 set effect itemstacks (v2.2+)*/
 	public static final int GUI_MODE = 4; //do modes 3 and 4 in normal gui size
 

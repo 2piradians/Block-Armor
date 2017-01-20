@@ -3,12 +3,15 @@ package twopiradians.blockArmor.client;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import org.lwjgl.input.Keyboard;
+
 import com.google.common.collect.Maps;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.resources.IReloadableResourceManager;
 import net.minecraft.client.resources.IResourceManager;
 import net.minecraft.client.resources.IResourceManagerReloadListener;
+import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.inventory.EntityEquipmentSlot;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
@@ -47,6 +50,7 @@ public class ClientProxy extends CommonProxy
 	@Override
 	public void preInit(FMLPreInitializationEvent event) {
 		super.preInit(event);
+		KeyActivateSetEffect.ACTIVATE_SET_EFFECT = new KeyBinding("Activate Set Effect", Keyboard.KEY_R, BlockArmor.MODNAME);
 		ModelLoaderRegistry.registerLoader(ModelDynBlockArmor.LoaderDynBlockArmor.INSTANCE);
 	}
 

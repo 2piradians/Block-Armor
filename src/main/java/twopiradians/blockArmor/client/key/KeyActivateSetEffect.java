@@ -1,7 +1,5 @@
 package twopiradians.blockArmor.client.key;
 
-import org.lwjgl.input.Keyboard;
-
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent.ClientTickEvent;
@@ -14,7 +12,7 @@ import twopiradians.blockArmor.packet.PacketActivateSetEffect;
 public class KeyActivateSetEffect 
 {
 	@SideOnly(Side.CLIENT)
-	public static final KeyBinding ACTIVATE_SET_EFFECT = new KeyBinding("Activate Set Effect", Keyboard.KEY_R, BlockArmor.MODNAME);
+	public static KeyBinding ACTIVATE_SET_EFFECT;
 	/**True for initial button press (used for one-time activation)*/
 	public boolean isKeyPressed;
 	/**True if key is pressed down (used for holding key)*/
