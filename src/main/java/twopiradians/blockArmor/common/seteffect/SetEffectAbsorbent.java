@@ -39,7 +39,7 @@ public class SetEffectAbsorbent extends SetEffect {
 	public void onArmorTick(World world, EntityPlayer player, ItemStack stack) {
 		super.onArmorTick(world, player, stack);
 
-		if (world.isRemote && !player.getCooldownTracker().hasCooldown(stack.getItem()))
+		if (world.isRemote && player.getCooldownTracker().hasCooldown(stack.getItem()))
 			for (int i=0; i<5; i++)
 				world.spawnParticle(EnumParticleTypes.WATER_DROP, player.posX+(world.rand.nextDouble()-0.5d)*1.0d, 
 						player.posY+(world.rand.nextDouble()+1d)*1.0d,player.posZ+(world.rand.nextDouble()-0.5d)*1.0d, 
@@ -126,7 +126,8 @@ public class SetEffectAbsorbent extends SetEffect {
 	/**Should block be given this set effect*/
 	@Override
 	protected boolean isValid(Block block, int meta) {	
-		if (SetEffect.registryNameContains(block, new String[] {"sponge", "absorb"}))
+		if (SetEffect.registryNameContains(block, new String[] {"sponge", "absorb"}) && 
+				!SetEffect.registryNameContains(block, new String[] {"wet"}))
 			return true;		
 		return false;
 	}

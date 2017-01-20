@@ -49,7 +49,7 @@ public class SetEffectArrow_Defence extends SetEffect {
 	/**Should block be given this set effect*/
 	@Override
 	protected boolean isValid(Block block, int meta) {		
-		if (SetEffect.registryNameContains(block, new String[] {"dispense", "shoot", "arrow", "bow"}))
+		if (SetEffect.registryNameContains(block, new String[] {"dispense", "shoot", "arrow"}))
 			return true;
 		return false;
 	}
