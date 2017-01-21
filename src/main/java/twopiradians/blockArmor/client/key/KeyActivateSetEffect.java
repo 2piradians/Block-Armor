@@ -27,7 +27,7 @@ public class KeyActivateSetEffect
 	
 	public boolean isKeyDown(EntityPlayer player) {
 		if (player != null)
-			return isKeyDown.get(player.getPersistentID());
+			return isKeyDown.containsKey(player.getPersistentID()) ? isKeyDown.get(player.getPersistentID()) : false;
 		return false;
 	}
 
