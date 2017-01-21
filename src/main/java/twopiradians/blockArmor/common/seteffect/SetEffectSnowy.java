@@ -35,21 +35,19 @@ public class SetEffectSnowy extends SetEffect {
 					((WorldServer)world).spawnParticle(EnumParticleTypes.SNOW_SHOVEL, player.posX+(world.rand.nextDouble()-0.5D)*radius, 
 							player.posY+world.rand.nextDouble()+2D, player.posZ+(world.rand.nextDouble()-0.5D)*radius, 
 							1, 0, 0, 0, 0, new int[0]);
-					((WorldServer)world).spawnParticle(EnumParticleTypes.CLOUD, player.posX+(world.rand.nextDouble()-0.5D)*radius, 
-							player.posY+world.rand.nextDouble()*0.5d+2.5D, player.posZ+(world.rand.nextDouble()-0.5D)*radius, 
-							3, 0, 0, 0, 0, new int[0]);
+				((WorldServer)world).spawnParticle(EnumParticleTypes.CLOUD, player.posX+(world.rand.nextDouble()-0.5D)*radius, 
+						player.posY+world.rand.nextDouble()*0.5d+2.5D, player.posZ+(world.rand.nextDouble()-0.5D)*radius, 
+						3, 0, 0, 0, 0, new int[0]);
 				if (world.rand.nextInt(5) == 0)
 					world.playSound(null, player.posX, player.posY, player.posZ, SoundEvents.WEATHER_RAIN, 
 							player.getSoundCategory(), 0.1f, world.rand.nextFloat());
-			}
-			else {
 				for (int x=-radius/2; x<=radius/2; x++)
 					for (int z=-radius/2; z<=radius/2; z++)
 						for (int y=0; y<=2; y++)
 							if (player.isAllowEdit() && world.rand.nextInt(100) == 0 && world.isAirBlock(player.getPosition().add(x, y, z))) {
 								if (world.getBlockState(player.getPosition().add(x, y-1, z)).getBlock().isVisuallyOpaque(world.getBlockState(player.getPosition().add(x, y-1, z))))
 									world.setBlockState(player.getPosition().add(x, y, z), Blocks.SNOW_LAYER.getDefaultState());
-								else if (world.getBlockState(player.getPosition().add(x, y-1, z)).getBlock() == Blocks.WATER)
+								else if (world.getBlockState(player.getPosition().add(x, y-1, z)) == Blocks.WATER.getDefaultState())
 									world.setBlockState(player.getPosition().add(x, y-1, z), Blocks.FROSTED_ICE.getDefaultState());
 								else if (world.getBlockState(player.getPosition().add(x, y-1, z)).getBlock() == Blocks.FROSTED_ICE)
 									world.setBlockState(player.getPosition().add(x, y-1, z), Blocks.FROSTED_ICE.getDefaultState());

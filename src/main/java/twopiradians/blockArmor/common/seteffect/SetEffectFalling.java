@@ -37,7 +37,7 @@ public class SetEffectFalling extends SetEffect {
 		}			
 		//fall faster
 		if (world.isRemote && ((ItemBlockArmor)stack.getItem()).armorType == EntityEquipmentSlot.FEET &&
-				player.isSneaking() && Math.abs(player.motionY) < 3.5d)
+				player.isSneaking() && Math.abs(player.motionY) < 3.5d && player.motionY < 0)
 			player.motionY *= 1.3d;
 	}
 
