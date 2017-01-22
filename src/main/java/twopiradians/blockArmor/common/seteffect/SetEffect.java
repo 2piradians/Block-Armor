@@ -194,7 +194,9 @@ public class SetEffect {
 						enchantNbt.appendTag(nbt);
 					}
 				}
-				if (!enchantNbt.hasNoTags())
+				if (enchantNbt.hasNoTags())
+					stack.getTagCompound().removeTag("ench");
+				else
 					stack.getTagCompound().setTag("ench", enchantNbt);
 			}
 		}

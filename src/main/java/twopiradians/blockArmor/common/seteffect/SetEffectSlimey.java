@@ -61,20 +61,22 @@ public class SetEffectSlimey extends SetEffect {
 			EntityPlayer player = (EntityPlayer) event.getEntity();
 			event.setDamageMultiplier(0);
 
-			if (event.getDistance() <= 40 && event.getDistance() > 2.5D)
-				player.motionY = Math.abs(player.motionY * 0.9d);
-			else if (event.getDistance() > 40 && event.getDistance() <= 100)
-				player.motionY = Math.abs(player.motionY * 0.9d * 1.5D);
-			else if (event.getDistance() > 100)
-				player.motionY = Math.abs(player.motionY * 0.9d * 2D);
+			if (!player.isSneaking() && player.worldObj.isRemote) {
+				if (event.getDistance() <= 40 && event.getDistance() > 2.5D)
+					player.motionY = Math.abs(player.motionY * 0.9d);
+				else if (event.getDistance() > 40 && event.getDistance() <= 100)
+					player.motionY = Math.abs(player.motionY * 0.9d * 1.5D);
+				else if (event.getDistance() > 100)
+					player.motionY = Math.abs(player.motionY * 0.9d * 2D);
 
-			if (event.getDistance() > 2.5D)
-				player.worldObj.playSound(player, player.posX, player.posY, player.posZ, 
-						event.getDistance() > 40 ? SoundEvents.ENTITY_SLIME_JUMP : SoundEvents.ENTITY_SLIME_SQUISH, 
-								SoundCategory.PLAYERS, 1.0F, 1.0F);
-			player.onGround = true;
-			bouncingPlayer = player;
-			motionY = player.motionY;
+				if (event.getDistance() > 2.5D)
+					player.worldObj.playSound(player, player.posX, player.posY, player.posZ, 
+							event.getDistance() > 40 ? SoundEvents.ENTITY_SLIME_JUMP : SoundEvents.ENTITY_SLIME_SQUISH, 
+									SoundCategory.PLAYERS, 1.0F, 1.0F);
+				player.onGround = true;
+				bouncingPlayer = player;
+				motionY = player.motionY;
+			}
 		}
 	}
 
