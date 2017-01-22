@@ -6,6 +6,9 @@ import javax.annotation.Nullable;
 import net.minecraft.block.Block;
 import net.minecraft.block.ITileEntityProvider;
 import net.minecraft.block.material.Material;
+import net.minecraft.block.properties.IProperty;
+import net.minecraft.block.properties.PropertyInteger;
+import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumBlockRenderType;
@@ -15,69 +18,86 @@ import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import twopiradians.blockArmor.common.tileentity.TileEntityMovingLightSource;
 
-/**Used for armor sets that produce light.*/
+/**Used for armor sets that produce light*/
 public class BlockMovingLightSource extends Block implements ITileEntityProvider
 {
-	protected static final AxisAlignedBB LIGHT = new AxisAlignedBB(0.5D, 0.5D, 0.5D, 0.5D, 0.5D, 0.5D);
+	public static final IProperty<Integer> LIGHT_LEVEL = PropertyInteger.create("light_level", 1, 15);
 
-	public BlockMovingLightSource()
-	{
+	public BlockMovingLightSource() {
 		super(Material.AIR);
-		setUnlocalizedName("movinglightsource");
-		setLightLevel(0.6F);
 	}
 
-	//deprecated
 	@Override
-	public EnumBlockRenderType getRenderType(IBlockState state)
+	public IBlockState getStateFromMeta(int meta)
 	{
+		return this.getDefaultState().withProperty(LIGHT_LEVEL, meta);
+	}
+
+	@Override
+	public int getMetaFromState(IBlockState state)
+	{
+		return state.getValue(LIGHT_LEVEL).intValue();
+	}
+
+	@Override
+	protected BlockStateContainer createBlockState()
+	{
+		return new BlockStateContainer(this, LIGHT_LEVEL);
+	}
+	
+	@Override
+	public int getLightValue(IBlockState state, IBlockAccess world, BlockPos pos)
+    {
+		return this.getLightValue(state);
+    }
+	
+    @Override
+    public int getLightValue(IBlockState state)
+    {
+        return state.getValue(LIGHT_LEVEL);
+    }
+
+	@Override
+	public EnumBlockRenderType getRenderType(IBlockState state){
 		return EnumBlockRenderType.INVISIBLE;
 	}
 
-	//deprecated
-	@Override
-	public AxisAlignedBB getBoundingBox(IBlockState state, IBlockAccess source, BlockPos pos)
-	{     
-		return LIGHT;
-	}
-
-	//deprecated
 	@Nullable
-	public AxisAlignedBB getCollisionBoundingBox(IBlockState blockState, World worldIn, BlockPos pos)
-	{
+	public AxisAlignedBB getCollisionBoundingBox(IBlockState state, IBlockAccess world, BlockPos pos){
 		return NULL_AABB;
 	}
 
-	//deprecated
-	public boolean isOpaqueCube(IBlockState state)
-	{
-		return false;
-	}
-
-	//deprecated
-	public boolean isFullCube(IBlockState state)
-	{
+	@Override
+	public boolean isOpaqueCube(IBlockState state) {
 		return false;
 	}
 
 	@Override
-	public TileEntity createNewTileEntity(World worldIn, int meta) 
-	{
+	public boolean canCollideCheck(IBlockState state, boolean hitIfLiquid) {
+		return false;
+	}
+
+	@Override
+	public void dropBlockAsItemWithChance(World world, BlockPos pos, IBlockState state, float chance, int fortune) {}
+
+	@Override
+	public boolean isReplaceable(IBlockAccess world, BlockPos pos){
+		return true;
+	}
+
+	@Override
+	public boolean isFullCube(IBlockState state) {
+		return false;
+	}
+
+	@Override
+	public TileEntity createNewTileEntity(World world, int meta) {
 		return new TileEntityMovingLightSource();
 	}
 
-	@Override
-	public void breakBlock(World world, BlockPos pos, IBlockState state) 
-	{
-		super.breakBlock(world, pos, state);
-		world.removeTileEntity(pos);
-	}
-
-	//deprecated
 	@SuppressWarnings("deprecation")
 	@Override
-	public boolean eventReceived(IBlockState state, World worldIn, BlockPos pos, int id, int param)
-	{
+	public boolean eventReceived(IBlockState state, World worldIn, BlockPos pos, int id, int param) {
 		super.eventReceived(state, worldIn, pos, id, param);
 		TileEntity tileentity = worldIn.getTileEntity(pos);
 		return tileentity == null ? false : tileentity.receiveClientEvent(id, param);

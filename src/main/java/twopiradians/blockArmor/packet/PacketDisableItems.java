@@ -1,4 +1,4 @@
-package twopiradians.blockArmor.packets;
+package twopiradians.blockArmor.packet;
 
 import java.util.ArrayList;
 
@@ -12,16 +12,16 @@ import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import twopiradians.blockArmor.common.item.ArmorSet;
 
-public class DisableItemsPacket implements IMessage
+public class PacketDisableItems implements IMessage
 {
 	protected ArrayList<ItemStack> itemsToDisable;
 
-	public DisableItemsPacket() 
+	public PacketDisableItems() 
 	{
 
 	}
 
-	public DisableItemsPacket(ArrayList<ItemStack> itemsToDisable) 
+	public PacketDisableItems(ArrayList<ItemStack> itemsToDisable) 
 	{
 		this.itemsToDisable = itemsToDisable;
 	}
@@ -43,10 +43,10 @@ public class DisableItemsPacket implements IMessage
 			ByteBufUtils.writeItemStack(buf, stack);
 	}
 
-	public static class Handler implements IMessageHandler<DisableItemsPacket, IMessage>
+	public static class Handler implements IMessageHandler<PacketDisableItems, IMessage>
 	{
 		@Override
-		public IMessage onMessage(final DisableItemsPacket packet, final MessageContext ctx) 
+		public IMessage onMessage(final PacketDisableItems packet, final MessageContext ctx) 
 		{
 			IThreadListener mainThread = (WorldServer) ctx.getServerHandler().playerEntity.worldObj;
 			mainThread.addScheduledTask(new Runnable() 

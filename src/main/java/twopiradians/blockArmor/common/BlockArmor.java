@@ -4,12 +4,8 @@ import java.io.File;
 
 import org.apache.logging.log4j.Logger;
 
-import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.init.Blocks;
-import net.minecraft.init.Items;
 import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventHandler;
 import net.minecraftforge.fml.common.SidedProxy;
@@ -20,110 +16,52 @@ import net.minecraftforge.fml.common.event.FMLMissingMappingsEvent.MissingMappin
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLServerStartingEvent;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerLoggedInEvent;
 import net.minecraftforge.fml.common.network.NetworkRegistry;
 import net.minecraftforge.fml.common.network.simpleimpl.SimpleNetworkWrapper;
-import net.minecraftforge.fml.common.registry.GameRegistry;
-import net.minecraftforge.fml.relauncher.Side;
-import twopiradians.blockArmor.common.block.ModBlocks;
+import twopiradians.blockArmor.client.key.KeyActivateSetEffect;
 import twopiradians.blockArmor.common.command.CommandDev;
-import twopiradians.blockArmor.common.config.Config;
-import twopiradians.blockArmor.common.events.AutoSmeltEvent;
-import twopiradians.blockArmor.common.events.IgniteTargetEvent;
-import twopiradians.blockArmor.common.events.IncreaseFortuneEvent;
-import twopiradians.blockArmor.common.events.StopFallDamageEvent;
 import twopiradians.blockArmor.common.item.ArmorSet;
-import twopiradians.blockArmor.common.item.ModItems;
-import twopiradians.blockArmor.common.tileentity.ModTileEntities;
 import twopiradians.blockArmor.creativetab.BlockArmorCreativeTab;
-import twopiradians.blockArmor.packets.DevColorsPacket;
-import twopiradians.blockArmor.packets.DisableItemsPacket;
 
-@Mod(modid = BlockArmor.MODID, version = BlockArmor.VERSION, name = BlockArmor.MODNAME, guiFactory = "twopiradians.blockArmor.client.gui.config.BlockArmorGuiFactory", updateJSON = "https://raw.githubusercontent.com/2piradians/Block-Armor/1.10.2/update.json")
+@Mod(modid = BlockArmor.MODID, version = BlockArmor.VERSION, name = BlockArmor.MODNAME, guiFactory = "twopiradians.blockArmor.client.gui.config.BlockArmorGuiFactory", updateJSON = "https://raw.githubusercontent.com/2piradians/Block-Armor/1.11/update.json")
 public class BlockArmor
-{ 
+{
 	public static final String MODNAME = "Block Armor"; 
 	public static final String MODID = "blockarmor";
-	public static final String VERSION = "2.1";
+	public static final String VERSION = "2.2";
 	public static BlockArmorCreativeTab vanillaTab;
 	public static BlockArmorCreativeTab moddedTab;
 	@SidedProxy(clientSide = "twopiradians.blockArmor.client.ClientProxy", serverSide = "twopiradians.blockArmor.common.CommonProxy")
 	public static CommonProxy proxy;
 	public static Logger logger;
 	public static SimpleNetworkWrapper network = NetworkRegistry.INSTANCE.newSimpleChannel(MODID);
-	/**Should armor display be opened on chat event?*/
-	public static final boolean DISPLAY_ARMOR_GUI = false;
-	/**0 = vanilla sets, 1 = modded sets, 2 = set effects*/
-	public static final int GUI_MODE = 2;
-	private File configFile;
+	public static KeyActivateSetEffect key = new KeyActivateSetEffect();
+	public static CommandDev command = new CommandDev();
+	protected static File configFile;
 
 	@EventHandler
 	public void preInit(FMLPreInitializationEvent event) {
-		registerPackets();
-		configFile = event.getSuggestedConfigurationFile();
-		logger = event.getModLog();
-		proxy.preInit();
-		ModBlocks.preInit();
-		ModTileEntities.preInit();
+		proxy.preInit(event);
 	}
 
 	@EventHandler
 	public void init(FMLInitializationEvent event) {
-		proxy.init();
-		registerEventListeners();
+		proxy.init(event);
 	}
 
 	@EventHandler
 	public void postInit(FMLPostInitializationEvent event) {
-		ArmorSet.postInit();
-		Config.postInit(configFile);
-		ModItems.postInit();
-		registerRecipes();
-		proxy.postInit();
+		proxy.postInit(event);
 	}
 	
 	@EventHandler
-	public void serverLoad(FMLServerStartingEvent event)
-	{
-		event.registerServerCommand(new CommandDev());
+	public void serverLoad(FMLServerStartingEvent event) {
+		event.registerServerCommand(command);
 	}
 	
 	@Mod.EventHandler
 	public void loadComplete(FMLLoadCompleteEvent event) {
 		proxy.loadComplete(event);
-	}
-
-	private void registerRecipes() {
-		for (ArmorSet set : ArmorSet.allSets) {
-			ItemStack stack = set.block == Blocks.EMERALD_BLOCK ? new ItemStack(Items.EMERALD) : set.stack;
-			GameRegistry.addShapedRecipe(new ItemStack(set.helmet),"AAA","A A",'A', stack);
-			GameRegistry.addShapedRecipe(new ItemStack(set.chestplate),"A A","AAA","AAA",'A', stack);
-			GameRegistry.addShapedRecipe(new ItemStack(set.leggings),"AAA","A A","A A",'A', stack);
-			GameRegistry.addShapedRecipe(new ItemStack(set.boots),"A A","A A",'A', stack);
-		}
-	}
-
-	private void registerEventListeners() {
-		MinecraftForge.EVENT_BUS.register(new IncreaseFortuneEvent());
-		MinecraftForge.EVENT_BUS.register(new Config());
-		MinecraftForge.EVENT_BUS.register(new StopFallDamageEvent());
-		MinecraftForge.EVENT_BUS.register(new IgniteTargetEvent());
-		MinecraftForge.EVENT_BUS.register(new AutoSmeltEvent());
-		MinecraftForge.EVENT_BUS.register(this);
-	}
-	
-	private void registerPackets() {
-		int id = 0;
-		network.registerMessage(DisableItemsPacket.Handler.class, DisableItemsPacket.class, id++, Side.SERVER);
-		network.registerMessage(DevColorsPacket.Handler.class, DevColorsPacket.class, id++, Side.CLIENT);
-	}
-	
-	@SubscribeEvent
-	public void playerJoin(PlayerLoggedInEvent event)
-	{
-		if (!event.player.worldObj.isRemote && event.player instanceof EntityPlayerMP)
-			BlockArmor.network.sendTo(new DevColorsPacket(), (EntityPlayerMP) event.player);
 	}
 	
 	/**Replace armor from old versions to new auto-generated armor and ignore other missing mappings*/
