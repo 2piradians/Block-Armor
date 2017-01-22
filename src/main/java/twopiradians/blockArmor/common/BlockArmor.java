@@ -23,7 +23,7 @@ import twopiradians.blockArmor.common.command.CommandDev;
 import twopiradians.blockArmor.common.item.ArmorSet;
 import twopiradians.blockArmor.creativetab.BlockArmorCreativeTab;
 
-@Mod(modid = BlockArmor.MODID, version = BlockArmor.VERSION, name = BlockArmor.MODNAME, guiFactory = "twopiradians.blockArmor.client.gui.config.BlockArmorGuiFactory", updateJSON = "https://raw.githubusercontent.com/2piradians/Block-Armor/1.11/update.json")
+@Mod(modid = BlockArmor.MODID, version = BlockArmor.VERSION, name = BlockArmor.MODNAME, guiFactory = "twopiradians.blockArmor.client.gui.config.BlockArmorGuiFactory", updateJSON = "https://raw.githubusercontent.com/2piradians/Block-Armor/1.10.2/update.json")
 public class BlockArmor
 {
 	public static final String MODNAME = "Block Armor"; 
