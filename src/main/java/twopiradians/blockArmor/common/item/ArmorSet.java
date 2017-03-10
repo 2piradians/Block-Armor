@@ -367,7 +367,7 @@ public class ArmorSet {
 				if (stack != null && stack.getItem() instanceof ItemBlockArmor) {
 					ItemBlockArmor armor = (ItemBlockArmor) stack.getItem();
 					for (SetEffect effect : armor.set.setEffects)
-						if (setCounts.containsKey(armor.set))
+						if (setCounts.containsKey(effect))
 							setCounts.put(effect, setCounts.get(effect)+1);
 						else
 							setCounts.put(effect, 1);
