@@ -149,15 +149,15 @@ public class SetEffect {
 
 	public void onUpdate(ItemStack stack, World world, Entity entity, int slot, boolean isSelected) {
 		if (!world.isRemote) {
-			//keep track of wearingFullSet nbt if it has attributeModifiers
+			//keep track of activeEffects nbt if it has attributeModifiers
 			if (!this.attributeModifiers.isEmpty()) {
 				ArmorSet set = ArmorSet.getSet((ItemBlockArmor) stack.getItem());
-				if (!(entity instanceof EntityLivingBase) || !ArmorSet.isWearingFullSet((EntityLivingBase) entity, set) || 
+				if (!(entity instanceof EntityLivingBase) || !ArmorSet.getActiveSets((EntityLivingBase) entity).contains(set) || 
 						((EntityLivingBase) entity).getItemStackFromSlot(((ItemBlockArmor)stack.getItem()).armorType) != stack ||
 						!ArmorSet.isSetEffectEnabled(set)) 
-					stack.getTagCompound().setBoolean("wearingFullSet", false);
+					stack.getTagCompound().setBoolean("activeEffects", false);
 				else
-					stack.getTagCompound().setBoolean("wearingFullSet", true);
+					stack.getTagCompound().setBoolean("activeEffects", true);
 			}
 
 			//do enchantments
@@ -178,7 +178,7 @@ public class SetEffect {
 
 					//should remove enchantment
 					if (hasEnchant && (!(entity instanceof EntityLivingBase) || 
-							!ArmorSet.isWearingFullSet((EntityLivingBase) entity, set) || !ArmorSet.isSetEffectEnabled(set))) {
+							!ArmorSet.getActiveSets((EntityLivingBase) entity).contains(set) || !ArmorSet.isSetEffectEnabled(set))) {
 						for (int i=enchantNbt.tagCount()-1; i>=0; i--)
 							if (enchantNbt.getCompoundTagAt(i).getBoolean(BlockArmor.MODID+" enchant"))
 								enchantNbt.removeTag(i);
@@ -186,7 +186,7 @@ public class SetEffect {
 					//should add enchantment
 					else if (!hasEnchant && 
 							((EntityLivingBase) entity).getItemStackFromSlot(((ItemBlockArmor)stack.getItem()).armorType) == stack &&
-							ArmorSet.isWearingFullSet((EntityLivingBase) entity, set) && ArmorSet.isSetEffectEnabled(set)) {
+							!ArmorSet.getActiveSets((EntityLivingBase) entity).contains(set) && ArmorSet.isSetEffectEnabled(set)) {
 						NBTTagCompound nbt = new NBTTagCompound();
 						nbt.setShort("id", (short)Enchantment.getEnchantmentID(enchant.ench));
 						nbt.setShort("lvl", enchant.level);
@@ -209,7 +209,7 @@ public class SetEffect {
 		if (!stack.hasTagCompound())
 			stack.setTagCompound(new NBTTagCompound());
 
-		if (stack.getTagCompound().getBoolean("wearingFullSet")) 
+		if (stack.getTagCompound().getBoolean("activeEffects")) 
 			for (AttributeModifier attribute : this.attributeModifiers)
 				map.put(attribute.getName(), attribute);
 

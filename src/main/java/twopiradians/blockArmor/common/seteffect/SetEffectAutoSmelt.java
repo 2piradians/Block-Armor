@@ -1,5 +1,6 @@
 package twopiradians.blockArmor.common.seteffect;
 
+import java.util.ArrayList;
 import java.util.ListIterator;
 
 import net.minecraft.block.Block;
@@ -28,40 +29,42 @@ public class SetEffectAutoSmelt extends SetEffect {
 	@SubscribeEvent
 	public void onEvent(HarvestDropsEvent event) //only server side
 	{
-		ArmorSet set = ArmorSet.getWornSet(event.getHarvester());
-		if (ArmorSet.isSetEffectEnabled(set) && set.setEffects.contains(this)) {
-			if (event.getWorld().isRemote || event.isSilkTouching())
-				return;
+		ArrayList<ArmorSet> sets = ArmorSet.getActiveSets(event.getHarvester());
+		for (ArmorSet set : sets)
+			if (ArmorSet.isSetEffectEnabled(set) && set.setEffects.contains(this)) {
+				if (event.getWorld().isRemote || event.isSilkTouching())
+					return;
 
-			ListIterator<ItemStack> dropsIterator = event.getDrops().listIterator();
+				ListIterator<ItemStack> dropsIterator = event.getDrops().listIterator();
 
-			boolean smelted = false;
-			while (dropsIterator.hasNext()) {
-				ItemStack oldDrops = dropsIterator.next();
-				ItemStack newDrops = FurnaceRecipes.instance().getSmeltingResult(oldDrops);
+				boolean smelted = false;
+				while (dropsIterator.hasNext()) {
+					ItemStack oldDrops = dropsIterator.next();
+					ItemStack newDrops = FurnaceRecipes.instance().getSmeltingResult(oldDrops);
 
-				if (newDrops != null && newDrops.getItem() != null && !(newDrops.getItem() instanceof ItemAir)) {
-					newDrops = newDrops.copy();
-					event.getDrops().clear();
-					event.getDrops().add(newDrops);
-					smelted = true;	
+					if (newDrops != null && newDrops.getItem() != null && !(newDrops.getItem() instanceof ItemAir)) {
+						newDrops = newDrops.copy();
+						event.getDrops().clear();
+						event.getDrops().add(newDrops);
+						smelted = true;	
+					}
 				}
-			}
 
-			if (smelted) {
-				((WorldServer)event.getWorld()).spawnParticle(EnumParticleTypes.SMOKE_NORMAL, 
-						(float)event.getPos().getX()+0.5f, (float)event.getPos().getY()+0.5f,(float)event.getPos().getZ()+0.5f, 
-						10, 0.3f, 0.3f, 0.3f, 0, new int[0]);
-				event.getWorld().playSound(null, event.getHarvester().getPosition(), 
-						SoundEvents.ENTITY_BLAZE_SHOOT, SoundCategory.PLAYERS, 0.2f, event.getWorld().rand.nextFloat()+0.7f);			
-				if (event.getWorld().rand.nextInt(4) == 0) {
-					event.getHarvester().getItemStackFromSlot(EntityEquipmentSlot.HEAD).damageItem(1, event.getHarvester());
-					event.getHarvester().getItemStackFromSlot(EntityEquipmentSlot.CHEST).damageItem(1, event.getHarvester());
-					event.getHarvester().getItemStackFromSlot(EntityEquipmentSlot.LEGS).damageItem(1, event.getHarvester());
-					event.getHarvester().getItemStackFromSlot(EntityEquipmentSlot.FEET).damageItem(1, event.getHarvester());
+				if (smelted) {
+					((WorldServer)event.getWorld()).spawnParticle(EnumParticleTypes.SMOKE_NORMAL, 
+							(float)event.getPos().getX()+0.5f, (float)event.getPos().getY()+0.5f,(float)event.getPos().getZ()+0.5f, 
+							10, 0.3f, 0.3f, 0.3f, 0, new int[0]);
+					event.getWorld().playSound(null, event.getHarvester().getPosition(), 
+							SoundEvents.ENTITY_BLAZE_SHOOT, SoundCategory.PLAYERS, 0.2f, event.getWorld().rand.nextFloat()+0.7f);			
+					if (event.getWorld().rand.nextInt(4) == 0) {
+						event.getHarvester().getItemStackFromSlot(EntityEquipmentSlot.HEAD).damageItem(1, event.getHarvester());
+						event.getHarvester().getItemStackFromSlot(EntityEquipmentSlot.CHEST).damageItem(1, event.getHarvester());
+						event.getHarvester().getItemStackFromSlot(EntityEquipmentSlot.LEGS).damageItem(1, event.getHarvester());
+						event.getHarvester().getItemStackFromSlot(EntityEquipmentSlot.FEET).damageItem(1, event.getHarvester());
+					}
 				}
+				break;
 			}
-		}
 	}
 
 	/**Should block be given this set effect*/

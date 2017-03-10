@@ -1,5 +1,7 @@
 package twopiradians.blockArmor.common.seteffect;
 
+import java.util.ArrayList;
+
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockFalling;
 import net.minecraft.entity.player.EntityPlayer;
@@ -29,11 +31,14 @@ public class SetEffectFalling extends SetEffect {
 		//particles
 		if (!world.isRemote && ((ItemBlockArmor)stack.getItem()).armorType == EntityEquipmentSlot.FEET &&
 				world.rand.nextInt(16) == 0) {
-			ArmorSet set = ArmorSet.getWornSet(player);
-			if (set != null && set.block instanceof BlockFalling)
-				((WorldServer)world).spawnParticle(EnumParticleTypes.FALLING_DUST, 
-						player.posX, player.posY+1d,player.posZ, 
-						1, 0.3f, 0.5f, 0.3f, 0, new int[] {Block.getStateId(set.block.getDefaultState())});
+			ArrayList<ArmorSet> sets = ArmorSet.getActiveSets(player);
+			for (ArmorSet set : sets)
+				if (set != null && set.block instanceof BlockFalling) {
+					((WorldServer)world).spawnParticle(EnumParticleTypes.FALLING_DUST, 
+							player.posX, player.posY+1d,player.posZ, 
+							1, 0.3f, 0.5f, 0.3f, 0, new int[] {Block.getStateId(set.block.getDefaultState())});
+					break;
+				}
 		}			
 		//fall faster
 		if (world.isRemote && ((ItemBlockArmor)stack.getItem()).armorType == EntityEquipmentSlot.FEET &&

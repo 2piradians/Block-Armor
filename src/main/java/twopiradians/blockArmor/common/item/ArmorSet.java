@@ -335,7 +335,7 @@ public class ArmorSet {
 		return name;
 	}
 
-	/**Returns the armor set that the entity is wearing or null if not wearing a full set*/
+	/*	*//**Returns the armor set that the entity is wearing or null if not wearing a full set*//*
 	public static ArmorSet getWornSet(EntityLivingBase entity) {
 		if (entity != null) {
 			ItemStack boots = entity.getItemStackFromSlot(EntityEquipmentSlot.FEET);
@@ -344,9 +344,33 @@ public class ArmorSet {
 				return ((ItemBlockArmor)boots.getItem()).set;
 		}
 		return null;
+	}*/
+
+	/**Returns the armor sets that the entity is wearing that have enough pieces to active set effects*/
+	public static ArrayList<ArmorSet> getActiveSets(EntityLivingBase entity) {
+		ArrayList<ArmorSet> sets = new ArrayList<ArmorSet>();
+		HashMap<ArmorSet, Integer> setCounts = Maps.newHashMap();
+		EntityEquipmentSlot[] slots = new EntityEquipmentSlot[] 
+				{EntityEquipmentSlot.HEAD, EntityEquipmentSlot.CHEST, EntityEquipmentSlot.LEGS, EntityEquipmentSlot.FEET};
+		if (entity != null) {
+			for (EntityEquipmentSlot slot : slots) {
+				ItemStack stack = entity.getItemStackFromSlot(slot);
+				if (stack != null && stack.getItem() instanceof ItemBlockArmor) {
+					ItemBlockArmor armor = (ItemBlockArmor) stack.getItem();
+					if (setCounts.containsKey(armor.set))
+						setCounts.put(armor.set, setCounts.get(armor.set)+1);
+					else
+						setCounts.put(armor.set, 1);
+				}
+			}
+			for (ArmorSet set : setCounts.keySet())
+				if (setCounts.get(set) >= Config.piecesForSet)
+					sets.add(set);
+		}
+		return sets;
 	}
 
-	/**Determines if entity is wearing all armor of given set or any set if set is null*/
+	/**Determines if entity is wearing all armor of given set or any set if set is null*//*
 	public static boolean isWearingFullSet(EntityLivingBase entity, ArmorSet set) {
 		if (entity != null
 				&& entity.getItemStackFromSlot(EntityEquipmentSlot.HEAD) != null
@@ -364,7 +388,7 @@ public class ArmorSet {
 				return true;
 		}
 		return false;
-	}
+	}*/
 
 	/**Returns true if the set has a set effect and is enabled in Config*/
 	public static boolean isSetEffectEnabled(ArmorSet set) {

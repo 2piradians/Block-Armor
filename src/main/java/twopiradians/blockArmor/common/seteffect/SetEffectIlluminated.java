@@ -18,7 +18,7 @@ public class SetEffectIlluminated extends SetEffect {
 
 	private int lightLevel;
 
-	protected SetEffectIlluminated(int lightLevel) {
+	public SetEffectIlluminated(int lightLevel) {
 		this.lightLevel = Math.min(lightLevel, 15);
 		this.color = TextFormatting.GOLD;
 		this.description = "Produces light level "+this.lightLevel;

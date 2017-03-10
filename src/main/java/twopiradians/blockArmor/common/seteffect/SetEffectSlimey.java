@@ -1,5 +1,7 @@
 package twopiradians.blockArmor.common.seteffect;
 
+import java.util.ArrayList;
+
 import net.minecraft.block.Block;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.SoundEvents;
@@ -53,31 +55,33 @@ public class SetEffectSlimey extends SetEffect {
 
 	@SubscribeEvent
 	public void onEvent(LivingFallEvent event) {
-		ArmorSet set = ArmorSet.getWornSet(event.getEntityLiving());
-		if (ArmorSet.isSetEffectEnabled(set) && set.setEffects.contains(this)) {
-			if (!(event.getEntity() instanceof EntityPlayer))
-				return;
+		ArrayList<ArmorSet> sets = ArmorSet.getActiveSets(event.getEntityLiving());
+		for (ArmorSet set : sets)
+			if (ArmorSet.isSetEffectEnabled(set) && set.setEffects.contains(this)) {
+				if (!(event.getEntity() instanceof EntityPlayer))
+					return;
 
-			EntityPlayer player = (EntityPlayer) event.getEntity();
-			event.setDamageMultiplier(0);
+				EntityPlayer player = (EntityPlayer) event.getEntity();
+				event.setDamageMultiplier(0);
 
-			if (!player.isSneaking() && player.world.isRemote) {
-				if (event.getDistance() <= 40 && event.getDistance() > 2.5D)
-					player.motionY = Math.abs(player.motionY * 0.9d);
-				else if (event.getDistance() > 40 && event.getDistance() <= 100)
-					player.motionY = Math.abs(player.motionY * 0.9d * 1.5D);
-				else if (event.getDistance() > 100)
-					player.motionY = Math.abs(player.motionY * 0.9d * 2D);
+				if (!player.isSneaking() && player.world.isRemote) {
+					if (event.getDistance() <= 40 && event.getDistance() > 2.5D)
+						player.motionY = Math.abs(player.motionY * 0.9d);
+					else if (event.getDistance() > 40 && event.getDistance() <= 100)
+						player.motionY = Math.abs(player.motionY * 0.9d * 1.5D);
+					else if (event.getDistance() > 100)
+						player.motionY = Math.abs(player.motionY * 0.9d * 2D);
 
-				if (event.getDistance() > 2.5D)
-					player.world.playSound(player, player.posX, player.posY, player.posZ, 
-							event.getDistance() > 40 ? SoundEvents.ENTITY_SLIME_JUMP : SoundEvents.ENTITY_SLIME_SQUISH, 
-									SoundCategory.PLAYERS, 1.0F, 1.0F);
-				player.onGround = true;
-				bouncingPlayer = player;
-				motionY = player.motionY;
+					if (event.getDistance() > 2.5D)
+						player.world.playSound(player, player.posX, player.posY, player.posZ, 
+								event.getDistance() > 40 ? SoundEvents.ENTITY_SLIME_JUMP : SoundEvents.ENTITY_SLIME_SQUISH, 
+										SoundCategory.PLAYERS, 1.0F, 1.0F);
+					player.onGround = true;
+					bouncingPlayer = player;
+					motionY = player.motionY;
+				}
+				break;
 			}
-		}
 	}
 
 	@SubscribeEvent
@@ -85,13 +89,15 @@ public class SetEffectSlimey extends SetEffect {
 		if (!event.player.world.isRemote)
 			return;
 
-		ArmorSet set = ArmorSet.getWornSet(event.player);
-		if (ArmorSet.isSetEffectEnabled(set) && set.setEffects.contains(this))
-			if (bouncingPlayer != null && event.player == bouncingPlayer && bouncingPlayer.world.isRemote) {
-				bouncingPlayer.motionY = motionY;
-				bouncingPlayer.fallDistance = 0;
-				bouncingPlayer = null;
-			}
+		ArrayList<ArmorSet> sets = ArmorSet.getActiveSets(event.player);
+		for (ArmorSet set : sets)
+			if (ArmorSet.isSetEffectEnabled(set) && set.setEffects.contains(this))
+				if (bouncingPlayer != null && event.player == bouncingPlayer && bouncingPlayer.world.isRemote) {
+					bouncingPlayer.motionY = motionY;
+					bouncingPlayer.fallDistance = 0;
+					bouncingPlayer = null;
+					break;
+				}
 	}
 
 	/**Should block be given this set effect*/
