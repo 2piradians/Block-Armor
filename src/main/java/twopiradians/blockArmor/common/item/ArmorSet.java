@@ -35,6 +35,7 @@ import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.EnumBlockRenderType;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.Tuple;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.TextFormatting;
@@ -360,22 +361,27 @@ public class ArmorSet {
 		}
 		return null;*/
 		ArrayList<SetEffect> effects = new ArrayList<SetEffect>();
-		HashMap<SetEffect, Integer> setCounts = Maps.newHashMap();
+		HashMap<String, Tuple<SetEffect, Integer>> setCounts = Maps.newHashMap();
 		if (entity != null) {
 			for (EntityEquipmentSlot slot : SLOTS) {
 				ItemStack stack = entity.getItemStackFromSlot(slot);
 				if (stack != null && stack.getItem() instanceof ItemBlockArmor) {
 					ItemBlockArmor armor = (ItemBlockArmor) stack.getItem();
-					for (SetEffect effect : armor.set.setEffects)
-						if (setCounts.containsKey(effect))
-							setCounts.put(effect, setCounts.get(effect)+1);
+					for (SetEffect effect : armor.set.setEffects) {
+						Tuple t = null;
+						for (String description : setCounts.keySet())
+							if (description.equals(effect.description))
+								t = setCounts.get(effect.description);
+						if (t != null)
+							setCounts.put(effect.description, new Tuple(t.getFirst(), ((Integer)t.getSecond())+1));
 						else
-							setCounts.put(effect, 1);
+							setCounts.put(effect.description, new Tuple(effect, 1));
+					}
 				}
 			}
-			for (SetEffect effect : setCounts.keySet())
-				if (setCounts.get(effect) >= Config.piecesForSet)
-					effects.add(effect);
+			for (String description : setCounts.keySet())
+				if (setCounts.get(description).getSecond() >= Config.piecesForSet)
+					effects.add(setCounts.get(description).getFirst());
 		}
 		return effects;
 	}

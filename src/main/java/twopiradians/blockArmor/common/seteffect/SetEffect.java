@@ -72,14 +72,14 @@ public class SetEffect {
 	protected boolean usesButton;
 	/**Color of effect for tooltip*/
 	protected TextFormatting color;
-	/**Description of effect for tooltip*/
-	protected String description;
 	/**Potion effects that will be applied in onArmorTick*/
 	protected ArrayList<PotionEffect> potionEffects = new ArrayList<PotionEffect>();
 	/**AttributeModifiers that will be applied in getAttributeModifiers*/
 	protected ArrayList<AttributeModifier> attributeModifiers = new ArrayList<AttributeModifier>();
 	/**EnchantmentData that will be applied in onUpdate*/
 	protected ArrayList<EnchantmentData> enchantments = new ArrayList<EnchantmentData>();
+	/**Description of effect for tooltip*/
+	public String description;
 
 	/**Goes through allSets and assigns set effects to appropriate sets*/
 	public static void postInit() {
@@ -183,6 +183,7 @@ public class SetEffect {
 							if (enchantNbt.getCompoundTagAt(i).getBoolean(BlockArmor.MODID+" enchant"))
 								enchantNbt.removeTag(i);
 					}
+										
 					//should add enchantment
 					else if (!hasEnchant && 
 							((EntityLivingBase) entity).getItemStackFromSlot(((ItemBlockArmor)stack.getItem()).armorType) == stack &&
@@ -244,7 +245,7 @@ public class SetEffect {
 
 	@Override
 	public boolean equals(Object obj) {
-		return obj.getClass() == this.getClass();
+		return obj.getClass() == this.getClass() && this.description.equals(((SetEffect)obj).description);
 	}
 
 	/**Used to store data for enchantments easily*/
