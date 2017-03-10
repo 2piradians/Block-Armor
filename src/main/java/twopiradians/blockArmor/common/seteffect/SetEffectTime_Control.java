@@ -3,12 +3,11 @@ package twopiradians.blockArmor.common.seteffect;
 import net.minecraft.block.Block;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
-import net.minecraft.inventory.EntityEquipmentSlot;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
 import twopiradians.blockArmor.common.BlockArmor;
-import twopiradians.blockArmor.common.item.ItemBlockArmor;
+import twopiradians.blockArmor.common.item.ArmorSet;
 
 public class SetEffectTime_Control extends SetEffect {
 
@@ -32,7 +31,7 @@ public class SetEffectTime_Control extends SetEffect {
 	public void onArmorTick(World world, EntityPlayer player, ItemStack stack) {
 		super.onArmorTick(world, player, stack);
 
-		if (((ItemBlockArmor)stack.getItem()).armorType == EntityEquipmentSlot.FEET &&
+		if (ArmorSet.getFirstSetItem(player) == stack &&
 				BlockArmor.key.isKeyDown(player)) {
 			if (block == Blocks.REPEATING_COMMAND_BLOCK)
 				if (world.getWorldTime() < 21)

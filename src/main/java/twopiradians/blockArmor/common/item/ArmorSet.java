@@ -75,6 +75,9 @@ public class ArmorSet {
 	}
 	/**Armor set items that are missing textures that should be disabled*/
 	public static ArrayList<ItemStack> disabledItems = new ArrayList<ItemStack>();
+	/**Armor slots*/
+	public static final EntityEquipmentSlot[] SLOTS = new EntityEquipmentSlot[] 
+			{EntityEquipmentSlot.HEAD, EntityEquipmentSlot.CHEST, EntityEquipmentSlot.LEGS, EntityEquipmentSlot.FEET};
 
 	public ItemStack stack;
 	public Item item;
@@ -335,20 +338,51 @@ public class ArmorSet {
 		return name;
 	}
 
+	/**Returns first piece of armor of the entity's worn set, or null*/
+	public static ItemStack getFirstSetItem(EntityLivingBase entity) {
+		ArmorSet set = getWornSet(entity);
+		if (set != null)
+			for (EntityEquipmentSlot slot : SLOTS) {
+				ItemStack stack = entity.getItemStackFromSlot(slot);
+				if (stack != null && stack.getItem() instanceof ItemBlockArmor &&
+						((ItemBlockArmor)stack.getItem()).set == set)
+					return stack;
+			}
+		return null;
+	}
+
 	/**Returns the armor set that the entity is wearing or null if not wearing a full set*/
 	public static ArmorSet getWornSet(EntityLivingBase entity) {
-		if (entity != null) {
+		/*if (entity != null) {
 			ItemStack boots = entity.getItemStackFromSlot(EntityEquipmentSlot.FEET);
 			if (boots != null && boots.getItem() instanceof ItemBlockArmor &&
 					isWearingFullSet(entity, ((ItemBlockArmor)boots.getItem()).set))
 				return ((ItemBlockArmor)boots.getItem()).set;
+		}
+		return null;*/
+		HashMap<ArmorSet, Integer> setCounts = Maps.newHashMap();
+		if (entity != null) {
+			for (EntityEquipmentSlot slot : SLOTS) {
+				ItemStack stack = entity.getItemStackFromSlot(slot);
+				if (stack != null && stack.getItem() instanceof ItemBlockArmor) {
+					ItemBlockArmor armor = (ItemBlockArmor) stack.getItem();
+					if (setCounts.containsKey(armor.set))
+						setCounts.put(armor.set, setCounts.get(armor.set)+1);
+					else
+						setCounts.put(armor.set, 1);
+				}
+			}
+			for (ArmorSet set2 : setCounts.keySet())
+				if (setCounts.get(set2) >= Config.piecesForSet)
+					return set2;
 		}
 		return null;
 	}
 
 	/**Determines if entity is wearing enough pieces of armor of given set, or any set if set is null, to active set effects*/
 	public static boolean isWearingFullSet(EntityLivingBase entity, ArmorSet set) {
-		HashMap<ArmorSet, Integer> setCounts = Maps.newHashMap();
+		return getWornSet(entity) == set || set == null;
+		/*HashMap<ArmorSet, Integer> setCounts = Maps.newHashMap();
 		EntityEquipmentSlot[] slots = new EntityEquipmentSlot[] 
 				{EntityEquipmentSlot.HEAD, EntityEquipmentSlot.CHEST, EntityEquipmentSlot.LEGS, EntityEquipmentSlot.FEET};
 		if (entity != null) {
@@ -366,7 +400,7 @@ public class ArmorSet {
 				if (setCounts.get(set2) >= Config.piecesForSet && (set == null || set == set2))
 					return true;
 		}
-		return false;
+		return false;*/
 	}
 
 	/**Returns true if the set has a set effect and is enabled in Config*/
@@ -444,7 +478,7 @@ public class ArmorSet {
 			//Check if full block
 			ArrayList<AxisAlignedBB> list = new ArrayList<AxisAlignedBB>();
 			try {
-				block.addCollisionBoxToList(block.getDefaultState(), null, BlockPos.ORIGIN, Block.FULL_BLOCK_AABB, list, null, false); //TODO changed in 1.11.2 - make sure this works
+				block.addCollisionBoxToList(block.getDefaultState(), null, BlockPos.ORIGIN, Block.FULL_BLOCK_AABB, list, null, false); 
 			} catch (Exception e) {
 				return false;
 			}

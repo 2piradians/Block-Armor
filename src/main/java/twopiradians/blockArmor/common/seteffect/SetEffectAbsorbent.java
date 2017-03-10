@@ -25,7 +25,6 @@ import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
 import twopiradians.blockArmor.common.BlockArmor;
 import twopiradians.blockArmor.common.item.ArmorSet;
-import twopiradians.blockArmor.common.item.ItemBlockArmor;
 
 public class SetEffectAbsorbent extends SetEffect {
 
@@ -44,17 +43,14 @@ public class SetEffectAbsorbent extends SetEffect {
 				((WorldServer)world).spawnParticle(EnumParticleTypes.WATER_DROP, true, player.posX, player.posY+1.0d,player.posZ, 
 						5, 0.2d, 0.5d, 0.2d, 0, new int[0]);
 
-		if (!world.isRemote && ((ItemBlockArmor)stack.getItem()).armorType == EntityEquipmentSlot.FEET &&
+		if (!world.isRemote && ArmorSet.getFirstSetItem(player) == stack &&
 				!player.getCooldownTracker().hasCooldown(stack.getItem())) {
 			ArmorSet set = ArmorSet.getWornSet(player);
 			if (set != null) {
 				//change wet sponge back to normal
 				if (set.block == Blocks.SPONGE && set.meta == 1) {
 					ArmorSet set2 = ArmorSet.getSet(Blocks.SPONGE, 0);
-					EntityEquipmentSlot[] slots = new EntityEquipmentSlot[] {EntityEquipmentSlot.HEAD,
-							EntityEquipmentSlot.CHEST, EntityEquipmentSlot.LEGS, EntityEquipmentSlot.FEET};
-
-					for (EntityEquipmentSlot slot : slots) {
+					for (EntityEquipmentSlot slot : ArmorSet.SLOTS) {
 						ItemStack oldStack = player.getItemStackFromSlot(slot);
 						NBTTagCompound nbt = new NBTTagCompound();
 						oldStack.writeToNBT(nbt);
@@ -69,10 +65,7 @@ public class SetEffectAbsorbent extends SetEffect {
 					//change dry sponge to wet sponge
 					if (set.block == Blocks.SPONGE && set.meta == 0) {
 						ArmorSet set2 = ArmorSet.getSet(Blocks.SPONGE, 1);
-						EntityEquipmentSlot[] slots = new EntityEquipmentSlot[] {EntityEquipmentSlot.HEAD,
-								EntityEquipmentSlot.CHEST, EntityEquipmentSlot.LEGS, EntityEquipmentSlot.FEET};
-
-						for (EntityEquipmentSlot slot : slots) {
+						for (EntityEquipmentSlot slot : ArmorSet.SLOTS) {
 							ItemStack oldStack = player.getItemStackFromSlot(slot);
 							NBTTagCompound nbt = new NBTTagCompound();
 							oldStack.writeToNBT(nbt);

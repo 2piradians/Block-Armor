@@ -127,11 +127,10 @@ public class SetEffect {
 	/**Set cooldown for all worn ItemBlockArmor on player for specified ticks*/
 	public void setCooldown(EntityPlayer player, int ticks) {
 		if (player != null) {
-			EntityEquipmentSlot[] slots = new EntityEquipmentSlot[] {EntityEquipmentSlot.HEAD, EntityEquipmentSlot.CHEST,
-					EntityEquipmentSlot.LEGS, EntityEquipmentSlot.FEET};
-			for (EntityEquipmentSlot slot : slots) {
+			for (EntityEquipmentSlot slot : ArmorSet.SLOTS) {
 				ItemStack stack = player.getItemStackFromSlot(slot);
-				if (stack != null && stack.getItem() instanceof ItemBlockArmor)
+				if (stack != null && stack.getItem() instanceof ItemBlockArmor && 
+						((ItemBlockArmor)stack.getItem()).set.setEffects.contains(this))
 					player.getCooldownTracker().setCooldown(stack.getItem(), ticks);
 			}
 		}
@@ -139,7 +138,7 @@ public class SetEffect {
 
 	/**Only called when player wearing full, enabled set*/
 	public void onArmorTick(World world, EntityPlayer player, ItemStack stack) {
-		if (!world.isRemote && ((ItemBlockArmor)stack.getItem()).armorType == EntityEquipmentSlot.FEET) {			
+		if (!world.isRemote && ArmorSet.getFirstSetItem(player) == stack) {			
 			//apply potion effects
 			for (PotionEffect potionEffect : this.potionEffects)
 				if (this.shouldApplyPotionEffect(potionEffect, world, player, stack))
@@ -178,7 +177,8 @@ public class SetEffect {
 
 					//should remove enchantment
 					if (hasEnchant && (!(entity instanceof EntityLivingBase) || 
-							!ArmorSet.isWearingFullSet((EntityLivingBase) entity, set) || !ArmorSet.isSetEffectEnabled(set))) {
+							!ArmorSet.isWearingFullSet((EntityLivingBase) entity, set) || !ArmorSet.isSetEffectEnabled(set)) ||
+							((EntityLivingBase) entity).getItemStackFromSlot(((ItemBlockArmor)stack.getItem()).armorType) != stack) {
 						for (int i=enchantNbt.tagCount()-1; i>=0; i--)
 							if (enchantNbt.getCompoundTagAt(i).getBoolean(BlockArmor.MODID+" enchant"))
 								enchantNbt.removeTag(i);
@@ -221,7 +221,7 @@ public class SetEffect {
 	public List<String> addInformation(ItemStack stack, boolean isShiftDown, EntityPlayer player, List<String> tooltip, boolean advanced) {
 		ArmorSet set = ArmorSet.getSet((ItemBlockArmor) stack.getItem());
 
-		String string = color+""+TextFormatting.BOLD;
+		String string = color+""+(ArmorSet.isWearingFullSet(player, set)&&player.getItemStackFromSlot(((ItemBlockArmor)stack.getItem()).armorType) == stack ? TextFormatting.BOLD : "");
 		string += ArmorSet.isSetEffectEnabled(set) ? "" : TextFormatting.STRIKETHROUGH.toString();
 		string += this.toString()+TextFormatting.RESET;
 		if (isShiftDown) {

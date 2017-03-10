@@ -97,7 +97,7 @@ public class ItemBlockArmor extends ItemArmor
 
 		for (SetEffect effect : set.setEffects)
 			map = effect.getAttributeModifiers(map, slot, stack);
-	
+
 		return map;
 	}
 
@@ -181,7 +181,8 @@ public class ItemBlockArmor extends ItemArmor
 		if (!stack.hasTagCompound())
 			stack.setTagCompound(new NBTTagCompound());
 
-		for (SetEffect effect : set.setEffects)
-			effect.onArmorTick(world, player, stack);
+		if (ArmorSet.getWornSet(player) == set)
+			for (SetEffect effect : set.setEffects)
+				effect.onArmorTick(world, player, stack);
 	}
 }

@@ -3,11 +3,10 @@ package twopiradians.blockArmor.common.seteffect;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockAir;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.inventory.EntityEquipmentSlot;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
-import twopiradians.blockArmor.common.item.ItemBlockArmor;
+import twopiradians.blockArmor.common.item.ArmorSet;
 
 public class SetEffectSlippery extends SetEffect {
 
@@ -21,7 +20,7 @@ public class SetEffectSlippery extends SetEffect {
 	public void onArmorTick(World world, EntityPlayer player, ItemStack stack) {
 		super.onArmorTick(world, player, stack);
 
-		if (world.isRemote && ((ItemBlockArmor)stack.getItem()).armorType == EntityEquipmentSlot.FEET && 
+		if (world.isRemote && ArmorSet.getFirstSetItem(player) == stack && 
 				player.moveForward == 0 && player.moveStrafing == 0 && player.onGround)	{    
 			Block block = world.getBlockState(player.getPosition().down()).getBlock();
 			if (!(block instanceof BlockAir) && block.slipperiness <= 0.6f) {

@@ -6,14 +6,13 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
 import net.minecraft.init.SoundEvents;
-import net.minecraft.inventory.EntityEquipmentSlot;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
 import twopiradians.blockArmor.common.BlockArmor;
-import twopiradians.blockArmor.common.item.ItemBlockArmor;
+import twopiradians.blockArmor.common.item.ArmorSet;
 
 public class SetEffectSnowy extends SetEffect {
 
@@ -27,17 +26,16 @@ public class SetEffectSnowy extends SetEffect {
 	public void onArmorTick(World world, EntityPlayer player, ItemStack stack) {
 		super.onArmorTick(world, player, stack);
 
-		if (BlockArmor.key.isKeyDown(player) && ((ItemBlockArmor)stack.getItem()).armorType != EntityEquipmentSlot.FEET) {
+		if (BlockArmor.key.isKeyDown(player) && ArmorSet.getFirstSetItem(player) == stack) {
 			int radius = 3;
 			if (!world.isRemote) {
-				if (player.ticksExisted % 2 == 0) 
-					((WorldServer)world).spawnParticle(EnumParticleTypes.SNOW_SHOVEL, player.posX+(world.rand.nextDouble()-0.5D)*radius, 
-							player.posY+world.rand.nextDouble()+2D, player.posZ+(world.rand.nextDouble()-0.5D)*radius, 
-							1, 0, 0, 0, 0, new int[0]);
+				((WorldServer)world).spawnParticle(EnumParticleTypes.SNOW_SHOVEL, player.posX+(world.rand.nextDouble()-0.5D)*radius, 
+						player.posY+world.rand.nextDouble()+2D, player.posZ+(world.rand.nextDouble()-0.5D)*radius, 
+						1, 0, 0, 0, 0, new int[0]);
 				((WorldServer)world).spawnParticle(EnumParticleTypes.CLOUD, player.posX+(world.rand.nextDouble()-0.5D)*radius, 
 						player.posY+world.rand.nextDouble()*0.5d+2.5D, player.posZ+(world.rand.nextDouble()-0.5D)*radius, 
 						3, 0, 0, 0, 0, new int[0]);
-				if (world.rand.nextInt(5) == 0)
+				if (world.rand.nextInt(2) == 0)
 					world.playSound(null, player.posX, player.posY, player.posZ, SoundEvents.WEATHER_RAIN, 
 							player.getSoundCategory(), 0.1f, world.rand.nextFloat());
 				for (int x=-radius/2; x<=radius/2; x++)
@@ -52,7 +50,7 @@ public class SetEffectSnowy extends SetEffect {
 									world.setBlockState(player.getPosition().add(x, y-1, z), Blocks.FROSTED_ICE.getDefaultState());
 							}
 				//spawn snowballs
-				if (world.rand.nextInt(30) == 0) {
+				if (world.rand.nextInt(15) == 0) {
 					EntityItem item = new EntityItem(world, player.posX+(world.rand.nextDouble()-0.5D)*radius, 
 							player.posY+world.rand.nextDouble()+1.5D, player.posZ+(world.rand.nextDouble()-0.5D)*radius,
 							new ItemStack(Items.SNOWBALL));

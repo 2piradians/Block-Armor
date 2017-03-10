@@ -3,7 +3,6 @@ package twopiradians.blockArmor.common.seteffect;
 import net.minecraft.block.Block;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.SoundEvents;
-import net.minecraft.inventory.EntityEquipmentSlot;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.text.TextFormatting;
@@ -13,7 +12,6 @@ import net.minecraftforge.event.entity.living.LivingFallEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 import twopiradians.blockArmor.common.item.ArmorSet;
-import twopiradians.blockArmor.common.item.ItemBlockArmor;
 
 public class SetEffectSlimey extends SetEffect {
 
@@ -31,7 +29,7 @@ public class SetEffectSlimey extends SetEffect {
 	public void onArmorTick(World world, EntityPlayer player, ItemStack stack) {
 		super.onArmorTick(world, player, stack);
 
-		if (((ItemBlockArmor)stack.getItem()).armorType == EntityEquipmentSlot.FEET && world.isRemote && !player.isSneaking()) {	
+		if (ArmorSet.getFirstSetItem(player) == stack && world.isRemote && !player.isSneaking()) {	
 			if (!player.getCooldownTracker().hasCooldown(stack.getItem()) && player.isCollidedHorizontally 
 					&& Math.sqrt(Math.pow(player.posX - player.prevChasingPosX, 2) + 
 							Math.pow(player.posZ - player.prevChasingPosZ, 2)) >= 0.9D) {	
