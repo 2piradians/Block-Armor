@@ -32,7 +32,7 @@ public class SetEffectBonemealer extends SetEffect {
 	public void onArmorTick(World world, EntityPlayer player, ItemStack stack) {
 		super.onArmorTick(world, player, stack);
 
-		if (!world.isRemote && ArmorSet.getFirstSetItem(player) == stack &&
+		if (!world.isRemote && ArmorSet.getFirstSetItem(player, this) == stack &&
 				BlockArmor.key.isKeyDown(player) && !player.getCooldownTracker().hasCooldown(stack.getItem())) {
 			int radius = 2;
 			ArrayList<BlockPos> bonemealed = new ArrayList<BlockPos>();

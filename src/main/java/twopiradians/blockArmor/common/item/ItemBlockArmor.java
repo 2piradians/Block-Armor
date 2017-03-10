@@ -175,14 +175,14 @@ public class ItemBlockArmor extends ItemArmor
 		}
 
 		//only continue if set effect enabled and wearing full set
-		if (!ArmorSet.isSetEffectEnabled(set) || !ArmorSet.isWearingFullSet(player, set))
+		if (!ArmorSet.isSetEffectEnabled(set))
 			return;
 
 		if (!stack.hasTagCompound())
 			stack.setTagCompound(new NBTTagCompound());
 
-		if (ArmorSet.getWornSet(player) == set)
-			for (SetEffect effect : set.setEffects)
+		for (SetEffect effect : set.setEffects) 
+			if (ArmorSet.getWornSetEffects(player).contains(effect))
 				effect.onArmorTick(world, player, stack);
 	}
 }

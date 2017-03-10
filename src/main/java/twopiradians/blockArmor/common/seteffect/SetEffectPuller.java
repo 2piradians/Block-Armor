@@ -27,7 +27,7 @@ public class SetEffectPuller extends SetEffect {
 	public void onArmorTick(World world, EntityPlayer player, ItemStack stack) {
 		super.onArmorTick(world, player, stack);
 
-		if (ArmorSet.getFirstSetItem(player) == stack &&
+		if (ArmorSet.getFirstSetItem(player, this) == stack &&
 				BlockArmor.key.isKeyDown(player) && !player.getCooldownTracker().hasCooldown(stack.getItem())) {
 			AxisAlignedBB aabb = player.getEntityBoundingBox().expand(5, 5, 5);
 			List<Entity> list = player.world.getEntitiesWithinAABBExcludingEntity(player, aabb);

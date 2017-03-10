@@ -28,7 +28,7 @@ public class SetEffectIlluminated extends SetEffect {
 	public void onArmorTick(World world, EntityPlayer player, ItemStack stack) {
 		super.onArmorTick(world, player, stack);
 
-		if (ArmorSet.getFirstSetItem(player) == stack &&
+		if (ArmorSet.getFirstSetItem(player, this) == stack &&
 				!world.isRemote && BlockArmor.key.isKeyDown(player) && !player.getCooldownTracker().hasCooldown(stack.getItem())) {
 			boolean deactivated = !stack.getTagCompound().getBoolean("deactivated");
 			stack.getTagCompound().setBoolean("deactivated", deactivated);
@@ -38,7 +38,7 @@ public class SetEffectIlluminated extends SetEffect {
 		}
 
 		//set block at head level to BlockMovingLightSource
-		if (ArmorSet.getFirstSetItem(player) == stack &&
+		if (ArmorSet.getFirstSetItem(player, this) == stack &&
 				!world.isRemote && world.isAirBlock(player.getPosition().up()) && 
 				world.getLightFor(EnumSkyBlock.BLOCK, player.getPosition().up()) < lightLevel &&
 				!stack.getTagCompound().getBoolean("deactivated")) 

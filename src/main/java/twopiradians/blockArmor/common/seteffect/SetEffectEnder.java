@@ -27,7 +27,7 @@ public class SetEffectEnder extends SetEffect {
 	public void onArmorTick(World world, EntityPlayer player, ItemStack stack) {
 		super.onArmorTick(world, player, stack);
 
-		if (!world.isRemote && ArmorSet.getFirstSetItem(player) == stack &&
+		if (!world.isRemote && ArmorSet.getFirstSetItem(player, this) == stack &&
 				BlockArmor.key.isKeyDown(player) && !player.getCooldownTracker().hasCooldown(stack.getItem()))	{    
 			this.setCooldown(player, 50);
 			int distance = player.getRNG().nextInt(10) + 16;

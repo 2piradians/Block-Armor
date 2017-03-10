@@ -20,7 +20,7 @@ public class SetEffectSlippery extends SetEffect {
 	public void onArmorTick(World world, EntityPlayer player, ItemStack stack) {
 		super.onArmorTick(world, player, stack);
 
-		if (world.isRemote && ArmorSet.getFirstSetItem(player) == stack && 
+		if (world.isRemote && ArmorSet.getFirstSetItem(player, this) == stack && 
 				player.moveForward == 0 && player.moveStrafing == 0 && player.onGround)	{    
 			Block block = world.getBlockState(player.getPosition().down()).getBlock();
 			if (!(block instanceof BlockAir) && block.slipperiness <= 0.6f) {

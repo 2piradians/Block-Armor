@@ -25,6 +25,7 @@ import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
 import twopiradians.blockArmor.common.BlockArmor;
 import twopiradians.blockArmor.common.item.ArmorSet;
+import twopiradians.blockArmor.common.item.ItemBlockArmor;
 
 public class SetEffectAbsorbent extends SetEffect {
 
@@ -43,9 +44,9 @@ public class SetEffectAbsorbent extends SetEffect {
 				((WorldServer)world).spawnParticle(EnumParticleTypes.WATER_DROP, true, player.posX, player.posY+1.0d,player.posZ, 
 						5, 0.2d, 0.5d, 0.2d, 0, new int[0]);
 
-		if (!world.isRemote && ArmorSet.getFirstSetItem(player) == stack &&
+		if (!world.isRemote && ArmorSet.getFirstSetItem(player, this) == stack &&
 				!player.getCooldownTracker().hasCooldown(stack.getItem())) {
-			ArmorSet set = ArmorSet.getWornSet(player);
+			ArmorSet set = ((ItemBlockArmor)stack.getItem()).set;
 			if (set != null) {
 				//change wet sponge back to normal
 				if (set.block == Blocks.SPONGE && set.meta == 1) {

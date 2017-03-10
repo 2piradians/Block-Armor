@@ -339,20 +339,19 @@ public class ArmorSet {
 	}
 
 	/**Returns first piece of armor of the entity's worn set, or null*/
-	public static ItemStack getFirstSetItem(EntityLivingBase entity) {
-		ArmorSet set = getWornSet(entity);
-		if (set != null)
+	public static ItemStack getFirstSetItem(EntityLivingBase entity, SetEffect effect) {
+		if (effect != null && getWornSetEffects(entity).contains(effect))
 			for (EntityEquipmentSlot slot : SLOTS) {
 				ItemStack stack = entity.getItemStackFromSlot(slot);
 				if (stack != null && stack.getItem() instanceof ItemBlockArmor &&
-						((ItemBlockArmor)stack.getItem()).set == set)
+						((ItemBlockArmor)stack.getItem()).set.setEffects.contains(effect))
 					return stack;
 			}
 		return null;
 	}
 
 	/**Returns the armor set that the entity is wearing or null if not wearing a full set*/
-	public static ArmorSet getWornSet(EntityLivingBase entity) {
+	public static ArrayList<SetEffect> getWornSetEffects(EntityLivingBase entity) {
 		/*if (entity != null) {
 			ItemStack boots = entity.getItemStackFromSlot(EntityEquipmentSlot.FEET);
 			if (boots != null && boots.getItem() instanceof ItemBlockArmor &&
@@ -360,29 +359,31 @@ public class ArmorSet {
 				return ((ItemBlockArmor)boots.getItem()).set;
 		}
 		return null;*/
-		HashMap<ArmorSet, Integer> setCounts = Maps.newHashMap();
+		ArrayList<SetEffect> effects = new ArrayList<SetEffect>();
+		HashMap<SetEffect, Integer> setCounts = Maps.newHashMap();
 		if (entity != null) {
 			for (EntityEquipmentSlot slot : SLOTS) {
 				ItemStack stack = entity.getItemStackFromSlot(slot);
 				if (stack != null && stack.getItem() instanceof ItemBlockArmor) {
 					ItemBlockArmor armor = (ItemBlockArmor) stack.getItem();
-					if (setCounts.containsKey(armor.set))
-						setCounts.put(armor.set, setCounts.get(armor.set)+1);
-					else
-						setCounts.put(armor.set, 1);
+					for (SetEffect effect : armor.set.setEffects)
+						if (setCounts.containsKey(armor.set))
+							setCounts.put(effect, setCounts.get(effect)+1);
+						else
+							setCounts.put(effect, 1);
 				}
 			}
-			for (ArmorSet set2 : setCounts.keySet())
-				if (setCounts.get(set2) >= Config.piecesForSet)
-					return set2;
+			for (SetEffect effect : setCounts.keySet())
+				if (setCounts.get(effect) >= Config.piecesForSet)
+					effects.add(effect);
 		}
-		return null;
+		return effects;
 	}
 
-	/**Determines if entity is wearing enough pieces of armor of given set, or any set if set is null, to active set effects*/
+	/**Determines if entity is wearing enough pieces of armor of given set, or any set if set is null, to active set effects*//*
 	public static boolean isWearingFullSet(EntityLivingBase entity, ArmorSet set) {
 		return getWornSet(entity) == set || set == null;
-		/*HashMap<ArmorSet, Integer> setCounts = Maps.newHashMap();
+		HashMap<ArmorSet, Integer> setCounts = Maps.newHashMap();
 		EntityEquipmentSlot[] slots = new EntityEquipmentSlot[] 
 				{EntityEquipmentSlot.HEAD, EntityEquipmentSlot.CHEST, EntityEquipmentSlot.LEGS, EntityEquipmentSlot.FEET};
 		if (entity != null) {
@@ -400,8 +401,8 @@ public class ArmorSet {
 				if (setCounts.get(set2) >= Config.piecesForSet && (set == null || set == set2))
 					return true;
 		}
-		return false;*/
-	}
+		return false;
+	}*/
 
 	/**Returns true if the set has a set effect and is enabled in Config*/
 	public static boolean isSetEffectEnabled(ArmorSet set) {
@@ -434,7 +435,7 @@ public class ArmorSet {
 			if (set.helmet == item || set.chestplate == item || set.leggings == item || set.boots == item)
 				return set;
 		return null;
-	}
+	}//TODO remove
 
 	/**Should an armor set be made from this item*/
 	private static boolean isValid(ItemStack stack) {

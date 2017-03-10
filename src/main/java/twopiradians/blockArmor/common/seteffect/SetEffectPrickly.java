@@ -32,7 +32,7 @@ public class SetEffectPrickly extends SetEffect {
 	public void onArmorTick(World world, EntityPlayer player, ItemStack stack) {
 		super.onArmorTick(world, player, stack);
 
-		if (ArmorSet.getFirstSetItem(player) == stack && 
+		if (ArmorSet.getFirstSetItem(player, this) == stack && 
 				!world.isRemote && !player.getCooldownTracker().hasCooldown(stack.getItem()))	{
 			AxisAlignedBB axisAlignedBB = player.getEntityBoundingBox();
 			List<EntityLivingBase> list = player.world.getEntitiesWithinAABB(EntityLivingBase.class, axisAlignedBB);

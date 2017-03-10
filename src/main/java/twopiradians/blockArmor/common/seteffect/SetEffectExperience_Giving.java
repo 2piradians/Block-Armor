@@ -18,7 +18,7 @@ public class SetEffectExperience_Giving extends SetEffect {
 	public void onArmorTick(World world, EntityPlayer player, ItemStack stack) {
 		super.onArmorTick(world, player, stack);
 
-		if (ArmorSet.getFirstSetItem(player) == stack && !world.isRemote && 
+		if (ArmorSet.getFirstSetItem(player, this) == stack && !world.isRemote && 
 				!player.getCooldownTracker().hasCooldown(stack.getItem())) {
 			this.setCooldown(player, 50);
 			player.addExperience(1);

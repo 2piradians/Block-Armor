@@ -27,7 +27,7 @@ public class SetEffectArrow_Defence extends SetEffect {
 	public void onArmorTick(World world, EntityPlayer player, ItemStack stack) {
 		super.onArmorTick(world, player, stack);
 
-		if (!world.isRemote && ArmorSet.getFirstSetItem(player) == stack &&
+		if (!world.isRemote && ArmorSet.getFirstSetItem(player, this) == stack &&
 				BlockArmor.key.isKeyDown(player) && !player.getCooldownTracker().hasCooldown(stack.getItem())) {
 			this.setCooldown(player, 40);
 			int numArrows = 16;

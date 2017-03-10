@@ -1,6 +1,7 @@
 package twopiradians.blockArmor.common.tileentity;
 
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ITickable;
 import twopiradians.blockArmor.common.block.BlockMovingLightSource;
@@ -14,10 +15,8 @@ public class TileEntityMovingLightSource extends TileEntity implements ITickable
 	public void update() {
 		//check if player has moved away from the tile entity
 		EntityPlayer player = world.getClosestPlayer(getPos().getX()+0.5D, getPos().getY()+0.5D, getPos().getZ()+0.5D, 2.0D, false);
-		if ((player == null || ArmorSet.getWornSet(player) == null || 
-				!ArmorSet.getWornSet(player).setEffects.contains(new SetEffectIlluminated(0)) || 
-				(ArmorSet.getFirstSetItem(player).hasTagCompound() &&
-						ArmorSet.getFirstSetItem(player).getTagCompound().getBoolean("deactivated"))) &&
+		ItemStack stack = ArmorSet.getFirstSetItem(player, new SetEffectIlluminated(0));
+		if ((player == null || stack == null || (stack.hasTagCompound() && stack.getTagCompound().getBoolean("deactivated"))) &&
 				world.getBlockState(getPos()).getBlock() instanceof BlockMovingLightSource)
 			world.setBlockToAir(getPos());
 	}
