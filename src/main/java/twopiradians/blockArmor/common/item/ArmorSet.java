@@ -335,7 +335,7 @@ public class ArmorSet {
 		return name;
 	}
 
-	/*	*//**Returns the armor set that the entity is wearing or null if not wearing a full set*//*
+	/**Returns the armor set that the entity is wearing or null if not wearing a full set*/
 	public static ArmorSet getWornSet(EntityLivingBase entity) {
 		if (entity != null) {
 			ItemStack boots = entity.getItemStackFromSlot(EntityEquipmentSlot.FEET);
@@ -344,11 +344,10 @@ public class ArmorSet {
 				return ((ItemBlockArmor)boots.getItem()).set;
 		}
 		return null;
-	}*/
+	}
 
-	/**Returns the armor sets that the entity is wearing that have enough pieces to active set effects*/
-	public static ArrayList<ArmorSet> getActiveSets(EntityLivingBase entity) {
-		ArrayList<ArmorSet> sets = new ArrayList<ArmorSet>();
+	/**Determines if entity is wearing enough pieces of armor of given set, or any set if set is null, to active set effects*/
+	public static boolean isWearingFullSet(EntityLivingBase entity, ArmorSet set) {
 		HashMap<ArmorSet, Integer> setCounts = Maps.newHashMap();
 		EntityEquipmentSlot[] slots = new EntityEquipmentSlot[] 
 				{EntityEquipmentSlot.HEAD, EntityEquipmentSlot.CHEST, EntityEquipmentSlot.LEGS, EntityEquipmentSlot.FEET};
@@ -363,32 +362,12 @@ public class ArmorSet {
 						setCounts.put(armor.set, 1);
 				}
 			}
-			for (ArmorSet set : setCounts.keySet())
-				if (setCounts.get(set) >= Config.piecesForSet)
-					sets.add(set);
-		}
-		return sets;
-	}
-
-	/**Determines if entity is wearing all armor of given set or any set if set is null*//*
-	public static boolean isWearingFullSet(EntityLivingBase entity, ArmorSet set) {
-		if (entity != null
-				&& entity.getItemStackFromSlot(EntityEquipmentSlot.HEAD) != null
-				&& entity.getItemStackFromSlot(EntityEquipmentSlot.CHEST) != null
-				&& entity.getItemStackFromSlot(EntityEquipmentSlot.LEGS) != null
-				&& entity.getItemStackFromSlot(EntityEquipmentSlot.FEET) != null) {
-			Item helmet = entity.getItemStackFromSlot(EntityEquipmentSlot.HEAD).getItem();
-			if (set == null && helmet instanceof ItemBlockArmor)
-				set = ArmorSet.getSet((ItemBlockArmor) helmet);
-
-			if (set != null && entity.getItemStackFromSlot(EntityEquipmentSlot.FEET).getItem() == set.boots 
-					&& entity.getItemStackFromSlot(EntityEquipmentSlot.LEGS).getItem() == set.leggings
-					&& entity.getItemStackFromSlot(EntityEquipmentSlot.CHEST).getItem() == set.chestplate
-					&& entity.getItemStackFromSlot(EntityEquipmentSlot.HEAD).getItem() == set.helmet)
-				return true;
+			for (ArmorSet set2 : setCounts.keySet())
+				if (setCounts.get(set2) >= Config.piecesForSet && (set == null || set == set2))
+					return true;
 		}
 		return false;
-	}*/
+	}
 
 	/**Returns true if the set has a set effect and is enabled in Config*/
 	public static boolean isSetEffectEnabled(ArmorSet set) {

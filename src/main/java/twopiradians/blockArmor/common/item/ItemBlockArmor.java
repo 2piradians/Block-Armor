@@ -175,7 +175,7 @@ public class ItemBlockArmor extends ItemArmor
 		}
 
 		//only continue if set effect enabled and wearing full set
-		if (!ArmorSet.isSetEffectEnabled(set) || !ArmorSet.getActiveSets(player).contains(set))
+		if (!ArmorSet.isSetEffectEnabled(set) || !ArmorSet.isWearingFullSet(player, set))
 			return;
 
 		if (!stack.hasTagCompound())

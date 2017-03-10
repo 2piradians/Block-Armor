@@ -82,7 +82,7 @@ public class Config
 		}		
 		
 		//Armor pieces required to activate set effect
-		Property prop = Config.config.get(Configuration.CATEGORY_GENERAL, "Armor pieces required for Set Effect", 4, "Specifies how many armor pieces of a set are required for the set's effect to work.", 1, 4);
+		Property prop = Config.config.get(Configuration.CATEGORY_GENERAL, "Armor pieces required for Set Effect", 4, "Specifies how many armor pieces of a set are required for the set's effect to work.", 3, 4);
 		Config.piecesForSet = prop.getInt();
 
 		Config.config.save();
