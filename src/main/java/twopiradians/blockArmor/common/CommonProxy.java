@@ -49,12 +49,12 @@ public class CommonProxy
 		registerRecipes();
 	}
 
-	private void registerPackets() {
+	private void registerPackets() { // Side is where the packets goes TO
 		int id = 0;
 		BlockArmor.network.registerMessage(PacketDisableItems.Handler.class, PacketDisableItems.class, id++, Side.SERVER);
 		BlockArmor.network.registerMessage(PacketDevColors.Handler.class, PacketDevColors.class, id++, Side.CLIENT);
 		BlockArmor.network.registerMessage(PacketActivateSetEffect.Handler.class, PacketActivateSetEffect.class, id++, Side.SERVER);
-		BlockArmor.network.registerMessage(PacketSyncConfig.Handler.class, PacketSyncConfig.class, id++, Side.SERVER);
+		BlockArmor.network.registerMessage(PacketSyncConfig.Handler.class, PacketSyncConfig.class, id++, Side.CLIENT);
 	}
 
 	private void registerEventListeners() {

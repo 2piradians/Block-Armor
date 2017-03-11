@@ -1,12 +1,13 @@
 package twopiradians.blockArmor.packet;
 
 import io.netty.buffer.ByteBuf;
+import net.minecraft.client.Minecraft;
 import net.minecraft.util.IThreadListener;
-import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.config.Property;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
+import twopiradians.blockArmor.common.BlockArmor;
 import twopiradians.blockArmor.common.config.Config;
 
 public class PacketSyncConfig implements IMessage
@@ -40,7 +41,7 @@ public class PacketSyncConfig implements IMessage
 		@Override
 		public IMessage onMessage(final PacketSyncConfig packet, final MessageContext ctx) 
 		{
-			IThreadListener mainThread = (WorldServer) ctx.getServerHandler().playerEntity.world;
+			IThreadListener mainThread = Minecraft.getMinecraft();
 			mainThread.addScheduledTask(new Runnable() 
 			{
 				@Override
@@ -48,8 +49,10 @@ public class PacketSyncConfig implements IMessage
 				{
 					Property prop = Config.getPiecesForSetProp();
 					if (prop != null) {
+						BlockArmor.logger.info("Client received: "+packet.piecesForSet+", current: "+Config.piecesForSet);
 						prop.set(packet.piecesForSet);
 						Config.syncConfig();
+						BlockArmor.logger.info("updated to: "+Config.piecesForSet);
 					}
 				}
 			});
