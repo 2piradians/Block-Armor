@@ -25,6 +25,7 @@ import twopiradians.blockArmor.common.tileentity.ModTileEntities;
 import twopiradians.blockArmor.packet.PacketActivateSetEffect;
 import twopiradians.blockArmor.packet.PacketDevColors;
 import twopiradians.blockArmor.packet.PacketDisableItems;
+import twopiradians.blockArmor.packet.PacketSyncConfig;
 
 public class CommonProxy 
 {
@@ -48,11 +49,12 @@ public class CommonProxy
 		registerRecipes();
 	}
 
-	private void registerPackets() {
+	private void registerPackets() { // Side is where the packets goes TO
 		int id = 0;
 		BlockArmor.network.registerMessage(PacketDisableItems.Handler.class, PacketDisableItems.class, id++, Side.SERVER);
 		BlockArmor.network.registerMessage(PacketDevColors.Handler.class, PacketDevColors.class, id++, Side.CLIENT);
 		BlockArmor.network.registerMessage(PacketActivateSetEffect.Handler.class, PacketActivateSetEffect.class, id++, Side.SERVER);
+		BlockArmor.network.registerMessage(PacketSyncConfig.Handler.class, PacketSyncConfig.class, id++, Side.CLIENT);
 	}
 
 	private void registerEventListeners() {

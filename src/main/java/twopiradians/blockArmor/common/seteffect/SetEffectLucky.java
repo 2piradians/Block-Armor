@@ -15,6 +15,7 @@ import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.world.BlockEvent.HarvestDropsEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import twopiradians.blockArmor.common.item.ArmorSet;
+import twopiradians.blockArmor.common.item.ItemBlockArmor;
 
 public class SetEffectLucky extends SetEffect {
 
@@ -29,7 +30,8 @@ public class SetEffectLucky extends SetEffect {
 	/**Increase fortune, spawn particles, and play sound*/
 	@SubscribeEvent
 	public void onEvent(HarvestDropsEvent event) {//only server side
-		ArmorSet set = ArmorSet.getWornSet(event.getHarvester());
+		ItemStack stack = ArmorSet.getFirstSetItem(event.getHarvester(), this);
+		ArmorSet set = stack == null ? null : ((ItemBlockArmor)stack.getItem()).set;
 		if (ArmorSet.isSetEffectEnabled(set) && set.setEffects.contains(this)) {
 			List<ItemStack> newDrops = event.getState().getBlock().getDrops(event.getWorld(), 
 					event.getPos(), event.getState(), event.getFortuneLevel()+2);

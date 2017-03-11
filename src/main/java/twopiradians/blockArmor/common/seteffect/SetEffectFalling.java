@@ -3,7 +3,6 @@ package twopiradians.blockArmor.common.seteffect;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockFalling;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.inventory.EntityEquipmentSlot;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.util.text.TextFormatting;
@@ -27,16 +26,16 @@ public class SetEffectFalling extends SetEffect {
 		super.onArmorTick(world, player, stack);
 
 		//particles
-		if (!world.isRemote && ((ItemBlockArmor)stack.getItem()).armorType == EntityEquipmentSlot.FEET &&
+		if (!world.isRemote && ArmorSet.getFirstSetItem(player, this) == stack &&
 				world.rand.nextInt(16) == 0) {
-			ArmorSet set = ArmorSet.getWornSet(player);
+			ArmorSet set = ((ItemBlockArmor)stack.getItem()).set;
 			if (set != null && set.block instanceof BlockFalling)
 				((WorldServer)world).spawnParticle(EnumParticleTypes.FALLING_DUST, 
 						player.posX, player.posY+1d,player.posZ, 
 						1, 0.3f, 0.5f, 0.3f, 0, new int[] {Block.getStateId(set.block.getDefaultState())});
 		}			
 		//fall faster
-		if (world.isRemote && ((ItemBlockArmor)stack.getItem()).armorType == EntityEquipmentSlot.FEET &&
+		if (world.isRemote && ArmorSet.getFirstSetItem(player, this) == stack &&
 				player.isSneaking() && Math.abs(player.motionY) < 3.5d && player.motionY < 0)
 			player.motionY *= 1.3d;
 	}

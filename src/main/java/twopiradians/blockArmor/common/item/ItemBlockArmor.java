@@ -26,6 +26,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import twopiradians.blockArmor.client.model.ModelBlockArmor;
 import twopiradians.blockArmor.common.BlockArmor;
 import twopiradians.blockArmor.common.command.CommandDev;
+import twopiradians.blockArmor.common.config.Config;
 import twopiradians.blockArmor.common.seteffect.SetEffect;
 
 public class ItemBlockArmor extends ItemArmor
@@ -96,7 +97,7 @@ public class ItemBlockArmor extends ItemArmor
 
 		for (SetEffect effect : set.setEffects)
 			map = effect.getAttributeModifiers(map, slot, stack);
-	
+
 		return map;
 	}
 
@@ -124,7 +125,8 @@ public class ItemBlockArmor extends ItemArmor
 				if (!ArmorSet.isSetEffectEnabled(set))
 					tooltip.add(TextFormatting.RED+"Set Effects disabled in config.");
 				else
-					tooltip.add(TextFormatting.ITALIC+""+TextFormatting.GOLD+"Set Effects:");
+					tooltip.add(TextFormatting.ITALIC+""+TextFormatting.GOLD+"Set Effects: "+TextFormatting.ITALIC+
+							"(requires "+Config.piecesForSet+(Config.piecesForSet == 4 ? "" : "+")+" pieces to be worn)");
 
 			//set effect names and descriptions if shifting
 			for (SetEffect effect : set.setEffects)
@@ -173,13 +175,14 @@ public class ItemBlockArmor extends ItemArmor
 		}
 
 		//only continue if set effect enabled and wearing full set
-		if (!ArmorSet.isSetEffectEnabled(set) || !ArmorSet.isWearingFullSet(player, set))
+		if (!ArmorSet.isSetEffectEnabled(set))
 			return;
 
 		if (!stack.hasTagCompound())
 			stack.setTagCompound(new NBTTagCompound());
 
-		for (SetEffect effect : set.setEffects)
-			effect.onArmorTick(world, player, stack);
+		for (SetEffect effect : set.setEffects) 
+			if (ArmorSet.getWornSetEffects(player).contains(effect))
+				effect.onArmorTick(world, player, stack);
 	}
 }

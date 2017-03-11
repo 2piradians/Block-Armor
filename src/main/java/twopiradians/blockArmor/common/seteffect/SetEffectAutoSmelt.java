@@ -16,6 +16,7 @@ import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.world.BlockEvent.HarvestDropsEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import twopiradians.blockArmor.common.item.ArmorSet;
+import twopiradians.blockArmor.common.item.ItemBlockArmor;
 
 public class SetEffectAutoSmelt extends SetEffect {
 
@@ -28,7 +29,8 @@ public class SetEffectAutoSmelt extends SetEffect {
 	@SubscribeEvent
 	public void onEvent(HarvestDropsEvent event) //only server side
 	{
-		ArmorSet set = ArmorSet.getWornSet(event.getHarvester());
+		ItemStack stack = ArmorSet.getFirstSetItem(event.getHarvester(), this);
+		ArmorSet set = stack == null ? null : ((ItemBlockArmor)stack.getItem()).set;
 		if (ArmorSet.isSetEffectEnabled(set) && set.setEffects.contains(this)) {
 			if (event.getWorld().isRemote || event.isSilkTouching())
 				return;
@@ -54,12 +56,13 @@ public class SetEffectAutoSmelt extends SetEffect {
 						10, 0.3f, 0.3f, 0.3f, 0, new int[0]);
 				event.getWorld().playSound(null, event.getHarvester().getPosition(), 
 						SoundEvents.ENTITY_BLAZE_SHOOT, SoundCategory.PLAYERS, 0.2f, event.getWorld().rand.nextFloat()+0.7f);			
-				if (event.getWorld().rand.nextInt(4) == 0) {
-					event.getHarvester().getItemStackFromSlot(EntityEquipmentSlot.HEAD).damageItem(1, event.getHarvester());
-					event.getHarvester().getItemStackFromSlot(EntityEquipmentSlot.CHEST).damageItem(1, event.getHarvester());
-					event.getHarvester().getItemStackFromSlot(EntityEquipmentSlot.LEGS).damageItem(1, event.getHarvester());
-					event.getHarvester().getItemStackFromSlot(EntityEquipmentSlot.FEET).damageItem(1, event.getHarvester());
-				}
+				if (event.getWorld().rand.nextInt(4) == 0) 
+					for (EntityEquipmentSlot slot : ArmorSet.SLOTS) {
+						ItemStack armor = event.getHarvester().getItemStackFromSlot(slot);
+						if (armor != null && armor.getItem() instanceof ItemBlockArmor && 
+								((ItemBlockArmor)armor.getItem()).set.setEffects.contains(this))
+							armor.damageItem(1, event.getHarvester());
+					}
 			}
 		}
 	}

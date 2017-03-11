@@ -2,7 +2,6 @@ package twopiradians.blockArmor.common.seteffect;
 
 import net.minecraft.block.Block;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.inventory.EntityEquipmentSlot;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.util.text.TextFormatting;
@@ -11,14 +10,14 @@ import net.minecraft.world.World;
 import twopiradians.blockArmor.common.BlockArmor;
 import twopiradians.blockArmor.common.block.BlockMovingLightSource;
 import twopiradians.blockArmor.common.block.ModBlocks;
-import twopiradians.blockArmor.common.item.ItemBlockArmor;
+import twopiradians.blockArmor.common.item.ArmorSet;
 
 @SuppressWarnings("deprecation")
 public class SetEffectIlluminated extends SetEffect {
 
 	private int lightLevel;
 
-	protected SetEffectIlluminated(int lightLevel) {
+	public SetEffectIlluminated(int lightLevel) {
 		this.lightLevel = Math.min(lightLevel, 15);
 		this.color = TextFormatting.GOLD;
 		this.description = "Produces light level "+this.lightLevel;
@@ -29,7 +28,7 @@ public class SetEffectIlluminated extends SetEffect {
 	public void onArmorTick(World world, EntityPlayer player, ItemStack stack) {
 		super.onArmorTick(world, player, stack);
 
-		if (((ItemBlockArmor)stack.getItem()).armorType == EntityEquipmentSlot.FEET &&
+		if (ArmorSet.getFirstSetItem(player, this) == stack &&
 				!world.isRemote && BlockArmor.key.isKeyDown(player) && !player.getCooldownTracker().hasCooldown(stack.getItem())) {
 			boolean deactivated = !stack.getTagCompound().getBoolean("deactivated");
 			stack.getTagCompound().setBoolean("deactivated", deactivated);
@@ -39,7 +38,7 @@ public class SetEffectIlluminated extends SetEffect {
 		}
 
 		//set block at head level to BlockMovingLightSource
-		if (((ItemBlockArmor)stack.getItem()).armorType == EntityEquipmentSlot.FEET &&
+		if (ArmorSet.getFirstSetItem(player, this) == stack &&
 				!world.isRemote && world.isAirBlock(player.getPosition().up()) && 
 				world.getLightFor(EnumSkyBlock.BLOCK, player.getPosition().up()) < lightLevel &&
 				!stack.getTagCompound().getBoolean("deactivated")) 

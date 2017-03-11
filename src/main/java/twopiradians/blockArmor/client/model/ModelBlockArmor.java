@@ -14,10 +14,13 @@ import net.minecraft.entity.monster.EntityZombie;
 import net.minecraft.init.Items;
 import net.minecraft.inventory.EntityEquipmentSlot;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagList;
 import net.minecraft.util.math.MathHelper;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import twopiradians.blockArmor.common.BlockArmor;
 import twopiradians.blockArmor.common.command.CommandDev;
+import twopiradians.blockArmor.common.item.ItemBlockArmor;
 
 @SideOnly(Side.CLIENT)
 public class ModelBlockArmor extends ModelBiped
@@ -53,12 +56,14 @@ public class ModelBlockArmor extends ModelBiped
 	public float alpha;
 
 	private boolean renderingEnchantment;
+	private EntityEquipmentSlot slot;
 
 	public ModelBlockArmor(int textureHeight, int textureWidth, int currentFrame, int nextFrame, EntityEquipmentSlot slot)
 	{		
 		int size = Math.max(1, textureWidth / 16);
 		this.textureHeight = textureHeight / size;
 		this.textureWidth = textureWidth / size;
+		this.slot = slot;
 
 		if (currentFrame != nextFrame) { //if animated, create models with offset textures for overlay
 			this.createModel(slot, this.textureWidth * nextFrame);	
@@ -216,7 +221,19 @@ public class ModelBlockArmor extends ModelBiped
 	@Override
 	public void render(Entity entityIn, float limbSwing, float limbSwingAmount, float ageInTicks, float netHeadYaw, float headPitch, float scale)
 	{
-		this.actualRender(false, entityIn, limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch, scale);
+		boolean renderEnchant = true;
+		//don't render enchant if only enchant is from set effect
+		if (this.renderingEnchantment && entityIn instanceof EntityLivingBase) {
+			ItemStack stack = ((EntityLivingBase)entityIn).getItemStackFromSlot(slot);
+			if (stack != null && stack.getItem() instanceof ItemBlockArmor && stack.hasTagCompound()) {
+				NBTTagList enchantNbt = stack.getTagCompound().getTagList("ench", 10);
+					if (enchantNbt.tagCount() == 1 && enchantNbt.getCompoundTagAt(0).getBoolean(BlockArmor.MODID+" enchant"))
+						renderEnchant = false;
+			}
+		}
+
+		if (renderEnchant)
+			this.actualRender(false, entityIn, limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch, scale);
 
 		//If animated, switch to offset models, render animation overlay, then switch back to normal models
 		if (alpha > 0 && offsetBipedHead != null && !this.renderingEnchantment) {

@@ -17,7 +17,7 @@ public class SetEffectDiving_Suit extends SetEffect {
 	protected SetEffectDiving_Suit() {
 		this.color = TextFormatting.DARK_AQUA;
 		this.description = "Provides Depth Strider, Respiration, and Night Vision in water";
-		this.potionEffects.add(new PotionEffect(MobEffects.NIGHT_VISION, 210, 0, true, true));
+		this.potionEffects.add(new PotionEffect(MobEffects.NIGHT_VISION, 210, 0, true, false));
 		this.enchantments.add(new EnchantmentData(Enchantments.RESPIRATION, (short) 3, EntityEquipmentSlot.HEAD));
 		this.enchantments.add(new EnchantmentData(Enchantments.DEPTH_STRIDER, (short) 3, EntityEquipmentSlot.FEET));
 	}

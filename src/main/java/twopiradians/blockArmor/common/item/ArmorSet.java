@@ -35,6 +35,7 @@ import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.EnumBlockRenderType;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.Tuple;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.TextFormatting;
@@ -75,6 +76,9 @@ public class ArmorSet {
 	}
 	/**Armor set items that are missing textures that should be disabled*/
 	public static ArrayList<ItemStack> disabledItems = new ArrayList<ItemStack>();
+	/**Armor slots*/
+	public static final EntityEquipmentSlot[] SLOTS = new EntityEquipmentSlot[] 
+			{EntityEquipmentSlot.HEAD, EntityEquipmentSlot.CHEST, EntityEquipmentSlot.LEGS, EntityEquipmentSlot.FEET};
 
 	public ItemStack stack;
 	public Item item;
@@ -335,36 +339,76 @@ public class ArmorSet {
 		return name;
 	}
 
+	/**Returns first piece of armor of the entity's worn set, or null*/
+	public static ItemStack getFirstSetItem(EntityLivingBase entity, SetEffect effect) {
+		if (effect != null && getWornSetEffects(entity).contains(effect))
+			for (EntityEquipmentSlot slot : SLOTS) {
+				ItemStack stack = entity.getItemStackFromSlot(slot);
+				if (stack != null && stack.getItem() instanceof ItemBlockArmor &&
+						((ItemBlockArmor)stack.getItem()).set.setEffects.contains(effect))
+					return stack;
+			}
+		return null;
+	}
+
 	/**Returns the armor set that the entity is wearing or null if not wearing a full set*/
-	public static ArmorSet getWornSet(EntityLivingBase entity) {
-		if (entity != null) {
+	public static ArrayList<SetEffect> getWornSetEffects(EntityLivingBase entity) {
+		/*if (entity != null) {
 			ItemStack boots = entity.getItemStackFromSlot(EntityEquipmentSlot.FEET);
 			if (boots != null && boots.getItem() instanceof ItemBlockArmor &&
 					isWearingFullSet(entity, ((ItemBlockArmor)boots.getItem()).set))
 				return ((ItemBlockArmor)boots.getItem()).set;
 		}
-		return null;
+		return null;*/
+		ArrayList<SetEffect> effects = new ArrayList<SetEffect>();
+		HashMap<String, Tuple<SetEffect, Integer>> setCounts = Maps.newHashMap();
+		if (entity != null) {
+			for (EntityEquipmentSlot slot : SLOTS) {
+				ItemStack stack = entity.getItemStackFromSlot(slot);
+				if (stack != null && stack.getItem() instanceof ItemBlockArmor) {
+					ItemBlockArmor armor = (ItemBlockArmor) stack.getItem();
+					for (SetEffect effect : armor.set.setEffects) {
+						Tuple t = null;
+						for (String description : setCounts.keySet())
+							if (description.equals(effect.description))
+								t = setCounts.get(effect.description);
+						if (t != null)
+							setCounts.put(effect.description, new Tuple(t.getFirst(), ((Integer)t.getSecond())+1));
+						else
+							setCounts.put(effect.description, new Tuple(effect, 1));
+					}
+				}
+			}
+			for (String description : setCounts.keySet())
+				if (setCounts.get(description).getSecond() >= Config.piecesForSet)
+					effects.add(setCounts.get(description).getFirst());
+		}
+		return effects;
 	}
 
-	/**Determines if entity is wearing all armor of given set or any set if set is null*/
+	/**Determines if entity is wearing enough pieces of armor of given set, or any set if set is null, to active set effects*//*
 	public static boolean isWearingFullSet(EntityLivingBase entity, ArmorSet set) {
-		if (entity != null
-				&& entity.getItemStackFromSlot(EntityEquipmentSlot.HEAD) != null
-				&& entity.getItemStackFromSlot(EntityEquipmentSlot.CHEST) != null
-				&& entity.getItemStackFromSlot(EntityEquipmentSlot.LEGS) != null
-				&& entity.getItemStackFromSlot(EntityEquipmentSlot.FEET) != null) {
-			Item helmet = entity.getItemStackFromSlot(EntityEquipmentSlot.HEAD).getItem();
-			if (set == null && helmet instanceof ItemBlockArmor)
-				set = ArmorSet.getSet((ItemBlockArmor) helmet);
-
-			if (set != null && entity.getItemStackFromSlot(EntityEquipmentSlot.FEET).getItem() == set.boots 
-					&& entity.getItemStackFromSlot(EntityEquipmentSlot.LEGS).getItem() == set.leggings
-					&& entity.getItemStackFromSlot(EntityEquipmentSlot.CHEST).getItem() == set.chestplate
-					&& entity.getItemStackFromSlot(EntityEquipmentSlot.HEAD).getItem() == set.helmet)
-				return true;
+		return getWornSet(entity) == set || set == null;
+		HashMap<ArmorSet, Integer> setCounts = Maps.newHashMap();
+		EntityEquipmentSlot[] slots = new EntityEquipmentSlot[] 
+				{EntityEquipmentSlot.HEAD, EntityEquipmentSlot.CHEST, EntityEquipmentSlot.LEGS, EntityEquipmentSlot.FEET};
+		if (entity != null) {
+			for (EntityEquipmentSlot slot : slots) {
+				ItemStack stack = entity.getItemStackFromSlot(slot);
+				if (stack != null && stack.getItem() instanceof ItemBlockArmor) {
+					ItemBlockArmor armor = (ItemBlockArmor) stack.getItem();
+					if (setCounts.containsKey(armor.set))
+						setCounts.put(armor.set, setCounts.get(armor.set)+1);
+					else
+						setCounts.put(armor.set, 1);
+				}
+			}
+			for (ArmorSet set2 : setCounts.keySet())
+				if (setCounts.get(set2) >= Config.piecesForSet && (set == null || set == set2))
+					return true;
 		}
 		return false;
-	}
+	}*/
 
 	/**Returns true if the set has a set effect and is enabled in Config*/
 	public static boolean isSetEffectEnabled(ArmorSet set) {

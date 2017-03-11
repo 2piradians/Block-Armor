@@ -3,7 +3,6 @@ package twopiradians.blockArmor.common.seteffect;
 import net.minecraft.block.Block;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.SoundEvents;
-import net.minecraft.inventory.EntityEquipmentSlot;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.text.TextFormatting;
@@ -28,10 +27,11 @@ public class SetEffectSlimey extends SetEffect {
 	}
 
 	/**Only called when player wearing full, enabled set*/
+	@Override
 	public void onArmorTick(World world, EntityPlayer player, ItemStack stack) {
 		super.onArmorTick(world, player, stack);
 
-		if (((ItemBlockArmor)stack.getItem()).armorType == EntityEquipmentSlot.FEET && world.isRemote && !player.isSneaking()) {	
+		if (ArmorSet.getFirstSetItem(player, this) == stack && world.isRemote && !player.isSneaking()) {	
 			if (!player.getCooldownTracker().hasCooldown(stack.getItem()) && player.isCollidedHorizontally 
 					&& Math.sqrt(Math.pow(player.posX - player.prevChasingPosX, 2) + 
 							Math.pow(player.posZ - player.prevChasingPosZ, 2)) >= 0.9D) {	
@@ -53,8 +53,9 @@ public class SetEffectSlimey extends SetEffect {
 
 	@SubscribeEvent
 	public void onEvent(LivingFallEvent event) {
-		ArmorSet set = ArmorSet.getWornSet(event.getEntityLiving());
-		if (ArmorSet.isSetEffectEnabled(set) && set.setEffects.contains(this)) {
+		ItemStack stack = ArmorSet.getFirstSetItem(event.getEntityLiving(), this);
+		ArmorSet set = stack == null ? null : ((ItemBlockArmor)stack.getItem()).set;
+		if (ArmorSet.isSetEffectEnabled(set)) {
 			if (!(event.getEntity() instanceof EntityPlayer))
 				return;
 
@@ -85,7 +86,8 @@ public class SetEffectSlimey extends SetEffect {
 		if (!event.player.worldObj.isRemote)
 			return;
 
-		ArmorSet set = ArmorSet.getWornSet(event.player);
+		ItemStack stack = ArmorSet.getFirstSetItem(event.player, this);
+		ArmorSet set = stack == null ? null : ((ItemBlockArmor)stack.getItem()).set;
 		if (ArmorSet.isSetEffectEnabled(set) && set.setEffects.contains(this))
 			if (bouncingPlayer != null && event.player == bouncingPlayer && bouncingPlayer.worldObj.isRemote) {
 				bouncingPlayer.motionY = motionY;

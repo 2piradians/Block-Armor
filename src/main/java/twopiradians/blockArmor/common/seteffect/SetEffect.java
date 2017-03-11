@@ -72,14 +72,14 @@ public class SetEffect {
 	protected boolean usesButton;
 	/**Color of effect for tooltip*/
 	protected TextFormatting color;
-	/**Description of effect for tooltip*/
-	protected String description;
 	/**Potion effects that will be applied in onArmorTick*/
 	protected ArrayList<PotionEffect> potionEffects = new ArrayList<PotionEffect>();
 	/**AttributeModifiers that will be applied in getAttributeModifiers*/
 	protected ArrayList<AttributeModifier> attributeModifiers = new ArrayList<AttributeModifier>();
 	/**EnchantmentData that will be applied in onUpdate*/
 	protected ArrayList<EnchantmentData> enchantments = new ArrayList<EnchantmentData>();
+	/**Description of effect for tooltip*/
+	public String description;
 
 	/**Goes through allSets and assigns set effects to appropriate sets*/
 	public static void postInit() {
@@ -127,11 +127,10 @@ public class SetEffect {
 	/**Set cooldown for all worn ItemBlockArmor on player for specified ticks*/
 	public void setCooldown(EntityPlayer player, int ticks) {
 		if (player != null) {
-			EntityEquipmentSlot[] slots = new EntityEquipmentSlot[] {EntityEquipmentSlot.HEAD, EntityEquipmentSlot.CHEST,
-					EntityEquipmentSlot.LEGS, EntityEquipmentSlot.FEET};
-			for (EntityEquipmentSlot slot : slots) {
+			for (EntityEquipmentSlot slot : ArmorSet.SLOTS) {
 				ItemStack stack = player.getItemStackFromSlot(slot);
-				if (stack != null && stack.getItem() instanceof ItemBlockArmor)
+				if (stack != null && stack.getItem() instanceof ItemBlockArmor && 
+						((ItemBlockArmor)stack.getItem()).set.setEffects.contains(this))
 					player.getCooldownTracker().setCooldown(stack.getItem(), ticks);
 			}
 		}
@@ -139,7 +138,7 @@ public class SetEffect {
 
 	/**Only called when player wearing full, enabled set*/
 	public void onArmorTick(World world, EntityPlayer player, ItemStack stack) {
-		if (!world.isRemote && ((ItemBlockArmor)stack.getItem()).armorType == EntityEquipmentSlot.FEET) {			
+		if (!world.isRemote && ArmorSet.getFirstSetItem(player, this) == stack) {			
 			//apply potion effects
 			for (PotionEffect potionEffect : this.potionEffects)
 				if (this.shouldApplyPotionEffect(potionEffect, world, player, stack))
@@ -152,7 +151,7 @@ public class SetEffect {
 			//keep track of wearingFullSet nbt if it has attributeModifiers
 			if (!this.attributeModifiers.isEmpty()) {
 				ArmorSet set = ArmorSet.getSet((ItemBlockArmor) stack.getItem());
-				if (!(entity instanceof EntityLivingBase) || !ArmorSet.isWearingFullSet((EntityLivingBase) entity, set) || 
+				if (!(entity instanceof EntityLivingBase) || !ArmorSet.getWornSetEffects((EntityLivingBase) entity).contains(this) || 
 						((EntityLivingBase) entity).getItemStackFromSlot(((ItemBlockArmor)stack.getItem()).armorType) != stack ||
 						!ArmorSet.isSetEffectEnabled(set)) 
 					stack.getTagCompound().setBoolean("wearingFullSet", false);
@@ -178,15 +177,17 @@ public class SetEffect {
 
 					//should remove enchantment
 					if (hasEnchant && (!(entity instanceof EntityLivingBase) || 
-							!ArmorSet.isWearingFullSet((EntityLivingBase) entity, set) || !ArmorSet.isSetEffectEnabled(set))) {
+							!ArmorSet.getWornSetEffects((EntityLivingBase) entity).contains(this) || !ArmorSet.isSetEffectEnabled(set)) ||
+							((EntityLivingBase) entity).getItemStackFromSlot(((ItemBlockArmor)stack.getItem()).armorType) != stack) {
 						for (int i=enchantNbt.tagCount()-1; i>=0; i--)
 							if (enchantNbt.getCompoundTagAt(i).getBoolean(BlockArmor.MODID+" enchant"))
 								enchantNbt.removeTag(i);
 					}
+
 					//should add enchantment
 					else if (!hasEnchant && 
 							((EntityLivingBase) entity).getItemStackFromSlot(((ItemBlockArmor)stack.getItem()).armorType) == stack &&
-							ArmorSet.isWearingFullSet((EntityLivingBase) entity, set) && ArmorSet.isSetEffectEnabled(set)) {
+							ArmorSet.getWornSetEffects((EntityLivingBase) entity).contains(this) && ArmorSet.isSetEffectEnabled(set)) {
 						NBTTagCompound nbt = new NBTTagCompound();
 						nbt.setShort("id", (short)Enchantment.getEnchantmentID(enchant.ench));
 						nbt.setShort("lvl", enchant.level);
@@ -209,7 +210,7 @@ public class SetEffect {
 		if (!stack.hasTagCompound())
 			stack.setTagCompound(new NBTTagCompound());
 
-		if (stack.getTagCompound().getBoolean("wearingFullSet")) 
+		if (stack.getTagCompound().getBoolean("wearingFullSet")) //FIXME removing 4 piece will reset attributes
 			for (AttributeModifier attribute : this.attributeModifiers)
 				map.put(attribute.getName(), attribute);
 
@@ -221,7 +222,7 @@ public class SetEffect {
 	public List<String> addInformation(ItemStack stack, boolean isShiftDown, EntityPlayer player, List<String> tooltip, boolean advanced) {
 		ArmorSet set = ArmorSet.getSet((ItemBlockArmor) stack.getItem());
 
-		String string = color+""+TextFormatting.BOLD;
+		String string = color+""+(ArmorSet.getWornSetEffects(player).contains(this) && player.getItemStackFromSlot(((ItemBlockArmor)stack.getItem()).armorType) == stack ? TextFormatting.BOLD : "");
 		string += ArmorSet.isSetEffectEnabled(set) ? "" : TextFormatting.STRIKETHROUGH.toString();
 		string += this.toString()+TextFormatting.RESET;
 		if (isShiftDown) {
@@ -244,7 +245,7 @@ public class SetEffect {
 
 	@Override
 	public boolean equals(Object obj) {
-		return obj.getClass() == this.getClass();
+		return obj.getClass() == this.getClass() && this.description.equals(((SetEffect)obj).description);
 	}
 
 	/**Used to store data for enchantments easily*/
