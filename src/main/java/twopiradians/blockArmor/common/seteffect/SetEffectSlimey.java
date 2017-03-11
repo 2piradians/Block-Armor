@@ -27,6 +27,7 @@ public class SetEffectSlimey extends SetEffect {
 	}
 
 	/**Only called when player wearing full, enabled set*/
+	@Override
 	public void onArmorTick(World world, EntityPlayer player, ItemStack stack) {
 		super.onArmorTick(world, player, stack);
 
