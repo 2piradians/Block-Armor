@@ -183,7 +183,7 @@ public class SetEffect {
 							if (enchantNbt.getCompoundTagAt(i).getBoolean(BlockArmor.MODID+" enchant"))
 								enchantNbt.removeTag(i);
 					}
-										
+
 					//should add enchantment
 					else if (!hasEnchant && 
 							((EntityLivingBase) entity).getItemStackFromSlot(((ItemBlockArmor)stack.getItem()).armorType) == stack &&
@@ -210,7 +210,7 @@ public class SetEffect {
 		if (!stack.hasTagCompound())
 			stack.setTagCompound(new NBTTagCompound());
 
-		if (stack.getTagCompound().getBoolean("wearingFullSet")) //TODO test with sugarcane
+		if (stack.getTagCompound().getBoolean("wearingFullSet")) //FIXME removing 4 piece will reset attributes
 			for (AttributeModifier attribute : this.attributeModifiers)
 				map.put(attribute.getName(), attribute);
 

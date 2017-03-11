@@ -441,7 +441,7 @@ public class ArmorSet {
 			if (set.helmet == item || set.chestplate == item || set.leggings == item || set.boots == item)
 				return set;
 		return null;
-	}//TODO remove
+	}
 
 	/**Should an armor set be made from this item*/
 	private static boolean isValid(ItemStack stack) {
