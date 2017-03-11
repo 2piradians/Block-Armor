@@ -35,7 +35,7 @@ import twopiradians.blockArmor.common.item.ArmorSet;
 import twopiradians.blockArmor.common.item.ItemBlockArmor;
 import twopiradians.blockArmor.common.seteffect.SetEffect;
 
-@SuppressWarnings({"deprecation", "unused"})
+@SuppressWarnings({"all"})
 @SideOnly(Side.CLIENT)
 public class GuiArmorDisplay extends GuiScreen
 {

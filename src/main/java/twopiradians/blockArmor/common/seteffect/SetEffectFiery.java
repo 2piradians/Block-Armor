@@ -3,12 +3,14 @@ package twopiradians.blockArmor.common.seteffect;
 import net.minecraft.block.Block;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.init.SoundEvents;
+import net.minecraft.item.ItemStack;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.living.LivingAttackEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import twopiradians.blockArmor.common.item.ArmorSet;
+import twopiradians.blockArmor.common.item.ItemBlockArmor;
 
 public class SetEffectFiery extends SetEffect {
 
@@ -27,8 +29,9 @@ public class SetEffectFiery extends SetEffect {
 			EntityLivingBase attacked = event.getEntityLiving();
 
 			//Lights the entity that attacks the wearer of the armor
-			ArmorSet set = ArmorSet.getWornSet(attacked);
-			if (ArmorSet.isSetEffectEnabled(set) && set.setEffects.contains(this) && !attacker.isInWater())	{
+			ItemStack stack = ArmorSet.getFirstSetItem(attacked, this);
+			ArmorSet set = stack == null ? null : ((ItemBlockArmor)stack.getItem()).set;
+			if (ArmorSet.isSetEffectEnabled(set) && !attacker.isInWater())	{
 				if (!attacker.isBurning())
 					attacker.worldObj.playSound(null, attacker.posX, 
 							attacker.posY, attacker.posZ, SoundEvents.ITEM_FIRECHARGE_USE, 
@@ -36,8 +39,9 @@ public class SetEffectFiery extends SetEffect {
 				attacker.setFire(5);
 			}
 			//Lights the target of the wearer when the wearer attacks
-			set = ArmorSet.getWornSet(attacker);
-			if (ArmorSet.isSetEffectEnabled(set) && set.setEffects.contains(this) && !attacked.isInWater())	{
+			stack = ArmorSet.getFirstSetItem(attacker, this);
+			set = stack == null ? null : ((ItemBlockArmor)stack.getItem()).set;
+			if (ArmorSet.isSetEffectEnabled(set) && !attacked.isInWater())	{
 				if (!attacked.isBurning())
 					attacker.worldObj.playSound(null, attacked.posX, attacked.posY, attacked.posZ, 
 							SoundEvents.ITEM_FIRECHARGE_USE, SoundCategory.PLAYERS, 1.0f, attacker.worldObj.rand.nextFloat());

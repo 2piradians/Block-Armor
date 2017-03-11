@@ -10,7 +10,7 @@ public class SetEffectInvisibility extends SetEffect {
 	protected SetEffectInvisibility() {
 		this.color = TextFormatting.WHITE;
 		this.description = "Provides Invisibility";
-		this.potionEffects.add(new PotionEffect(MobEffects.INVISIBILITY, 10, 0, true, true));
+		this.potionEffects.add(new PotionEffect(MobEffects.INVISIBILITY, 10, 0, true, false));
 	}
 	
 	/**Should block be given this set effect*/

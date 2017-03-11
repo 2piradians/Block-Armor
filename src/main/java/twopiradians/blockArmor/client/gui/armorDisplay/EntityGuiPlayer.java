@@ -19,10 +19,10 @@ public class EntityGuiPlayer extends AbstractClientPlayer
 	private AbstractClientPlayer player;
 	private static ScorePlayerTeam team;
 
-	public EntityGuiPlayer(World worldIn, GameProfile playerProfile, AbstractClientPlayer thePlayer) 
+	public EntityGuiPlayer(World worldIn, GameProfile playerProfile, AbstractClientPlayer player) 
 	{
 		super(worldIn, playerProfile);
-		this.player = thePlayer;
+		this.player = player;
 		
 		if (team == null) {
 			team = Minecraft.getMinecraft().theWorld.getScoreboard().createTeam("");

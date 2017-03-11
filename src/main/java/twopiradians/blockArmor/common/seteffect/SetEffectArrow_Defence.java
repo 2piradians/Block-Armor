@@ -12,6 +12,7 @@ import net.minecraft.util.SoundCategory;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
 import twopiradians.blockArmor.common.BlockArmor;
+import twopiradians.blockArmor.common.item.ArmorSet;
 import twopiradians.blockArmor.common.item.ItemBlockArmor;
 
 public class SetEffectArrow_Defence extends SetEffect {
@@ -26,7 +27,7 @@ public class SetEffectArrow_Defence extends SetEffect {
 	public void onArmorTick(World world, EntityPlayer player, ItemStack stack) {
 		super.onArmorTick(world, player, stack);
 
-		if (!world.isRemote && ((ItemBlockArmor)stack.getItem()).armorType == EntityEquipmentSlot.FEET &&
+		if (!world.isRemote && ArmorSet.getFirstSetItem(player, this) == stack &&
 				BlockArmor.key.isKeyDown(player) && !player.getCooldownTracker().hasCooldown(stack.getItem())) {
 			this.setCooldown(player, 40);
 			int numArrows = 16;
@@ -39,10 +40,12 @@ public class SetEffectArrow_Defence extends SetEffect {
 			}
 			world.playSound((EntityPlayer)null, player.getPosition(), SoundEvents.ENTITY_ARROW_SHOOT, 
 					SoundCategory.PLAYERS, 1.0F, world.rand.nextFloat() + 0.5f);
-			player.getItemStackFromSlot(EntityEquipmentSlot.HEAD).damageItem(numArrows/4, player);
-			player.getItemStackFromSlot(EntityEquipmentSlot.CHEST).damageItem(numArrows/4, player);
-			player.getItemStackFromSlot(EntityEquipmentSlot.LEGS).damageItem(numArrows/4, player);
-			player.getItemStackFromSlot(EntityEquipmentSlot.FEET).damageItem(numArrows/4, player);
+			for (EntityEquipmentSlot slot : ArmorSet.SLOTS) {
+				ItemStack armor = player.getItemStackFromSlot(slot);
+				if (armor != null && armor.getItem() instanceof ItemBlockArmor && 
+						((ItemBlockArmor)armor.getItem()).set.setEffects.contains(this))
+					armor.damageItem(numArrows/4, player);
+			}
 		}
 	}
 

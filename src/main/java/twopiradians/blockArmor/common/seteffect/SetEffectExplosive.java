@@ -7,6 +7,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
 import twopiradians.blockArmor.common.BlockArmor;
+import twopiradians.blockArmor.common.item.ArmorSet;
 import twopiradians.blockArmor.common.item.ItemBlockArmor;
 
 public class SetEffectExplosive extends SetEffect {
@@ -21,14 +22,16 @@ public class SetEffectExplosive extends SetEffect {
 	public void onArmorTick(World world, EntityPlayer player, ItemStack stack) {
 		super.onArmorTick(world, player, stack);
 
-		if (!world.isRemote && ((ItemBlockArmor)stack.getItem()).armorType == EntityEquipmentSlot.FEET &&
+		if (!world.isRemote && ArmorSet.getFirstSetItem(player, this) == stack &&
 				BlockArmor.key.isKeyDown(player) && !player.getCooldownTracker().hasCooldown(stack.getItem()) && player.isAllowEdit()) {
 			this.setCooldown(player, 20);
 			world.newExplosion(player, player.posX, player.posY+0.5d, player.posZ, 6f, false, true);
-			player.getItemStackFromSlot(EntityEquipmentSlot.HEAD).damageItem(player.getItemStackFromSlot(EntityEquipmentSlot.HEAD).getMaxDamage()/9, player);
-			player.getItemStackFromSlot(EntityEquipmentSlot.CHEST).damageItem(player.getItemStackFromSlot(EntityEquipmentSlot.CHEST).getMaxDamage()/9, player);
-			player.getItemStackFromSlot(EntityEquipmentSlot.LEGS).damageItem(player.getItemStackFromSlot(EntityEquipmentSlot.LEGS).getMaxDamage()/9, player);
-			player.getItemStackFromSlot(EntityEquipmentSlot.FEET).damageItem(player.getItemStackFromSlot(EntityEquipmentSlot.FEET).getMaxDamage()/9, player);
+			for (EntityEquipmentSlot slot : ArmorSet.SLOTS) {
+				ItemStack armor = player.getItemStackFromSlot(slot);
+				if (armor != null && armor.getItem() instanceof ItemBlockArmor && 
+						((ItemBlockArmor)armor.getItem()).set.setEffects.contains(this))
+					armor.damageItem(armor.getMaxDamage()/9, player);
+			}
 		}
 	}
 

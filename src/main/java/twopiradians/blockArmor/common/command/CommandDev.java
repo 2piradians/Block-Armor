@@ -89,9 +89,7 @@ public class CommandDev implements ICommand
 			if (args.length == 2 && args[0].equalsIgnoreCase(ARMOR)) {
 				ArmorSet set = setMap.get(args[1]);
 				if (set != null) { //replace empty armor slots or slots with ItemBlockArmor with new set's armor
-					EntityEquipmentSlot[] slots = new EntityEquipmentSlot[] {EntityEquipmentSlot.HEAD,
-							EntityEquipmentSlot.CHEST, EntityEquipmentSlot.LEGS, EntityEquipmentSlot.FEET};
-					for (EntityEquipmentSlot slot : slots) {
+					for (EntityEquipmentSlot slot : ArmorSet.SLOTS) {
 						ItemStack stack = ((EntityPlayer) sender).getItemStackFromSlot(slot);
 						ItemStack newStack = new ItemStack(set.getArmorForSlot(slot));
 						NBTTagCompound nbt = new NBTTagCompound();

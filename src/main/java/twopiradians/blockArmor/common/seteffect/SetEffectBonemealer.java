@@ -17,6 +17,7 @@ import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
 import twopiradians.blockArmor.common.BlockArmor;
+import twopiradians.blockArmor.common.item.ArmorSet;
 import twopiradians.blockArmor.common.item.ItemBlockArmor;
 
 public class SetEffectBonemealer extends SetEffect {
@@ -31,7 +32,7 @@ public class SetEffectBonemealer extends SetEffect {
 	public void onArmorTick(World world, EntityPlayer player, ItemStack stack) {
 		super.onArmorTick(world, player, stack);
 
-		if (!world.isRemote && ((ItemBlockArmor)stack.getItem()).armorType == EntityEquipmentSlot.FEET &&
+		if (!world.isRemote && ArmorSet.getFirstSetItem(player, this) == stack &&
 				BlockArmor.key.isKeyDown(player) && !player.getCooldownTracker().hasCooldown(stack.getItem())) {
 			int radius = 2;
 			ArrayList<BlockPos> bonemealed = new ArrayList<BlockPos>();
@@ -48,10 +49,12 @@ public class SetEffectBonemealer extends SetEffect {
 							pos.getX(), pos.getY()+1d, pos.getZ(), 10, 2, 0.1d, 2, 0, new int[0]);
 				world.playSound(null, player.getPosition(), SoundEvents.ITEM_HOE_TILL, 
 						SoundCategory.PLAYERS, 0.5f, world.rand.nextFloat()+0.5f);
-				player.getItemStackFromSlot(EntityEquipmentSlot.HEAD).damageItem(1, player);
-				player.getItemStackFromSlot(EntityEquipmentSlot.CHEST).damageItem(1, player);
-				player.getItemStackFromSlot(EntityEquipmentSlot.LEGS).damageItem(1, player);
-				player.getItemStackFromSlot(EntityEquipmentSlot.FEET).damageItem(1, player);
+				for (EntityEquipmentSlot slot : ArmorSet.SLOTS) {
+					ItemStack armor = player.getItemStackFromSlot(slot);
+					if (armor != null && armor.getItem() instanceof ItemBlockArmor && 
+							((ItemBlockArmor)armor.getItem()).set.setEffects.contains(this))
+						armor.damageItem(1, player);
+				}
 			}
 			else
 				this.setCooldown(player, 20);

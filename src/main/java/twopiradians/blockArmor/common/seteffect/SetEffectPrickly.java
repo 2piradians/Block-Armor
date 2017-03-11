@@ -15,7 +15,7 @@ import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
-import twopiradians.blockArmor.common.item.ItemBlockArmor;
+import twopiradians.blockArmor.common.item.ArmorSet;
 
 public class SetEffectPrickly extends SetEffect {
 
@@ -32,7 +32,7 @@ public class SetEffectPrickly extends SetEffect {
 	public void onArmorTick(World world, EntityPlayer player, ItemStack stack) {
 		super.onArmorTick(world, player, stack);
 
-		if (((ItemBlockArmor)stack.getItem()).armorType == EntityEquipmentSlot.FEET && 
+		if (ArmorSet.getFirstSetItem(player, this) == stack && 
 				!world.isRemote && !player.getCooldownTracker().hasCooldown(stack.getItem()))	{
 			AxisAlignedBB axisAlignedBB = player.getEntityBoundingBox();
 			List<EntityLivingBase> list = player.worldObj.getEntitiesWithinAABB(EntityLivingBase.class, axisAlignedBB);

@@ -3,13 +3,16 @@ package twopiradians.blockArmor.common.config;
 import java.io.File;
 import java.util.ArrayList;
 
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.common.config.Property;
+import net.minecraftforge.event.entity.EntityJoinWorldEvent;
 import net.minecraftforge.fml.client.event.ConfigChangedEvent;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import twopiradians.blockArmor.common.BlockArmor;
 import twopiradians.blockArmor.common.item.ArmorSet;
+import twopiradians.blockArmor.packet.PacketSyncConfig;
 
 public class Config 
 {
@@ -25,7 +28,9 @@ public class Config
 	public static int autoGenSets;
 	private static final ArrayList<String> autoGenSetsArray = new ArrayList<String>() {{add("Enabled"); add("Disabled"); add("Custom");}};
 
-	public static void postInit(final File file)
+	public static int piecesForSet;
+	
+	public static void postInit(final File file) 
 	{
 		Config.config = new Configuration(file);
 		Config.config.load();
@@ -78,8 +83,22 @@ public class Config
 				prop.set(false);
 			ArmorSet.setsWithEffects.put(set, prop.getBoolean());
 		}		
-
+		
+		//Armor pieces required to activate set effect
+		Property prop = getPiecesForSetProp();
+		Config.piecesForSet = prop.getInt();
+		
 		Config.config.save();
+	}
+	
+	public static Property getPiecesForSetProp() {
+		return Config.config.get(Configuration.CATEGORY_GENERAL, "Armor pieces required for Set Effect", 4, "Specifies how many armor pieces of a set are required for the set's effect to work.", 3, 4);
+	}
+	
+	@SubscribeEvent
+	public void onJoinWorld(EntityJoinWorldEvent event) {
+		if (!event.getWorld().isRemote && event.getEntity() != null && event.getEntity() instanceof EntityPlayerMP)
+			BlockArmor.network.sendTo(new PacketSyncConfig(Config.piecesForSet), (EntityPlayerMP) event.getEntity());
 	}
 
 	@SubscribeEvent(priority=EventPriority.NORMAL, receiveCanceled=true)

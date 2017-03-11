@@ -20,6 +20,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
+import net.minecraftforge.fluids.BlockFluidBase;
 import twopiradians.blockArmor.common.BlockArmor;
 import twopiradians.blockArmor.common.item.ArmorSet;
 import twopiradians.blockArmor.common.item.ItemBlockArmor;
@@ -42,30 +43,26 @@ public class SetEffectAbsorbent extends SetEffect {
 			((WorldServer)world).spawnParticle(EnumParticleTypes.WATER_DROP, true, player.posX, player.posY+1.0d,player.posZ, 
 					5, 0.2d, 0.5d, 0.2d, 0, new int[0]);
 
-		if (!world.isRemote && ((ItemBlockArmor)stack.getItem()).armorType == EntityEquipmentSlot.FEET &&
-				!player.getCooldownTracker().hasCooldown(stack.getItem())) {
-			ArmorSet set = ArmorSet.getWornSet(player);
-			if (set != null) {
+		if (!world.isRemote && !player.getCooldownTracker().hasCooldown(stack.getItem())) {
+			ArmorSet wornSet = ((ItemBlockArmor)stack.getItem()).set;
+			ArmorSet drySet = ArmorSet.getSet(Blocks.SPONGE, 0);
+			ArmorSet wetSet = ArmorSet.getSet(Blocks.SPONGE, 1);
+
+			if (wornSet != null) {
 				//change wet sponge back to normal
-				if (set.block == Blocks.SPONGE && set.meta == 1) {
-					ArmorSet set2 = ArmorSet.getSet(Blocks.SPONGE, 0);
-					EntityEquipmentSlot[] slots = new EntityEquipmentSlot[] {EntityEquipmentSlot.HEAD,
-							EntityEquipmentSlot.CHEST, EntityEquipmentSlot.LEGS, EntityEquipmentSlot.FEET};
-
-					for (EntityEquipmentSlot slot : slots) 
-						player.getItemStackFromSlot(slot).setItem(set2.getArmorForSlot(slot));
-				}
-				else if (!world.isRemote && player.isAllowEdit() && BlockArmor.key.isKeyDown(player) &&
-						player.worldObj.getBlockState(player.getPosition()).getBlock() instanceof BlockLiquid) {
-					//change dry sponge to wet sponge
-					if (set.block == Blocks.SPONGE && set.meta == 0) {
-						ArmorSet set2 = ArmorSet.getSet(Blocks.SPONGE, 1);
-						EntityEquipmentSlot[] slots = new EntityEquipmentSlot[] {EntityEquipmentSlot.HEAD,
-								EntityEquipmentSlot.CHEST, EntityEquipmentSlot.LEGS, EntityEquipmentSlot.FEET};
-
-						for (EntityEquipmentSlot slot : slots) 
-							player.getItemStackFromSlot(slot).setItem(set2.getArmorForSlot(slot));
+				if (wornSet.block == Blocks.SPONGE && wornSet.meta == 1) { 
+					for (EntityEquipmentSlot slot : ArmorSet.SLOTS) {
+						ItemStack oldStack = player.getItemStackFromSlot(slot);
+						if (oldStack != null && oldStack.getItem() instanceof ItemBlockArmor && 
+								((ItemBlockArmor)oldStack.getItem()).set == wornSet) { //only change if wet sponge 
+							player.getItemStackFromSlot(slot).setItem(drySet.getArmorForSlot(slot));
+						}
 					}
+				}
+				else if (wornSet.block == Blocks.SPONGE && wornSet.meta == 0 &&
+						!world.isRemote && player.isAllowEdit() && BlockArmor.key.isKeyDown(player) &&
+						player.worldObj.getBlockState(player.getPosition()).getBlock() instanceof BlockLiquid ||
+						player.worldObj.getBlockState(player.getPosition()).getBlock() instanceof BlockFluidBase) {
 					//absorb liquids
 					Queue<Tuple<BlockPos, Integer>> queue = Lists.<Tuple<BlockPos, Integer>>newLinkedList();
 					List<BlockPos> list = Lists.<BlockPos>newArrayList();
@@ -80,7 +77,8 @@ public class SetEffectAbsorbent extends SetEffect {
 						for (EnumFacing enumfacing : EnumFacing.values()) {
 							BlockPos blockpos1 = blockpos.offset(enumfacing);
 
-							if (world.getBlockState(blockpos1).getBlock() instanceof BlockLiquid) {
+							if (world.getBlockState(blockpos1).getBlock() instanceof BlockLiquid ||
+									world.getBlockState(blockpos1).getBlock() instanceof BlockFluidBase) {
 								world.setBlockState(blockpos1, Blocks.AIR.getDefaultState(), 2);
 								list.add(blockpos1);
 								++i;
@@ -98,6 +96,15 @@ public class SetEffectAbsorbent extends SetEffect {
 					world.playSound((EntityPlayer)null, player.posX, player.posY, player.posZ, SoundEvents.ITEM_BUCKET_FILL, 
 							SoundCategory.PLAYERS, 1.0F, world.rand.nextFloat() + 0.5f);
 
+					//change dry sponge to wet sponge
+					for (EntityEquipmentSlot slot : ArmorSet.SLOTS) {
+						ItemStack oldStack = player.getItemStackFromSlot(slot);
+						if (oldStack != null && oldStack.getItem() instanceof ItemBlockArmor && 
+								((ItemBlockArmor)oldStack.getItem()).set == wornSet) { //only change if dry sponge 
+							player.getItemStackFromSlot(slot).setItem(wetSet.getArmorForSlot(slot));
+						}
+					}
+					
 					this.setCooldown(player, 60);
 				}
 

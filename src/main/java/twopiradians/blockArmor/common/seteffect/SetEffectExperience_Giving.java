@@ -2,11 +2,10 @@ package twopiradians.blockArmor.common.seteffect;
 
 import net.minecraft.block.Block;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.inventory.EntityEquipmentSlot;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
-import twopiradians.blockArmor.common.item.ItemBlockArmor;
+import twopiradians.blockArmor.common.item.ArmorSet;
 
 public class SetEffectExperience_Giving extends SetEffect {
 
@@ -19,8 +18,8 @@ public class SetEffectExperience_Giving extends SetEffect {
 	public void onArmorTick(World world, EntityPlayer player, ItemStack stack) {
 		super.onArmorTick(world, player, stack);
 
-		if (((ItemBlockArmor)stack.getItem()).armorType == EntityEquipmentSlot.FEET &&
-				!world.isRemote && !player.getCooldownTracker().hasCooldown(stack.getItem())) {
+		if (ArmorSet.getFirstSetItem(player, this) == stack && !world.isRemote && 
+				!player.getCooldownTracker().hasCooldown(stack.getItem())) {
 			this.setCooldown(player, 50);
 			player.addExperience(1);
 		}
