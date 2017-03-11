@@ -92,7 +92,7 @@ public class BlockMovingLightSource extends Block implements ITileEntityProvider
 
 	@Override
 	public TileEntity createNewTileEntity(World world, int meta) {
-		return new TileEntityMovingLightSource();
+		return new TileEntityMovingLightSource(meta);
 	}
 
 	@SuppressWarnings("deprecation")
