@@ -14,6 +14,8 @@ public class TileEntityMovingLightSource extends TileEntity implements ITickable
 {
 	private SetEffect effect;
 	
+	public TileEntityMovingLightSource() {}
+	
 	public TileEntityMovingLightSource(int meta) {
 		effect = new SetEffectIlluminated(meta);
 	}
