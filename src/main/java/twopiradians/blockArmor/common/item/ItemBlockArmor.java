@@ -57,7 +57,7 @@ public class ItemBlockArmor extends ItemArmor
 		TextureAtlasSprite sprite = ArmorSet.getSprite(this);
 		int width = sprite.getIconWidth();
 		int height = sprite.getIconHeight() * sprite.getFrameCount();
-		boolean isTranslucent = ArmorSet.getSet(this).isTranslucent;
+		boolean isTranslucent = set.isTranslucent;
 		int currentFrame = ArmorSet.getCurrentAnimationFrame(this);
 		int nextFrame = ArmorSet.getNextAnimationFrame(this);
 		int color = ArmorSet.getColor(this);
@@ -106,7 +106,7 @@ public class ItemBlockArmor extends ItemArmor
 	public EnumRarity getRarity(ItemStack stack) {
 		if (stack.isItemEnchanted())
 			return EnumRarity.RARE;
-		else if (!ArmorSet.getSet(this).setEffects.isEmpty())
+		else if (!set.setEffects.isEmpty())
 			return EnumRarity.UNCOMMON;
 		else
 			return EnumRarity.COMMON;
@@ -122,11 +122,8 @@ public class ItemBlockArmor extends ItemArmor
 		if (!set.setEffects.isEmpty()) {
 			//add header if shifting
 			if (GuiScreen.isShiftKeyDown())
-				if (!ArmorSet.isSetEffectEnabled(set))
-					tooltip.add(TextFormatting.RED+"Set Effects disabled in config.");
-				else
-					tooltip.add(TextFormatting.ITALIC+""+TextFormatting.GOLD+"Set Effects: "+TextFormatting.ITALIC+
-							"(requires "+Config.piecesForSet+(Config.piecesForSet == 4 ? "" : "+")+" pieces to be worn)");
+				tooltip.add(TextFormatting.ITALIC+""+TextFormatting.GOLD+"Set Effects: "+TextFormatting.ITALIC+
+						"(requires "+Config.piecesForSet+(Config.piecesForSet == 4 ? "" : "+")+" pieces to be worn)");
 
 			//set effect names and descriptions if shifting
 			for (SetEffect effect : set.setEffects)
@@ -173,10 +170,6 @@ public class ItemBlockArmor extends ItemArmor
 			player.setItemStackToSlot(this.getEquipmentSlot(), ItemStack.EMPTY);
 			return;
 		}
-
-		//only continue if set effect enabled and wearing full set
-		if (!ArmorSet.isSetEffectEnabled(set))
-			return;
 
 		if (!stack.hasTagCompound())
 			stack.setTagCompound(new NBTTagCompound());

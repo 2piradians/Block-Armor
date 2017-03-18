@@ -12,7 +12,6 @@ import net.minecraftforge.event.entity.living.LivingFallEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 import twopiradians.blockArmor.common.item.ArmorSet;
-import twopiradians.blockArmor.common.item.ItemBlockArmor;
 
 public class SetEffectSlimey extends SetEffect {
 
@@ -53,9 +52,7 @@ public class SetEffectSlimey extends SetEffect {
 
 	@SubscribeEvent
 	public void onEvent(LivingFallEvent event) {
-		ItemStack stack = ArmorSet.getFirstSetItem(event.getEntityLiving(), this);
-		ArmorSet set = stack == null ? null : ((ItemBlockArmor)stack.getItem()).set;
-		if (ArmorSet.isSetEffectEnabled(set)) {
+		if (ArmorSet.getWornSetEffects(event.getEntityLiving()).contains(this)) {
 			if (!(event.getEntity() instanceof EntityPlayer))
 				return;
 
@@ -86,9 +83,7 @@ public class SetEffectSlimey extends SetEffect {
 		if (!event.player.world.isRemote)
 			return;
 
-		ItemStack stack = ArmorSet.getFirstSetItem(event.player, this);
-		ArmorSet set = stack == null ? null : ((ItemBlockArmor)stack.getItem()).set;
-		if (ArmorSet.isSetEffectEnabled(set) && set.setEffects.contains(this))
+		if (ArmorSet.getWornSetEffects(event.player).contains(this))
 			if (bouncingPlayer != null && event.player == bouncingPlayer && bouncingPlayer.world.isRemote) {
 				bouncingPlayer.motionY = motionY;
 				bouncingPlayer.fallDistance = 0;

@@ -3,14 +3,12 @@ package twopiradians.blockArmor.common.seteffect;
 import net.minecraft.block.Block;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.init.SoundEvents;
-import net.minecraft.item.ItemStack;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.living.LivingAttackEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import twopiradians.blockArmor.common.item.ArmorSet;
-import twopiradians.blockArmor.common.item.ItemBlockArmor;
 
 public class SetEffectFiery extends SetEffect {
 
@@ -23,15 +21,13 @@ public class SetEffectFiery extends SetEffect {
 	/**Ignites attackers/attackees*/
 	@SubscribeEvent
 	public void onEvent(LivingAttackEvent event) {		
-		if (event.getSource().getSourceOfDamage() instanceof EntityLivingBase 
+		if (this.isEnabled() && event.getSource().getSourceOfDamage() instanceof EntityLivingBase 
 				&& !event.getSource().getSourceOfDamage().world.isRemote) {
 			EntityLivingBase attacker = (EntityLivingBase) event.getSource().getSourceOfDamage();
 			EntityLivingBase attacked = event.getEntityLiving();
 
 			//Lights the entity that attacks the wearer of the armor
-			ItemStack stack = ArmorSet.getFirstSetItem(attacked, this);
-			ArmorSet set = stack == null ? null : ((ItemBlockArmor)stack.getItem()).set;
-			if (ArmorSet.isSetEffectEnabled(set) && !attacker.isInWater())	{
+			if (ArmorSet.getWornSetEffects(attacked).contains(this) && !attacker.isInWater())	{
 				if (!attacker.isBurning())
 					attacker.world.playSound(null, attacker.posX, 
 							attacker.posY, attacker.posZ, SoundEvents.ITEM_FIRECHARGE_USE, 
@@ -39,9 +35,7 @@ public class SetEffectFiery extends SetEffect {
 				attacker.setFire(5);
 			}
 			//Lights the target of the wearer when the wearer attacks
-			stack = ArmorSet.getFirstSetItem(attacker, this);
-			set = stack == null ? null : ((ItemBlockArmor)stack.getItem()).set;
-			if (ArmorSet.isSetEffectEnabled(set) && !attacked.isInWater())	{
+			if (ArmorSet.getWornSetEffects(attacker).contains(this) && !attacked.isInWater())	{
 				if (!attacked.isBurning())
 					attacker.world.playSound(null, attacked.posX, attacked.posY, attacked.posZ, 
 							SoundEvents.ITEM_FIRECHARGE_USE, SoundCategory.PLAYERS, 1.0f, attacker.world.rand.nextFloat());

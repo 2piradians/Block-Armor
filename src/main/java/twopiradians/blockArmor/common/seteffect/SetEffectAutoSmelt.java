@@ -29,9 +29,7 @@ public class SetEffectAutoSmelt extends SetEffect {
 	@SubscribeEvent
 	public void onEvent(HarvestDropsEvent event) //only server side
 	{
-		ItemStack stack = ArmorSet.getFirstSetItem(event.getHarvester(), this);
-		ArmorSet set = stack == null ? null : ((ItemBlockArmor)stack.getItem()).set;
-		if (ArmorSet.isSetEffectEnabled(set) && set.setEffects.contains(this)) {
+		if (ArmorSet.getWornSetEffects(event.getHarvester()).contains(this)) {
 			if (event.getWorld().isRemote || event.isSilkTouching())
 				return;
 

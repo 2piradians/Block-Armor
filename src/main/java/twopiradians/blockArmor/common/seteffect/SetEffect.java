@@ -23,6 +23,7 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import twopiradians.blockArmor.client.key.KeyActivateSetEffect;
 import twopiradians.blockArmor.common.BlockArmor;
+import twopiradians.blockArmor.common.config.Config;
 import twopiradians.blockArmor.common.item.ArmorSet;
 import twopiradians.blockArmor.common.item.ItemBlockArmor;
 
@@ -93,19 +94,29 @@ public class SetEffect {
 						hasEffectWithButton = true;
 					set.setEffects.add(effect.create(set.block));
 				}
-			if (!set.setEffects.isEmpty()) 
-				ArmorSet.setsWithEffects.put(set, true);
 		}
 	}
 
 	/**Checks if block's registry name contains any of the provided strings (with or without capitalized first letter)*/
 	protected static boolean registryNameContains(Block block, String[] strings) {
-		String registryName = block.getRegistryName().toString();
-		for (String string : strings)
-			if (registryName.contains(string) || registryName.contains(string.substring(0, 1).toUpperCase()+string.substring(1)))
-				return true;
+		try {
+			String registryName = block.getRegistryName().toString();
+			for (String string : strings) {
+				if (registryName.contains(string) || registryName.contains(string.substring(0, 1).toUpperCase()+string.substring(1)) ||
+						block.getLocalizedName().contains(string) || block.getLocalizedName().contains(string.substring(0, 1).toUpperCase()+string.substring(1)))
+					return true;
+			}
+		}
+		catch (Exception e) {
+			return false;
+		}
 
 		return false;
+	}
+	
+	/**Is this set effect isEnabled() in the config*/
+	public boolean isEnabled() {
+		return !Config.disabledSetEffects.contains(this.getClass());
 	}
 
 	/**Can be overwritten to return a new instance depending on the given block*/
@@ -113,8 +124,7 @@ public class SetEffect {
 		return this;
 	}
 
-	/**Should block be given this set effect
-	 * @param meta */
+	/**Should block be given this set effect*/
 	protected boolean isValid(Block block, int meta) {
 		return false;
 	}
@@ -136,7 +146,7 @@ public class SetEffect {
 		}
 	}
 
-	/**Only called when player wearing full, enabled set*/
+	/**Only called when player wearing full, isEnabled() set*/
 	public void onArmorTick(World world, EntityPlayer player, ItemStack stack) {
 		if (!world.isRemote && ArmorSet.getFirstSetItem(player, this) == stack) {			
 			//apply potion effects
@@ -150,10 +160,9 @@ public class SetEffect {
 		if (!world.isRemote) {
 			//keep track of wearingFullSet nbt if it has attributeModifiers
 			if (!this.attributeModifiers.isEmpty()) {
-				ArmorSet set = ArmorSet.getSet((ItemBlockArmor) stack.getItem());
 				if (!(entity instanceof EntityLivingBase) || !ArmorSet.getWornSetEffects((EntityLivingBase) entity).contains(this) || 
 						((EntityLivingBase) entity).getItemStackFromSlot(((ItemBlockArmor)stack.getItem()).armorType) != stack ||
-						!ArmorSet.isSetEffectEnabled(set)) 
+						!this.isEnabled()) 
 					stack.getTagCompound().setBoolean("wearingFullSet", false);
 				else
 					stack.getTagCompound().setBoolean("wearingFullSet", true);
@@ -173,11 +182,9 @@ public class SetEffect {
 							hasEnchant = true;
 					}
 
-					ArmorSet set = ArmorSet.getSet((ItemBlockArmor) stack.getItem());
-
 					//should remove enchantment
 					if (hasEnchant && (!(entity instanceof EntityLivingBase) || 
-							!ArmorSet.getWornSetEffects((EntityLivingBase) entity).contains(this) || !ArmorSet.isSetEffectEnabled(set)) ||
+							!ArmorSet.getWornSetEffects((EntityLivingBase) entity).contains(this) || !this.isEnabled()) ||
 							((EntityLivingBase) entity).getItemStackFromSlot(((ItemBlockArmor)stack.getItem()).armorType) != stack) {
 						for (int i=enchantNbt.tagCount()-1; i>=0; i--)
 							if (enchantNbt.getCompoundTagAt(i).getBoolean(BlockArmor.MODID+" enchant"))
@@ -187,7 +194,7 @@ public class SetEffect {
 					//should add enchantment
 					else if (!hasEnchant && 
 							((EntityLivingBase) entity).getItemStackFromSlot(((ItemBlockArmor)stack.getItem()).armorType) == stack &&
-							ArmorSet.getWornSetEffects((EntityLivingBase) entity).contains(this) && ArmorSet.isSetEffectEnabled(set)) {
+							ArmorSet.getWornSetEffects((EntityLivingBase) entity).contains(this) && this.isEnabled()) {
 						NBTTagCompound nbt = new NBTTagCompound();
 						nbt.setShort("id", (short)Enchantment.getEnchantmentID(enchant.ench));
 						nbt.setShort("lvl", enchant.level);
@@ -220,14 +227,12 @@ public class SetEffect {
 	/**Set effect name and description if shifting*/
 	@SideOnly(Side.CLIENT)
 	public List<String> addInformation(ItemStack stack, boolean isShiftDown, EntityPlayer player, List<String> tooltip, boolean advanced) {
-		ArmorSet set = ArmorSet.getSet((ItemBlockArmor) stack.getItem());
-
 		String string = color+""+(ArmorSet.getWornSetEffects(player).contains(this) && player.getItemStackFromSlot(((ItemBlockArmor)stack.getItem()).armorType) == stack ? TextFormatting.BOLD : "");
-		string += ArmorSet.isSetEffectEnabled(set) ? "" : TextFormatting.STRIKETHROUGH.toString();
+		string += this.isEnabled() ? "" : TextFormatting.STRIKETHROUGH.toString();
 		string += this.toString()+TextFormatting.RESET;
 		if (isShiftDown) {
 			string += color;
-			string += ArmorSet.isSetEffectEnabled(set) ? "" : TextFormatting.STRIKETHROUGH.toString();
+			string += this.isEnabled() ? "" : TextFormatting.STRIKETHROUGH.toString();
 			string += ": "+TextFormatting.ITALIC+description+TextFormatting.RESET;
 			if (this.usesButton)
 				string += TextFormatting.BLUE+" <"+TextFormatting.BOLD+KeyActivateSetEffect.ACTIVATE_SET_EFFECT.getDisplayName()

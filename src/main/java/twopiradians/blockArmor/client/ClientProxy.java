@@ -29,6 +29,7 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import twopiradians.blockArmor.client.gui.armorDisplay.OpenGuiEvent;
+import twopiradians.blockArmor.client.gui.config.GuiConfigUpdater;
 import twopiradians.blockArmor.client.key.KeyActivateSetEffect;
 import twopiradians.blockArmor.client.model.ModelBlockArmor;
 import twopiradians.blockArmor.client.model.ModelDynBlockArmor;
@@ -48,23 +49,27 @@ public class ClientProxy extends CommonProxy
 	private boolean sendDisablePacket;
 
 	@Override
-	public void preInit(FMLPreInitializationEvent event) {
+	public void preInit(FMLPreInitializationEvent event) 
+	{
 		super.preInit(event);
 		KeyActivateSetEffect.ACTIVATE_SET_EFFECT = new KeyBinding("Activate Set Effect", Keyboard.KEY_R, BlockArmor.MODNAME);
 		ModelLoaderRegistry.registerLoader(ModelDynBlockArmor.LoaderDynBlockArmor.INSTANCE);
 	}
 
 	@Override
-	public void init(FMLInitializationEvent event) {
+	public void init(FMLInitializationEvent event) 
+	{
 		super.init(event);
 		MinecraftForge.EVENT_BUS.register(this);
 		MinecraftForge.EVENT_BUS.register(new OpenGuiEvent());
 		MinecraftForge.EVENT_BUS.register(BlockArmor.key);
+		MinecraftForge.EVENT_BUS.register(new GuiConfigUpdater());
 		ClientRegistry.registerKeyBinding(KeyActivateSetEffect.ACTIVATE_SET_EFFECT);
 	}
 
 	@Override
-	public void postInit(FMLPostInitializationEvent event) {
+	public void postInit(FMLPostInitializationEvent event) 
+	{
 		super.postInit(event);
 		ModBlocks.registerRenders();
 		ModItems.registerRenders();
@@ -72,7 +77,8 @@ public class ClientProxy extends CommonProxy
 
 	/**Get model based on model's constructor parameters*/
 	@Override
-	public Object getBlockArmorModel(int height, int width, int currentFrame, int nextFrame, EntityEquipmentSlot slot) {
+	public Object getBlockArmorModel(int height, int width, int currentFrame, int nextFrame, EntityEquipmentSlot slot) 
+	{
 		String key = height+""+width+""+currentFrame+""+nextFrame+""+slot.getName();
 		ModelBlockArmor model = modelMaps.get(key);
 		if (model == null) {
@@ -103,11 +109,11 @@ public class ClientProxy extends CommonProxy
 				if (ArmorSet.disabledItems != null && !ArmorSet.disabledItems.isEmpty() &&
 						Loader.isModLoaded("JEI") && BlockArmorJEIPlugin.helpers != null)
 					try {//reload only seems to be needed when compiled
-						BlockArmor.logger.info("Reloading JEI...");
+						BlockArmor.logger.info("Disabled armor with missing textures, reloading JEI...");
 						BlockArmorJEIPlugin.helpers.reload();
 					} catch (Exception e) {
 						BlockArmor.logger.error("Another mod caused an exception while reloading JEI: ", e);
-					}
+					} 
 			}
 		});
 	}
@@ -134,7 +140,8 @@ public class ClientProxy extends CommonProxy
 	}
 
 	/**Resets model and item quads and maps block textures (called when client joins world or resource pack loaded)*/
-	private void mapTextures() {
+	private void mapTextures() 
+	{
 		//reset model and item quad maps
 		modelMaps = Maps.newHashMap();
 
@@ -146,7 +153,7 @@ public class ClientProxy extends CommonProxy
 
 		//textures not loaded yet
 		if (numTextures == 0) {
-			BlockArmor.logger.info("Textures not loaded yet, clearing disabled items");
+			BlockArmor.logger.debug("Textures not loaded yet, clearing disabled items");
 			ArmorSet.disabledItems.clear();
 			return;
 		}
@@ -164,7 +171,7 @@ public class ClientProxy extends CommonProxy
 
 	/**Used to register block textures to override inventory textures and for inventory icons*/
 	@SubscribeEvent
-	public void textureStitch(TextureStitchEvent.Pre event)
+	public void textureStitch(TextureStitchEvent.Pre event) 
 	{
 		//textures for overriding
 		event.getMap().registerSprite(new ResourceLocation(BlockArmor.MODID, "items/reeds"));
