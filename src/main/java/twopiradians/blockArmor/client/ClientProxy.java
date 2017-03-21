@@ -41,8 +41,6 @@ public class ClientProxy extends CommonProxy
 {
 	/**Map of models to their constructor fields - generated as needed*/
 	private HashMap<String, ModelBlockArmor> modelMaps = Maps.newHashMap();
-	/**Send disable packet next tick (bc can't send packets on world load)*/
-//	private boolean sendDisablePacket;
 
 	@Override
 	public void preInit(FMLPreInitializationEvent event) 
@@ -83,32 +81,16 @@ public class ClientProxy extends CommonProxy
 		}
 		return model;
 	}
-/*
-	@SubscribeEvent
-	public void worldLoad(WorldEvent.Load event)
-	{
-		//tell server to remove recipes of disabled items next tick
-//		this.sendDisablePacket = true;
-	}*/
 
 	@Override
 	public void loadComplete(FMLLoadCompleteEvent event)
 	{
-		//set MC to map textures and reload JEI (if present) when resources reloaded
+		//set MC to map textures when resources reloaded
 		((IReloadableResourceManager) Minecraft.getMinecraft().getResourceManager()).registerReloadListener(new IResourceManagerReloadListener() {
 			@Override
 			public void onResourceManagerReload(IResourceManager resourceManager) {
 				mapTextures();
-
-				//If there are disabled items, reload JEI to make sure they're added to the JEI blacklist TODO
-				/*if (ArmorSet.disabledItems != null && !ArmorSet.disabledItems.isEmpty() &&
-						Loader.isModLoaded("JEI") && BlockArmorJEIPlugin.helpers != null)
-					try {//reload only seems to be needed when compiled
-						BlockArmor.logger.info("Disabled armor with missing textures, reloading JEI...");
-						BlockArmorJEIPlugin.helpers.reload();
-					} catch (Exception e) {
-						BlockArmor.logger.error("Another mod caused an exception while reloading JEI: ", e);
-					} */
+				//removed code to recheck for missing textures - add back if this is a problem
 			}
 		});
 	}
@@ -116,12 +98,6 @@ public class ClientProxy extends CommonProxy
 	@SubscribeEvent
 	public void clientTick(TickEvent.ClientTickEvent event)
 	{
-		/*//send server packet to remove recipes for disabled items when player loaded (can't send packet on world load)
-		if (sendDisablePacket && Minecraft.getMinecraft().player != null) {
-			this.sendDisablePacket = false;
-			BlockArmor.network.sendToServer(new PacketDisableItems(ArmorSet.disabledItems));
-		}*/
-
 		//manage all animated set's frames (ticks at same rate as TextureAtlasSprite's updateAnimation())
 		if (!Minecraft.getMinecraft().isGamePaused() && event.side == Side.CLIENT) 
 			for (ArmorSet set : ArmorSet.allSets) 
@@ -152,25 +128,20 @@ public class ClientProxy extends CommonProxy
 		}
 
 		//textures not loaded yet
-		if (numTextures == 0) {
-			BlockArmor.logger.debug("Textures not loaded yet, clearing disabled items");
-			//			ArmorSet.disabledItems.clear();
+		if (numTextures == 0) 
 			return;
-		}
 		else if (!setsToDisable.isEmpty()) { //disable sets with missing textures
 			int disabledSets = 0;
 			for (ArmorSet set : setsToDisable) {
-				if (set.disable())
-					disabledSets++;
+				set.missingTextures = true;
+				set.disable();
+				disabledSets++;
 			}
-			BlockArmor.logger.info("Disabled "+disabledSets+" armor sets without textures.");
+			if (disabledSets > 0)
+				BlockArmor.logger.info("Disabled "+disabledSets+" armor set"+(disabledSets > 1 ? "s" : "")+"without textures.");
 		}
 
 		BlockArmor.logger.info("Found "+numTextures+" block textures for Block Armor");
-
-		//send disabled sets to server and remove their recipes and remove them from creative tabs/JEI
-//		this.sendDisablePacket = true;
-		//		ArmorSet.disableItems(0);
 
 		//create inventory icons
 		int numIcons = ModelDynBlockArmor.BakedDynBlockArmorOverrideHandler.createInventoryIcons();

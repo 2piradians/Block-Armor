@@ -13,6 +13,7 @@ import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.common.config.Property;
 import net.minecraftforge.event.entity.EntityJoinWorldEvent;
 import net.minecraftforge.fml.client.event.ConfigChangedEvent;
+import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.Loader;
 import net.minecraftforge.fml.common.ModContainer;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
@@ -60,17 +61,6 @@ public class Config
 					set.disable();
 			}
 		}
-		/*for (String modid : ArmorSet.armorSetMods.keySet()) {
-			ModContainer mod = Loader.instance().getIndexedModList().get(modid);
-			if (mod != null) {
-				ConfigCategory category = Config.config.getCategory(ARMOR_SETS_CATEGORY+"."+mod.getName());
-				category.setComment("Enable or disable armor sets from "+mod.getName()+" blocks.");
-				for (ArmorSet set : ArmorSet.armorSetMods.get(modid)) {
-					Property prop = getArmorSetProp(mod.getName(), set);
-					set.enabled = prop.getBoolean();
-				}
-			}
-		}*/
 
 		//Set effects
 		Config.config.getCategory(SET_EFFECTS_CATEGORY).setComment("Enable or disable set effects.");
@@ -134,15 +124,22 @@ public class Config
 	/**Send PacketSyncConfig when a player joins a server*/
 	@SubscribeEvent
 	public void onJoinWorld(EntityJoinWorldEvent event) {
-		if (!event.getWorld().isRemote && event.getEntity() != null && event.getEntity() instanceof EntityPlayerMP) 
+		if (!event.getWorld().isRemote && event.getEntity() != null && event.getEntity() instanceof EntityPlayerMP) {
+			Config.syncConfig();
 			BlockArmor.network.sendTo(new PacketSyncConfig(), (EntityPlayerMP) event.getEntity());
+		}
 	}
 
 	/**Sync to config when changed*/
 	@SubscribeEvent(priority=EventPriority.NORMAL, receiveCanceled=true)
 	public void onConfigChanged(final ConfigChangedEvent.OnConfigChangedEvent event) 
 	{
-		if (event.getModID().equals(BlockArmor.MODID)) 
-			Config.syncConfig();
+		if (event.getModID().equals(BlockArmor.MODID))
+			if (event.isWorldRunning() && FMLCommonHandler.instance().getMinecraftServerInstance() == null) {
+				BlockArmor.logger.warn("Config changes will not be saved while on a server.");
+				Config.config.save();				
+			}
+			else
+				Config.syncConfig();
 	}
 }

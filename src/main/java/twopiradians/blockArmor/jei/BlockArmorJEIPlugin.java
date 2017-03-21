@@ -14,12 +14,10 @@ import twopiradians.blockArmor.common.item.ItemBlockArmor;
 @JEIPlugin
 public class BlockArmorJEIPlugin extends BlankModPlugin 
 {
-	public static IModRegistry registry;
 	private static IIngredientHelper ingredientHelper;
 
 	@Override
 	public void register(IModRegistry registry) {
-		BlockArmorJEIPlugin.registry = registry;
 		ingredientHelper = registry.getIngredientRegistry().getIngredientHelper(ItemStack.class);
 		syncJEIBlacklist();
 		//add recipes for disabled sets (that 
@@ -28,7 +26,7 @@ public class BlockArmorJEIPlugin extends BlankModPlugin
 				registry.addRecipes(set.recipes);
 	}
 
-	/**Removes disabled items and adds enabled items to JEI's blacklist
+	/**Adds disabled items and removes enabled items from JEI's blacklist
 	 * @return true if JEI's blacklist was updated and needs to be reloaded*/
 	public static boolean syncJEIBlacklist() { 
 		if (ingredientHelper != null) {

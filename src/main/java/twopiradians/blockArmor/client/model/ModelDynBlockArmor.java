@@ -156,7 +156,6 @@ public final class ModelDynBlockArmor implements IModel, IModelCustomData, IRete
 			ImmutableMap<TransformType, TRSRTransformation> transformMap = builder2.build();
 
 			for (ArmorSet set : ArmorSet.allSets) {
-				//if (set.enabled) {
 				ItemBlockArmor[] armor = new ItemBlockArmor[] {set.helmet, set.chestplate, set.leggings, set.boots};
 				for (ItemBlockArmor item : armor) {
 					//Initialize variables
@@ -169,7 +168,7 @@ public final class ModelDynBlockArmor implements IModel, IModelCustomData, IRete
 					state = new ModelStateComposition(state, transform);
 					VertexFormat format = DefaultVertexFormats.ITEM;
 					String armorType = "";
-					EntityEquipmentSlot slot = item.getEquipmentSlot();
+					EntityEquipmentSlot slot = item.armorType;
 					if (slot == EntityEquipmentSlot.HEAD)
 						armorType = "helmet";
 					else if (slot == EntityEquipmentSlot.CHEST)
@@ -222,7 +221,6 @@ public final class ModelDynBlockArmor implements IModel, IModelCustomData, IRete
 					itemQuadsMap.put(item, builder.build());
 					numIcons++;
 				}
-				//}
 			}
 			return numIcons;
 		}

@@ -46,12 +46,10 @@ public class CommonProxy
 		SetEffect.postInit();
 		ModItems.postInit();
 		Config.postInit(BlockArmor.configFile);
-		//registerRecipes();
 	}
 
 	private void registerPackets() { // Side is where the packet goes TO
 		int id = 0;
-//		BlockArmor.network.registerMessage(PacketDisableItems.Handler.class, PacketDisableItems.class, id++, Side.SERVER);
 		BlockArmor.network.registerMessage(PacketDevColors.Handler.class, PacketDevColors.class, id++, Side.CLIENT);
 		BlockArmor.network.registerMessage(PacketActivateSetEffect.Handler.class, PacketActivateSetEffect.class, id++, Side.SERVER);
 		BlockArmor.network.registerMessage(PacketSyncConfig.Handler.class, PacketSyncConfig.class, id++, Side.CLIENT);
@@ -61,16 +59,6 @@ public class CommonProxy
 		MinecraftForge.EVENT_BUS.register(new Config());
 		MinecraftForge.EVENT_BUS.register(this);
 	}
-
-	/*private void registerRecipes() {
-		for (ArmorSet set : ArmorSet.allSets) {
-			ItemStack stack = set.block == Blocks.EMERALD_BLOCK ? new ItemStack(Items.EMERALD) : set.stack;
-			GameRegistry.addShapedRecipe(new ItemStack(set.helmet),"AAA","A A",'A', stack);
-			GameRegistry.addShapedRecipe(new ItemStack(set.chestplate),"A A","AAA","AAA",'A', stack);
-			GameRegistry.addShapedRecipe(new ItemStack(set.leggings),"AAA","A A","A A",'A', stack);
-			GameRegistry.addShapedRecipe(new ItemStack(set.boots),"A A","A A",'A', stack);
-		}
-	}*/
 
 	@SubscribeEvent(receiveCanceled = true)
 	public void commandDev(CommandEvent event) {

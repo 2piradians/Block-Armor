@@ -14,15 +14,13 @@ import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import twopiradians.blockArmor.common.BlockArmor;
 import twopiradians.blockArmor.common.config.Config;
 import twopiradians.blockArmor.common.item.ArmorSet;
+import twopiradians.blockArmor.common.seteffect.SetEffect;
 
 public class PacketSyncConfig implements IMessage
 {
-	/**disable items if new ones are added*/
-	protected boolean disableItems;
 
 	public PacketSyncConfig() 
 	{
-		disableItems = false;
 	}
 
 	@Override
@@ -36,11 +34,23 @@ public class PacketSyncConfig implements IMessage
 		//disabled set effects
 		Config.disabledSetEffects.clear();
 		int numEffects = buf.readInt();
+		for (SetEffect effect : SetEffect.SET_EFFECTS) {
+			prop = Config.getSetEffectProp(effect.toString());
+			prop.set(true);
+		}	
 		for (int i=0; i<numEffects; ++i) {
 			try {
-				Class clazz = Class.forName(ByteBufUtils.readUTF8String(buf));
-				if (clazz != null)
+				String string = ByteBufUtils.readUTF8String(buf);
+				Class clazz = Class.forName(string);
+				if (clazz != null) {
 					Config.disabledSetEffects.add(clazz);
+					for (SetEffect effect : SetEffect.SET_EFFECTS) {
+						if (effect.getClass() == clazz) {
+							prop = Config.getSetEffectProp(effect.toString());
+							prop.set(false);
+						}
+					}	
+				}
 			}
 			catch (Exception e) {}
 		}
@@ -78,7 +88,7 @@ public class PacketSyncConfig implements IMessage
 		//disabled set effects
 		buf.writeInt(Config.disabledSetEffects.size());
 		for (Class clazz : Config.disabledSetEffects)
-			ByteBufUtils.writeUTF8String(buf, clazz.toString());
+			ByteBufUtils.writeUTF8String(buf, clazz.getName());
 
 		//disabled armor sets
 		buf.writeInt(ArmorSet.allSets.size());

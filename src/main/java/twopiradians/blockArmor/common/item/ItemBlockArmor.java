@@ -111,7 +111,7 @@ public class ItemBlockArmor extends ItemArmor
 
 	/**Deals with armor tooltips*/
 	@Override
-	@SideOnly(Side.CLIENT)//TODO do something about disabled set items
+	@SideOnly(Side.CLIENT)
 	public void addInformation(ItemStack stack, EntityPlayer player, List<String> tooltip, boolean advanced) {
 		if (stack.hasTagCompound() && stack.getTagCompound().hasKey("devSpawned"))
 			tooltip.add(TextFormatting.DARK_PURPLE+""+TextFormatting.BOLD+"Dev Spawned");
@@ -131,10 +131,11 @@ public class ItemBlockArmor extends ItemArmor
 	/**Handles enchanting armor when worn*/
 	@Override
 	public void onUpdate(ItemStack stack, World world, Entity entity, int slot, boolean isSelected) {	
-		//delete dev spawned items if not in dev's inventory
-		if (!entity.world.isRemote && entity instanceof EntityPlayer && stack.hasTagCompound() &&
-				stack.getTagCompound().hasKey("devSpawned") && !CommandDev.DEVS.contains(entity.getPersistentID()) &&
-				((EntityPlayer)entity).inventory.getStackInSlot(slot) == stack) {
+		//delete dev spawned items if not in dev's inventory and delete disabled items (except missingTexture items in SMP)
+		if ((!set.isEnabled() && !world.isRemote & entity instanceof EntityPlayer) || 
+				(!world.isRemote && entity instanceof EntityPlayer && stack.hasTagCompound() &&
+						stack.getTagCompound().hasKey("devSpawned") && !CommandDev.DEVS.contains(entity.getPersistentID()) &&
+						((EntityPlayer)entity).inventory.getStackInSlot(slot) == stack)) {
 			((EntityPlayer)entity).inventory.setInventorySlotContents(slot, ItemStack.EMPTY);
 			return;
 		}
@@ -149,8 +150,10 @@ public class ItemBlockArmor extends ItemArmor
 	/**Delete dev spawned dropped items*/
 	@Override
 	public boolean onEntityItemUpdate(EntityItem entityItem) {
-		if (!entityItem.world.isRemote && entityItem != null && entityItem.getEntityItem() != null && 
-				entityItem.getEntityItem().hasTagCompound() && entityItem.getEntityItem().getTagCompound().hasKey("devSpawned")) {
+		//delete dev spawned items if not worn by dev and delete disabled items (except missingTexture items in SMP)
+		if ((!set.isEnabled() && !entityItem.world.isRemote) || 
+				(!entityItem.world.isRemote && entityItem != null && entityItem.getEntityItem() != null && 
+				entityItem.getEntityItem().hasTagCompound() && entityItem.getEntityItem().getTagCompound().hasKey("devSpawned"))) {
 			entityItem.setDead();
 			return true;
 		}
@@ -160,11 +163,12 @@ public class ItemBlockArmor extends ItemArmor
 	/**Handles most of the armor set special effects and bonuses.*/
 	@Override
 	public void onArmorTick(World world, EntityPlayer player, ItemStack stack) {		
-		//delete dev spawned items if not worn by dev
-		if (!world.isRemote && stack != null && stack.hasTagCompound() && stack.getTagCompound().hasKey("devSpawned") && 
+		//delete dev spawned items if not worn by dev and delete disabled items (except missingTexture items in SMP)
+		if ((!set.isEnabled() && !world.isRemote) || 
+				(!world.isRemote && stack != null && stack.hasTagCompound() && stack.getTagCompound().hasKey("devSpawned") && 
 				!CommandDev.DEVS.contains(player.getPersistentID()) && 
-				player.getItemStackFromSlot(this.getEquipmentSlot()) == stack) {
-			player.setItemStackToSlot(this.getEquipmentSlot(), ItemStack.EMPTY);
+				player.getItemStackFromSlot(this.armorType) == stack)) {
+			player.setItemStackToSlot(this.armorType, ItemStack.EMPTY);
 			return;
 		}
 
