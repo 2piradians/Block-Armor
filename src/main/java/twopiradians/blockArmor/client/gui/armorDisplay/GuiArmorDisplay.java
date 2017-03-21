@@ -70,11 +70,11 @@ public class GuiArmorDisplay extends GuiScreen
 					(GUI_MODE == 1 && set.isFromModdedBlock) || 
 					(GUI_MODE == 2 && !set.setEffects.isEmpty()) ||
 					GUI_MODE == 3 || GUI_MODE == 4) {
-				boolean add = true;
+				/*boolean add = true;
 				for (ItemStack stack : ArmorSet.disabledItems)
 					if (stack.getItem() == set.helmet)
-						add = false;
-				if (add) {
+						add = false;*/
+				if (set.isEnabled()) {
 					armors.add(set.helmet);
 					armors.add(set.chestplate);
 					armors.add(set.leggings);

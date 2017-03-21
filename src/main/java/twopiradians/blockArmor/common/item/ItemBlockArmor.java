@@ -73,11 +73,8 @@ public class ItemBlockArmor extends ItemArmor
 	/**Don't display item in creative tab/JEI if disabled*/
 	@SideOnly(Side.CLIENT)
 	public void getSubItems(Item itemIn, CreativeTabs tab, List<ItemStack> subItems) {
-		if (ArmorSet.disabledItems != null) {
-			for (ItemStack stack : ArmorSet.disabledItems)
-				if (stack.getItem() == itemIn)
-					return;
-		}
+		if (!set.isEnabled())
+			return;
 
 		subItems.add(new ItemStack(itemIn));
 	}
@@ -114,7 +111,7 @@ public class ItemBlockArmor extends ItemArmor
 
 	/**Deals with armor tooltips*/
 	@Override
-	@SideOnly(Side.CLIENT)
+	@SideOnly(Side.CLIENT)//TODO do something about disabled set items
 	public void addInformation(ItemStack stack, EntityPlayer player, List<String> tooltip, boolean advanced) {
 		if (stack.hasTagCompound() && stack.getTagCompound().hasKey("devSpawned"))
 			tooltip.add(TextFormatting.DARK_PURPLE+""+TextFormatting.BOLD+"Dev Spawned");

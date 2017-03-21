@@ -7,6 +7,7 @@ import java.util.List;
 import com.google.common.collect.Iterators;
 import com.google.common.collect.Maps;
 
+import mezz.jei.config.Constants;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockBush;
 import net.minecraft.block.BlockContainer;
@@ -40,6 +41,8 @@ import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraftforge.common.util.EnumHelper;
+import net.minecraftforge.fml.common.Loader;
+import net.minecraftforge.fml.common.registry.GameRegistry;
 import net.minecraftforge.fml.relauncher.ReflectionHelper;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -47,6 +50,8 @@ import twopiradians.blockArmor.common.BlockArmor;
 import twopiradians.blockArmor.common.command.CommandDev;
 import twopiradians.blockArmor.common.config.Config;
 import twopiradians.blockArmor.common.seteffect.SetEffect;
+import twopiradians.blockArmor.creativetab.BlockArmorCreativeTab;
+import twopiradians.blockArmor.jei.BlockArmorJEIPlugin;
 
 @SuppressWarnings({ "deprecation", "serial" })
 public class ArmorSet {
@@ -72,9 +77,9 @@ public class ArmorSet {
 	/**All sets, including disabled sets*/
 	public static ArrayList<ArmorSet> allSets;
 	/**Map of modids and the armor sets that were generated from those mods' blocks*/
-	public static HashMap<String, List<ArmorSet>> armorSetMods = Maps.newHashMap();
-	/**Armor set items that are missing textures that should be disabled*/
-	public static ArrayList<ItemStack> disabledItems = new ArrayList<ItemStack>();//TODO remove this and move jei packet to before world loads
+	//	public static HashMap<String, List<ArmorSet>> armorSetMods = Maps.newHashMap();
+	/**Armor set items that are missing textures (or disabled in config) that should be disabled*/
+	//	public static ArrayList<ItemStack> disabledItems = new ArrayList<ItemStack>();
 	/**Armor slots*/
 	public static final EntityEquipmentSlot[] SLOTS = new EntityEquipmentSlot[] 
 			{EntityEquipmentSlot.HEAD, EntityEquipmentSlot.CHEST, EntityEquipmentSlot.LEGS, EntityEquipmentSlot.FEET};
@@ -91,7 +96,9 @@ public class ArmorSet {
 	public ItemBlockArmor boots;
 	public boolean isFromModdedBlock;
 	public ArrayList<SetEffect> setEffects;
-	public boolean enabled; 
+	public String modid;
+	private boolean enabled;
+	public ArrayList<IRecipe> recipes;
 
 	@SideOnly(Side.CLIENT)
 	public boolean isTranslucent;
@@ -118,11 +125,12 @@ public class ArmorSet {
 			ResourceLocation loc = (ResourceLocation)Item.REGISTRY.getNameForObject(this.item);
 			if (!loc.getResourceDomain().equals("minecraft"))
 				isFromModdedBlock = true;
-			List<ArmorSet> sets = armorSetMods.get(loc.getResourceDomain());
+			this.modid = loc.getResourceDomain();
+			/*List<ArmorSet> sets = armorSetMods.get(loc.getResourceDomain());
 			if (sets == null)
 				sets = new ArrayList<ArmorSet>();
 			sets.add(this);
-			armorSetMods.put(loc.getResourceDomain(), sets);
+			armorSetMods.put(loc.getResourceDomain(), sets);*/
 		}
 		catch (Exception e) {
 			isFromModdedBlock = true;
@@ -445,10 +453,85 @@ public class ArmorSet {
 		}
 		catch (Exception e) { return false; }
 	}
+	
+	public boolean isEnabled() {
+		return this.enabled;
+	}
+
+	/**Adds set items to creative tab and adds recipes*/
+	public boolean enable() {
+		if (this.enabled)
+			return false;
+		else
+			this.enabled = true;
+
+		ItemBlockArmor[] armors = new ItemBlockArmor[] {this.helmet, this.chestplate, this.leggings, this.boots};
+		for (ItemBlockArmor armor : armors) {
+			//add to tab
+			if (isFromModdedBlock) {
+				if (BlockArmor.moddedTab == null)
+					BlockArmor.moddedTab = new BlockArmorCreativeTab("tabBlockArmorModded");
+				BlockArmor.moddedTab.orderedStacks.add(new ItemStack(armor));
+				armor.setCreativeTab(BlockArmor.moddedTab);
+			}
+			else {
+				if (BlockArmor.vanillaTab == null)
+					BlockArmor.vanillaTab = new BlockArmorCreativeTab("tabBlockArmorVanilla");
+				BlockArmor.vanillaTab.orderedStacks.add(new ItemStack(armor));
+				armor.setCreativeTab(BlockArmor.vanillaTab);
+			}
+		}
+		
+		//add recipes
+		for (IRecipe recipe : recipes)
+			if (!CraftingManager.getInstance().getRecipeList().contains(recipe))
+				CraftingManager.getInstance().getRecipeList().add(recipe);
+			
+		return true;
+	}
+
+	/**Remove set items from creative tab and removes recipes*/
+	public boolean disable() {
+		if (this.enabled)
+			this.enabled = false;
+		else
+			return false;
+
+		ItemBlockArmor[] armors = new ItemBlockArmor[] {this.helmet, this.chestplate, this.leggings, this.boots};
+		for (ItemBlockArmor armor : armors) {
+			//remove from creative tab
+			armor.setCreativeTab(null);
+
+			//remove from vanilla tab
+			if (BlockArmor.vanillaTab != null && BlockArmor.vanillaTab.orderedStacks != null)
+				for (ItemStack tabStack : BlockArmor.vanillaTab.orderedStacks)
+					if (tabStack.getItem() == armor) {
+						BlockArmor.vanillaTab.orderedStacks.remove(tabStack);
+						break;
+					}
+
+			//remove from modded tab
+			if (BlockArmor.moddedTab != null && BlockArmor.moddedTab.orderedStacks != null)
+				for (ItemStack tabStack : BlockArmor.moddedTab.orderedStacks)
+					if (tabStack.getItem() == armor) {
+						BlockArmor.moddedTab.orderedStacks.remove(tabStack);
+						break;
+					}
+		}
+		
+		//remove recipes
+		for (IRecipe recipe : recipes)
+			if (CraftingManager.getInstance().getRecipeList().contains(recipe))
+				CraftingManager.getInstance().getRecipeList().remove(recipe);
+
+		return true;
+	}
 
 	/**Initialize set's texture variable*/
 	@SideOnly(Side.CLIENT)
-	public int initTextures() {
+	public Tuple<Integer, Boolean> initTextures() {
+		boolean missingTextures = false;
+
 		if (missingSprite == null)
 			missingSprite = Minecraft.getMinecraft().getTextureMapBlocks().getMissingSprite();
 
@@ -538,19 +621,21 @@ public class ArmorSet {
 				this.sprites[EntityEquipmentSlot.CHEST.getIndex()] == missingSprite ||
 				this.sprites[EntityEquipmentSlot.LEGS.getIndex()] == missingSprite || 
 				this.sprites[EntityEquipmentSlot.FEET.getIndex()] == missingSprite) {
-			disabledItems.add(new ItemStack(this.helmet));
+			/*disabledItems.add(new ItemStack(this.helmet));
 			disabledItems.add(new ItemStack(this.chestplate));
 			disabledItems.add(new ItemStack(this.leggings));
-			disabledItems.add(new ItemStack(this.boots));
+			disabledItems.add(new ItemStack(this.boots));*/
+			missingTextures = true;
 		}
 
 		this.isTranslucent = this.block.getBlockLayer() != BlockRenderLayer.SOLID && this.block != Blocks.REEDS;
 
-		return numTextures;
+		return new Tuple(numTextures, missingTextures);
 	}
 
-	/**Remove recipes for items in disabledItems and set their creative tab to null*/
-	public static void disableItems() {
+	/**Remove recipes for items in disabledItems and set their creative tab to null
+	 * @param reason 0 if blocks with missing textures, 1 if syncing disabled blocks from server*/
+	/*public static void disableItems(int reason) {
 		if (disabledItems == null || disabledItems.isEmpty())
 			return;
 
@@ -588,6 +673,9 @@ public class ArmorSet {
 		}
 
 		if (numDisabled > 0)
-			BlockArmor.logger.info("Disabled "+numDisabled+" items that are missing textures");
-	}
+			if (reason == 0)
+				BlockArmor.logger.info("Disabled "+numDisabled+" items that are missing textures.");
+			else if (reason == 1)
+				BlockArmor.logger.info("Disabled "+numDisabled+" items that are disabled in the server's config.");
+	}*/
 }

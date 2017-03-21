@@ -1,4 +1,4 @@
-package twopiradians.blockArmor.packet;
+/*package twopiradians.blockArmor.packet;
 
 import java.util.ArrayList;
 
@@ -56,11 +56,11 @@ public class PacketDisableItems implements IMessage
 				{
 					if (ArmorSet.disabledItems == null || ArmorSet.disabledItems.isEmpty()) {
 						ArmorSet.disabledItems = packet.itemsToDisable;
-						ArmorSet.disableItems();
+						ArmorSet.disableItems(0);
 					}
 				}
 			});
 			return null;
 		}
 	}
-}
+}*/
