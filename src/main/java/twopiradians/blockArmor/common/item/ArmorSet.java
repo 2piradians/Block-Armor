@@ -11,7 +11,6 @@ import net.minecraft.block.Block;
 import net.minecraft.block.BlockBush;
 import net.minecraft.block.BlockContainer;
 import net.minecraft.block.BlockCrops;
-import net.minecraft.block.BlockLeaves;
 import net.minecraft.block.BlockLiquid;
 import net.minecraft.block.BlockOre;
 import net.minecraft.block.BlockSlab;
@@ -55,19 +54,31 @@ public class ArmorSet {
 	private static final ArrayList<ItemStack> MANUALLY_ADDED_SETS;
 	static {
 		MANUALLY_ADDED_SETS = new ArrayList<ItemStack>() {{
-			add(new ItemStack(Items.REEDS, 1, 0));
-			add(new ItemStack(Blocks.CACTUS, 1, 0));
-			add(new ItemStack(Blocks.SNOW, 1, 0));
-			add(new ItemStack(Blocks.DISPENSER, 1, 0));
-			add(new ItemStack(Blocks.DROPPER, 1, 0));
-			add(new ItemStack(Blocks.BEACON, 1, 0));
-			add(new ItemStack(Blocks.FURNACE, 1, 0));
-			add(new ItemStack(Blocks.ENCHANTING_TABLE, 1, 0));
-			add(new ItemStack(Blocks.COMMAND_BLOCK, 1, 0));
-			add(new ItemStack(Blocks.CHAIN_COMMAND_BLOCK, 1, 0));
-			add(new ItemStack(Blocks.REPEATING_COMMAND_BLOCK, 1, 0));
-			add(new ItemStack(Blocks.BROWN_MUSHROOM_BLOCK, 1, 0));
-			add(new ItemStack(Blocks.RED_MUSHROOM_BLOCK, 1, 0));
+			add(new ItemStack(Items.REEDS));
+			add(new ItemStack(Blocks.CACTUS));
+			add(new ItemStack(Blocks.SNOW));
+			add(new ItemStack(Blocks.DISPENSER));
+			add(new ItemStack(Blocks.DROPPER));
+			add(new ItemStack(Blocks.BEACON));
+			add(new ItemStack(Blocks.FURNACE));
+			add(new ItemStack(Blocks.ENCHANTING_TABLE));
+			add(new ItemStack(Blocks.COMMAND_BLOCK));
+			add(new ItemStack(Blocks.CHAIN_COMMAND_BLOCK));
+			add(new ItemStack(Blocks.REPEATING_COMMAND_BLOCK));
+			add(new ItemStack(Blocks.BROWN_MUSHROOM_BLOCK));
+			add(new ItemStack(Blocks.RED_MUSHROOM_BLOCK));
+			add(new ItemStack(Blocks.SOUL_SAND));
+			add(new ItemStack(Blocks.ENDER_CHEST));
+			//add(new ItemStack(Blocks.CHEST));
+		}};
+	}
+	/**Used to add Items that have overriding textures*/
+	public static final ArrayList<Item> TEXTURE_OVERRIDES;
+	static {
+		TEXTURE_OVERRIDES = new ArrayList<Item>() {{
+			add(Items.REEDS);
+			add(Item.getItemFromBlock(Blocks.ENDER_CHEST));
+			//add(Item.getItemFromBlock(Blocks.CHEST));
 		}};
 	}
 	/**All sets, including disabled sets*/
@@ -407,8 +418,8 @@ public class ArmorSet {
 			Block block = ((ItemBlock)stack.getItem()).getBlock();
 			if (block instanceof BlockLiquid || block instanceof BlockContainer || block.hasTileEntity() || 
 					block instanceof BlockOre || block instanceof BlockCrops || block instanceof BlockBush ||
-					block == Blocks.BARRIER || block instanceof BlockLeaves || block == Blocks.MONSTER_EGG ||
-					block instanceof BlockSlab || block.getRenderType(block.getDefaultState()) != EnumBlockRenderType.MODEL ||
+					block == Blocks.BARRIER || block instanceof BlockSlab || block == Blocks.MONSTER_EGG ||
+					block.getRenderType(block.getDefaultState()) != EnumBlockRenderType.MODEL ||
 					block == Blocks.IRON_BLOCK || block == Blocks.GOLD_BLOCK || block == Blocks.DIAMOND_BLOCK)
 				return false;
 
@@ -432,11 +443,7 @@ public class ArmorSet {
 
 			//Check if full block
 			ArrayList<AxisAlignedBB> list = new ArrayList<AxisAlignedBB>();
-			try {
-				block.addCollisionBoxToList(block.getDefaultState(), null, BlockPos.ORIGIN, Block.FULL_BLOCK_AABB, list, null, false); 
-			} catch (Exception e) {
-				return false;
-			}
+			block.addCollisionBoxToList(block.getDefaultState(), null, BlockPos.ORIGIN, Block.FULL_BLOCK_AABB, list, null, false); 
 			if (list.size() != 1 || !list.get(0).equals(Block.FULL_BLOCK_AABB)) 
 				return false;
 
@@ -554,28 +561,28 @@ public class ArmorSet {
 				if (sprite.getIconName().contains("overlay")) //overlays not supported by forge so we can't account for them
 					continue;
 
-				if (quad.getFace() == EnumFacing.UP) {
+				if (quad.getFace() == EnumFacing.UP) { //top
 					if (sprite != missingSprite)
 						numTextures++;
 					this.sprites[EntityEquipmentSlot.HEAD.getIndex()] = sprite;
 					this.animations[EntityEquipmentSlot.HEAD.getIndex()] = animation;
 					this.colors[EntityEquipmentSlot.HEAD.getIndex()] = color;
 				}
-				else if (quad.getFace() == EnumFacing.NORTH) {
+				else if (quad.getFace() == EnumFacing.NORTH) { //front
 					if (sprite != missingSprite)
 						numTextures++;
 					this.sprites[EntityEquipmentSlot.CHEST.getIndex()] = sprite;
 					this.animations[EntityEquipmentSlot.CHEST.getIndex()] = animation;
 					this.colors[EntityEquipmentSlot.CHEST.getIndex()] = color;
 				}
-				else if (quad.getFace() == EnumFacing.SOUTH) {
+				else if (quad.getFace() == EnumFacing.SOUTH) { //back
 					if (sprite != missingSprite)
 						numTextures++;
 					this.sprites[EntityEquipmentSlot.LEGS.getIndex()] = sprite;
 					this.animations[EntityEquipmentSlot.LEGS.getIndex()] = animation;
 					this.colors[EntityEquipmentSlot.LEGS.getIndex()] = color;
 				}
-				else if (quad.getFace() == EnumFacing.DOWN) {
+				else if (quad.getFace() == EnumFacing.DOWN) { //bottom
 					if (sprite != missingSprite)
 						numTextures++;
 					this.sprites[EntityEquipmentSlot.FEET.getIndex()] = sprite;
@@ -586,22 +593,22 @@ public class ArmorSet {
 		}
 		catch (Exception e) {}
 
-		//Check for block texture overrides - location must be registered in ClientProxy TextureStitchEvent.Pre
-		ResourceLocation texture = new ResourceLocation(BlockArmor.MODID+":textures/items/"+item.getRegistryName().getResourcePath().toLowerCase().replace(" ", "_")+".png");
-		try {
-			Minecraft.getMinecraft().getResourceManager().getResource(texture); //does texture exist?
-			texture = new ResourceLocation(texture.getResourceDomain(), texture.getResourcePath().replace("textures/", "").replace(".png", ""));
-			TextureAtlasSprite sprite = Minecraft.getMinecraft().getTextureMapBlocks().getAtlasSprite(texture.toString());
-			this.sprites[EntityEquipmentSlot.HEAD.getIndex()] = sprite;
-			this.animations[EntityEquipmentSlot.HEAD.getIndex()] = null;
-			this.sprites[EntityEquipmentSlot.CHEST.getIndex()] = sprite;
-			this.animations[EntityEquipmentSlot.CHEST.getIndex()] = null;
-			this.sprites[EntityEquipmentSlot.LEGS.getIndex()] = sprite;
-			this.animations[EntityEquipmentSlot.LEGS.getIndex()] = null;
-			this.sprites[EntityEquipmentSlot.FEET.getIndex()] = sprite;
-			this.animations[EntityEquipmentSlot.FEET.getIndex()] = null;
-			BlockArmor.logger.debug("Override texture found at: "+texture.toString());
-		} catch (Exception e) {}
+		//Check for block texture overrides
+		if (TEXTURE_OVERRIDES.contains(item))
+			for (EntityEquipmentSlot slot : SLOTS) {
+				ResourceLocation texture = new ResourceLocation(BlockArmor.MODID+":textures/items/overrides/"+
+						item.getRegistryName().getResourcePath().toLowerCase().replace(" ", "_")+"_"+slot.getName()+".png");
+				try {
+					Minecraft.getMinecraft().getResourceManager().getResource(texture); //does texture exist?
+					texture = new ResourceLocation(texture.getResourceDomain(), texture.getResourcePath().replace("textures/", "").replace(".png", ""));
+					TextureAtlasSprite sprite = Minecraft.getMinecraft().getTextureMapBlocks().getAtlasSprite(texture.toString());
+					this.sprites[slot.getIndex()] = sprite;
+					this.animations[slot.getIndex()] = null;
+					//BlockArmor.logger.info("Override texture for "+this.stack.getDisplayName()+" found at: "+texture.toString());
+				} catch (Exception e) {
+					//BlockArmor.logger.info("Override texture for "+this.stack.getDisplayName()+" NOT found at: "+texture.toString()); 
+				}
+			}
 
 		//If a sprite is missing, disable the set
 		if (this.sprites[EntityEquipmentSlot.HEAD.getIndex()] == null || 

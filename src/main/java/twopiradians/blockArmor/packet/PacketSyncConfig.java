@@ -31,6 +31,11 @@ public class PacketSyncConfig implements IMessage
 		Property prop = Config.getPiecesForSetProp();
 		prop.set(Config.piecesForSet);
 
+		//register disabled items
+		Config.registerDisabledItems = buf.readBoolean();
+		prop = Config.getRegisterDisableItemsProp();
+		prop.set(Config.registerDisabledItems);
+		
 		//disabled set effects
 		Config.disabledSetEffects.clear();
 		int numEffects = buf.readInt();
@@ -84,6 +89,9 @@ public class PacketSyncConfig implements IMessage
 	{
 		//pieces for set
 		buf.writeInt(Config.piecesForSet);
+		
+		//register disabledItems
+		buf.writeBoolean(Config.registerDisabledItems);
 
 		//disabled set effects
 		buf.writeInt(Config.disabledSetEffects.size());

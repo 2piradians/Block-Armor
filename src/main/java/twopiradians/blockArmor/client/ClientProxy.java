@@ -13,6 +13,7 @@ import net.minecraft.client.resources.IResourceManager;
 import net.minecraft.client.resources.IResourceManagerReloadListener;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.inventory.EntityEquipmentSlot;
+import net.minecraft.item.Item;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.Tuple;
 import net.minecraftforge.client.event.TextureStitchEvent;
@@ -34,6 +35,7 @@ import twopiradians.blockArmor.client.model.ModelDynBlockArmor;
 import twopiradians.blockArmor.common.BlockArmor;
 import twopiradians.blockArmor.common.CommonProxy;
 import twopiradians.blockArmor.common.block.ModBlocks;
+import twopiradians.blockArmor.common.config.Config;
 import twopiradians.blockArmor.common.item.ArmorSet;
 import twopiradians.blockArmor.common.item.ModItems;
 
@@ -90,7 +92,7 @@ public class ClientProxy extends CommonProxy
 			@Override
 			public void onResourceManagerReload(IResourceManager resourceManager) {
 				mapTextures();
-				//removed code to recheck for missing textures - add back if this is a problem
+				Config.syncJEIBlacklist(); //TODO added - check that resource packs work well
 			}
 		});
 	}
@@ -119,7 +121,6 @@ public class ClientProxy extends CommonProxy
 		//find block textures
 		ArrayList<ArmorSet> setsToDisable = new ArrayList<ArmorSet>();
 		int numTextures = 0;
-		//		ArmorSet.disabledItems = new ArrayList<ItemStack>();
 		for (ArmorSet set : ArmorSet.allSets) {
 			Tuple<Integer, Boolean> tup = set.initTextures();
 			numTextures += tup.getFirst();
@@ -153,7 +154,10 @@ public class ClientProxy extends CommonProxy
 	public void textureStitch(TextureStitchEvent.Pre event) 
 	{
 		//textures for overriding
-		event.getMap().registerSprite(new ResourceLocation(BlockArmor.MODID, "items/reeds"));
+		for (Item item : ArmorSet.TEXTURE_OVERRIDES)
+			for (EntityEquipmentSlot slot : ArmorSet.SLOTS)
+				event.getMap().registerSprite(new ResourceLocation(BlockArmor.MODID, "items/overrides/"+
+						item.getRegistryName().getResourcePath().toLowerCase().replace(" ", "_")+"_"+slot.getName()));
 
 		//textures for inventory icons
 		event.getMap().registerSprite(new ResourceLocation(BlockArmor.MODID, "items/icons/block_armor_helmet_base"));

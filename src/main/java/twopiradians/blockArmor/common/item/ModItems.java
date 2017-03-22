@@ -13,6 +13,7 @@ import net.minecraft.item.crafting.IRecipe;
 import net.minecraft.item.crafting.ShapedRecipes;
 import net.minecraftforge.fml.common.registry.GameRegistry;
 import twopiradians.blockArmor.common.BlockArmor;
+import twopiradians.blockArmor.common.config.Config;
 
 public class ModItems
 {
@@ -23,25 +24,29 @@ public class ModItems
 		int moddedItems = 0;
 
 		for (ArmorSet set : ArmorSet.allSets) { 
-			String registryName = ArmorSet.getItemStackRegistryName(set.stack);
-			set.helmet = (ItemBlockArmor) registerItem(new ItemBlockArmor(set.material, 0, EntityEquipmentSlot.HEAD, set), registryName+"_helmet", true);
-			set.chestplate = (ItemBlockArmor) registerItem(new ItemBlockArmor(set.material, 0, EntityEquipmentSlot.CHEST, set), registryName+"_chestplate", true);
-			set.leggings = (ItemBlockArmor) registerItem(new ItemBlockArmor(set.material, 0,EntityEquipmentSlot.LEGS, set), registryName+"_leggings", true);
-			set.boots = (ItemBlockArmor) registerItem(new ItemBlockArmor(set.material, 0, EntityEquipmentSlot.FEET, set), registryName+"_boots", true);
-			if (set.isFromModdedBlock)
-				moddedItems += 4;
-			else
-				vanillaItems += 4;
+			if (!Config.disabledSets.contains(set)) {
+				String registryName = ArmorSet.getItemStackRegistryName(set.stack);
+				set.helmet = (ItemBlockArmor) registerItem(new ItemBlockArmor(set.material, 0, EntityEquipmentSlot.HEAD, set), registryName+"_helmet", true);
+				set.chestplate = (ItemBlockArmor) registerItem(new ItemBlockArmor(set.material, 0, EntityEquipmentSlot.CHEST, set), registryName+"_chestplate", true);
+				set.leggings = (ItemBlockArmor) registerItem(new ItemBlockArmor(set.material, 0,EntityEquipmentSlot.LEGS, set), registryName+"_leggings", true);
+				set.boots = (ItemBlockArmor) registerItem(new ItemBlockArmor(set.material, 0, EntityEquipmentSlot.FEET, set), registryName+"_boots", true);
+				if (set.isFromModdedBlock)
+					moddedItems += 4;
+				else
+					vanillaItems += 4;
 
-			ArrayList<IRecipe> recipes = new ArrayList<IRecipe>(); 
-			ItemStack A = set.block == Blocks.EMERALD_BLOCK ? new ItemStack(Items.EMERALD) : set.stack;
-			ItemStack B = ItemStack.EMPTY;
-			recipes.add(new ShapedRecipes(3, 2, new ItemStack[] {A,A,A, A,B,A}, new ItemStack(set.helmet)));
-			recipes.add(new ShapedRecipes(3, 3, new ItemStack[] {A,B,A, A,A,A, A,A,A}, new ItemStack(set.chestplate)));
-			recipes.add(new ShapedRecipes(3, 3, new ItemStack[] {A,A,A, A,B,A, A,B,A}, new ItemStack(set.leggings)));
-			recipes.add(new ShapedRecipes(3, 2, new ItemStack[] {A,B,A, A,B,A}, new ItemStack(set.boots)));
-			set.recipes = recipes;
+				ArrayList<IRecipe> recipes = new ArrayList<IRecipe>(); 
+				ItemStack A = set.block == Blocks.EMERALD_BLOCK ? new ItemStack(Items.EMERALD) : set.stack;
+				ItemStack B = ItemStack.EMPTY;
+				recipes.add(new ShapedRecipes(3, 2, new ItemStack[] {A,A,A, A,B,A}, new ItemStack(set.helmet)));
+				recipes.add(new ShapedRecipes(3, 3, new ItemStack[] {A,B,A, A,A,A, A,A,A}, new ItemStack(set.chestplate)));
+				recipes.add(new ShapedRecipes(3, 3, new ItemStack[] {A,A,A, A,B,A, A,B,A}, new ItemStack(set.leggings)));
+				recipes.add(new ShapedRecipes(3, 2, new ItemStack[] {A,B,A, A,B,A}, new ItemStack(set.boots)));
+				set.recipes = recipes;
+			}
 		}
+		for (ArmorSet set : Config.disabledSets)
+			ArmorSet.allSets.remove(set);
 
 		BlockArmor.logger.info("Generated "+vanillaItems+" Block Armor items from Vanilla Blocks");
 		if (moddedItems > 0)

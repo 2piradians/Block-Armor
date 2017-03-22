@@ -8,6 +8,7 @@ import mezz.jei.ProxyCommon;
 import mezz.jei.ProxyCommonClient;
 import mezz.jei.config.Constants;
 import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.util.text.TextFormatting;
 import net.minecraftforge.common.config.ConfigCategory;
 import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.common.config.Property;
@@ -35,12 +36,35 @@ public class Config
 	public static int piecesForSet;
 	/**Classes of any set effects that are disabled in config*/
 	public static ArrayList<Class> disabledSetEffects;
+	/**Should disabled items be registered*/
+	public static boolean registerDisabledItems;
+	/**Sets that should not have items generated - only used by ModItems.postInit()*/
+	public static ArrayList<ArmorSet> disabledSets;
 
 	public static void postInit(final File file) 
 	{
 		Config.config = new Configuration(file);
 		Config.config.load();
-		syncConfig();
+
+		//Register disabled items for ModItems.postInit()
+		Property prop = getRegisterDisableItemsProp();
+		Config.registerDisabledItems = prop.getBoolean();
+
+		//Get disabled armor sets for ModItems.postInit()
+		disabledSets = new ArrayList<ArmorSet>();
+		if (!Config.registerDisabledItems) {
+			Config.config.getCategory(ARMOR_SETS_CATEGORY).setComment("Enable or disable armor sets.");
+			for (ArmorSet set : ArmorSet.allSets) {
+				ModContainer mod = Loader.instance().getIndexedModList().get(set.modid);
+				if (mod != null) {
+					ConfigCategory category = Config.config.getCategory(ARMOR_SETS_CATEGORY+"."+mod.getName());
+					category.setComment("Enable or disable armor sets from "+mod.getName()+" blocks.");
+					prop = getArmorSetProp(mod.getName(), set);
+					if (!prop.getBoolean()) 
+						disabledSets.add(set);
+				}
+			}
+		}
 	}
 
 	public static void syncConfig() 
@@ -74,9 +98,25 @@ public class Config
 		Property prop = getPiecesForSetProp();
 		Config.piecesForSet = prop.getInt();
 
+		//Register disabled items
+		prop = getRegisterDisableItemsProp();
+		Config.registerDisabledItems = prop.getBoolean();
+
 		Config.config.save();
 
 		syncJEIBlacklist();
+	}
+
+	/**Get registerDisableItems prop*/
+	public static Property getRegisterDisableItemsProp() {
+		Property prop = Config.config.get(Configuration.CATEGORY_GENERAL, "Register disabled items", true, 
+				"Should only need to be changed in the very rare scenario that your world is using all of its item ID's (32k).\n"
+				+ TextFormatting.DARK_GREEN+"True: all armor sets will be registered and you can freely enable/disable armor sets without restarting.\n"
+				+ TextFormatting.DARK_RED+"False: only enabled armor sets will be registered and you need to restart whenever armor sets are "
+				+ "enabled/disabled. Players joining a server with disabled armor sets may need to restart their clients to sync "
+				+ "their registered items.");
+		prop.setRequiresMcRestart(true);
+		return prop;
 	}
 
 	/**Get setEffect prop for given set effect name*/
@@ -88,14 +128,16 @@ public class Config
 	/**Get armorSet config prop for given modName and armorSetName*/
 	public static Property getArmorSetProp(String modName, ArmorSet set) {
 		String name = ArmorSet.getItemStackDisplayName(set.stack, null);
-		Property prop = Config.config.get(ARMOR_SETS_CATEGORY+"."+modName, name+" Armor Set", true,
+		Property prop = Config.config.get(Config.ARMOR_SETS_CATEGORY+"."+modName, name+" Armor Set", true,
 				"Determines whether or not the "+name+" armor set should be generated.");
+		if (!Config.registerDisabledItems)
+			prop.setRequiresMcRestart(true);
 		return prop;
 	}
 
 	/**Get piecesForSet config prop and makes sure it's between 1-4*/
 	public static Property getPiecesForSetProp() {
-		Property prop = Config.config.get(Configuration.CATEGORY_GENERAL, "Armor pieces required for Set Effect", 4, "Specifies how many armor pieces must be worn for a set's effect(s) to work.", 3, 4);
+		Property prop = Config.config.get(Configuration.CATEGORY_GENERAL, "Armor pieces required for Set Effect", 4, "Specifies how many armor pieces must be worn for a set's effect(s) to work.", 1, 4);
 		if (prop.getInt() > 4)
 			prop.set(4);
 		else if (prop.getInt() < 1)

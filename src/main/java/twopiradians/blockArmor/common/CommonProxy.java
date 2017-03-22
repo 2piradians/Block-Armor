@@ -44,8 +44,9 @@ public class CommonProxy
 	public void postInit(FMLPostInitializationEvent event) {
 		ArmorSet.postInit();
 		SetEffect.postInit();
-		ModItems.postInit();
 		Config.postInit(BlockArmor.configFile);
+		ModItems.postInit();
+		Config.syncConfig();
 	}
 
 	private void registerPackets() { // Side is where the packet goes TO
