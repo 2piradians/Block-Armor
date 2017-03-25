@@ -39,6 +39,9 @@ public class SetEffect {
 	/**List of all set effects*/
 	public static final ArrayList<SetEffect> SET_EFFECTS = new ArrayList<SetEffect>() {{
 		//effects that use the button
+		add(new SetEffectCrafter());
+		//add(new SetEffectDJ());
+		add(new SetEffectEnder_Hoarder());
 		add(new SetEffectIlluminated(0));
 		add(new SetEffectSnowy());
 		add(new SetEffectEnder());
@@ -50,6 +53,10 @@ public class SetEffect {
 		add(new SetEffectArrow_Defence());
 		add(new SetEffectBonemealer());
 		//effects that don't use the button
+		add(new SetEffectSlow_Motion());
+		add(new SetEffectSoft_Fall());
+		add(new SetEffectFeeder());
+		add(new SetEffectLightweight());
 		add(new SetEffectInvisibility());
 		add(new SetEffectImmovable(0));
 		add(new SetEffectLucky());
@@ -113,8 +120,8 @@ public class SetEffect {
 
 		return false;
 	}
-	
-	/**Is this set effect isEnabled() in the config*/
+
+	/**Is this set effect enabled in the config*/
 	public boolean isEnabled() {
 		return !Config.disabledSetEffects.contains(this.getClass());
 	}
@@ -136,17 +143,16 @@ public class SetEffect {
 
 	/**Set cooldown for all worn ItemBlockArmor on player for specified ticks*/
 	public void setCooldown(EntityPlayer player, int ticks) {
-		if (player != null) {
+		if (player != null) 
 			for (EntityEquipmentSlot slot : ArmorSet.SLOTS) {
 				ItemStack stack = player.getItemStackFromSlot(slot);
 				if (stack != null && stack.getItem() instanceof ItemBlockArmor && 
 						((ItemBlockArmor)stack.getItem()).set.setEffects.contains(this))
 					player.getCooldownTracker().setCooldown(stack.getItem(), ticks);
 			}
-		}
 	}
 
-	/**Only called when player wearing full, isEnabled() set*/
+	/**Only called when player wearing full, enabled set*/
 	public void onArmorTick(World world, EntityPlayer player, ItemStack stack) {
 		if (!world.isRemote && ArmorSet.getFirstSetItem(player, this) == stack) {			
 			//apply potion effects
@@ -217,7 +223,7 @@ public class SetEffect {
 		if (!stack.hasTagCompound())
 			stack.setTagCompound(new NBTTagCompound());
 
-		if (stack.getTagCompound().getBoolean("wearingFullSet")) //FIXME removing 4 piece will reset attributes
+		if (stack.getTagCompound().getBoolean("wearingFullSet")) //FIXME removing 4th piece will reset attributes
 			for (AttributeModifier attribute : this.attributeModifiers)
 				map.put(attribute.getName(), attribute);
 

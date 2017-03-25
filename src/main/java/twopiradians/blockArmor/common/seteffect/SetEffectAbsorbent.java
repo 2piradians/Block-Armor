@@ -116,6 +116,7 @@ public class SetEffectAbsorbent extends SetEffect {
 					}
 					
 					this.setCooldown(player, 60);
+					
 				}
 
 			}

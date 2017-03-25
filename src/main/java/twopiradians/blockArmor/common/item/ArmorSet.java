@@ -70,6 +70,8 @@ public class ArmorSet {
 			add(new ItemStack(Blocks.SOUL_SAND));
 			add(new ItemStack(Blocks.ENDER_CHEST));
 			//add(new ItemStack(Blocks.CHEST));
+			add(new ItemStack(Blocks.NOTEBLOCK));
+			//add(new ItemStack(Blocks.JUKEBOX));
 		}};
 	}
 	/**Used to add Items that have overriding textures*/

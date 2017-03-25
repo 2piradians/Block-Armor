@@ -12,13 +12,13 @@ import net.minecraft.util.text.TextFormatting;
 import net.minecraftforge.common.config.ConfigCategory;
 import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.common.config.Property;
-import net.minecraftforge.event.entity.EntityJoinWorldEvent;
 import net.minecraftforge.fml.client.event.ConfigChangedEvent;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.Loader;
 import net.minecraftforge.fml.common.ModContainer;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerLoggedInEvent;
 import twopiradians.blockArmor.common.BlockArmor;
 import twopiradians.blockArmor.common.item.ArmorSet;
 import twopiradians.blockArmor.common.seteffect.SetEffect;
@@ -31,6 +31,8 @@ public class Config
 
 	public static final String SET_EFFECTS_CATEGORY = "config.setEffects"; 
 	public static final String ARMOR_SETS_CATEGORY = "config.armorSets";
+	/**Version of this config - if loaded version is less than this, delete the config*/
+	private static final float CONFIG_VERSION = 2.4F;
 
 	/**How many pieces of armor must be worn to activate set effects*/
 	public static int piecesForSet;
@@ -43,8 +45,16 @@ public class Config
 
 	public static void postInit(final File file) 
 	{
-		Config.config = new Configuration(file);
+		Config.config = new Configuration(file, String.valueOf(CONFIG_VERSION));
 		Config.config.load();
+
+		//If loaded version < CONFIG_VERSION, delete it
+		String version = Config.config.getLoadedConfigVersion();
+		if (version == null || Float.parseFloat(version) < CONFIG_VERSION) {
+			for (String category : Config.config.getCategoryNames())
+				Config.config.removeCategory(Config.config.getCategory(category));
+			BlockArmor.logger.warn("Deleted config from older version");
+		}
 
 		//Register disabled items for ModItems.postInit()
 		Property prop = getRegisterDisableItemsProp();
@@ -77,7 +87,7 @@ public class Config
 			ModContainer mod = Loader.instance().getIndexedModList().get(set.modid);
 			if (mod != null) {
 				ConfigCategory category = Config.config.getCategory(ARMOR_SETS_CATEGORY+"."+mod.getName());
-				category.setComment("Enable or disable armor sets from "+mod.getName()+" blocks.");
+				category.setComment("Enable or disable armor made from "+mod.getName()+" blocks.");
 				Property prop = getArmorSetProp(mod.getName(), set);
 				if (prop.getBoolean()) 
 					set.enable();
@@ -111,10 +121,10 @@ public class Config
 	public static Property getRegisterDisableItemsProp() {
 		Property prop = Config.config.get(Configuration.CATEGORY_GENERAL, "Register disabled items", true, 
 				"Should only need to be changed in the very rare scenario that your world is using all of its item ID's (32k).\n"
-				+ TextFormatting.DARK_GREEN+"True: all armor sets will be registered and you can freely enable/disable armor sets without restarting.\n"
-				+ TextFormatting.DARK_RED+"False: only enabled armor sets will be registered and you need to restart whenever armor sets are "
-				+ "enabled/disabled. Players joining a server with disabled armor sets may need to restart their clients to sync "
-				+ "their registered items.");
+						+ TextFormatting.DARK_GREEN+"True: all armor sets will be registered and you can freely enable/disable armor sets without restarting.\n"
+						+ TextFormatting.DARK_RED+"False: only enabled armor sets will be registered and you need to restart whenever armor sets are "
+						+ "enabled/disabled. Players joining a server with disabled armor sets may need to restart their clients after joining to sync "
+						+ "their registered items.");
 		prop.setRequiresMcRestart(true);
 		return prop;
 	}
@@ -128,8 +138,8 @@ public class Config
 	/**Get armorSet config prop for given modName and armorSetName*/
 	public static Property getArmorSetProp(String modName, ArmorSet set) {
 		String name = ArmorSet.getItemStackDisplayName(set.stack, null);
-		Property prop = Config.config.get(Config.ARMOR_SETS_CATEGORY+"."+modName, name+" Armor Set", true,
-				"Determines whether or not the "+name+" armor set should be generated.");
+		Property prop = Config.config.get(Config.ARMOR_SETS_CATEGORY+"."+modName, name+" Armor", true,
+				"Determines whether or not the "+name+" armor should be generated.");
 		if (!Config.registerDisabledItems)
 			prop.setRequiresMcRestart(true);
 		return prop;
@@ -137,7 +147,7 @@ public class Config
 
 	/**Get piecesForSet config prop and makes sure it's between 1-4*/
 	public static Property getPiecesForSetProp() {
-		Property prop = Config.config.get(Configuration.CATEGORY_GENERAL, "Armor pieces required for Set Effect", 4, "Specifies how many armor pieces must be worn for a set's effect(s) to work.", 1, 4);
+		Property prop = Config.config.get(Configuration.CATEGORY_GENERAL, "Armor pieces required for Set Effects", 4, "Specifies how many armor pieces must be worn for a set's effect(s) to work.", 1, 4);
 		if (prop.getInt() > 4)
 			prop.set(4);
 		else if (prop.getInt() < 1)
@@ -165,10 +175,10 @@ public class Config
 
 	/**Send PacketSyncConfig when a player joins a server*/
 	@SubscribeEvent
-	public void onJoinWorld(EntityJoinWorldEvent event) {
-		if (!event.getWorld().isRemote && event.getEntity() != null && event.getEntity() instanceof EntityPlayerMP) {
+	public void onJoinWorld(PlayerLoggedInEvent event) {
+		if (!event.player.world.isRemote && event.player != null && event.player instanceof EntityPlayerMP) {
 			Config.syncConfig();
-			BlockArmor.network.sendTo(new PacketSyncConfig(), (EntityPlayerMP) event.getEntity());
+			BlockArmor.network.sendTo(new PacketSyncConfig(), (EntityPlayerMP) event.player);
 		}
 	}
 

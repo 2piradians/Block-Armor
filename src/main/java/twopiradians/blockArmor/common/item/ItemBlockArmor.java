@@ -129,11 +129,11 @@ public class ItemBlockArmor extends ItemArmor
 		}
 	}
 
-	/**Handles enchanting armor when worn*/
+	/**Mostly handles nbt and enchanting armor*/
 	@Override
 	public void onUpdate(ItemStack stack, World world, Entity entity, int slot, boolean isSelected) {	
 		//delete dev spawned items if not in dev's inventory and delete disabled items (except missingTexture items in SMP)
-		if ((!set.isEnabled() && !world.isRemote & entity instanceof EntityPlayer) || 
+		if (stack.isEmpty() || (!set.isEnabled() && !world.isRemote & entity instanceof EntityPlayer) || 
 				(!world.isRemote && entity instanceof EntityPlayer && stack.hasTagCompound() &&
 						stack.getTagCompound().hasKey("devSpawned") && !CommandDev.DEVS.contains(entity.getPersistentID()) &&
 						((EntityPlayer)entity).inventory.getStackInSlot(slot) == stack)) {
@@ -165,7 +165,7 @@ public class ItemBlockArmor extends ItemArmor
 	@Override
 	public void onArmorTick(World world, EntityPlayer player, ItemStack stack) {		
 		//delete dev spawned items if not worn by dev and delete disabled items (except missingTexture items in SMP)
-		if ((!set.isEnabled() && !world.isRemote) || 
+		if (stack.isEmpty() || (!set.isEnabled() && !world.isRemote) || 
 				(!world.isRemote && stack != null && stack.hasTagCompound() && stack.getTagCompound().hasKey("devSpawned") && 
 				!CommandDev.DEVS.contains(player.getPersistentID()) && 
 				player.getItemStackFromSlot(this.armorType) == stack)) {

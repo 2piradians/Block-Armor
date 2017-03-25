@@ -20,9 +20,9 @@ public class SetEffectLucky extends SetEffect {
 
 	protected SetEffectLucky() {
 		this.color = TextFormatting.DARK_GREEN;
-		this.description = "Increases Fortune and Luck";
+		this.description = "Greatly increases Fortune and Luck";
 		this.attributeModifiers.add(new AttributeModifier(LUCK_UUID, 
-				SharedMonsterAttributes.LUCK.getName(), 1, 0));
+				SharedMonsterAttributes.LUCK.getName(), 3, 0));
 		MinecraftForge.EVENT_BUS.register(this);
 	}
 
@@ -31,7 +31,7 @@ public class SetEffectLucky extends SetEffect {
 	public void onEvent(HarvestDropsEvent event) {//only server side
 		if (ArmorSet.getWornSetEffects(event.getHarvester()).contains(this)) {
 			List<ItemStack> newDrops = event.getState().getBlock().getDrops(event.getWorld(), 
-					event.getPos(), event.getState(), event.getFortuneLevel()+2);
+					event.getPos(), event.getState(), event.getFortuneLevel()+4);
 			if (newDrops.size() > event.getDrops().size()) {
 				((WorldServer)event.getWorld()).spawnParticle(EnumParticleTypes.VILLAGER_HAPPY, 
 						(float)event.getPos().getX()+0.5f, (float)event.getPos().getY()+0.5f,(float)event.getPos().getZ()+0.5f, 
