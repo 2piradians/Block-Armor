@@ -3,13 +3,11 @@ package twopiradians.blockArmor.common.seteffect;
 import net.minecraft.block.Block;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.SoundEvents;
-import net.minecraft.inventory.EntityEquipmentSlot;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
 import twopiradians.blockArmor.common.item.ArmorSet;
-import twopiradians.blockArmor.common.item.ItemBlockArmor;
 
 public class SetEffectFeeder extends SetEffect
 {
@@ -27,8 +25,6 @@ public class SetEffectFeeder extends SetEffect
 		if (!player.getCooldownTracker().hasCooldown(stack.getItem()) && 
 				!world.isRemote && ArmorSet.getFirstSetItem(player, this) == stack)
 			if (player.canEat(false)) {
-				this.setCooldown(player, 100);
-
 				int foodLevel = player.getFoodStats().getFoodLevel();
 				int foodToFeed = Math.min(20-foodLevel, 4);
 				player.getFoodStats().addStats(foodToFeed,0.1f);
@@ -40,19 +36,16 @@ public class SetEffectFeeder extends SetEffect
 				else
 					world.playSound((EntityPlayer)null, player.getPosition(), SoundEvents.ENTITY_PLAYER_BURP, 
 							SoundCategory.PLAYERS, 0.3F, world.rand.nextFloat()*0.2f + 1.0f);
-				for (EntityEquipmentSlot slot : ArmorSet.SLOTS) {
-					ItemStack armor = player.getItemStackFromSlot(slot);
-					if (armor != null && armor.getItem() instanceof ItemBlockArmor && 
-							((ItemBlockArmor)armor.getItem()).set.setEffects.contains(this))
-						armor.damageItem(foodToFeed, player);
-				}
+				
+				this.setCooldown(player, 100);
+				this.damageArmor(player, foodToFeed, true);
 			}
 	}
 
 	/**Should block be given this set effect*/
 	@Override
 	protected boolean isValid(Block block, int meta) {	
-		if (SetEffect.registryNameContains(block, new String[] {"pumpkin", "melon", "food", "berry", "feed"}))
+		if (SetEffect.registryNameContains(block, meta, new String[] {"pumpkin", "melon", "food", "berry", "feed"}))
 			return true;		
 		return false;
 	}	

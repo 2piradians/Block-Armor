@@ -27,13 +27,14 @@ public class SetEffectEnder_Hoarder extends SetEffect {
 			world.playSound(null, player.getPosition(), SoundEvents.BLOCK_ENDERCHEST_OPEN, 
 					SoundCategory.PLAYERS, 0.5F, world.rand.nextFloat() * 0.1F + 0.9F);
             player.displayGUIChest(player.getInventoryEnderChest());
+            this.damageArmor(player, 1, false);
 		}
 	}
 
 	/**Should block be given this set effect*/
 	@Override
 	protected boolean isValid(Block block, int meta) {	
-		if (SetEffect.registryNameContains(block, new String[] {"ender"}) || block instanceof BlockEnderChest)
+		if (SetEffect.registryNameContains(block, meta, new String[] {"ender"}) || block instanceof BlockEnderChest)
 			return true;		
 		return false; 
 	}	

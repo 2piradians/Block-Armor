@@ -33,7 +33,7 @@ public class SetEffectSoft_Fall extends SetEffect
 	/**Should block be given this set effect*/
 	@Override
 	protected boolean isValid(Block block, int meta) {	
-		if (SetEffect.registryNameContains(block, new String[] {"wool", "hay", "soft"}))
+		if (SetEffect.registryNameContains(block, meta, new String[] {"wool", "hay", "soft"}))
 			return true;	
 		return false;
 	}	

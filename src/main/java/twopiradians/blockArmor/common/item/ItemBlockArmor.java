@@ -121,7 +121,7 @@ public class ItemBlockArmor extends ItemArmor
 			if (GuiScreen.isShiftKeyDown())
 				tooltip.add(TextFormatting.ITALIC+""+TextFormatting.GOLD+"Set Effects: "+TextFormatting.ITALIC+
 						"(requires "+Config.piecesForSet+(Config.piecesForSet == 4 ? "" : "+")+
-						" piece"+(Config.piecesForSet == 1 ? "" : "s")+" to be worn)");
+						" pieces to be worn)");
 
 			//set effect names and descriptions if shifting
 			for (SetEffect effect : set.setEffects)

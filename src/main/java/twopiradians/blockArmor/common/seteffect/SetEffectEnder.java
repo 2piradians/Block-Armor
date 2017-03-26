@@ -69,6 +69,7 @@ public class SetEffectEnder extends SetEffect {
 				world.playSound((EntityPlayer)null, player.posX, player.posY, player.posZ, SoundEvents.BLOCK_NOTE_BASS, 
 						SoundCategory.PLAYERS, 1.0F, world.rand.nextFloat() + 0.5F);	
 				this.setCooldown(player, 10);
+				this.damageArmor(player, 2, false);
 			}
 		}
 	}
@@ -76,7 +77,7 @@ public class SetEffectEnder extends SetEffect {
 	/**Should block be given this set effect*/
 	@Override
 	protected boolean isValid(Block block, int meta) {		
-		if (SetEffect.registryNameContains(block, new String[] {"end"}))
+		if (SetEffect.registryNameContains(block, meta, new String[] {"end_stone", "end_bricks"}))
 			return true;
 		return false;
 	}

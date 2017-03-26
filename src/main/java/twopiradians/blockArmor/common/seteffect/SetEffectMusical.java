@@ -62,7 +62,7 @@ public class SetEffectMusical extends SetEffect {
 	/**Should block be given this set effect*/
 	@Override
 	protected boolean isValid(Block block, int meta) {	
-		if (SetEffect.registryNameContains(block, new String[] {"music", "note", "sound"}))
+		if (SetEffect.registryNameContains(block, meta, new String[] {"music", "note", "sound"}))
 			return true;		
 		return false;
 	}	

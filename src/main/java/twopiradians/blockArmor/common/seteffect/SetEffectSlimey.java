@@ -94,7 +94,7 @@ public class SetEffectSlimey extends SetEffect {
 	/**Should block be given this set effect*/
 	@Override
 	protected boolean isValid(Block block, int meta) {		
-		if (SetEffect.registryNameContains(block, new String[] {"slime"}))
+		if (SetEffect.registryNameContains(block, meta, new String[] {"slime"}))
 			return true;
 		return false;
 	}

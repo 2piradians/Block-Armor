@@ -30,6 +30,11 @@ public class PacketSyncConfig implements IMessage
 		Config.piecesForSet = buf.readInt();
 		Property prop = Config.getPiecesForSetProp();
 		prop.set(Config.piecesForSet);
+		
+		//set effects use durability
+		Config.effectsUseDurability = buf.readBoolean();
+		prop = Config.getEffectsUseDurablityProp();
+		prop.set(Config.effectsUseDurability);
 
 		//register disabled items
 		Config.registerDisabledItems = buf.readBoolean();
@@ -89,6 +94,9 @@ public class PacketSyncConfig implements IMessage
 	{
 		//pieces for set
 		buf.writeInt(Config.piecesForSet);
+		
+		//set effects use durability
+		buf.writeBoolean(Config.effectsUseDurability);
 		
 		//register disabledItems
 		buf.writeBoolean(Config.registerDisabledItems);

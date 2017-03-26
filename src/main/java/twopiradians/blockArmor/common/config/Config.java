@@ -42,6 +42,8 @@ public class Config
 	public static boolean registerDisabledItems;
 	/**Sets that should not have items generated - only used by ModItems.postInit()*/
 	public static ArrayList<ArmorSet> disabledSets;
+	/**Should set effects use durability*/
+	public static boolean effectsUseDurability;
 
 	public static void postInit(final File file) 
 	{
@@ -107,6 +109,10 @@ public class Config
 		//Armor pieces required to activate set effect
 		Property prop = getPiecesForSetProp();
 		Config.piecesForSet = prop.getInt();
+		
+		//Should set effects use durability
+		prop = getEffectsUseDurablityProp();
+		Config.effectsUseDurability = prop.getBoolean();
 
 		//Register disabled items
 		prop = getRegisterDisableItemsProp();
@@ -115,6 +121,13 @@ public class Config
 		Config.config.save();
 
 		syncJEIBlacklist();
+	}
+
+	/**Get effectsUseDurability prop*/
+	public static Property getEffectsUseDurablityProp() {
+		Property prop = Config.config.get(Configuration.CATEGORY_GENERAL, "Set Effects use durability", false, 
+				"Should Set Effects use durability of worn armor to work");
+		return prop;
 	}
 
 	/**Get registerDisableItems prop*/

@@ -55,7 +55,7 @@ public class SetEffectLightweight extends SetEffect
 	@Override
 	protected boolean isValid(Block block, int meta) {	
 		try {
-			if (SetEffect.registryNameContains(block, new String[] {"leaves", "feather"}) || 
+			if (SetEffect.registryNameContains(block, meta, new String[] {"leaves", "feather"}) || 
 					block.isLeaves(null, null, BlockPos.ORIGIN))
 				return true;	
 		}

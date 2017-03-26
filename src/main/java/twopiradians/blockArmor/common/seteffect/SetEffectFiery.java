@@ -47,7 +47,7 @@ public class SetEffectFiery extends SetEffect {
 	/**Should block be given this set effect*/
 	@Override
 	protected boolean isValid(Block block, int meta) {		
-		if (SetEffect.registryNameContains(block, new String[] {"netherrack", "magma", "fire", "flame", "lava"}))
+		if (SetEffect.registryNameContains(block, meta, new String[] {"netherrack", "magma", "fire", "flame", "lava"}))
 			return true;		
 		return false;
 	}

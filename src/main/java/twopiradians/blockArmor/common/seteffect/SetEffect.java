@@ -12,13 +12,19 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.ai.attributes.AttributeModifier;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.init.SoundEvents;
 import net.minecraft.inventory.EntityEquipmentSlot;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.potion.PotionEffect;
+import net.minecraft.util.EnumParticleTypes;
+import net.minecraft.util.SoundCategory;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
+import net.minecraft.world.WorldServer;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import twopiradians.blockArmor.client.key.KeyActivateSetEffect;
@@ -39,6 +45,7 @@ public class SetEffect {
 	/**List of all set effects*/
 	public static final ArrayList<SetEffect> SET_EFFECTS = new ArrayList<SetEffect>() {{
 		//effects that use the button
+		add(new SetEffectDiorite_Vision()); //TODO remove for public release
 		add(new SetEffectCrafter());
 		//add(new SetEffectDJ());
 		add(new SetEffectEnder_Hoarder());
@@ -53,6 +60,7 @@ public class SetEffect {
 		add(new SetEffectArrow_Defence());
 		add(new SetEffectBonemealer());
 		//effects that don't use the button
+		add(new SetEffectMusical());
 		add(new SetEffectSlow_Motion());
 		add(new SetEffectSoft_Fall());
 		add(new SetEffectFeeder());
@@ -105,12 +113,13 @@ public class SetEffect {
 	}
 
 	/**Checks if block's registry name contains any of the provided strings (with or without capitalized first letter)*/
-	protected static boolean registryNameContains(Block block, String[] strings) {
+	protected static boolean registryNameContains(Block block, int meta, String[] strings) {
 		try {
 			String registryName = block.getRegistryName().toString();
+			String displayName = new ItemStack(block, 1, meta).getDisplayName();
 			for (String string : strings) {
 				if (registryName.contains(string) || registryName.contains(string.substring(0, 1).toUpperCase()+string.substring(1)) ||
-						block.getLocalizedName().contains(string) || block.getLocalizedName().contains(string.substring(0, 1).toUpperCase()+string.substring(1)))
+						displayName.contains(string.substring(0, 1).toUpperCase()+string.substring(1)))
 					return true;
 			}
 		}
@@ -137,12 +146,61 @@ public class SetEffect {
 	}
 
 	/**Should player be given potionEffect now*/
-	public boolean shouldApplyPotionEffect(PotionEffect potionEffect, World world, EntityPlayer player, ItemStack stack) {
+	protected boolean shouldApplyPotionEffect(PotionEffect potionEffect, World world, EntityPlayer player, ItemStack stack) {
 		return true;
 	}
 
+	/**Damage worn armor with this effect, if enabled in config - split damage amongst items prioritizing highest durability items*/
+	protected void damageArmor(EntityLivingBase entity, int amount, boolean ignoreConfig) {
+		if ((!ignoreConfig && !Config.effectsUseDurability) || entity == null || entity.world.isRemote)
+			return;
+
+		//get list of all worn armor with this effect
+		ArrayList<ItemStack> armor = new ArrayList<ItemStack>();
+		for (EntityEquipmentSlot slot : ArmorSet.SLOTS) {
+			ItemStack stack = entity.getItemStackFromSlot(slot);
+			if (stack != null && stack.getItem() instanceof ItemBlockArmor && 
+					((ItemBlockArmor)stack.getItem()).set.setEffects.contains(this))
+				armor.add(stack);
+		}
+
+		for (int i=0; i<amount; ++i) {
+			//find item with highest durability
+			ItemStack highestDur = null;
+			for (ItemStack stack : armor) {
+				if (!stack.isEmpty() && (highestDur == null || 
+						stack.getMaxDamage()-stack.getItemDamage() > 
+				highestDur.getMaxDamage()-highestDur.getItemDamage()))
+					highestDur = stack;
+			}
+			//if item will break, play sound and spawn particles and remove from armor
+			if (highestDur != null && highestDur.getMaxDamage()-highestDur.getItemDamage() == 0) {
+				armor.remove(highestDur);
+				
+				//play sound and spawn item particles (because entity.renderBrokenItemStack() doesn't work on server
+				entity.world.playSound(null, entity.getPosition(), SoundEvents.ENTITY_ITEM_BREAK, 
+						SoundCategory.PLAYERS, 0.8F, 0.8F + entity.world.rand.nextFloat() * 0.4F);
+				if (entity.world instanceof WorldServer) { 
+					Vec3d vec3d = new Vec3d(((double)entity.world.rand.nextFloat() - 0.5D) * 0.1D, Math.random() * 0.1D + 0.1D, 0.0D);
+					vec3d = vec3d.rotatePitch(-entity.rotationPitch * 0.017453292F);
+					vec3d = vec3d.rotateYaw(-entity.rotationYaw * 0.017453292F);
+					double d0 = (double)(-entity.world.rand.nextFloat()) * 0.6D - 0.3D;
+					Vec3d vec3d1 = new Vec3d(((double)entity.world.rand.nextFloat() - 0.5D) * 0.3D, d0, 0.6D);
+					vec3d1 = vec3d1.rotatePitch(-entity.rotationPitch * 0.017453292F);
+					vec3d1 = vec3d1.rotateYaw(-entity.rotationYaw * 0.017453292F);
+					vec3d1 = vec3d1.addVector(entity.posX, entity.posY + (double)entity.getEyeHeight(), entity.posZ);
+					((WorldServer)entity.world).spawnParticle(EnumParticleTypes.ITEM_CRACK, vec3d1.xCoord, vec3d1.yCoord, vec3d1.zCoord, 5, 0.2d, 0.2d, 0.2d, 0.1d, new int[] {Item.getIdFromItem(highestDur.getItem())});
+					//entity.world.spawnParticle(EnumParticleTypes.ITEM_CRACK, vec3d1.xCoord, vec3d1.yCoord, vec3d1.zCoord, vec3d.xCoord, vec3d.yCoord + 0.05D, vec3d.zCoord, new int[] {Item.getIdFromItem(highestDur.getItem())});
+				}
+				highestDur.shrink(1);
+			}
+			else if (highestDur != null)
+				highestDur.damageItem(1, entity);
+		}
+	}
+
 	/**Set cooldown for all worn ItemBlockArmor on player for specified ticks*/
-	public void setCooldown(EntityPlayer player, int ticks) {
+	protected void setCooldown(EntityPlayer player, int ticks) {
 		if (player != null) 
 			for (EntityEquipmentSlot slot : ArmorSet.SLOTS) {
 				ItemStack stack = player.getItemStackFromSlot(slot);

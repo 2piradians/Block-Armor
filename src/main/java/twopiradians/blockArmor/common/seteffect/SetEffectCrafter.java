@@ -25,14 +25,16 @@ public class SetEffectCrafter extends SetEffect {
 	public void onArmorTick(World world, EntityPlayer player, ItemStack stack) {
 		super.onArmorTick(world, player, stack);
 
-		if (!world.isRemote && ArmorSet.getFirstSetItem(player, this) == stack && BlockArmor.key.isKeyDown(player))
+		if (!world.isRemote && ArmorSet.getFirstSetItem(player, this) == stack && BlockArmor.key.isKeyDown(player)) {
 			player.displayGui(new InterfaceCrafter(world, player.getPosition()));
+			this.damageArmor(player, 1, false);
+		}
 	}
 
 	/**Should block be given this set effect*/
 	@Override
 	protected boolean isValid(Block block, int meta) {	
-		if (SetEffect.registryNameContains(block, new String[] {"crafting"}))
+		if (SetEffect.registryNameContains(block, meta, new String[] {"crafting"}))
 			return true;		
 		return false;
 	}	

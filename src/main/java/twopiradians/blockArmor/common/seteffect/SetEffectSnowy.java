@@ -66,7 +66,7 @@ public class SetEffectSnowy extends SetEffect {
 	/**Should block be given this set effect*/
 	@Override
 	protected boolean isValid(Block block, int meta) {		
-		if (SetEffect.registryNameContains(block, new String[] {"snow"}))
+		if (SetEffect.registryNameContains(block, meta, new String[] {"snow"}))
 			return true;		
 		return false;
 	}

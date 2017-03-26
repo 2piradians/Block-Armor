@@ -19,7 +19,7 @@ public class SetEffectPowerful extends SetEffect {
 	/**Should block be given this set effect*/
 	@Override
 	protected boolean isValid(Block block, int meta) {		
-		if (SetEffect.registryNameContains(block, new String[] {"quartz", "strong", "power"}))
+		if (SetEffect.registryNameContains(block, meta, new String[] {"quartz", "strong", "power"}))
 			return true;		
 		return false;
 	}

@@ -42,13 +42,14 @@ public class SetEffectLucky extends SetEffect {
 			}
 			event.getDrops().clear();
 			event.getDrops().addAll(newDrops);
+			this.damageArmor(event.getHarvester(), 1, false);
 		}
 	}
 
 	/**Should block be given this set effect*/
 	@Override
 	protected boolean isValid(Block block, int meta) {		
-		if (SetEffect.registryNameContains(block, new String[] {"emerald", "luck"}))
+		if (SetEffect.registryNameContains(block, meta, new String[] {"emerald", "luck"}))
 			return true;		
 		return false;
 	}

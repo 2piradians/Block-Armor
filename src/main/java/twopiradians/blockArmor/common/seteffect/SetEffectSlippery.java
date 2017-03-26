@@ -35,7 +35,7 @@ public class SetEffectSlippery extends SetEffect {
 	/**Should block be given this set effect*/
 	@Override
 	protected boolean isValid(Block block, int meta) {		
-		if (block.slipperiness > 0.6f && !SetEffect.registryNameContains(block, new String[] {"slime"}))
+		if (block.slipperiness > 0.6f && !SetEffect.registryNameContains(block, meta, new String[] {"slime"}))
 			return true;
 
 		return false;

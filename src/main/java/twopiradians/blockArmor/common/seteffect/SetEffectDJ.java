@@ -44,6 +44,7 @@ public class SetEffectDJ extends SetEffect
 				player.sendMessage(new TextComponentString("Stopped playing record."));
 			
 			this.setCooldown(player, 10);
+			this.damageArmor(player, 1, false);
 		}
 	}
 
@@ -51,7 +52,7 @@ public class SetEffectDJ extends SetEffect
 	*//**Should block be given this set effect*//*
 	@Override
 	protected boolean isValid(Block block, int meta) {	
-		if (SetEffect.registryNameContains(block, new String[] {"record", "jukebox"}))
+		if (SetEffect.registryNameContains(block, meta, new String[] {"record", "jukebox"}))
 			return true;		
 		return false;
 	}	
