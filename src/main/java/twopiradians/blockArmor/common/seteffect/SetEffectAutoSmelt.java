@@ -73,7 +73,7 @@ public class SetEffectAutoSmelt extends SetEffect {
 						(float)event.getPos().getX()+0.5f, (float)event.getPos().getY()+0.5f,(float)event.getPos().getZ()+0.5f, 
 						10, 0.3f, 0.3f, 0.3f, 0, new int[0]);
 				event.getWorld().playSound(null, event.getHarvester().getPosition(), 
-						SoundEvents.ENTITY_BLAZE_SHOOT, SoundCategory.PLAYERS, 0.2f, event.getWorld().rand.nextFloat()+0.7f);			
+						SoundEvents.ENTITY_BLAZE_SHOOT, SoundCategory.PLAYERS, 0.1f, event.getWorld().rand.nextFloat()+0.7f);			
 				this.damageArmor(event.getHarvester(), 1, false);
 			}
 		}

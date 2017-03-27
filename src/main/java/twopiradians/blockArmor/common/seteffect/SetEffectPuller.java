@@ -29,7 +29,7 @@ public class SetEffectPuller extends SetEffect {
 
 		if (ArmorSet.getFirstSetItem(player, this) == stack &&
 				BlockArmor.key.isKeyDown(player) && !player.getCooldownTracker().hasCooldown(stack.getItem())) {
-			AxisAlignedBB aabb = player.getEntityBoundingBox().expand(5, 5, 5);
+			AxisAlignedBB aabb = player.getEntityBoundingBox().expand(10, 10, 10);
 			List<Entity> list = player.world.getEntitiesWithinAABBExcludingEntity(player, aabb);
 
 			if (!list.isEmpty()) {
@@ -40,13 +40,13 @@ public class SetEffectPuller extends SetEffect {
 						double xVel = entityCollided.posX - player.posX;
 						double yVel = entityCollided.posY - player.posY;
 						double zVel = entityCollided.posZ - player.posZ;
-						double velScale = 2 / Math.sqrt(xVel * xVel + yVel * yVel + zVel * zVel);
+						double velScale = 4 / Math.sqrt(xVel * xVel + yVel * yVel + zVel * zVel);
 						entityCollided.addVelocity(-velScale*xVel, -velScale*yVel, -velScale*zVel); 
 						entityCollided.velocityChanged = true;
 					}
 				}
 				world.playSound((EntityPlayer)null, player.getPosition(), SoundEvents.BLOCK_PISTON_CONTRACT, 
-						SoundCategory.PLAYERS, 1.0F, world.rand.nextFloat() + 0.5f);
+						SoundCategory.PLAYERS, 0.5F, world.rand.nextFloat() + 0.5f);
 				
 				this.setCooldown(player, 40);
 				this.damageArmor(player, 1, false);

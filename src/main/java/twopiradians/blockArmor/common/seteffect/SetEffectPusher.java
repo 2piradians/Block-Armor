@@ -46,7 +46,7 @@ public class SetEffectPusher extends SetEffect {
 					}
 				}
 				world.playSound((EntityPlayer)null, player.getPosition(), SoundEvents.BLOCK_PISTON_EXTEND, 
-						SoundCategory.PLAYERS, 1.0F, world.rand.nextFloat() + 0.5f);
+						SoundCategory.PLAYERS, 0.5F, world.rand.nextFloat() + 0.5f);
 				
 				this.setCooldown(player, 40);
 				this.damageArmor(player, 1, false);

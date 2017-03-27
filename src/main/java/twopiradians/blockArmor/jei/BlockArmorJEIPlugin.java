@@ -1,11 +1,13 @@
 package twopiradians.blockArmor.jei;
 
 import mezz.jei.api.BlankModPlugin;
+import mezz.jei.api.IJeiRuntime;
 import mezz.jei.api.IModRegistry;
 import mezz.jei.api.JEIPlugin;
 import mezz.jei.api.ingredients.IIngredientHelper;
 import mezz.jei.config.Config;
 import mezz.jei.config.Config.IngredientBlacklistType;
+import mezz.jei.gui.ItemListOverlay;
 import net.minecraft.item.ItemStack;
 import twopiradians.blockArmor.common.BlockArmor;
 import twopiradians.blockArmor.common.item.ArmorSet;
@@ -15,6 +17,7 @@ import twopiradians.blockArmor.common.item.ItemBlockArmor;
 public class BlockArmorJEIPlugin extends BlankModPlugin 
 {
 	private static IIngredientHelper ingredientHelper;
+	private static IJeiRuntime runtime;
 
 	@Override
 	public void register(IModRegistry registry) {
@@ -24,6 +27,27 @@ public class BlockArmorJEIPlugin extends BlankModPlugin
 		for (ArmorSet set : ArmorSet.allSets)
 			if (!set.isEnabled())
 				registry.addRecipes(set.recipes);
+	}
+
+	@Override
+	public void onRuntimeAvailable(IJeiRuntime jeiRuntime) {
+		runtime = jeiRuntime;
+	}
+
+	public static void setFilterText(String text) {
+		try {
+			if (runtime != null && runtime.getItemListOverlay() instanceof ItemListOverlay) {
+				ItemListOverlay list = (ItemListOverlay) runtime.getItemListOverlay();
+				list.getInternal().setFilterText("");
+				list.getInternal().setKeyboardFocus(true);
+				for (char letter : text.toCharArray())
+					list.getInternal().onKeyPressed(letter, 0);
+				list.getInternal().setKeyboardFocus(false);
+			}
+		}
+		catch (Exception e) {
+			BlockArmor.logger.warn("JEI threw an exception when attempting to set filter text");
+		}
 	}
 
 	/**Adds disabled items and removes enabled items from JEI's blacklist
@@ -46,7 +70,7 @@ public class BlockArmorJEIPlugin extends BlankModPlugin
 							Config.addIngredientToConfigBlacklist(new ItemStack(armor), IngredientBlacklistType.ITEM, ingredientHelper);
 							addedItems++;
 						}
-			
+
 			if (addedItems > 0)
 				BlockArmor.logger.info("Added "+addedItems+" items to JEI blacklist");
 			if (removedItems > 0)

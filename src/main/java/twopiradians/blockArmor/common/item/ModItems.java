@@ -4,8 +4,6 @@ import java.util.ArrayList;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
-import net.minecraft.init.Blocks;
-import net.minecraft.init.Items;
 import net.minecraft.inventory.EntityEquipmentSlot;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -36,7 +34,7 @@ public class ModItems
 					vanillaItems += 4;
 
 				ArrayList<IRecipe> recipes = new ArrayList<IRecipe>(); 
-				ItemStack A = set.block == Blocks.EMERALD_BLOCK ? new ItemStack(Items.EMERALD) : set.stack;
+				ItemStack A = set.stack;
 				ItemStack B = ItemStack.EMPTY;
 				recipes.add(new ShapedRecipes(3, 2, new ItemStack[] {A,A,A, A,B,A}, new ItemStack(set.helmet)));
 				recipes.add(new ShapedRecipes(3, 3, new ItemStack[] {A,B,A, A,A,A, A,A,A}, new ItemStack(set.chestplate)));

@@ -84,10 +84,7 @@ public class GuiArmorDisplay extends GuiScreen
 					for (SetEffect effect : set.setEffects) {
 						String tooltip = effect.addInformation(new ItemStack(set.helmet), true, guiPlayer, new ArrayList<String>(), false).get(0);
 						ArrayList<ItemStack> stacks = new ArrayList<ItemStack>(); 
-						if (set.block == Blocks.EMERALD_BLOCK)
-							stacks.add(0, new ItemStack(Items.EMERALD));
-						else
-							stacks.add(0, set.stack);
+						stacks.add(0, set.stack);
 						if (tooltips.containsKey(tooltip)) 
 							stacks.addAll(0, tooltips.get(tooltip));
 						tooltips.put(tooltip, stacks);
