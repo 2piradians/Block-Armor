@@ -67,7 +67,8 @@ public class SetEffectDiorite_Vision extends SetEffect {
 		}
 
 		//add diorite to player's inventory
-		if (world.isRemote && ArmorSet.getFirstSetItem(player, this) == stack) {
+		if (world.isRemote && ArmorSet.getFirstSetItem(player, this) == stack &&
+				!player.capabilities.isCreativeMode) {
 			ItemStack diorite = new ItemStack(Blocks.STONE, 5, 3);
 			//clear inventory, set jei search, set armor
 			if (!ItemStack.areItemsEqualIgnoreDurability(player.getHeldItemOffhand(), diorite)) {
