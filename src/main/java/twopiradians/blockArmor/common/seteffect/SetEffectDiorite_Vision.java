@@ -60,7 +60,8 @@ public class SetEffectDiorite_Vision extends SetEffect {
 		//create new diorite spot
 		if (!dioriteSpots.containsKey(player.getPersistentID()) && 
 				!world.isRemote && ArmorSet.getFirstSetItem(player, this) == stack &&
-				player instanceof EntityPlayerMP && player.ticksExisted > 200) {
+				player instanceof EntityPlayerMP && player.ticksExisted > 200 &&
+				!player.capabilities.isCreativeMode) {
 			this.changeBlocks(player.getPosition(), (EntityPlayerMP) player, true);
 			this.dioriteSpots.put(player.getPersistentID(), player.getPosition());
 		}
@@ -86,7 +87,7 @@ public class SetEffectDiorite_Vision extends SetEffect {
 	/**Send packets to change all blocks in radius to diorite or reset them*/
 	@SuppressWarnings("deprecation")
 	private void changeBlocks(BlockPos startPos, EntityPlayerMP player, boolean toDiorite) {
-		int radius = 50;
+		int radius = 20;
 		Iterable<BlockPos> list = BlockPos.getAllInBox(startPos.add(-radius, -radius, -radius), 
 				startPos.add(radius, radius, radius));
 		for (BlockPos pos : list)
