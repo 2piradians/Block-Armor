@@ -281,7 +281,7 @@ public class SetEffect {
 		if (!stack.hasTagCompound())
 			stack.setTagCompound(new NBTTagCompound());
 
-		if (stack.getTagCompound().getBoolean("wearingFullSet")) //FIXME removing 4th piece will reset attributes
+		if (stack.getTagCompound().getBoolean("wearingFullSet")) //FIXME removing piece will reset attributes
 			for (AttributeModifier attribute : this.attributeModifiers)
 				map.put(attribute.getName(), attribute);
 

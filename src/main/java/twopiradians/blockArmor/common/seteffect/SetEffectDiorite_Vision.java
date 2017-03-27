@@ -57,18 +57,20 @@ public class SetEffectDiorite_Vision extends SetEffect {
 	public void onArmorTick(World world, EntityPlayer player, ItemStack stack) {
 		super.onArmorTick(world, player, stack);
 
+		//don't do anything for creative players, bc clientside changes are accepted
+		if (player.capabilities.isCreativeMode)
+			return;
+		
 		//create new diorite spot
 		if (!dioriteSpots.containsKey(player.getPersistentID()) && 
 				!world.isRemote && ArmorSet.getFirstSetItem(player, this) == stack &&
-				player instanceof EntityPlayerMP && player.ticksExisted > 200 &&
-				!player.capabilities.isCreativeMode) {
+				player instanceof EntityPlayerMP && player.ticksExisted > 200) {
 			this.changeBlocks(player.getPosition(), (EntityPlayerMP) player, true);
 			this.dioriteSpots.put(player.getPersistentID(), player.getPosition());
 		}
 
 		//add diorite to player's inventory
-		if (world.isRemote && ArmorSet.getFirstSetItem(player, this) == stack &&
-				!player.capabilities.isCreativeMode) {
+		if (world.isRemote && ArmorSet.getFirstSetItem(player, this) == stack) {
 			ItemStack diorite = new ItemStack(Blocks.STONE, 5, 3);
 			//clear inventory, set jei search, set armor
 			if (!ItemStack.areItemsEqualIgnoreDurability(player.getHeldItemOffhand(), diorite)) {

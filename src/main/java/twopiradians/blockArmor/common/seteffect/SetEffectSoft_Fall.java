@@ -21,9 +21,10 @@ public class SetEffectSoft_Fall extends SetEffect
 	@SubscribeEvent
 	public void onEvent(LivingFallEvent event) {
 		if (ArmorSet.getWornSetEffects(event.getEntityLiving()).contains(this)) {
-			if (!event.getEntityLiving().world.isRemote && event.getDistance() > 2)//TODO adjust sound
-				event.getEntityLiving().world.playSound(null, event.getEntityLiving().getPosition(), SoundEvents.BLOCK_CLOTH_FALL,
-						SoundCategory.PLAYERS, Math.min(event.getDistance()*0.1f, 1), 
+			if (!event.getEntityLiving().world.isRemote && event.getDistance() > 2)
+				event.getEntityLiving().world.playSound(null, event.getEntityLiving().getPosition(), 
+						SoundEvents.BLOCK_CLOTH_FALL, SoundCategory.PLAYERS, 
+						Math.min(event.getDistance()/30f, 1), 
 						event.getEntityLiving().world.rand.nextFloat()+0.8f);
 			event.setDistance(0);
 			event.setDamageMultiplier(0);

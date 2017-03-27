@@ -92,7 +92,7 @@ public class ClientProxy extends CommonProxy
 			@Override
 			public void onResourceManagerReload(IResourceManager resourceManager) {
 				mapTextures();
-				Config.syncJEIBlacklist(); //TODO added - check that resource packs work well
+				Config.syncJEIBlacklist();
 			}
 		});
 	}
