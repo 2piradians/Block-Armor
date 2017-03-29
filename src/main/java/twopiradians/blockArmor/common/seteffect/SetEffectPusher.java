@@ -31,7 +31,7 @@ public class SetEffectPusher extends SetEffect {
 				BlockArmor.key.isKeyDown(player) && !player.getCooldownTracker().hasCooldown(stack.getItem())) {
 			AxisAlignedBB aabb = player.getEntityBoundingBox().expand(5, 5, 5);
 			List<Entity> list = player.worldObj.getEntitiesWithinAABBExcludingEntity(player, aabb);
-
+			
 			if (!list.isEmpty()) {
 				Iterator<Entity> iterator = list.iterator();            
 				while (iterator.hasNext()) {
@@ -45,9 +45,11 @@ public class SetEffectPusher extends SetEffect {
 						entityCollided.velocityChanged = true;
 					}
 				}
-				this.setCooldown(player, 40);
 				world.playSound((EntityPlayer)null, player.getPosition(), SoundEvents.BLOCK_PISTON_EXTEND, 
-						SoundCategory.PLAYERS, 1.0F, world.rand.nextFloat() + 0.5f);
+						SoundCategory.PLAYERS, 0.5F, world.rand.nextFloat() + 0.5f);
+				
+				this.setCooldown(player, 40);
+				this.damageArmor(player, 1, false);
 			}
 			else
 				this.setCooldown(player, 5);
@@ -57,8 +59,8 @@ public class SetEffectPusher extends SetEffect {
 	/**Should block be given this set effect*/
 	@Override
 	protected boolean isValid(Block block, int meta) {		
-		if (SetEffect.registryNameContains(block, new String[] {"piston", "push", "repel"}) &&
-				!SetEffect.registryNameContains(block, new String[] {"sticky"}))
+		if (SetEffect.registryNameContains(block, meta, new String[] {"piston", "push", "repel"}) &&
+				!SetEffect.registryNameContains(block, meta, new String[] {"sticky"}))
 			return true;
 		return false;
 	}

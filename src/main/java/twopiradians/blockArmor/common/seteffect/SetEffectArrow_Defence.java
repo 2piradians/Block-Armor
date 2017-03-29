@@ -5,7 +5,6 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.projectile.EntityArrow;
 import net.minecraft.init.Items;
 import net.minecraft.init.SoundEvents;
-import net.minecraft.inventory.EntityEquipmentSlot;
 import net.minecraft.item.ItemArrow;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.SoundCategory;
@@ -13,7 +12,6 @@ import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
 import twopiradians.blockArmor.common.BlockArmor;
 import twopiradians.blockArmor.common.item.ArmorSet;
-import twopiradians.blockArmor.common.item.ItemBlockArmor;
 
 public class SetEffectArrow_Defence extends SetEffect {
 
@@ -26,10 +24,10 @@ public class SetEffectArrow_Defence extends SetEffect {
 	/**Only called when player wearing full, enabled set*/
 	public void onArmorTick(World world, EntityPlayer player, ItemStack stack) {
 		super.onArmorTick(world, player, stack);
-
+		
 		if (!world.isRemote && ArmorSet.getFirstSetItem(player, this) == stack &&
 				BlockArmor.key.isKeyDown(player) && !player.getCooldownTracker().hasCooldown(stack.getItem())) {
-			this.setCooldown(player, 40);
+			
 			int numArrows = 16;
 			for(int i = 0; i < numArrows; i++) {
 				ItemArrow itemArrow = (ItemArrow) Items.ARROW;
@@ -40,19 +38,16 @@ public class SetEffectArrow_Defence extends SetEffect {
 			}
 			world.playSound((EntityPlayer)null, player.getPosition(), SoundEvents.ENTITY_ARROW_SHOOT, 
 					SoundCategory.PLAYERS, 1.0F, world.rand.nextFloat() + 0.5f);
-			for (EntityEquipmentSlot slot : ArmorSet.SLOTS) {
-				ItemStack armor = player.getItemStackFromSlot(slot);
-				if (armor != null && armor.getItem() instanceof ItemBlockArmor && 
-						((ItemBlockArmor)armor.getItem()).set.setEffects.contains(this))
-					armor.damageItem(numArrows/4, player);
-			}
+			
+			this.setCooldown(player, 40);
+			this.damageArmor(player, 4, false);
 		}
 	}
 
 	/**Should block be given this set effect*/
 	@Override
 	protected boolean isValid(Block block, int meta) {		
-		if (SetEffect.registryNameContains(block, new String[] {"dispense", "shoot", "arrow"}))
+		if (SetEffect.registryNameContains(block, meta, new String[] {"dispense", "shoot", "arrow"}))
 			return true;
 		return false;
 	}

@@ -22,13 +22,14 @@ public class SetEffectExperience_Giving extends SetEffect {
 				!player.getCooldownTracker().hasCooldown(stack.getItem())) {
 			this.setCooldown(player, 50);
 			player.addExperience(1);
+			this.damageArmor(player, 1, false);
 		}
 	}
 
 	/**Should block be given this set effect*/
 	@Override
 	protected boolean isValid(Block block, int meta) {	
-		if (SetEffect.registryNameContains(block, new String[] {"lapis", "enchant", "experience"}))
+		if (SetEffect.registryNameContains(block, meta, new String[] {"lapis", "enchant", "experience"}))
 			return true;		
 		return false;
 	}

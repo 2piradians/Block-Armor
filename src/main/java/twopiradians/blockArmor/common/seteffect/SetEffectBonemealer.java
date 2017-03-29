@@ -6,7 +6,6 @@ import net.minecraft.block.Block;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Items;
 import net.minecraft.init.SoundEvents;
-import net.minecraft.inventory.EntityEquipmentSlot;
 import net.minecraft.item.EnumDyeColor;
 import net.minecraft.item.ItemDye;
 import net.minecraft.item.ItemStack;
@@ -18,7 +17,6 @@ import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
 import twopiradians.blockArmor.common.BlockArmor;
 import twopiradians.blockArmor.common.item.ArmorSet;
-import twopiradians.blockArmor.common.item.ItemBlockArmor;
 
 public class SetEffectBonemealer extends SetEffect {
 
@@ -49,12 +47,7 @@ public class SetEffectBonemealer extends SetEffect {
 							pos.getX(), pos.getY()+1d, pos.getZ(), 10, 2, 0.1d, 2, 0, new int[0]);
 				world.playSound(null, player.getPosition(), SoundEvents.ITEM_HOE_TILL, 
 						SoundCategory.PLAYERS, 0.5f, world.rand.nextFloat()+0.5f);
-				for (EntityEquipmentSlot slot : ArmorSet.SLOTS) {
-					ItemStack armor = player.getItemStackFromSlot(slot);
-					if (armor != null && armor.getItem() instanceof ItemBlockArmor && 
-							((ItemBlockArmor)armor.getItem()).set.setEffects.contains(this))
-						armor.damageItem(1, player);
-				}
+				this.damageArmor(player, 4, false);
 			}
 			else
 				this.setCooldown(player, 20);
@@ -64,7 +57,7 @@ public class SetEffectBonemealer extends SetEffect {
 	/**Should block be given this set effect*/
 	@Override
 	protected boolean isValid(Block block, int meta) {		
-		if (SetEffect.registryNameContains(block, new String[] {"bone"}))
+		if (SetEffect.registryNameContains(block, meta, new String[] {"bone"}))
 			return true;
 		return false;
 	}

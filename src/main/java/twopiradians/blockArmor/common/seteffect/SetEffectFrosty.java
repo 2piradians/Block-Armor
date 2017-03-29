@@ -16,7 +16,7 @@ public class SetEffectFrosty extends SetEffect {
 	/**Should block be given this set effect*/
 	@Override
 	protected boolean isValid(Block block, int meta) {		
-		if (SetEffect.registryNameContains(block, new String[] {"ice", "snow", "frozen"}))
+		if (SetEffect.registryNameContains(block, meta, new String[] {"ice", "snow", "frozen"}))
 			return true;		
 		return false;
 	}

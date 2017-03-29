@@ -168,7 +168,7 @@ public final class ModelDynBlockArmor implements IModel, IModelCustomData, IRete
 					state = new ModelStateComposition(state, transform);
 					VertexFormat format = DefaultVertexFormats.ITEM;
 					String armorType = "";
-					EntityEquipmentSlot slot = item.getEquipmentSlot();
+					EntityEquipmentSlot slot = item.armorType;
 					if (slot == EntityEquipmentSlot.HEAD)
 						armorType = "helmet";
 					else if (slot == EntityEquipmentSlot.CHEST)
@@ -191,15 +191,15 @@ public final class ModelDynBlockArmor implements IModel, IModelCustomData, IRete
 						}
 					});
 					builder.addAll(model.getQuads(null, null, 0));
-					
+
 					int color = ArmorSet.getColor(item);
 					if (color != -1) {
-	                    float r = ((color >> 16) & 0xFF) / 255f;
-	                    float g = ((color >> 8) & 0xFF) / 255f;
-	                    float b = ((color >> 0) & 0xFF) / 255f; 
-	                    color = new Color(r, g, b).getRGB(); //set alpha to 1.0f (since sometimes 0f)
+						float r = ((color >> 16) & 0xFF) / 255f;
+						float g = ((color >> 8) & 0xFF) / 255f;
+						float b = ((color >> 0) & 0xFF) / 255f; 
+						color = new Color(r, g, b).getRGB(); //set alpha to 1.0f (since sometimes 0f)
 					}
-						
+
 					//Template texture for left half
 					String templateLocation = new ResourceLocation(BlockArmor.MODID+":items/icons/block_armor_"+armorType+"1_template").toString();
 					TextureAtlasSprite templateTexture = Minecraft.getMinecraft().getTextureMapBlocks().getAtlasSprite(templateLocation);

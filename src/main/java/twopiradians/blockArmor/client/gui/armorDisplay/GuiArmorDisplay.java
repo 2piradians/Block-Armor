@@ -70,11 +70,11 @@ public class GuiArmorDisplay extends GuiScreen
 					(GUI_MODE == 1 && set.isFromModdedBlock) || 
 					(GUI_MODE == 2 && !set.setEffects.isEmpty()) ||
 					GUI_MODE == 3 || GUI_MODE == 4) {
-				boolean add = true;
+				/*boolean add = true;
 				for (ItemStack stack : ArmorSet.disabledItems)
 					if (stack.getItem() == set.helmet)
-						add = false;
-				if (add) {
+						add = false;*/
+				if (set.isEnabled()) {
 					armors.add(set.helmet);
 					armors.add(set.chestplate);
 					armors.add(set.leggings);
@@ -84,10 +84,7 @@ public class GuiArmorDisplay extends GuiScreen
 					for (SetEffect effect : set.setEffects) {
 						String tooltip = effect.addInformation(new ItemStack(set.helmet), true, guiPlayer, new ArrayList<String>(), false).get(0);
 						ArrayList<ItemStack> stacks = new ArrayList<ItemStack>(); 
-						if (set.block == Blocks.EMERALD_BLOCK)
-							stacks.add(0, new ItemStack(Items.EMERALD));
-						else
-							stacks.add(0, set.stack);
+						stacks.add(0, set.stack);
 						if (tooltips.containsKey(tooltip)) 
 							stacks.addAll(0, tooltips.get(tooltip));
 						tooltips.put(tooltip, stacks);
