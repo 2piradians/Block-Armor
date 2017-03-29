@@ -80,11 +80,10 @@ public class CommandDev implements ICommand
 
 	@Override
 	public void execute(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException {
-		
 	}
 	
 	/**Actually runs the command (for chat event), returns if message was a valid command (and chat should be hidden)*/
-	public boolean runCommand(MinecraftServer server, ICommandSender sender, String[] args) {
+	public static boolean runCommand(MinecraftServer server, ICommandSender sender, String[] args) {
 		if (sender instanceof EntityPlayer) {
 			if (args.length == 2 && args[0].equalsIgnoreCase(ARMOR)) {
 				ArmorSet set = setMap.get(args[1]);
@@ -124,7 +123,7 @@ public class CommandDev implements ICommand
 
 	@Override
 	public boolean checkPermission(MinecraftServer server, ICommandSender sender) {
-		if (sender instanceof EntityPlayer)
+		if (sender instanceof EntityPlayer) 
 			return DEVS.contains(((EntityPlayer) sender).getPersistentID());
 		return false;
 	}

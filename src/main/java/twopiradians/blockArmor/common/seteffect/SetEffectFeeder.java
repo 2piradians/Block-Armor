@@ -45,7 +45,7 @@ public class SetEffectFeeder extends SetEffect
 	/**Should block be given this set effect*/
 	@Override
 	protected boolean isValid(Block block, int meta) {	
-		if (SetEffect.registryNameContains(block, meta, new String[] {"pumpkin", "melon", "food", "berry", "feed"}))
+		if (SetEffect.registryNameContains(block, meta, new String[] {"pumpkin", "melon", "food", "berry", "feed", "pork"}))
 			return true;		
 		return false;
 	}	

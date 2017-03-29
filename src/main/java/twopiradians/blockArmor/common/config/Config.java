@@ -64,10 +64,11 @@ public class Config
 			Config.config.getCategory(ARMOR_SETS_CATEGORY).setComment("Enable or disable armor sets.");
 			for (ArmorSet set : ArmorSet.allSets) {
 				ModContainer mod = Loader.instance().getIndexedModList().get(set.modid);
-				if (mod != null) {
-					ConfigCategory category = Config.config.getCategory(ARMOR_SETS_CATEGORY+"."+mod.getName());
-					category.setComment("Enable or disable armor sets from "+mod.getName()+" blocks.");
-					prop = getArmorSetProp(mod.getName(), set);
+				if (mod != null || set.modid.equalsIgnoreCase("minecraft")) {
+					String name = mod == null ? "minecraft" : mod.getName();
+					ConfigCategory category = Config.config.getCategory(ARMOR_SETS_CATEGORY+"."+name.replace(".", ","));
+					category.setComment("Enable or disable armor made from "+name+" blocks.");
+					prop = getArmorSetProp(name, set);
 					if (!prop.getBoolean()) 
 						disabledSets.add(set);
 				}
@@ -85,7 +86,7 @@ public class Config
 			ModContainer mod = Loader.instance().getIndexedModList().get(set.modid);
 			if (mod != null || set.modid.equalsIgnoreCase("minecraft")) {
 				String name = mod == null ? "minecraft" : mod.getName();
-				ConfigCategory category = Config.config.getCategory(ARMOR_SETS_CATEGORY+"."+name);
+				ConfigCategory category = Config.config.getCategory(ARMOR_SETS_CATEGORY+"."+name.replace(".", ","));
 				category.setComment("Enable or disable armor made from "+name+" blocks.");
 				Property prop = getArmorSetProp(name, set);
 				if (prop.getBoolean()) 
@@ -148,7 +149,7 @@ public class Config
 	/**Get armorSet config prop for given modName and armorSetName*/
 	public static Property getArmorSetProp(String modName, ArmorSet set) {
 		String name = ArmorSet.getItemStackDisplayName(set.stack, null);
-		Property prop = Config.config.get(Config.ARMOR_SETS_CATEGORY+"."+modName, name+" Armor", true,
+		Property prop = Config.config.get(Config.ARMOR_SETS_CATEGORY+"."+modName.replace(".", ","), name+" Armor", true,
 				"Determines whether or not the "+name+" armor should be generated.");
 		if (!Config.registerDisabledItems)
 			prop.setRequiresMcRestart(true);

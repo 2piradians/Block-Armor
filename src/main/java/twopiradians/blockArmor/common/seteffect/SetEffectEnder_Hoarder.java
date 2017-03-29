@@ -37,7 +37,7 @@ public class SetEffectEnder_Hoarder extends SetEffect {
 	/**Should block be given this set effect*/
 	@Override
 	protected boolean isValid(Block block, int meta) {	
-		if (SetEffect.registryNameContains(block, meta, new String[] {"ender"}) || block instanceof BlockEnderChest)
+		if (block instanceof BlockEnderChest)
 			return true;		
 		return false; 
 	}	

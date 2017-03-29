@@ -412,9 +412,11 @@ public class ArmorSet {
 					return true;
 
 			if (stack == null || !(stack.getItem() instanceof ItemBlock) || 
+					stack.getItem().getRegistryName().getResourceDomain().contains("railcraft") ||
 					stack.getItem().getRegistryName().getResourcePath().contains("ore") || 
+					stack.getItem().getRegistryName().getResourcePath().contains("ingot") || 
 					stack.getDisplayName().contains(".name") || stack.getDisplayName().contains("Ore") ||
-					stack.getDisplayName().contains("%"))
+					stack.getDisplayName().contains("%") || stack.getDisplayName().contains("Ingot"))
 				return false;
 
 			Block block = ((ItemBlock)stack.getItem()).getBlock();

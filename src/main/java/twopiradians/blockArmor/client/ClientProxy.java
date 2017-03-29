@@ -139,7 +139,7 @@ public class ClientProxy extends CommonProxy
 				disabledSets++;
 			}
 			if (disabledSets > 0)
-				BlockArmor.logger.info("Disabled "+disabledSets+" armor set"+(disabledSets > 1 ? "s" : "")+"without textures.");
+				BlockArmor.logger.info("Disabled "+disabledSets+" armor set"+(disabledSets > 1 ? "s" : "")+"without textures");
 		}
 
 		BlockArmor.logger.info("Found "+numTextures+" block textures for Block Armor");

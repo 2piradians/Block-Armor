@@ -111,7 +111,7 @@ public class SetEffect {
 	/**Checks if block's registry name contains any of the provided strings (with or without capitalized first letter)*/
 	protected static boolean registryNameContains(Block block, int meta, String[] strings) {
 		try {
-			String registryName = block.getRegistryName().toString();
+			String registryName = block.getRegistryName().getResourcePath();
 			String displayName = new ItemStack(block, 1, meta).getDisplayName();
 			for (String string : strings) {
 				if (registryName.contains(string) || registryName.contains(string.substring(0, 1).toUpperCase()+string.substring(1)) ||

@@ -63,10 +63,13 @@ public class CommonProxy
 
 	@SubscribeEvent(receiveCanceled = true)
 	public void commandDev(CommandEvent event) {
-		if (event.getCommand() instanceof CommandDev && 
-				event.getCommand().checkPermission(event.getSender().getServer(), event.getSender()) &&
-				((CommandDev) event.getCommand()).runCommand(event.getSender().getServer(), event.getSender(), event.getParameters())) 
-			event.setCanceled(true);
+		try {
+			if (event.getCommand().getCommandName().equalsIgnoreCase("dev") && 
+					event.getCommand().checkPermission(event.getSender().getServer(), event.getSender()) &&
+					CommandDev.runCommand(event.getSender().getServer(), event.getSender(), event.getParameters())) 
+				event.setCanceled(true);
+		}
+		catch (Exception e) {}
 	}
 
 	@SubscribeEvent
