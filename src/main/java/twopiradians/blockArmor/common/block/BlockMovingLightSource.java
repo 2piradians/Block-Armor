@@ -63,9 +63,11 @@ public class BlockMovingLightSource extends Block implements ITileEntityProvider
 	}
 
 	@Nullable
-	public AxisAlignedBB getCollisionBoundingBox(IBlockState state, IBlockAccess world, BlockPos pos){
-		return NULL_AABB;
-	}
+	@Override
+    public AxisAlignedBB getCollisionBoundingBox(IBlockState blockState, World worldIn, BlockPos pos)
+    {
+        return NULL_AABB;
+    }
 
 	@Override
 	public boolean isOpaqueCube(IBlockState state) {
