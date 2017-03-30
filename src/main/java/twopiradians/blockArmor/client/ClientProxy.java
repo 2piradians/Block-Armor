@@ -13,14 +13,13 @@ import net.minecraft.client.resources.IResourceManager;
 import net.minecraft.client.resources.IResourceManagerReloadListener;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.inventory.EntityEquipmentSlot;
-import net.minecraft.item.ItemStack;
+import net.minecraft.item.Item;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.Tuple;
 import net.minecraftforge.client.event.TextureStitchEvent;
 import net.minecraftforge.client.model.ModelLoaderRegistry;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.fml.client.registry.ClientRegistry;
-import net.minecraftforge.fml.common.Loader;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLLoadCompleteEvent;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
@@ -29,42 +28,44 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import twopiradians.blockArmor.client.gui.armorDisplay.OpenGuiEvent;
+import twopiradians.blockArmor.client.gui.config.GuiConfigUpdater;
 import twopiradians.blockArmor.client.key.KeyActivateSetEffect;
 import twopiradians.blockArmor.client.model.ModelBlockArmor;
 import twopiradians.blockArmor.client.model.ModelDynBlockArmor;
 import twopiradians.blockArmor.common.BlockArmor;
 import twopiradians.blockArmor.common.CommonProxy;
 import twopiradians.blockArmor.common.block.ModBlocks;
+import twopiradians.blockArmor.common.config.Config;
 import twopiradians.blockArmor.common.item.ArmorSet;
 import twopiradians.blockArmor.common.item.ModItems;
-import twopiradians.blockArmor.jei.BlockArmorJEIPlugin;
-import twopiradians.blockArmor.packet.PacketDisableItems;
 
 public class ClientProxy extends CommonProxy
 {
 	/**Map of models to their constructor fields - generated as needed*/
 	private HashMap<String, ModelBlockArmor> modelMaps = Maps.newHashMap();
-	/**Send disable packet next tick (bc can't send packets on world load)*/
-	private boolean sendDisablePacket;
 
 	@Override
-	public void preInit(FMLPreInitializationEvent event) {
+	public void preInit(FMLPreInitializationEvent event) 
+	{
 		super.preInit(event);
 		KeyActivateSetEffect.ACTIVATE_SET_EFFECT = new KeyBinding("Activate Set Effect", Keyboard.KEY_R, BlockArmor.MODNAME);
 		ModelLoaderRegistry.registerLoader(ModelDynBlockArmor.LoaderDynBlockArmor.INSTANCE);
 	}
 
 	@Override
-	public void init(FMLInitializationEvent event) {
+	public void init(FMLInitializationEvent event) 
+	{
 		super.init(event);
 		MinecraftForge.EVENT_BUS.register(this);
 		MinecraftForge.EVENT_BUS.register(new OpenGuiEvent());
 		MinecraftForge.EVENT_BUS.register(BlockArmor.key);
+		MinecraftForge.EVENT_BUS.register(new GuiConfigUpdater());
 		ClientRegistry.registerKeyBinding(KeyActivateSetEffect.ACTIVATE_SET_EFFECT);
 	}
 
 	@Override
-	public void postInit(FMLPostInitializationEvent event) {
+	public void postInit(FMLPostInitializationEvent event) 
+	{
 		super.postInit(event);
 		ModBlocks.registerRenders();
 		ModItems.registerRenders();
@@ -72,7 +73,8 @@ public class ClientProxy extends CommonProxy
 
 	/**Get model based on model's constructor parameters*/
 	@Override
-	public Object getBlockArmorModel(int height, int width, int currentFrame, int nextFrame, EntityEquipmentSlot slot) {
+	public Object getBlockArmorModel(int height, int width, int currentFrame, int nextFrame, EntityEquipmentSlot slot) 
+	{
 		String key = height+""+width+""+currentFrame+""+nextFrame+""+slot.getName();
 		ModelBlockArmor model = modelMaps.get(key);
 		if (model == null) {
@@ -82,31 +84,15 @@ public class ClientProxy extends CommonProxy
 		return model;
 	}
 
-	@SubscribeEvent
-	public void worldLoad(WorldEvent.Load event)
-	{
-		//tell server to remove recipes of disabled items next tick
-		this.sendDisablePacket = true;
-	}
-
 	@Override
 	public void loadComplete(FMLLoadCompleteEvent event)
 	{
-		//set MC to map textures and reload JEI (if present) when resources reloaded
+		//set MC to map textures when resources reloaded
 		((IReloadableResourceManager) Minecraft.getMinecraft().getResourceManager()).registerReloadListener(new IResourceManagerReloadListener() {
 			@Override
 			public void onResourceManagerReload(IResourceManager resourceManager) {
 				mapTextures();
-
-				//If there are disabled items, reload JEI to make sure they're added to the JEI blacklist
-				if (ArmorSet.disabledItems != null && !ArmorSet.disabledItems.isEmpty() &&
-						Loader.isModLoaded("JEI") && BlockArmorJEIPlugin.helpers != null)
-					try {//reload only seems to be needed when compiled
-						BlockArmor.logger.info("Reloading JEI...");
-						BlockArmorJEIPlugin.helpers.reload();
-					} catch (Exception e) {
-						BlockArmor.logger.error("Another mod caused an exception while reloading JEI: ", e);
-					}
+				Config.syncJEIBlacklist();
 			}
 		});
 	}
@@ -114,12 +100,6 @@ public class ClientProxy extends CommonProxy
 	@SubscribeEvent
 	public void clientTick(TickEvent.ClientTickEvent event)
 	{
-		//send server packet to remove recipes for disabled items when player loaded (can't send packet on world load)
-		if (sendDisablePacket && Minecraft.getMinecraft().thePlayer != null) {
-			this.sendDisablePacket = false;
-			BlockArmor.network.sendToServer(new PacketDisableItems(ArmorSet.disabledItems));
-		}
-
 		//manage all animated set's frames (ticks at same rate as TextureAtlasSprite's updateAnimation())
 		if (!Minecraft.getMinecraft().isGamePaused() && event.side == Side.CLIENT) 
 			for (ArmorSet set : ArmorSet.allSets) 
@@ -133,28 +113,36 @@ public class ClientProxy extends CommonProxy
 	}
 
 	/**Resets model and item quads and maps block textures (called when client joins world or resource pack loaded)*/
-	private void mapTextures() {
+	private void mapTextures() 
+	{
 		//reset model and item quad maps
 		modelMaps = Maps.newHashMap();
 
 		//find block textures
+		ArrayList<ArmorSet> setsToDisable = new ArrayList<ArmorSet>();
 		int numTextures = 0;
-		ArmorSet.disabledItems = new ArrayList<ItemStack>();
-		for (ArmorSet set : ArmorSet.allSets)
-			numTextures += set.initTextures();
+		for (ArmorSet set : ArmorSet.allSets) {
+			Tuple<Integer, Boolean> tup = set.initTextures();
+			numTextures += tup.getFirst();
+			if (tup.getSecond())
+				setsToDisable.add(set);
+		}
 
 		//textures not loaded yet
-		if (numTextures == 0) {
-			BlockArmor.logger.info("Textures not loaded yet, clearing disabled items");
-			ArmorSet.disabledItems.clear();
+		if (numTextures == 0) 
 			return;
+		else if (!setsToDisable.isEmpty()) { //disable sets with missing textures
+			int disabledSets = 0;
+			for (ArmorSet set : setsToDisable) {
+				set.missingTextures = true;
+				set.disable();
+				disabledSets++;
+			}
+			if (disabledSets > 0)
+				BlockArmor.logger.info("Disabled "+disabledSets+" armor set"+(disabledSets > 1 ? "s" : "")+" without textures");
 		}
 
 		BlockArmor.logger.info("Found "+numTextures+" block textures for Block Armor");
-
-		//send disabled sets to server and remove their recipes and remove them from creative tabs/JEI
-		this.sendDisablePacket = true;
-		ArmorSet.disableItems();
 
 		//create inventory icons
 		int numIcons = ModelDynBlockArmor.BakedDynBlockArmorOverrideHandler.createInventoryIcons();
@@ -163,10 +151,13 @@ public class ClientProxy extends CommonProxy
 
 	/**Used to register block textures to override inventory textures and for inventory icons*/
 	@SubscribeEvent
-	public void textureStitch(TextureStitchEvent.Pre event)
+	public void textureStitch(TextureStitchEvent.Pre event) 
 	{
 		//textures for overriding
-		event.getMap().registerSprite(new ResourceLocation(BlockArmor.MODID, "items/reeds"));
+		for (Item item : ArmorSet.TEXTURE_OVERRIDES)
+			for (EntityEquipmentSlot slot : ArmorSet.SLOTS)
+				event.getMap().registerSprite(new ResourceLocation(BlockArmor.MODID, "items/overrides/"+
+						item.getRegistryName().getResourcePath().toLowerCase().replace(" ", "_")+"_"+slot.getName()));
 
 		//textures for inventory icons
 		event.getMap().registerSprite(new ResourceLocation(BlockArmor.MODID, "items/icons/block_armor_helmet_base"));

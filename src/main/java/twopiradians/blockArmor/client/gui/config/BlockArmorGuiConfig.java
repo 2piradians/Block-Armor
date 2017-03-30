@@ -12,7 +12,7 @@ import twopiradians.blockArmor.common.BlockArmor;
 import twopiradians.blockArmor.common.config.Config;
 
 public class BlockArmorGuiConfig extends GuiConfig 
-{
+{	
 	public BlockArmorGuiConfig(GuiScreen parent) 
 	{
 		super(parent, getConfigElements(), BlockArmor.MODID, false, false, "Block Armor Configuration");
@@ -20,11 +20,9 @@ public class BlockArmorGuiConfig extends GuiConfig
 
 	private static List<IConfigElement> getConfigElements() {
 		final List<IConfigElement> list = new ArrayList<IConfigElement>();
-		Config.syncConfig();
-		list.add(new ConfigElement(Config.config.getCategory(Config.AUTO_GEN_SETS_CATEGORY).setLanguageKey(Config.AUTO_GEN_SETS_CATEGORY)));
+		list.add(new ConfigElement(Config.config.getCategory(Config.ARMOR_SETS_CATEGORY).setLanguageKey(Config.ARMOR_SETS_CATEGORY)));
 		list.add(new ConfigElement(Config.config.getCategory(Config.SET_EFFECTS_CATEGORY).setLanguageKey(Config.SET_EFFECTS_CATEGORY)));
 		list.addAll(new ConfigElement(Config.config.getCategory(Configuration.CATEGORY_GENERAL)).getChildElements());
-		Config.syncConfig();
 		return list;
 	}
 }

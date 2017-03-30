@@ -29,7 +29,7 @@ public class SetEffectEnder extends SetEffect {
 
 		if (!world.isRemote && ArmorSet.getFirstSetItem(player, this) == stack &&
 				BlockArmor.key.isKeyDown(player) && !player.getCooldownTracker().hasCooldown(stack.getItem()))	{    
-			this.setCooldown(player, 50);
+			this.setCooldown(player, 30);
 			int distance = player.getRNG().nextInt(10) + 16;
 			double rotX = - Math.sin(player.rotationYaw*Math.PI/180);
 			double rotY = - Math.sin(player.rotationPitch*Math.PI/180);
@@ -69,6 +69,7 @@ public class SetEffectEnder extends SetEffect {
 				world.playSound((EntityPlayer)null, player.posX, player.posY, player.posZ, SoundEvents.BLOCK_NOTE_BASS, 
 						SoundCategory.PLAYERS, 1.0F, world.rand.nextFloat() + 0.5F);	
 				this.setCooldown(player, 10);
+				this.damageArmor(player, 2, false);
 			}
 		}
 	}
@@ -76,7 +77,7 @@ public class SetEffectEnder extends SetEffect {
 	/**Should block be given this set effect*/
 	@Override
 	protected boolean isValid(Block block, int meta) {		
-		if (SetEffect.registryNameContains(block, new String[] {"end"}))
+		if (SetEffect.registryNameContains(block, meta, new String[] {"end_stone", "end_bricks", "ender", "EndStone"}))
 			return true;
 		return false;
 	}

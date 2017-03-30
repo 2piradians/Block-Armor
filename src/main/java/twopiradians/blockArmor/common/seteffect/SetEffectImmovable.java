@@ -35,7 +35,7 @@ public class SetEffectImmovable extends SetEffect {
 		try {
 			hardness = block.getBlockHardness(block.getDefaultState(), null, BlockPos.ORIGIN);
 		} catch (Exception e) {}
-		if (SetEffect.registryNameContains(block, new String[] {"bedrock", "obsidian", "brick", "heavy", "sturdy"})
+		if (SetEffect.registryNameContains(block, meta, new String[] {"bedrock", "obsidian", "brick", "heavy", "sturdy"})
 				&& (hardness == -1 || hardness >= 2))
 			return true;		
 		return false;

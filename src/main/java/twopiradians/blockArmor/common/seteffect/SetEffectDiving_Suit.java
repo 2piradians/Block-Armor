@@ -25,13 +25,14 @@ public class SetEffectDiving_Suit extends SetEffect {
 	/**Should player be given potionEffect now*/
 	@Override
 	public boolean shouldApplyPotionEffect(PotionEffect potionEffect, World world, EntityPlayer player, ItemStack stack) {
-		return player.isInWater() && world.getBlockState(new BlockPos(player.posX, player.posY+1.7, player.posZ)).getBlock() instanceof BlockLiquid;
+		return player.isInWater() && 
+				world.getBlockState(new BlockPos(player.posX, player.posY+1.7, player.posZ)).getBlock() instanceof BlockLiquid;
 	}
 
 	/**Should block be given this set effect*/
 	@Override
 	protected boolean isValid(Block block, int meta) {		
-		if (SetEffect.registryNameContains(block, new String[] {"water", "prismarine"}))
+		if (SetEffect.registryNameContains(block, meta, new String[] {"water", "prismarine"}))
 			return true;		
 		return false;
 	}

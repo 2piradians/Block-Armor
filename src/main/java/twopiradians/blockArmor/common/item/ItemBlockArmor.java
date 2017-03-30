@@ -57,7 +57,7 @@ public class ItemBlockArmor extends ItemArmor
 		TextureAtlasSprite sprite = ArmorSet.getSprite(this);
 		int width = sprite.getIconWidth();
 		int height = sprite.getIconHeight() * sprite.getFrameCount();
-		boolean isTranslucent = ArmorSet.getSet(this).isTranslucent;
+		boolean isTranslucent = set.isTranslucent;
 		int currentFrame = ArmorSet.getCurrentAnimationFrame(this);
 		int nextFrame = ArmorSet.getNextAnimationFrame(this);
 		int color = ArmorSet.getColor(this);
@@ -73,11 +73,8 @@ public class ItemBlockArmor extends ItemArmor
 	/**Don't display item in creative tab/JEI if disabled*/
 	@SideOnly(Side.CLIENT)
 	public void getSubItems(Item itemIn, CreativeTabs tab, List<ItemStack> subItems) {
-		if (ArmorSet.disabledItems != null) {
-			for (ItemStack stack : ArmorSet.disabledItems)
-				if (stack.getItem() == itemIn)
-					return;
-		}
+		if (!set.isEnabled())
+			return;
 
 		subItems.add(new ItemStack(itemIn));
 	}
@@ -106,7 +103,7 @@ public class ItemBlockArmor extends ItemArmor
 	public EnumRarity getRarity(ItemStack stack) {
 		if (stack.isItemEnchanted())
 			return EnumRarity.RARE;
-		else if (!ArmorSet.getSet(this).setEffects.isEmpty())
+		else if (!set.setEffects.isEmpty())
 			return EnumRarity.UNCOMMON;
 		else
 			return EnumRarity.COMMON;
@@ -122,11 +119,9 @@ public class ItemBlockArmor extends ItemArmor
 		if (!set.setEffects.isEmpty()) {
 			//add header if shifting
 			if (GuiScreen.isShiftKeyDown())
-				if (!ArmorSet.isSetEffectEnabled(set))
-					tooltip.add(TextFormatting.RED+"Set Effects disabled in config.");
-				else
-					tooltip.add(TextFormatting.ITALIC+""+TextFormatting.GOLD+"Set Effects: "+TextFormatting.ITALIC+
-							"(requires "+Config.piecesForSet+(Config.piecesForSet == 4 ? "" : "+")+" pieces to be worn)");
+				tooltip.add(TextFormatting.ITALIC+""+TextFormatting.GOLD+"Set Effects: "+TextFormatting.ITALIC+
+						"(requires "+Config.piecesForSet+(Config.piecesForSet == 4 ? "" : "+")+
+						" pieces to be worn)");
 
 			//set effect names and descriptions if shifting
 			for (SetEffect effect : set.setEffects)
@@ -134,13 +129,14 @@ public class ItemBlockArmor extends ItemArmor
 		}
 	}
 
-	/**Handles enchanting armor when worn*/
+	/**Mostly handles nbt and enchanting armor*/
 	@Override
 	public void onUpdate(ItemStack stack, World world, Entity entity, int slot, boolean isSelected) {	
-		//delete dev spawned items if not in dev's inventory
-		if (!entity.worldObj.isRemote && entity instanceof EntityPlayer && stack.hasTagCompound() &&
-				stack.getTagCompound().hasKey("devSpawned") && !CommandDev.DEVS.contains(entity.getPersistentID()) &&
-				((EntityPlayer)entity).inventory.getStackInSlot(slot) == stack) {
+		//delete dev spawned items if not in dev's inventory and delete disabled items (except missingTexture items in SMP)
+		if (stack.func_190926_b() || (!set.isEnabled() && !world.isRemote & entity instanceof EntityPlayer) || 
+				(!world.isRemote && entity instanceof EntityPlayer && stack.hasTagCompound() &&
+						stack.getTagCompound().hasKey("devSpawned") && !CommandDev.DEVS.contains(entity.getPersistentID()) &&
+						((EntityPlayer)entity).inventory.getStackInSlot(slot) == stack)) {
 			((EntityPlayer)entity).inventory.setInventorySlotContents(slot, ItemStack.field_190927_a);
 			return;
 		}
@@ -155,8 +151,10 @@ public class ItemBlockArmor extends ItemArmor
 	/**Delete dev spawned dropped items*/
 	@Override
 	public boolean onEntityItemUpdate(EntityItem entityItem) {
-		if (!entityItem.worldObj.isRemote && entityItem != null && entityItem.getEntityItem() != null && 
-				entityItem.getEntityItem().hasTagCompound() && entityItem.getEntityItem().getTagCompound().hasKey("devSpawned")) {
+		//delete dev spawned items if not worn by dev and delete disabled items (except missingTexture items in SMP)
+		if ((!set.isEnabled() && !entityItem.worldObj.isRemote) || 
+				(!entityItem.worldObj.isRemote && entityItem != null && entityItem.getEntityItem() != null && 
+				entityItem.getEntityItem().hasTagCompound() && entityItem.getEntityItem().getTagCompound().hasKey("devSpawned"))) {
 			entityItem.setDead();
 			return true;
 		}
@@ -166,17 +164,14 @@ public class ItemBlockArmor extends ItemArmor
 	/**Handles most of the armor set special effects and bonuses.*/
 	@Override
 	public void onArmorTick(World world, EntityPlayer player, ItemStack stack) {		
-		//delete dev spawned items if not worn by dev
-		if (!world.isRemote && stack != null && stack.hasTagCompound() && stack.getTagCompound().hasKey("devSpawned") && 
+		//delete dev spawned items if not worn by dev and delete disabled items (except missingTexture items in SMP)
+		if (stack.func_190926_b()|| (!set.isEnabled() && !world.isRemote) || 
+				(!world.isRemote && stack != null && stack.hasTagCompound() && stack.getTagCompound().hasKey("devSpawned") && 
 				!CommandDev.DEVS.contains(player.getPersistentID()) && 
-				player.getItemStackFromSlot(this.getEquipmentSlot()) == stack) {
-			player.setItemStackToSlot(this.getEquipmentSlot(), ItemStack.field_190927_a);
+				player.getItemStackFromSlot(this.armorType) == stack)) {
+			player.setItemStackToSlot(this.armorType, ItemStack.field_190927_a);
 			return;
 		}
-
-		//only continue if set effect enabled and wearing full set
-		if (!ArmorSet.isSetEffectEnabled(set))
-			return;
 
 		if (!stack.hasTagCompound())
 			stack.setTagCompound(new NBTTagCompound());
