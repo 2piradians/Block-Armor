@@ -89,6 +89,12 @@ public class BlockMovingLightSource extends Block implements ITileEntityProvider
 	public boolean isFullCube(IBlockState state) {
 		return false;
 	}
+	
+	@Override
+    public boolean isCollidable()
+    {
+        return false;
+    }
 
 	@Override
 	public TileEntity createNewTileEntity(World world, int meta) {
