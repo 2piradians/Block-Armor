@@ -117,8 +117,7 @@ public class SetEffectAbsorbent extends SetEffect {
 	/**Should block be given this set effect*/
 	@Override
 	protected boolean isValid(Block block, int meta) {	
-		if (SetEffect.registryNameContains(block, meta, new String[] {"sponge", "absorb"}) && 
-				!SetEffect.registryNameContains(block, meta, new String[] {"wet"}))
+		if (SetEffect.registryNameContains(block, meta, new String[] {"sponge", "absorb"}))
 			return true;		
 		return false;
 	}
