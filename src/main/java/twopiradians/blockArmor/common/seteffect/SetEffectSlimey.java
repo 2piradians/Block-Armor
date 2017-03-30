@@ -1,6 +1,7 @@
 package twopiradians.blockArmor.common.seteffect;
 
 import net.minecraft.block.Block;
+import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.SoundEvents;
 import net.minecraft.item.ItemStack;
@@ -16,7 +17,7 @@ import twopiradians.blockArmor.common.item.ArmorSet;
 public class SetEffectSlimey extends SetEffect {
 
 	/**Static is fine bc this is only used on client - chances of two players bouncing same tick is very slim*/
-	private static EntityPlayer bouncingPlayer;
+	private static EntityLivingBase bouncingEntity;
 	private static double motionY;
 
 	protected SetEffectSlimey() {
@@ -41,7 +42,7 @@ public class SetEffectSlimey extends SetEffect {
 					&& Math.sqrt(Math.pow(player.posX - player.prevChasingPosX, 2) + 
 							Math.pow(player.posZ - player.prevChasingPosZ, 2)) >= 1.1D) {	
 				this.setCooldown(player, 10);
-				double multiplier = 0.2d;
+				double multiplier = 0.1d;
 				if (player.motionX == 0) {
 					player.motionX = -(player.posX - player.prevChasingPosX)*multiplier;
 					player.motionZ = (player.posZ - player.prevChasingPosZ)*multiplier;
@@ -81,23 +82,25 @@ public class SetEffectSlimey extends SetEffect {
 										SoundCategory.PLAYERS, 0.4F, 1.0F);
 					player.isAirBorne = true;
 					player.onGround = false;
-					bouncingPlayer = player;
+					bouncingEntity = player;
 					motionY = player.motionY;
 				}
-				else
+				else 
 					event.setCanceled(true);
 			}
+			else
+				event.setDamageMultiplier(0.1f);
 		}
 	}
 
 	@SubscribeEvent
 	public void onEvent(TickEvent.PlayerTickEvent event) {
 
-		if (bouncingPlayer != null && event.player == bouncingPlayer && bouncingPlayer.world.isRemote &&
+		if (bouncingEntity != null && event.player == bouncingEntity && bouncingEntity.world.isRemote &&
 				event.phase == TickEvent.Phase.END) {
-			bouncingPlayer.motionY = motionY;
-			bouncingPlayer.fallDistance = 0;
-			bouncingPlayer = null;
+			bouncingEntity.motionY = motionY;
+			bouncingEntity.fallDistance = 0;
+			bouncingEntity = null;
 		}
 	}
 

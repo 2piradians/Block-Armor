@@ -50,7 +50,7 @@ public class SetEffectAutoSmelt extends SetEffect {
 		if (ArmorSet.getWornSetEffects(event.getHarvester()).contains(this)) {
 			ItemStack stack = ArmorSet.getFirstSetItem(event.getHarvester(), this);
 			if (event.getWorld().isRemote || event.isSilkTouching() || 
-					!stack.hasTagCompound() || stack.getTagCompound().hasKey("deactivated"))
+					!stack.hasTagCompound() || stack.getTagCompound().getBoolean("deactivated"))
 				return;
 
 			ListIterator<ItemStack> dropsIterator = event.getDrops().listIterator();

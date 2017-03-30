@@ -57,7 +57,7 @@ public class SetEffectBonemealer extends SetEffect {
 	/**Should block be given this set effect*/
 	@Override
 	protected boolean isValid(Block block, int meta) {		
-		if (SetEffect.registryNameContains(block, meta, new String[] {"bone"}))
+		if (SetEffect.registryNameContains(block, meta, new String[] {"bone", "fertil", "manure", "poop", "grow"}))
 			return true;
 		return false;
 	}

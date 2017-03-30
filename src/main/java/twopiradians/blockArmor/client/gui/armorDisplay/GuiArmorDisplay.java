@@ -41,8 +41,8 @@ public class GuiArmorDisplay extends GuiScreen
 {
 	/**Should armor display be opened on chat event?*/
 	public static final boolean DISPLAY_ARMOR_GUI = false;
-	/**0 = vanilla sets, 1 = modded sets, 2 = set effects w/armor, 3 = set effect tooltips (v2.2+), 4 set effect itemstacks (v2.2+)*/
-	public static final int GUI_MODE = 3; //do modes 3 and 4 in normal gui size
+	/**0 = vanilla sets, 1 = modded sets, 2 = set effects w/armor, 3 = set effect tooltips, 4 set effect itemstacks*/
+	public static final int GUI_MODE = 4; //do modes 3 and 4 in normal gui size
 
 	private final ResourceLocation backgroundWhite = new ResourceLocation(BlockArmor.MODID+":textures/gui/white.png");
 	private final ResourceLocation backgroundTooltipColor = new ResourceLocation(BlockArmor.MODID+":textures/gui/tooltip_color.png");
@@ -70,17 +70,13 @@ public class GuiArmorDisplay extends GuiScreen
 					(GUI_MODE == 1 && set.isFromModdedBlock) || 
 					(GUI_MODE == 2 && !set.setEffects.isEmpty()) ||
 					GUI_MODE == 3 || GUI_MODE == 4) {
-				/*boolean add = true;
-				for (ItemStack stack : ArmorSet.disabledItems)
-					if (stack.getItem() == set.helmet)
-						add = false;*/
 				if (set.isEnabled()) {
 					armors.add(set.helmet);
 					armors.add(set.chestplate);
 					armors.add(set.leggings);
 					armors.add(set.boots);
 				}
-				if (GUI_MODE == 3 || GUI_MODE == 4)
+				if ((GUI_MODE == 3 || GUI_MODE == 4) && set.isEnabled())
 					for (SetEffect effect : set.setEffects) {
 						String tooltip = effect.addInformation(new ItemStack(set.helmet), true, guiPlayer, new ArrayList<String>(), false).get(0);
 						ArrayList<ItemStack> stacks = new ArrayList<ItemStack>(); 
@@ -120,20 +116,25 @@ public class GuiArmorDisplay extends GuiScreen
 		if (GUI_MODE == 3 || GUI_MODE == 4) {
 			for (int i=0; i<tooltips.size(); i++) {
 				GlStateManager.pushMatrix();
-				int spaceBetween = 40;
-				if (i < 11)
-					GlStateManager.translate(185, 20+i*spaceBetween, 0);
-				else if (i < 23)
-					GlStateManager.translate(510, 20+(i-11)*spaceBetween, 0);
+				int spaceBetween = 52;
+				i -= 24;
+				if (i >= 0 && i <= 11)
+					GlStateManager.translate(width/7*2, 20+i*spaceBetween, 0);
+				else if (i >= 11 && i <= 23)
+					GlStateManager.translate(width/7*5, 20+(i-12)*spaceBetween, 0);
 				else
-					GlStateManager.translate(835, 20+(i-23)*spaceBetween, 0);
+					GlStateManager.translate(2035, 200+(i-24)*spaceBetween, 0);
+				i += 24;
 				List<String> tooltip = new ArrayList<String>();
 				tooltip.add(tooltips.keySet().toArray(new String[0])[i]);
 				int numStacks = tooltips.get(tooltips.keySet().toArray(new String[0])[i]).size();
-				if (numStacks == 14) //regrowth
-					tooltip.set(0, "   "+tooltip.get(0)+"   ");
-				else if (numStacks == 17) //invisibility
-					tooltip.set(0, "                      "+tooltip.get(0)+"                      ");
+				if (tooltip.get(0).contains("Regrowth")) 
+					tooltip.set(0, "                             "+tooltip.get(0)+"                             ");
+				else if (tooltip.get(0).contains("Invisibility")) 
+					tooltip.set(0, "                                               "+tooltip.get(0)+"                                               ");
+				else if (tooltip.get(0).contains("Soft Fall")) 
+					tooltip.set(0, "                                         "+tooltip.get(0)+"                                         ");
+				tooltip.add("");
 				tooltip.add("");
 				tooltip.add("");
 				int length = 0;
@@ -145,8 +146,10 @@ public class GuiArmorDisplay extends GuiScreen
 				else {
 					RenderHelper.enableGUIStandardItemLighting();
 					length = tooltips.get(tooltips.keySet().toArray(new String[0])[i]).size() * 20;
+					scale = 1.6f;
+					GlStateManager.scale(scale, scale, scale);
 					for (int j=0; j<tooltips.get(tooltips.keySet().toArray(new String[0])[i]).size(); j++) 
-						this.itemRender.renderItemIntoGUI(tooltips.get(tooltips.keySet().toArray(new String[0])[i]).get(j), -length/2+j*20+15, 0);
+						this.itemRender.renderItemIntoGUI(tooltips.get(tooltips.keySet().toArray(new String[0])[i]).get(j), -length/2+j*20+10, 0);
 					RenderHelper.disableStandardItemLighting();
 				}
 				GlStateManager.popMatrix();

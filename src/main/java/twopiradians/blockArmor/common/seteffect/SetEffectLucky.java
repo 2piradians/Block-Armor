@@ -38,7 +38,7 @@ public class SetEffectLucky extends SetEffect {
 				ArmorSet.getWornSetEffects((EntityLivingBase) event.getDamageSource().getEntity()).contains(this)) {
 			event.setLootingLevel(event.getLootingLevel()+4);
 			doParticlesAndSound((WorldServer) event.getEntity().world, event.getEntity().getPosition(), 
-					(EntityPlayer) event.getDamageSource().getEntity(), 2);
+					(EntityPlayer) event.getDamageSource().getEntity(), 4);
 		}
 	}
 

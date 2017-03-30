@@ -63,6 +63,7 @@ public class BlockMovingLightSource extends Block implements ITileEntityProvider
 	}
 
 	@Nullable
+	@Override
 	public AxisAlignedBB getCollisionBoundingBox(IBlockState state, IBlockAccess world, BlockPos pos){
 		return NULL_AABB;
 	}

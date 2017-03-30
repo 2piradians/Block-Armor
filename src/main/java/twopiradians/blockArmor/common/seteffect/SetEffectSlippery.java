@@ -29,9 +29,9 @@ public class SetEffectSlippery extends SetEffect {
 				Block block = world.getBlockState(player.getPosition().down()).getBlock();
 				if (!(block instanceof BlockAir) && block.slipperiness <= 0.6f) {
 					if (Math.abs(player.motionX) < 0.4d)
-						player.motionX *= player.isInWater() ? 1.3d : 1.6d;
+						player.motionX *= player.isInWater() ? 1.2d : 1.6d;
 					if (Math.abs(player.motionZ) < 0.4d)
-						player.motionZ *= player.isInWater() ? 1.3d : 1.6d;
+						player.motionZ *= player.isInWater() ? 1.2d : 1.6d;
 				}
 			}
 		}

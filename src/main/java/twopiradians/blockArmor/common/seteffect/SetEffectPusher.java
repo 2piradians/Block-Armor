@@ -31,7 +31,7 @@ public class SetEffectPusher extends SetEffect {
 				BlockArmor.key.isKeyDown(player) && !player.getCooldownTracker().hasCooldown(stack.getItem())) {
 			AxisAlignedBB aabb = player.getEntityBoundingBox().expand(5, 5, 5);
 			List<Entity> list = player.world.getEntitiesWithinAABBExcludingEntity(player, aabb);
-
+			
 			if (!list.isEmpty()) {
 				Iterator<Entity> iterator = list.iterator();            
 				while (iterator.hasNext()) {

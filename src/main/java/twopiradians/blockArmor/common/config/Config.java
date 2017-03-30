@@ -3,10 +3,6 @@ package twopiradians.blockArmor.common.config;
 import java.io.File;
 import java.util.ArrayList;
 
-import mezz.jei.JustEnoughItems;
-import mezz.jei.ProxyCommon;
-import mezz.jei.ProxyCommonClient;
-import mezz.jei.config.Constants;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraftforge.common.config.ConfigCategory;
@@ -68,10 +64,11 @@ public class Config
 			Config.config.getCategory(ARMOR_SETS_CATEGORY).setComment("Enable or disable armor sets.");
 			for (ArmorSet set : ArmorSet.allSets) {
 				ModContainer mod = Loader.instance().getIndexedModList().get(set.modid);
-				if (mod != null) {
-					ConfigCategory category = Config.config.getCategory(ARMOR_SETS_CATEGORY+"."+mod.getName());
-					category.setComment("Enable or disable armor sets from "+mod.getName()+" blocks.");
-					prop = getArmorSetProp(mod.getName(), set);
+				if (mod != null || set.modid.equalsIgnoreCase("minecraft")) {
+					String name = mod == null ? "minecraft" : mod.getName();
+					ConfigCategory category = Config.config.getCategory(ARMOR_SETS_CATEGORY+"."+name.replace(".", ","));
+					category.setComment("Enable or disable armor made from "+name+" blocks.");
+					prop = getArmorSetProp(name, set);
 					if (!prop.getBoolean()) 
 						disabledSets.add(set);
 				}
@@ -87,10 +84,11 @@ public class Config
 		Config.config.getCategory(ARMOR_SETS_CATEGORY).setComment("Enable or disable armor sets.");
 		for (ArmorSet set : ArmorSet.allSets) {
 			ModContainer mod = Loader.instance().getIndexedModList().get(set.modid);
-			if (mod != null) {
-				ConfigCategory category = Config.config.getCategory(ARMOR_SETS_CATEGORY+"."+mod.getName());
-				category.setComment("Enable or disable armor made from "+mod.getName()+" blocks.");
-				Property prop = getArmorSetProp(mod.getName(), set);
+			if (mod != null || set.modid.equalsIgnoreCase("minecraft")) {
+				String name = mod == null ? "minecraft" : mod.getName();
+				ConfigCategory category = Config.config.getCategory(ARMOR_SETS_CATEGORY+"."+name.replace(".", ","));
+				category.setComment("Enable or disable armor made from "+name+" blocks.");
+				Property prop = getArmorSetProp(name, set);
 				if (prop.getBoolean()) 
 					set.enable();
 				else
@@ -151,7 +149,7 @@ public class Config
 	/**Get armorSet config prop for given modName and armorSetName*/
 	public static Property getArmorSetProp(String modName, ArmorSet set) {
 		String name = ArmorSet.getItemStackDisplayName(set.stack, null);
-		Property prop = Config.config.get(Config.ARMOR_SETS_CATEGORY+"."+modName, name+" Armor", true,
+		Property prop = Config.config.get(Config.ARMOR_SETS_CATEGORY+"."+modName.replace(".", ","), name+" Armor", true,
 				"Determines whether or not the "+name+" armor should be generated.");
 		if (!Config.registerDisabledItems)
 			prop.setRequiresMcRestart(true);
@@ -171,19 +169,7 @@ public class Config
 	/**Updates JEI's blacklist and reloads JEI's item list, if needed*/
 	public static void syncJEIBlacklist() {
 		if (Loader.isModLoaded("jei"))
-			try {
-				if (BlockArmorJEIPlugin.syncJEIBlacklist()) {
-					ProxyCommon proxy = JustEnoughItems.getProxy();
-					if (proxy instanceof ProxyCommonClient) {
-						BlockArmor.logger.info("Reloading JEI item list...");
-						((ProxyCommonClient)proxy).onConfigChanged(
-								new ConfigChangedEvent.OnConfigChangedEvent(Constants.MOD_ID, null, true, false));
-					} 
-				}
-			}
-		catch (Exception e) {
-			BlockArmor.logger.error("Another mod caused an exception while reloading JEI: ", e);
-		} 
+			BlockArmorJEIPlugin.syncJEIBlacklist();
 	}
 
 	/**Send PacketSyncConfig when a player joins a server*/

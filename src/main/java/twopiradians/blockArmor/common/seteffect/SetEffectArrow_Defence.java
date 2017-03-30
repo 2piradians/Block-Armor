@@ -27,6 +27,7 @@ public class SetEffectArrow_Defence extends SetEffect {
 		
 		if (!world.isRemote && ArmorSet.getFirstSetItem(player, this) == stack &&
 				BlockArmor.key.isKeyDown(player) && !player.getCooldownTracker().hasCooldown(stack.getItem())) {
+			
 			int numArrows = 16;
 			for(int i = 0; i < numArrows; i++) {
 				ItemArrow itemArrow = (ItemArrow) Items.ARROW;

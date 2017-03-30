@@ -20,7 +20,7 @@ public class SetEffectFeeder extends SetEffect
 	/**Only called when player wearing full, enabled set*/
 	@Override
 	public void onArmorTick(World world, EntityPlayer player, ItemStack stack) {
-		super.onArmorTick(world, player, stack);
+		super.onArmorTick(world, player, stack);//TODO add particles (of block)
 
 		if (!player.getCooldownTracker().hasCooldown(stack.getItem()) && 
 				!world.isRemote && ArmorSet.getFirstSetItem(player, this) == stack)
@@ -37,7 +37,7 @@ public class SetEffectFeeder extends SetEffect
 					world.playSound((EntityPlayer)null, player.getPosition(), SoundEvents.ENTITY_PLAYER_BURP, 
 							SoundCategory.PLAYERS, 0.3F, world.rand.nextFloat()*0.2f + 1.0f);
 				
-				this.setCooldown(player, 100);
+				this.setCooldown(player, 80);
 				this.damageArmor(player, foodToFeed, true);
 			}
 	}
@@ -45,7 +45,7 @@ public class SetEffectFeeder extends SetEffect
 	/**Should block be given this set effect*/
 	@Override
 	protected boolean isValid(Block block, int meta) {	
-		if (SetEffect.registryNameContains(block, meta, new String[] {"pumpkin", "melon", "food", "berry", "feed"}))
+		if (SetEffect.registryNameContains(block, meta, new String[] {"pumpkin", "melon", "food", "berry", "feed", "pork"}))
 			return true;		
 		return false;
 	}	

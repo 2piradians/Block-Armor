@@ -34,7 +34,7 @@ public class SetEffectCrafter extends SetEffect {
 	/**Should block be given this set effect*/
 	@Override
 	protected boolean isValid(Block block, int meta) {	
-		if (SetEffect.registryNameContains(block, meta, new String[] {"crafting"}))
+		if (SetEffect.registryNameContains(block, meta, new String[] {"crafting", "assemble"}))
 			return true;		
 		return false;
 	}	
