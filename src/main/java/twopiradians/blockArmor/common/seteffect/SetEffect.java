@@ -41,7 +41,7 @@ public class SetEffect {
 	/**List of all set effects*/
 	public static final ArrayList<SetEffect> SET_EFFECTS = new ArrayList<SetEffect>() {{
 		//effects that use the button
-		add(new SetEffectDiorite_Vision()); //TODO remove for public release
+		//add(new SetEffectDiorite_Vision()); 
 		add(new SetEffectCrafter());
 		//add(new SetEffectDJ());
 		add(new SetEffectEnder_Hoarder());
