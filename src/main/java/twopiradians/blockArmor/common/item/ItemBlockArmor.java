@@ -28,6 +28,7 @@ import twopiradians.blockArmor.common.BlockArmor;
 import twopiradians.blockArmor.common.command.CommandDev;
 import twopiradians.blockArmor.common.config.Config;
 import twopiradians.blockArmor.common.seteffect.SetEffect;
+import twopiradians.blockArmor.common.seteffect.SetEffectDiorite_Vision;
 
 public class ItemBlockArmor extends ItemArmor
 {
@@ -116,7 +117,8 @@ public class ItemBlockArmor extends ItemArmor
 		if (stack.hasTagCompound() && stack.getTagCompound().hasKey("devSpawned"))
 			tooltip.add(TextFormatting.DARK_PURPLE+""+TextFormatting.BOLD+"Dev Spawned");
 
-		if (!set.setEffects.isEmpty()) {
+		if (!set.setEffects.isEmpty() && !(set.setEffects.get(0).getClass() == SetEffectDiorite_Vision.class &&
+				!set.setEffects.get(0).isEnabled())) {
 			//add header if shifting
 			if (GuiScreen.isShiftKeyDown())
 				tooltip.add(TextFormatting.ITALIC+""+TextFormatting.GOLD+"Set Effects: "+TextFormatting.ITALIC+
