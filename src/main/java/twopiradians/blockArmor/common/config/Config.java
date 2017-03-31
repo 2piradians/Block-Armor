@@ -142,7 +142,11 @@ public class Config
 
 	/**Get setEffect prop for given set effect name*/
 	public static Property getSetEffectProp(String effectName) {
-		Property prop = Config.config.get(Config.SET_EFFECTS_CATEGORY, effectName, true, "Determines whether or not the "+effectName+" set effect can be used.");
+		Property prop;
+		if (effectName.equalsIgnoreCase("Diorite Vision"))
+			prop = Config.config.get(Config.SET_EFFECTS_CATEGORY, effectName, false, "Determines whether or not the "+effectName+" set effect can be used.");
+		else
+			prop = Config.config.get(Config.SET_EFFECTS_CATEGORY, effectName, true, "Determines whether or not the "+effectName+" set effect can be used.");
 		return prop;
 	}
 
