@@ -85,6 +85,8 @@ public class ArmorSet {
 	}
 	/**All sets, including disabled sets*/
 	public static ArrayList<ArmorSet> allSets;
+	/**All sets, mapped by their stack's display name*/
+	public static HashMap<String, ArmorSet> nameToSetMap;
 	/**Armor slots*/
 	public static final EntityEquipmentSlot[] SLOTS = new EntityEquipmentSlot[] 
 			{EntityEquipmentSlot.HEAD, EntityEquipmentSlot.CHEST, EntityEquipmentSlot.LEGS, EntityEquipmentSlot.FEET};
@@ -224,13 +226,15 @@ public class ArmorSet {
 
 		//checks list of ItemStacks for valid ones and creates set and adds to allSets
 		allSets = new ArrayList<ArmorSet>();
+		nameToSetMap = Maps.newHashMap();
 		for (ItemStack stack : stacks)
 			if (isValid(stack) && ArmorSet.getSet(stack.getItem(), stack.getMetadata()) == null) {
 				String registryName = getItemStackRegistryName(stack);
 				if (!registryNames.contains(registryName) && !registryName.equals("")) {
-					allSets.add(new ArmorSet(stack));
+					ArmorSet set = new ArmorSet(stack);
+					allSets.add(set);
+					nameToSetMap.put(stack.getDisplayName(), set);
 					registryNames.add(registryName);
-					BlockArmor.logger.debug("Created ArmorSet for: "+stack.getDisplayName());
 				}
 			}
 	}
@@ -412,6 +416,7 @@ public class ArmorSet {
 					return true;
 
 			if (stack == null || !(stack.getItem() instanceof ItemBlock) || 
+					stack.getItem().getRegistryName().getResourceDomain().contains("one_point_twelve_concrete") ||
 					stack.getItem().getRegistryName().getResourceDomain().contains("railcraft") ||
 					stack.getItem().getRegistryName().getResourcePath().contains("ore") || 
 					stack.getItem().getRegistryName().getResourcePath().contains("ingot") || 
