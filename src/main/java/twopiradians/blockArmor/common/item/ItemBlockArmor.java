@@ -90,6 +90,7 @@ public class ItemBlockArmor extends ItemArmor
 	@Override
 	public Multimap<String, AttributeModifier> getAttributeModifiers(EntityEquipmentSlot slot, ItemStack stack) {
 		Multimap<String, AttributeModifier> map = this.getItemAttributeModifiers(slot);
+		
 		if (slot != this.armorType)
 			return map;
 

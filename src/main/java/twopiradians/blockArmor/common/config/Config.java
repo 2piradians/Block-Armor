@@ -78,47 +78,52 @@ public class Config
 
 	public static void syncConfig() 
 	{
-		disabledSetEffects = new ArrayList<Class>();
+		try {
+			disabledSetEffects = new ArrayList<Class>();
 
-		//Armor sets
-		Config.config.getCategory(ARMOR_SETS_CATEGORY).setComment("Enable or disable armor sets.");
-		for (ArmorSet set : ArmorSet.allSets) {
-			ModContainer mod = Loader.instance().getIndexedModList().get(set.modid);
-			if (mod != null || set.modid.equalsIgnoreCase("minecraft")) {
-				String name = mod == null ? "minecraft" : mod.getName();
-				ConfigCategory category = Config.config.getCategory(ARMOR_SETS_CATEGORY+"."+name.replace(".", ","));
-				category.setComment("Enable or disable armor made from "+name+" blocks.");
-				Property prop = getArmorSetProp(name, set);
-				if (prop.getBoolean()) 
-					set.enable();
-				else
-					set.disable();
+			//Armor sets
+			Config.config.getCategory(ARMOR_SETS_CATEGORY).setComment("Enable or disable armor sets.");
+			for (ArmorSet set : ArmorSet.allSets) {
+				ModContainer mod = Loader.instance().getIndexedModList().get(set.modid);
+				if (mod != null || set.modid.equalsIgnoreCase("minecraft")) {
+					String name = mod == null ? "minecraft" : mod.getName();
+					ConfigCategory category = Config.config.getCategory(ARMOR_SETS_CATEGORY+"."+name.replace(".", ","));
+					category.setComment("Enable or disable armor made from "+name+" blocks.");
+					Property prop = getArmorSetProp(name, set);
+					if (prop.getBoolean()) 
+						set.enable();
+					else
+						set.disable();
+				}
 			}
+
+			//Set effects
+			Config.config.getCategory(SET_EFFECTS_CATEGORY).setComment("Enable or disable set effects.");
+			for (SetEffect effect : SetEffect.SET_EFFECTS) {
+				Property prop = getSetEffectProp(effect.toString());
+				if (!prop.getBoolean())
+					disabledSetEffects.add(effect.getClass());
+			}		
+
+			//Armor pieces required to activate set effect
+			Property prop = getPiecesForSetProp();
+			Config.piecesForSet = prop.getInt();
+
+			//Should set effects use durability
+			prop = getEffectsUseDurablityProp();
+			Config.effectsUseDurability = prop.getBoolean();
+
+			//Register disabled items
+			prop = getRegisterDisableItemsProp();
+			Config.registerDisabledItems = prop.getBoolean();
+
+			Config.config.save();
+
+			syncJEIBlacklist();
 		}
-
-		//Set effects
-		Config.config.getCategory(SET_EFFECTS_CATEGORY).setComment("Enable or disable set effects.");
-		for (SetEffect effect : SetEffect.SET_EFFECTS) {
-			Property prop = getSetEffectProp(effect.toString());
-			if (!prop.getBoolean())
-				disabledSetEffects.add(effect.getClass());
-		}		
-
-		//Armor pieces required to activate set effect
-		Property prop = getPiecesForSetProp();
-		Config.piecesForSet = prop.getInt();
-
-		//Should set effects use durability
-		prop = getEffectsUseDurablityProp();
-		Config.effectsUseDurability = prop.getBoolean();
-
-		//Register disabled items
-		prop = getRegisterDisableItemsProp();
-		Config.registerDisabledItems = prop.getBoolean();
-
-		Config.config.save();
-
-		syncJEIBlacklist();
+		catch (Exception e) {
+			BlockArmor.logger.warn("SyncConfig caught an exception: ", e);
+		}
 	}
 
 	/**Get effectsUseDurability prop*/
