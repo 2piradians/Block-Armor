@@ -1,8 +1,9 @@
 package twopiradians.blockArmor.packet;
 
+import java.util.ArrayList;
+
 import io.netty.buffer.ByteBuf;
 import net.minecraft.client.Minecraft;
-import net.minecraft.item.ItemStack;
 import net.minecraft.util.IThreadListener;
 import net.minecraftforge.common.config.Property;
 import net.minecraftforge.fml.common.Loader;
@@ -30,7 +31,7 @@ public class PacketSyncConfig implements IMessage
 		Config.piecesForSet = buf.readInt();
 		Property prop = Config.getPiecesForSetProp();
 		prop.set(Config.piecesForSet);
-		
+
 		//set effects use durability
 		Config.effectsUseDurability = buf.readBoolean();
 		prop = Config.getEffectsUseDurablityProp();
@@ -40,7 +41,7 @@ public class PacketSyncConfig implements IMessage
 		Config.registerDisabledItems = buf.readBoolean();
 		prop = Config.getRegisterDisableItemsProp();
 		prop.set(Config.registerDisabledItems);
-		
+
 		//disabled set effects
 		Config.disabledSetEffects.clear();
 		int numEffects = buf.readInt();
@@ -62,29 +63,37 @@ public class PacketSyncConfig implements IMessage
 					}	
 				}
 			}
-			catch (Exception e) {}
+			catch (Exception e) {
+				BlockArmor.logger.debug("Caught exception while reading disabledSetEffects from PacketSyncConfig: ", e);
+			}
 		}
 
-		//disabled armor sets
+		//enabled armor sets
 		int numSets = buf.readInt();
+		ArrayList<ArmorSet> enabledSets = new ArrayList<ArmorSet>();
 		for (int i=0; i<numSets; ++i) {
-			ItemStack stack = ByteBufUtils.readItemStack(buf);
-			if (stack != null) {
-				ArmorSet set = ArmorSet.getSet(stack.getItem(), stack.getMetadata());
-				if (set != null) {
-					boolean bool = buf.readBoolean();
-					if (bool != set.isEnabled()) {
-						if (bool)
-							set.enable();
-						else
-							set.disable();
-					}
-					ModContainer mod = Loader.instance().getIndexedModList().get(set.modid);
-					if (mod != null) {
-						prop = Config.getArmorSetProp(mod.getName(), set);
-						prop.set(bool);
-					}
-				}
+			try {
+				String name = ByteBufUtils.readUTF8String(buf);
+				ArmorSet set = ArmorSet.nameToSetMap.get(name);
+				if (set != null)
+					enabledSets.add(set);
+			}
+			catch (Exception e) {
+				BlockArmor.logger.debug("Caught exception while reading enabled sets from PacketSyncConfig: ", e);
+			}
+		}
+		for (ArmorSet set : ArmorSet.allSets) {
+			boolean enabled = enabledSets.contains(set);
+			if (enabled != set.isEnabled()) {
+				if (enabled)
+					set.enable();
+				else
+					set.disable();
+			}
+			ModContainer mod = Loader.instance().getIndexedModList().get(set.modid);
+			if (mod != null) {
+				prop = Config.getArmorSetProp(mod.getName(), set);
+				prop.set(enabled);
 			}
 		}
 	}
@@ -94,10 +103,10 @@ public class PacketSyncConfig implements IMessage
 	{
 		//pieces for set
 		buf.writeInt(Config.piecesForSet);
-		
+
 		//set effects use durability
 		buf.writeBoolean(Config.effectsUseDurability);
-		
+
 		//register disabledItems
 		buf.writeBoolean(Config.registerDisabledItems);
 
@@ -107,11 +116,15 @@ public class PacketSyncConfig implements IMessage
 			ByteBufUtils.writeUTF8String(buf, clazz.getName());
 
 		//disabled armor sets
-		buf.writeInt(ArmorSet.allSets.size());
+		ArrayList<String> enabledNames = new ArrayList<String>();
 		for (ArmorSet set : ArmorSet.allSets) {
-			ByteBufUtils.writeItemStack(buf, set.stack);
-			buf.writeBoolean(set.isEnabled());
-		}			
+			if (set.isEnabled())
+				enabledNames.add(set.stack.getDisplayName());
+		}		
+		buf.writeInt(enabledNames.size());
+		for (String name : enabledNames)
+			ByteBufUtils.writeUTF8String(buf, name);
+
 	}
 
 	public static class Handler implements IMessageHandler<PacketSyncConfig, IMessage>
