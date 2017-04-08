@@ -135,7 +135,7 @@ public class ArmorSet {
 			ResourceLocation loc = (ResourceLocation)Item.REGISTRY.getNameForObject(this.item);
 			if (!loc.getResourceDomain().equals("minecraft"))
 				isFromModdedBlock = true;
-			this.modid = loc.getResourceDomain();
+			this.modid = loc.getResourceDomain().toLowerCase();
 		}
 		catch (Exception e) {
 			this.modid = "???";

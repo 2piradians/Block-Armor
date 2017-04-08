@@ -2,6 +2,9 @@ package twopiradians.blockArmor.common.config;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashMap;
+
+import com.google.common.collect.Maps;
 
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.util.text.TextFormatting;
@@ -11,7 +14,6 @@ import net.minecraftforge.common.config.Property;
 import net.minecraftforge.fml.client.event.ConfigChangedEvent;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.Loader;
-import net.minecraftforge.fml.common.ModContainer;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerLoggedInEvent;
@@ -41,10 +43,20 @@ public class Config
 	/**Should set effects use durability*/
 	public static boolean effectsUseDurability;
 
+	/**Map of lowercase modid to mod name*/
+	private static HashMap<String, String> modList;
+
 	public static void postInit(final File file) 
 	{
 		Config.config = new Configuration(file, String.valueOf(CONFIG_VERSION));
 		Config.config.load();
+
+		//create modList
+		modList = Maps.newHashMap();
+		for (String modid : Loader.instance().getIndexedModList().keySet())
+			modList.put(modid.toLowerCase(), Loader.instance().getIndexedModList().get(modid).getName());
+		if (!modList.containsKey("minecraft"))
+			modList.put("minecraft", "Minecraft");
 
 		//If loaded version < CONFIG_VERSION, delete it
 		String version = Config.config.getLoadedConfigVersion();
@@ -63,15 +75,12 @@ public class Config
 		if (!Config.registerDisabledItems) {
 			Config.config.getCategory(ARMOR_SETS_CATEGORY).setComment("Enable or disable armor sets.");
 			for (ArmorSet set : ArmorSet.allSets) {
-				ModContainer mod = Loader.instance().getIndexedModList().get(set.modid);
-				if (mod != null || set.modid.equalsIgnoreCase("minecraft")) {
-					String name = mod == null ? "minecraft" : mod.getName();
-					ConfigCategory category = Config.config.getCategory(ARMOR_SETS_CATEGORY+"."+name.replace(".", ","));
-					category.setComment("Enable or disable armor made from "+name+" blocks.");
-					prop = getArmorSetProp(name, set);
-					if (!prop.getBoolean()) 
-						disabledSets.add(set);
-				}
+				String name = modList.get(set.modid) == null ? "???" : modList.get(set.modid);
+				ConfigCategory category = Config.config.getCategory(ARMOR_SETS_CATEGORY+"."+name.replace(".", ","));
+				category.setComment("Enable or disable armor made from "+name+" blocks.");
+				prop = getArmorSetProp(name, set);
+				if (!prop.getBoolean()) 
+					disabledSets.add(set);
 			}
 		}
 	}
@@ -83,17 +92,14 @@ public class Config
 		//Armor sets
 		Config.config.getCategory(ARMOR_SETS_CATEGORY).setComment("Enable or disable armor sets.");
 		for (ArmorSet set : ArmorSet.allSets) {
-			ModContainer mod = Loader.instance().getIndexedModList().get(set.modid);
-			if (mod != null || set.modid.equalsIgnoreCase("minecraft")) {
-				String name = mod == null ? "minecraft" : mod.getName();
-				ConfigCategory category = Config.config.getCategory(ARMOR_SETS_CATEGORY+"."+name.replace(".", ","));
-				category.setComment("Enable or disable armor made from "+name+" blocks.");
-				Property prop = getArmorSetProp(name, set);
-				if (prop.getBoolean()) 
-					set.enable();
-				else
-					set.disable();
-			}
+			String name = modList.get(set.modid) == null ? "???" : modList.get(set.modid);
+			ConfigCategory category = Config.config.getCategory(ARMOR_SETS_CATEGORY+"."+name.replace(".", ","));
+			category.setComment("Enable or disable armor made from "+name+" blocks.");
+			Property prop = getArmorSetProp(name, set);
+			if (prop.getBoolean()) 
+				set.enable();
+			else
+				set.disable();
 		}
 
 		//Set effects
@@ -107,7 +113,7 @@ public class Config
 		//Armor pieces required to activate set effect
 		Property prop = getPiecesForSetProp();
 		Config.piecesForSet = prop.getInt();
-		
+
 		//Should set effects use durability
 		prop = getEffectsUseDurablityProp();
 		Config.effectsUseDurability = prop.getBoolean();
