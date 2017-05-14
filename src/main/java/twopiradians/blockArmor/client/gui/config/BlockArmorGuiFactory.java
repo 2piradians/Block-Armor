@@ -32,4 +32,14 @@ public class BlockArmorGuiFactory implements IModGuiFactory
 	{
 		return null;
 	}
+
+	@Override
+	public boolean hasConfigGui() { //TODO these two methods were added for some reason, test that everything still works
+		return false;
+	}
+
+	@Override
+	public GuiScreen createConfigGui(GuiScreen parentScreen) {
+		return null;
+	}
 }

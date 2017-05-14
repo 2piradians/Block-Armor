@@ -27,6 +27,7 @@ public class SetEffectBonemealer extends SetEffect {
 	}
 
 	/**Only called when player wearing full, enabled set*/
+	@SuppressWarnings("deprecation")
 	public void onArmorTick(World world, EntityPlayer player, ItemStack stack) {
 		super.onArmorTick(world, player, stack);
 

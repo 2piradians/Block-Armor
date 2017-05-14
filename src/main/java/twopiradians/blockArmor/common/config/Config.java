@@ -60,7 +60,7 @@ public class Config
 		
 		//If loaded version < CONFIG_VERSION, delete it
 		String version = Config.config.getLoadedConfigVersion();
-		if (version == null || Float.parseFloat(version) < CONFIG_VERSION) {
+		if (version == null || Float.parseFloat(version) < CONFIG_VERSION) {// TODO check for non-floats
 			for (String category : Config.config.getCategoryNames())
 				Config.config.removeCategory(Config.config.getCategory(category));
 			BlockArmor.logger.warn("Deleted config from older version");
