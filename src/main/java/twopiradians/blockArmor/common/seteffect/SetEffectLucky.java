@@ -1,6 +1,6 @@
 package twopiradians.blockArmor.common.seteffect;
 
-import java.util.List;
+import java.util.ArrayList;
 
 import net.minecraft.block.Block;
 import net.minecraft.entity.EntityLivingBase;
@@ -10,6 +10,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.SoundEvents;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumParticleTypes;
+import net.minecraft.util.NonNullList;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.TextFormatting;
@@ -33,12 +34,12 @@ public class SetEffectLucky extends SetEffect {
 	/**Increase looting*/
 	@SubscribeEvent
 	public void addLooting(LootingLevelEvent event) {
-		if (event.getDamageSource().getEntity() instanceof EntityPlayer && 
+		if (event.getDamageSource().getTrueSource() instanceof EntityPlayer && 
 				event.getEntity().world instanceof WorldServer &&
-				ArmorSet.getWornSetEffects((EntityLivingBase) event.getDamageSource().getEntity()).contains(this)) {
+				ArmorSet.getWornSetEffects((EntityLivingBase) event.getDamageSource().getTrueSource()).contains(this)) {
 			event.setLootingLevel(event.getLootingLevel()+4);
 			doParticlesAndSound((WorldServer) event.getEntity().world, event.getEntity().getPosition(), 
-					(EntityPlayer) event.getDamageSource().getEntity(), 4);
+					(EntityPlayer) event.getDamageSource().getTrueSource(), 4);
 		}
 	}
 
@@ -47,8 +48,8 @@ public class SetEffectLucky extends SetEffect {
 	public void addFortune(HarvestDropsEvent event) {//only server side
 		if (ArmorSet.getWornSetEffects(event.getHarvester()).contains(this) &&
 				event.getWorld() instanceof WorldServer) {
-			List<ItemStack> newDrops = event.getState().getBlock().getDrops(event.getWorld(), 
-					event.getPos(), event.getState(), event.getFortuneLevel()+4);
+			NonNullList<ItemStack> newDrops = NonNullList.create();
+			event.getState().getBlock().getDrops(newDrops, event.getWorld(), event.getPos(), event.getState(), event.getFortuneLevel()+4);
 			if (newDrops.size() > event.getDrops().size()) {
 				doParticlesAndSound((WorldServer) event.getWorld(), event.getPos(), event.getHarvester(), 
 						(newDrops.size()-event.getDrops().size()));

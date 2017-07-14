@@ -7,6 +7,7 @@ import java.util.UUID;
 import com.google.common.collect.Multimap;
 
 import net.minecraft.block.Block;
+import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
@@ -275,7 +276,7 @@ public class SetEffect {
 
 	/**Set effect name and description if shifting*/
 	@SideOnly(Side.CLIENT)
-	public List<String> addInformation(ItemStack stack, boolean isShiftDown, EntityPlayer player, List<String> tooltip, boolean advanced) {
+	public List<String> addInformation(ItemStack stack, boolean isShiftDown, EntityPlayer player, List<String> tooltip, ITooltipFlag flagIn) {
 		String string = color.toString();
 		if (player instanceof EntityGuiPlayer || (ArmorSet.getWornSetEffects(player).contains(this) && 
 				player.getItemStackFromSlot(((ItemBlockArmor)stack.getItem()).armorType) == stack))

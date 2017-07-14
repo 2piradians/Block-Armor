@@ -2,8 +2,8 @@ package twopiradians.blockArmor.jei;
 
 import java.util.ArrayList;
 
-import mezz.jei.api.BlankModPlugin;
 import mezz.jei.api.IJeiRuntime;
+import mezz.jei.api.IModPlugin;
 import mezz.jei.api.IModRegistry;
 import mezz.jei.api.JEIPlugin;
 import mezz.jei.api.ingredients.IIngredientBlacklist;
@@ -14,7 +14,7 @@ import twopiradians.blockArmor.common.item.ArmorSet;
 import twopiradians.blockArmor.common.item.ItemBlockArmor;
 
 @JEIPlugin
-public class BlockArmorJEIPlugin extends BlankModPlugin 
+public class BlockArmorJEIPlugin implements IModPlugin 
 {
 	private static IJeiRuntime runtime;
 	private static IModRegistry registry;
@@ -37,7 +37,7 @@ public class BlockArmorJEIPlugin extends BlankModPlugin
 	public static void setFilterText(String text) {
 		try {
 			if (runtime != null) 
-				runtime.getItemListOverlay().setFilterText(text);
+				runtime.getIngredientFilter().setFilterText(text);
 		}
 		catch (Exception e) {}
 	}

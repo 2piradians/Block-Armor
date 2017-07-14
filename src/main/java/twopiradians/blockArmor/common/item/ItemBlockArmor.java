@@ -2,11 +2,15 @@ package twopiradians.blockArmor.common.item;
 
 import java.util.List;
 
+import javax.annotation.Nullable;
+
 import com.google.common.collect.Multimap;
 
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.model.ModelBiped;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
@@ -113,7 +117,7 @@ public class ItemBlockArmor extends ItemArmor
 	/**Deals with armor tooltips*/
 	@Override
 	@SideOnly(Side.CLIENT)
-	public void addInformation(ItemStack stack, EntityPlayer player, List<String> tooltip, boolean advanced) {
+	public void addInformation(ItemStack stack, @Nullable World worldIn, List<String> tooltip, ITooltipFlag flagIn) {
 		if (stack.hasTagCompound() && stack.getTagCompound().hasKey("devSpawned"))
 			tooltip.add(TextFormatting.DARK_PURPLE+""+TextFormatting.BOLD+"Dev Spawned");
 
@@ -127,7 +131,7 @@ public class ItemBlockArmor extends ItemArmor
 
 			//set effect names and descriptions if shifting
 			for (SetEffect effect : set.setEffects)
-				tooltip = effect.addInformation(stack, GuiScreen.isShiftKeyDown(), player, tooltip, advanced);
+				tooltip = effect.addInformation(stack, GuiScreen.isShiftKeyDown(), Minecraft.getMinecraft().player, tooltip, flagIn);
 		}
 	}
 
@@ -155,8 +159,8 @@ public class ItemBlockArmor extends ItemArmor
 	public boolean onEntityItemUpdate(EntityItem entityItem) {
 		//delete dev spawned items if not worn by dev and delete disabled items (except missingTexture items in SMP)
 		if ((!set.isEnabled() && !entityItem.world.isRemote) || 
-				(!entityItem.world.isRemote && entityItem != null && entityItem.getEntityItem() != null && 
-				entityItem.getEntityItem().hasTagCompound() && entityItem.getEntityItem().getTagCompound().hasKey("devSpawned"))) {
+				(!entityItem.world.isRemote && entityItem != null && entityItem.getItem() != null && 
+				entityItem.getItem().hasTagCompound() && entityItem.getItem().getTagCompound().hasKey("devSpawned"))) {
 			entityItem.setDead();
 			return true;
 		}
