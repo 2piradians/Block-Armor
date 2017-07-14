@@ -3,6 +3,7 @@ package twopiradians.blockArmor.client;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import net.minecraftforge.fml.common.Mod;
 import org.lwjgl.input.Keyboard;
 
 import com.google.common.collect.Maps;
@@ -39,6 +40,7 @@ import twopiradians.blockArmor.common.config.Config;
 import twopiradians.blockArmor.common.item.ArmorSet;
 import twopiradians.blockArmor.common.item.ModItems;
 
+@Mod.EventBusSubscriber(Side.CLIENT)
 public class ClientProxy extends CommonProxy
 {
 	/**Map of models to their constructor fields - generated as needed*/
@@ -56,10 +58,7 @@ public class ClientProxy extends CommonProxy
 	public void init(FMLInitializationEvent event) 
 	{
 		super.init(event);
-		MinecraftForge.EVENT_BUS.register(this);
-		MinecraftForge.EVENT_BUS.register(new OpenGuiEvent());
 		MinecraftForge.EVENT_BUS.register(BlockArmor.key);
-		MinecraftForge.EVENT_BUS.register(new GuiConfigUpdater());
 		ClientRegistry.registerKeyBinding(KeyActivateSetEffect.ACTIVATE_SET_EFFECT);
 	}
 
@@ -98,7 +97,7 @@ public class ClientProxy extends CommonProxy
 	}
 
 	@SubscribeEvent
-	public void clientTick(TickEvent.ClientTickEvent event)
+	public static void clientTick(TickEvent.ClientTickEvent event)
 	{
 		//manage all animated set's frames (ticks at same rate as TextureAtlasSprite's updateAnimation())
 		if (!Minecraft.getMinecraft().isGamePaused() && event.side == Side.CLIENT) 
@@ -151,7 +150,7 @@ public class ClientProxy extends CommonProxy
 
 	/**Used to register block textures to override inventory textures and for inventory icons*/
 	@SubscribeEvent
-	public void textureStitch(TextureStitchEvent.Pre event) 
+	public static void textureStitch(TextureStitchEvent.Pre event)
 	{
 		//textures for overriding
 		for (Item item : ArmorSet.TEXTURE_OVERRIDES)

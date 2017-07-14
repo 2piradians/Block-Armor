@@ -7,6 +7,7 @@ import net.minecraft.inventory.EntityEquipmentSlot;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.CommandEvent;
+import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLLoadCompleteEvent;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
@@ -25,6 +26,7 @@ import twopiradians.blockArmor.packet.PacketActivateSetEffect;
 import twopiradians.blockArmor.packet.PacketDevColors;
 import twopiradians.blockArmor.packet.PacketSyncConfig;
 
+@Mod.EventBusSubscriber
 public class CommonProxy 
 {
 	public ArrayList<ItemStack> itemsToDisable = new ArrayList<ItemStack>();
@@ -38,7 +40,6 @@ public class CommonProxy
 	}
 
 	public void init(FMLInitializationEvent event) {
-		registerEventListeners();
 	}
 
 	public void postInit(FMLPostInitializationEvent event) {
@@ -54,11 +55,6 @@ public class CommonProxy
 		BlockArmor.network.registerMessage(PacketDevColors.Handler.class, PacketDevColors.class, id++, Side.CLIENT);
 		BlockArmor.network.registerMessage(PacketActivateSetEffect.Handler.class, PacketActivateSetEffect.class, id++, Side.SERVER);
 		BlockArmor.network.registerMessage(PacketSyncConfig.Handler.class, PacketSyncConfig.class, id++, Side.CLIENT);
-	}
-
-	private void registerEventListeners() {
-		MinecraftForge.EVENT_BUS.register(new Config());
-		MinecraftForge.EVENT_BUS.register(this);
 	}
 
 	@SubscribeEvent(receiveCanceled = true)

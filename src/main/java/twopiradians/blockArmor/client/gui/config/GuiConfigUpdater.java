@@ -13,6 +13,7 @@ import net.minecraftforge.fml.client.config.GuiConfigEntries.BooleanEntry;
 import net.minecraftforge.fml.client.config.GuiConfigEntries.ButtonEntry;
 import net.minecraftforge.fml.client.config.GuiConfigEntries.IConfigEntry;
 import net.minecraftforge.fml.client.config.IConfigElement;
+import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -20,11 +21,12 @@ import twopiradians.blockArmor.common.BlockArmor;
 import twopiradians.blockArmor.common.config.Config;
 
 @SideOnly(Side.CLIENT)
+@Mod.EventBusSubscriber
 public class GuiConfigUpdater {
 
 	/**Add Enable/Disable All button to categories, from our config, beginning with a boolean entry*/
 	@SubscribeEvent
-	public void onGuiConfigInit(InitGuiEvent.Post event) {
+	public static void onGuiConfigInit(InitGuiEvent.Post event) {
 		if (event.getGui() instanceof GuiConfig && ((GuiConfig)event.getGui()).modID == BlockArmor.MODID
 				&& !((GuiConfig)event.getGui()).entryList.listEntries.isEmpty() && 
 				((GuiConfig)event.getGui()).entryList.listEntries.get(0) instanceof GuiConfigEntries.BooleanEntry) {

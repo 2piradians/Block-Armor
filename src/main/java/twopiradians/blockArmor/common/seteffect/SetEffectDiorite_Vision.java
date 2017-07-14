@@ -19,6 +19,7 @@ import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.Loader;
+import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent.PlayerTickEvent;
 import net.minecraftforge.fml.relauncher.Side;
@@ -26,6 +27,7 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import twopiradians.blockArmor.common.item.ArmorSet;
 import twopiradians.blockArmor.jei.BlockArmorJEIPlugin;
 
+@Mod.EventBusSubscriber
 public class SetEffectDiorite_Vision extends SetEffect {
 
 	private HashMap<UUID, BlockPos> dioriteSpots;
@@ -34,7 +36,6 @@ public class SetEffectDiorite_Vision extends SetEffect {
 		this.color = TextFormatting.OBFUSCATED;
 		this.description = "You can never have enough DIORITE!";
 		this.dioriteSpots = Maps.newHashMap();
-		MinecraftForge.EVENT_BUS.register(this);
 	}
 
 	@SubscribeEvent

@@ -10,10 +10,12 @@ import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.living.LivingFallEvent;
+import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 import twopiradians.blockArmor.common.item.ArmorSet;
 
+@Mod.EventBusSubscriber
 public class SetEffectSlimey extends SetEffect {
 
 	/**Static is fine bc this is only used on client - chances of two players bouncing same tick is very slim*/
@@ -23,7 +25,6 @@ public class SetEffectSlimey extends SetEffect {
 	protected SetEffectSlimey() {
 		this.color = TextFormatting.GREEN;
 		this.description = "Bounces off walls and floors";
-		MinecraftForge.EVENT_BUS.register(this);
 	}
 
 	/**Only called when player wearing full, enabled set*/

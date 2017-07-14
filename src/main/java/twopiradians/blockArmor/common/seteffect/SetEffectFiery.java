@@ -7,15 +7,16 @@ import net.minecraft.util.SoundCategory;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.living.LivingAttackEvent;
+import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import twopiradians.blockArmor.common.item.ArmorSet;
 
+@Mod.EventBusSubscriber
 public class SetEffectFiery extends SetEffect {
 
 	protected SetEffectFiery() {
 		this.color = TextFormatting.RED;
 		this.description = "Ignites enemies after attacking or being attacked";
-		MinecraftForge.EVENT_BUS.register(this);
 	}
 
 	/**Ignites attackers/attackees*/

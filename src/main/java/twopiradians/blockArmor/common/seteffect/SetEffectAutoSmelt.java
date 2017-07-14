@@ -16,18 +16,19 @@ import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.world.BlockEvent.HarvestDropsEvent;
+import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import twopiradians.blockArmor.common.BlockArmor;
 import twopiradians.blockArmor.common.item.ArmorSet;
 
+@Mod.EventBusSubscriber
 public class SetEffectAutoSmelt extends SetEffect {
 
 	protected SetEffectAutoSmelt() {
 		this.color = TextFormatting.DARK_RED;
 		this.description = "Smelts harvested blocks";
 		this.usesButton = true;
-		MinecraftForge.EVENT_BUS.register(this);
 	}
 
 	@Override

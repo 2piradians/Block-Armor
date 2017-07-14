@@ -14,6 +14,7 @@ import net.minecraftforge.common.config.Property;
 import net.minecraftforge.fml.client.event.ConfigChangedEvent;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.Loader;
+import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerLoggedInEvent;
@@ -23,6 +24,7 @@ import twopiradians.blockArmor.common.seteffect.SetEffect;
 import twopiradians.blockArmor.jei.BlockArmorJEIPlugin;
 import twopiradians.blockArmor.packet.PacketSyncConfig;
 
+@Mod.EventBusSubscriber
 public class Config 
 {
 	public static Configuration config;
@@ -184,7 +186,7 @@ public class Config
 
 	/**Send PacketSyncConfig when a player joins a server*/
 	@SubscribeEvent
-	public void onJoinWorld(PlayerLoggedInEvent event) {
+	public static void onJoinWorld(PlayerLoggedInEvent event) {
 		if (!event.player.world.isRemote && event.player != null && event.player instanceof EntityPlayerMP) {
 			Config.syncConfig();
 			BlockArmor.network.sendTo(new PacketSyncConfig(), (EntityPlayerMP) event.player);
@@ -193,7 +195,7 @@ public class Config
 
 	/**Sync to config when changed*/
 	@SubscribeEvent(priority=EventPriority.NORMAL, receiveCanceled=true)
-	public void onConfigChanged(final ConfigChangedEvent.OnConfigChangedEvent event) 
+	public static void onConfigChanged(final ConfigChangedEvent.OnConfigChangedEvent event)
 	{
 		if (event.getModID().equals(BlockArmor.MODID))
 			if (event.isWorldRunning() && FMLCommonHandler.instance().getMinecraftServerInstance() == null) {

@@ -17,9 +17,11 @@ import net.minecraft.world.WorldServer;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.living.LootingLevelEvent;
 import net.minecraftforge.event.world.BlockEvent.HarvestDropsEvent;
+import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import twopiradians.blockArmor.common.item.ArmorSet;
 
+@Mod.EventBusSubscriber
 public class SetEffectLucky extends SetEffect {
 
 	protected SetEffectLucky() {
@@ -27,7 +29,6 @@ public class SetEffectLucky extends SetEffect {
 		this.description = "Greatly increases Fortune, Looting, and Luck";
 		this.attributeModifiers.add(new AttributeModifier(LUCK_UUID, 
 				SharedMonsterAttributes.LUCK.getName(), 3, 0));
-		MinecraftForge.EVENT_BUS.register(this);
 	}
 	
 	/**Increase looting*/
