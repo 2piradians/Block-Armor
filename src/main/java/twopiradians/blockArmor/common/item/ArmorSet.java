@@ -2,6 +2,7 @@ package twopiradians.blockArmor.common.item;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 
 import com.google.common.collect.Iterators;
@@ -24,6 +25,7 @@ import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
 import net.minecraft.init.SoundEvents;
 import net.minecraft.inventory.EntityEquipmentSlot;
+import net.minecraft.inventory.InventoryCrafting;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemArmor.ArmorMaterial;
 import net.minecraft.item.ItemBlock;
@@ -38,15 +40,22 @@ import net.minecraft.util.Tuple;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.TextFormatting;
+import net.minecraft.world.World;
 import net.minecraftforge.common.util.EnumHelper;
+import net.minecraftforge.fml.common.registry.ForgeRegistries;
+import net.minecraftforge.fml.common.registry.GameRegistry;
 import net.minecraftforge.fml.relauncher.ReflectionHelper;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraftforge.registries.IForgeRegistry;
+import net.minecraftforge.registries.IForgeRegistryModifiable;
 import twopiradians.blockArmor.common.BlockArmor;
 import twopiradians.blockArmor.common.command.CommandDev;
 import twopiradians.blockArmor.common.config.Config;
 import twopiradians.blockArmor.common.seteffect.SetEffect;
 import twopiradians.blockArmor.creativetab.BlockArmorCreativeTab;
+
+import javax.annotation.Nullable;
 
 @SuppressWarnings({ "deprecation", "serial" })
 public class ArmorSet {
@@ -88,7 +97,7 @@ public class ArmorSet {
 	/**All sets, mapped by their stack's display name*/
 	public static HashMap<String, ArmorSet> nameToSetMap;
 	/**Armor slots*/
-	public static final EntityEquipmentSlot[] SLOTS = new EntityEquipmentSlot[] 
+	public static final EntityEquipmentSlot[] SLOTS = new EntityEquipmentSlot[]
 			{EntityEquipmentSlot.HEAD, EntityEquipmentSlot.CHEST, EntityEquipmentSlot.LEGS, EntityEquipmentSlot.FEET};
 
 	/**Used to get textures, set recipe, and as repair material*/
@@ -96,7 +105,7 @@ public class ArmorSet {
 	public Item item;
 	public int meta;
 	public Block block;
-	public ArmorMaterial material;      
+	public ArmorMaterial material;
 	public ItemBlockArmor helmet;
 	public ItemBlockArmor chestplate;
 	public ItemBlockArmor leggings;
@@ -108,7 +117,7 @@ public class ArmorSet {
 	private boolean enabled;
 	public ArrayList<IRecipe> recipes;
 	/**Only changed on client*/
-	public boolean missingTextures; 
+	public boolean missingTextures;
 
 	@SideOnly(Side.CLIENT)
 	public boolean isTranslucent;
@@ -147,7 +156,7 @@ public class ArmorSet {
 		else
 			this.block = ((ItemBlock) item).getBlock();
 		//calculate values for and set material
-		float blockHardness = 0; 
+		float blockHardness = 0;
 		double durability = 5;
 		float toughness = 0;
 		int enchantability = 12;
@@ -171,7 +180,7 @@ public class ArmorSet {
 		int reductionChest = (int) Math.min(blockHardness + 1, 8);
 		int reductionLegs = (int) Math.max(reductionChest - 2, reductionHelmetBoots);
 		int[] reductionAmounts = new int[] {reductionHelmetBoots, reductionLegs, reductionChest, reductionHelmetBoots};
-		this.material = EnumHelper.addArmorMaterial(getItemStackDisplayName(stack, null)+" Material", "", 
+		this.material = EnumHelper.addArmorMaterial(getItemStackDisplayName(stack, null)+" Material", "",
 				(int) durability, reductionAmounts, enchantability, SoundEvents.ITEM_ARMOR_EQUIP_GENERIC, toughness);
 		this.material.repairMaterial = stack;
 		//BlockArmor.logger.info(getItemStackDisplayName(stack, null)+": blockHardness = "+blockHardness+", toughness = "+toughness+", durability = "+durability);
@@ -213,7 +222,7 @@ public class ArmorSet {
 
 					if (block.equals(Blocks.LOG) && i > 3) //logs after meta 3 are in log2
 						break;
-					if (manuallyAdded || (stack != null && stack.getItem() != null && !stack.getDisplayName().equals("") && 
+					if (manuallyAdded || (stack != null && stack.getItem() != null && !stack.getDisplayName().equals("") &&
 							!displayNames.contains(stack.getDisplayName()))) {
 						stacks.add(stack);
 						displayNames.add(stack.getDisplayName());
@@ -241,7 +250,7 @@ public class ArmorSet {
 
 	/**Returns TextureAtlasSprite corresponding to given ItemModArmor*/
 	@SideOnly(Side.CLIENT)
-	public static TextureAtlasSprite getSprite(ItemBlockArmor item) {		
+	public static TextureAtlasSprite getSprite(ItemBlockArmor item) {
 		if (item != null) {
 			TextureAtlasSprite sprite = item.set.sprites[item.armorType.getIndex()];
 			return sprite == null ? missingSprite : sprite;
@@ -302,7 +311,7 @@ public class ArmorSet {
 			String registryName = stack.getItem().getRegistryName().getResourcePath().toLowerCase().replace(" ", "_");
 			registryName += (stack.getHasSubtypes() ? "_"+stack.getMetadata() : "");
 			return registryName;
-		} 
+		}
 		catch (Exception e) {
 			return "";
 		}
@@ -320,7 +329,7 @@ public class ArmorSet {
 			name = "";
 
 		//manually set display names
-		name = name.replace("Block of ", "") 
+		name = name.replace("Block of ", "")
 				.replace("Block ", "")
 				.replace(" Block", "")
 				.replace("Sugar Canes", "Sugar Cane")
@@ -410,22 +419,22 @@ public class ArmorSet {
 
 	/**Should an armor set be made from this item*/
 	private static boolean isValid(ItemStack stack) {
-		try {			
+		try {
 			for (ItemStack manualStack : MANUALLY_ADDED_SETS)
 				if (stack != null && stack.getItem() == manualStack.getItem() && stack.getMetadata() == manualStack.getMetadata())
 					return true;
 
-			if (stack == null || !(stack.getItem() instanceof ItemBlock) || 
+			if (stack == null || !(stack.getItem() instanceof ItemBlock) ||
 					stack.getItem().getRegistryName().getResourceDomain().contains("one_point_twelve_concrete") ||
 					stack.getItem().getRegistryName().getResourceDomain().contains("railcraft") ||
-					stack.getItem().getRegistryName().getResourcePath().contains("ore") || 
-					stack.getItem().getRegistryName().getResourcePath().contains("ingot") || 
+					stack.getItem().getRegistryName().getResourcePath().contains("ore") ||
+					stack.getItem().getRegistryName().getResourcePath().contains("ingot") ||
 					stack.getDisplayName().contains(".name") || stack.getDisplayName().contains("Ore") ||
 					stack.getDisplayName().contains("%") || stack.getDisplayName().contains("Ingot"))
 				return false;
 
 			Block block = ((ItemBlock)stack.getItem()).getBlock();
-			if (block instanceof BlockLiquid || block instanceof BlockContainer || block.hasTileEntity() || 
+			if (block instanceof BlockLiquid || block instanceof BlockContainer || block.hasTileEntity() ||
 					block instanceof BlockOre || block instanceof BlockCrops || block instanceof BlockBush ||
 					block == Blocks.BARRIER || block instanceof BlockSlab || block == Blocks.MONSTER_EGG ||
 					block.getRenderType(block.getDefaultState()) != EnumBlockRenderType.MODEL ||
@@ -433,11 +442,11 @@ public class ArmorSet {
 				return false;
 
 			String registryName = block.getRegistryName().toString();
-			if (registryName.equalsIgnoreCase("evilcraft:darkBlock") || 
+			if (registryName.equalsIgnoreCase("evilcraft:darkBlock") ||
 					registryName.equalsIgnoreCase("evilcraft:obscuredGlass") ||
 					registryName.equalsIgnoreCase("evilcraft:hardenedBlood") ||
 					registryName.equalsIgnoreCase("evilcraft:darkPowerGemBlock") ||
-					registryName.equalsIgnoreCase("darkutils:filter") || 
+					registryName.equalsIgnoreCase("darkutils:filter") ||
 					registryName.equalsIgnoreCase("darkutils:filter_inverted") ||
 					registryName.equalsIgnoreCase("agriculturalrevolution:rustedanalyser") ||
 					registryName.equalsIgnoreCase("agriculturalrevolution:rustedbot") ||
@@ -452,8 +461,8 @@ public class ArmorSet {
 
 			//Check if full block
 			ArrayList<AxisAlignedBB> list = new ArrayList<AxisAlignedBB>();
-			block.addCollisionBoxToList(block.getDefaultState(), null, BlockPos.ORIGIN, Block.FULL_BLOCK_AABB, list, null, false); 
-			if (list.size() != 1 || !list.get(0).equals(Block.FULL_BLOCK_AABB)) 
+			block.addCollisionBoxToList(block.getDefaultState(), null, BlockPos.ORIGIN, Block.FULL_BLOCK_AABB, list, null, false);
+			if (list.size() != 1 || !list.get(0).equals(Block.FULL_BLOCK_AABB))
 				return false;
 
 			return true;
@@ -491,8 +500,8 @@ public class ArmorSet {
 
 		//add recipes
 		for (IRecipe recipe : recipes)
-			if (!CraftingManager.getInstance().getRecipeList().contains(recipe))
-				CraftingManager.getInstance().getRecipeList().add(recipe);
+			if (CraftingManager.REGISTRY.getIDForObject(recipe) == -1)
+				ForgeRegistries.RECIPES.register(recipe);
 
 		return true;
 	}
@@ -527,9 +536,11 @@ public class ArmorSet {
 		}
 
 		//remove recipes
-		for (IRecipe recipe : recipes)
-			if (CraftingManager.getInstance().getRecipeList().contains(recipe))
-				CraftingManager.getInstance().getRecipeList().remove(recipe);
+		for (IRecipe recipe : recipes) {
+			if (ForgeRegistries.RECIPES.containsValue(recipe)) {
+				((IForgeRegistryModifiable)ForgeRegistries.RECIPES).remove(recipe.getRegistryName());
+			}
+		}
 
 		return true;
 	}
@@ -615,19 +626,19 @@ public class ArmorSet {
 					this.animations[slot.getIndex()] = null;
 					//BlockArmor.logger.info("Override texture for "+this.stack.getDisplayName()+" found at: "+texture.toString());
 				} catch (Exception e) {
-					//BlockArmor.logger.info("Override texture for "+this.stack.getDisplayName()+" NOT found at: "+texture.toString()); 
+					//BlockArmor.logger.info("Override texture for "+this.stack.getDisplayName()+" NOT found at: "+texture.toString());
 				}
 			}
 
 		//If a sprite is missing, disable the set
-		if (this.sprites[EntityEquipmentSlot.HEAD.getIndex()] == null || 
-				this.sprites[EntityEquipmentSlot.CHEST.getIndex()] == null || 
-				this.sprites[EntityEquipmentSlot.LEGS.getIndex()] == null || 
+		if (this.sprites[EntityEquipmentSlot.HEAD.getIndex()] == null ||
+				this.sprites[EntityEquipmentSlot.CHEST.getIndex()] == null ||
+				this.sprites[EntityEquipmentSlot.LEGS.getIndex()] == null ||
 				this.sprites[EntityEquipmentSlot.FEET.getIndex()] == null ||
 				this.sprites[EntityEquipmentSlot.HEAD.getIndex()] == missingSprite ||
 				this.sprites[EntityEquipmentSlot.CHEST.getIndex()] == missingSprite ||
-				this.sprites[EntityEquipmentSlot.LEGS.getIndex()] == missingSprite || 
-				this.sprites[EntityEquipmentSlot.FEET.getIndex()] == missingSprite) 
+				this.sprites[EntityEquipmentSlot.LEGS.getIndex()] == missingSprite ||
+				this.sprites[EntityEquipmentSlot.FEET.getIndex()] == missingSprite)
 			missingTextures = true;
 
 		this.isTranslucent = this.block.getBlockLayer() != BlockRenderLayer.SOLID && this.block != Blocks.REEDS;

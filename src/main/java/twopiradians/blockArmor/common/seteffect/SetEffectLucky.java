@@ -33,12 +33,12 @@ public class SetEffectLucky extends SetEffect {
 	/**Increase looting*/
 	@SubscribeEvent
 	public void addLooting(LootingLevelEvent event) {
-		if (event.getDamageSource().getEntity() instanceof EntityPlayer && 
+		if (event.getDamageSource().getTrueSource() instanceof EntityPlayer &&
 				event.getEntity().world instanceof WorldServer &&
-				ArmorSet.getWornSetEffects((EntityLivingBase) event.getDamageSource().getEntity()).contains(this)) {
+				ArmorSet.getWornSetEffects((EntityLivingBase) event.getDamageSource().getTrueSource()).contains(this)) {
 			event.setLootingLevel(event.getLootingLevel()+4);
 			doParticlesAndSound((WorldServer) event.getEntity().world, event.getEntity().getPosition(), 
-					(EntityPlayer) event.getDamageSource().getEntity(), 4);
+					(EntityPlayer) event.getDamageSource().getTrueSource(), 4);
 		}
 	}
 

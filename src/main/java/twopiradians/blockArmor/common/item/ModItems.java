@@ -1,6 +1,7 @@
 package twopiradians.blockArmor.common.item;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
@@ -8,7 +9,10 @@ import net.minecraft.inventory.EntityEquipmentSlot;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.IRecipe;
+import net.minecraft.item.crafting.Ingredient;
 import net.minecraft.item.crafting.ShapedRecipes;
+import net.minecraft.util.NonNullList;
+import net.minecraftforge.fml.common.registry.ForgeRegistries;
 import net.minecraftforge.fml.common.registry.GameRegistry;
 import twopiradians.blockArmor.common.BlockArmor;
 import twopiradians.blockArmor.common.config.Config;
@@ -33,13 +37,33 @@ public class ModItems
 				else
 					vanillaItems += 4;
 
-				ArrayList<IRecipe> recipes = new ArrayList<IRecipe>(); 
+				ArrayList<IRecipe> recipes = new ArrayList<IRecipe>();
 				ItemStack A = set.stack;
 				ItemStack B = ItemStack.EMPTY;
-				recipes.add(new ShapedRecipes(3, 2, new ItemStack[] {A,A,A, A,B,A}, new ItemStack(set.helmet)));
-				recipes.add(new ShapedRecipes(3, 3, new ItemStack[] {A,B,A, A,A,A, A,A,A}, new ItemStack(set.chestplate)));
-				recipes.add(new ShapedRecipes(3, 3, new ItemStack[] {A,A,A, A,B,A, A,B,A}, new ItemStack(set.leggings)));
-				recipes.add(new ShapedRecipes(3, 2, new ItemStack[] {A,B,A, A,B,A}, new ItemStack(set.boots)));
+
+				NonNullList<Ingredient> helmetRecipe = NonNullList.from(
+						Ingredient.fromStacks(A), Ingredient.fromStacks(A), Ingredient.fromStacks(A),
+						Ingredient.fromStacks(A), Ingredient.fromStacks(B), Ingredient.fromStacks(A));
+
+				NonNullList<Ingredient> armorRecipe = NonNullList.from(
+						Ingredient.fromStacks(A), Ingredient.fromStacks(B), Ingredient.fromStacks(A),
+						Ingredient.fromStacks(A), Ingredient.fromStacks(A), Ingredient.fromStacks(A),
+						Ingredient.fromStacks(A), Ingredient.fromStacks(A), Ingredient.fromStacks(A));
+
+				NonNullList<Ingredient> legsRecipe = NonNullList.from(
+						Ingredient.fromStacks(A), Ingredient.fromStacks(A), Ingredient.fromStacks(A),
+						Ingredient.fromStacks(A), Ingredient.fromStacks(B), Ingredient.fromStacks(A),
+						Ingredient.fromStacks(A), Ingredient.fromStacks(B), Ingredient.fromStacks(A));
+
+				NonNullList<Ingredient> bootsRecipe = NonNullList.from(
+						Ingredient.fromStacks(A), Ingredient.fromStacks(B), Ingredient.fromStacks(A),
+						Ingredient.fromStacks(A), Ingredient.fromStacks(B), Ingredient.fromStacks(A));
+
+
+				recipes.add(new ShapedRecipes("Block Armor", 3, 2, helmetRecipe, new ItemStack(set.helmet)).setRegistryName(A.getUnlocalizedName()));
+				recipes.add(new ShapedRecipes("Block Armor", 3, 3, armorRecipe, new ItemStack(set.chestplate)).setRegistryName(A.getUnlocalizedName()));
+				recipes.add(new ShapedRecipes("Block Armor", 3, 3, legsRecipe, new ItemStack(set.leggings)).setRegistryName(A.getUnlocalizedName()));
+				recipes.add(new ShapedRecipes("Block Armor", 3, 2, bootsRecipe, new ItemStack(set.boots)).setRegistryName(A.getUnlocalizedName()));
 				set.recipes = recipes;
 			}
 		}
@@ -60,7 +84,7 @@ public class ModItems
 		allArmors.add(item);
 		item.setUnlocalizedName(unlocalizedName);
 		item.setRegistryName(BlockArmor.MODID, unlocalizedName);
-		GameRegistry.register(item);
+		ForgeRegistries.ITEMS.register(item);
 		return item;
 	}
 

@@ -139,8 +139,8 @@ public class GuiArmorDisplay extends GuiScreen
 				tooltip.add("");
 				int length = 0;
 				for (String string : tooltip)
-					if (this.fontRendererObj.getStringWidth(string) > length)
-						length = this.fontRendererObj.getStringWidth(string);
+					if (this.fontRenderer.getStringWidth(string) > length)
+						length = this.fontRenderer.getStringWidth(string);
 				if (GUI_MODE == 3)
 					this.drawHoveringText(tooltip, -length/2, 0);
 				else {
@@ -230,8 +230,8 @@ public class GuiArmorDisplay extends GuiScreen
 					//armors.get(index).addFullSetEffectTooltip(tooltip);
 					this.addStatTooltips(tooltip, new ItemStack[] {helmet, chestplate, leggings, boots});
 					for (String string : tooltip)
-						if (this.fontRendererObj.getStringWidth(string) > length)
-							length = this.fontRendererObj.getStringWidth(string);
+						if (this.fontRenderer.getStringWidth(string) > length)
+							length = this.fontRenderer.getStringWidth(string);
 					this.drawHoveringText(tooltip, -length/2, 0);
 					GlStateManager.popMatrix();
 					RenderHelper.disableStandardItemLighting();

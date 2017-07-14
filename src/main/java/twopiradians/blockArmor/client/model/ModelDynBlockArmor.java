@@ -4,6 +4,7 @@ import java.awt.Color;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
+import java.util.function.Function;
 
 import javax.vecmath.Matrix4f;
 import javax.vecmath.Quat4f;
@@ -11,7 +12,6 @@ import javax.vecmath.Vector3f;
 
 import org.apache.commons.lang3.tuple.Pair;
 
-import com.google.common.base.Function;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
@@ -39,9 +39,6 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
 import net.minecraftforge.client.model.ICustomModelLoader;
 import net.minecraftforge.client.model.IModel;
-import net.minecraftforge.client.model.IModelCustomData;
-import net.minecraftforge.client.model.IPerspectiveAwareModel;
-import net.minecraftforge.client.model.IRetexturableModel;
 import net.minecraftforge.client.model.ItemLayerModel;
 import net.minecraftforge.client.model.ItemTextureQuadConverter;
 import net.minecraftforge.client.model.ModelStateComposition;
@@ -52,7 +49,7 @@ import twopiradians.blockArmor.common.BlockArmor;
 import twopiradians.blockArmor.common.item.ArmorSet;
 import twopiradians.blockArmor.common.item.ItemBlockArmor;
 
-public final class ModelDynBlockArmor implements IModel, IModelCustomData, IRetexturableModel
+public final class ModelDynBlockArmor implements IModel
 {
 	public static final ModelResourceLocation LOCATION = new ModelResourceLocation(BlockArmor.MODID+":block_armor", "inventory");
 
@@ -83,8 +80,7 @@ public final class ModelDynBlockArmor implements IModel, IModelCustomData, IRete
 	}
 
 	@Override
-	public IBakedModel bake(IModelState state, VertexFormat format,	Function<ResourceLocation, TextureAtlasSprite> bakedTextureGetter)
-	{
+	public IBakedModel bake(IModelState state, VertexFormat format, Function<ResourceLocation, TextureAtlasSprite> bakedTextureGetter) {
 		return new BakedDynBlockArmor(format);
 	}
 
@@ -236,7 +232,7 @@ public final class ModelDynBlockArmor implements IModel, IModelCustomData, IRete
 		}
 	}
 
-	private static final class BakedDynBlockArmor implements IPerspectiveAwareModel
+	private static final class BakedDynBlockArmor implements IBakedModel
 	{
 		private final ImmutableMap<TransformType, TRSRTransformation> transforms;
 		private ImmutableList<BakedQuad> quads;
@@ -258,12 +254,6 @@ public final class ModelDynBlockArmor implements IModel, IModelCustomData, IRete
 		public ItemOverrideList getOverrides()
 		{
 			return BakedDynBlockArmorOverrideHandler.INSTANCE;
-		}
-
-		@Override
-		public Pair<? extends IBakedModel, Matrix4f> handlePerspective(TransformType cameraTransformType)
-		{
-			return IPerspectiveAwareModel.MapWrapper.handlePerspective(this, transforms, cameraTransformType);
 		}
 
 		@Override

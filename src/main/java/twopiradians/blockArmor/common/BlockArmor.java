@@ -2,6 +2,8 @@ package twopiradians.blockArmor.common;
 
 import java.io.File;
 
+import net.minecraftforge.event.RegistryEvent;
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import org.apache.logging.log4j.Logger;
 
 import net.minecraft.init.Blocks;
@@ -11,8 +13,6 @@ import net.minecraftforge.fml.common.Mod.EventHandler;
 import net.minecraftforge.fml.common.SidedProxy;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLLoadCompleteEvent;
-import net.minecraftforge.fml.common.event.FMLMissingMappingsEvent;
-import net.minecraftforge.fml.common.event.FMLMissingMappingsEvent.MissingMapping;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLServerStartingEvent;
@@ -65,11 +65,12 @@ public class BlockArmor
 	}
 	
 	/**Replace armor from old versions to new auto-generated armor and ignore other missing mappings*/
-	@Mod.EventHandler
-	public void missingMapping(FMLMissingMappingsEvent event) {
-		for (MissingMapping mapping : event.get()) {
+	@SubscribeEvent
+	public void fixItemMappings(RegistryEvent.MissingMappings<Item> m) {
+		for (RegistryEvent.MissingMappings.Mapping<Item> mapping : m.getMappings()) {
 			try {
-				String block = mapping.name.replace("blockarmor:", "");
+				String block = mapping.getTarget().getUnlocalizedName().replace("blockarmor:", "");
+				System.out.println(block);
 				String armor = block.substring(block.indexOf("_")+1);
 				block = block.substring(0, block.indexOf("_"));
 				ArmorSet set = null;

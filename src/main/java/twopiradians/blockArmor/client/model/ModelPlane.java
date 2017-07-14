@@ -4,7 +4,7 @@ import net.minecraft.client.model.ModelBox;
 import net.minecraft.client.model.ModelRenderer;
 import net.minecraft.client.model.PositionTextureVertex;
 import net.minecraft.client.model.TexturedQuad;
-import net.minecraft.client.renderer.VertexBuffer;
+import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
@@ -66,7 +66,7 @@ public class ModelPlane extends ModelBox {
 
 	@Override
 	@SideOnly(Side.CLIENT)
-	public void render(VertexBuffer renderer, float scale)
+	public void render(BufferBuilder renderer, float scale)
 	{
 		this.quad.draw(renderer, scale);
 	}
