@@ -38,7 +38,7 @@ public class PacketActivateSetEffect implements IMessage
 	public static class Handler implements IMessageHandler<PacketActivateSetEffect, IMessage> {
 		@Override
 		public IMessage onMessage(final PacketActivateSetEffect packet, final MessageContext ctx) {
-			IThreadListener mainThread = (WorldServer) ctx.getServerHandler().playerEntity.world;
+			IThreadListener mainThread = (WorldServer) ctx.getServerHandler().player.world;
 			mainThread.addScheduledTask(new Runnable() 
 			{
 				@Override

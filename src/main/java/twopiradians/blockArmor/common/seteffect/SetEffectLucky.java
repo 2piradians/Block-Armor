@@ -1,7 +1,5 @@
 package twopiradians.blockArmor.common.seteffect;
 
-import java.util.ArrayList;
-
 import net.minecraft.block.Block;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.SharedMonsterAttributes;

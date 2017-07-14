@@ -14,11 +14,9 @@ import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerLoggedInEvent;
 import net.minecraftforge.fml.relauncher.Side;
-import twopiradians.blockArmor.common.block.ModBlocks;
 import twopiradians.blockArmor.common.command.CommandDev;
 import twopiradians.blockArmor.common.config.Config;
 import twopiradians.blockArmor.common.item.ArmorSet;
-import twopiradians.blockArmor.common.item.ModItems;
 import twopiradians.blockArmor.common.seteffect.SetEffect;
 import twopiradians.blockArmor.common.tileentity.ModTileEntities;
 import twopiradians.blockArmor.packet.PacketActivateSetEffect;
@@ -33,7 +31,6 @@ public class CommonProxy
 		registerPackets();
 		BlockArmor.configFile = event.getSuggestedConfigurationFile();
 		BlockArmor.logger = event.getModLog();
-		ModBlocks.preInit();
 		ModTileEntities.preInit();
 	}
 
@@ -45,7 +42,6 @@ public class CommonProxy
 		ArmorSet.postInit();
 		SetEffect.postInit();
 		Config.postInit(BlockArmor.configFile);
-		ModItems.postInit();
 		Config.syncConfig();
 	}
 

@@ -26,7 +26,7 @@ public class BlockArmorJEIPlugin implements IModPlugin
 		//add recipes for disabled sets (that aren't added normally via set.enable())
 		for (ArmorSet set : ArmorSet.allSets)
 			if (!set.isEnabled())
-				registry.addRecipes(set.recipes);
+				registry.addRecipes(set.recipes, ""); //FIXME
 	}
 
 	@Override
