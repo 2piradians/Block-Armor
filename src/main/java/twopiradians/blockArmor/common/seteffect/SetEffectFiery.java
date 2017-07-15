@@ -7,23 +7,24 @@ import net.minecraft.util.SoundCategory;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.living.LivingAttackEvent;
+import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import twopiradians.blockArmor.common.item.ArmorSet;
 
+@Mod.EventBusSubscriber
 public class SetEffectFiery extends SetEffect {
 
 	protected SetEffectFiery() {
 		this.color = TextFormatting.RED;
 		this.description = "Ignites enemies after attacking or being attacked";
-		MinecraftForge.EVENT_BUS.register(this);
 	}
 
 	/**Ignites attackers/attackees*/
 	@SubscribeEvent
-	public void onEvent(LivingAttackEvent event) {		
-		if (this.isEnabled() && event.getSource().getSourceOfDamage() instanceof EntityLivingBase 
-				&& !event.getSource().getSourceOfDamage().world.isRemote) {
-			EntityLivingBase attacker = (EntityLivingBase) event.getSource().getSourceOfDamage();
+	public void onEvent(LivingAttackEvent event) {
+		if (this.isEnabled() && event.getSource().getTrueSource() instanceof EntityLivingBase 
+				&& !event.getSource().getTrueSource().world.isRemote) {
+			EntityLivingBase attacker = (EntityLivingBase) event.getSource().getTrueSource();
 			EntityLivingBase attacked = event.getEntityLiving();
 
 			//Lights the entity that attacks the wearer of the armor

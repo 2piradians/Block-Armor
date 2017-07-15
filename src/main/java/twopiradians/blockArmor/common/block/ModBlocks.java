@@ -1,31 +1,45 @@
 package twopiradians.blockArmor.common.block;
 
+import java.util.ArrayList;
+
 import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
 import net.minecraft.item.Item;
-import net.minecraftforge.fml.common.registry.GameRegistry;
+import net.minecraftforge.event.RegistryEvent;
+import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.registries.IForgeRegistry;
 import twopiradians.blockArmor.common.BlockArmor;
 
 public class ModBlocks 
 {
-	public static Block movingLightSource;
+	public static final Block MOVING_LIGHT_SOURCE = new BlockMovingLightSource();
 
-	public static void preInit() {
-		movingLightSource = registerBlock(new BlockMovingLightSource(), "movingLightSource");
+	public static ArrayList<Block> allBlocks = new ArrayList<Block>();
+	
+	@Mod.EventBusSubscriber
+	public static class RegistrationHandler {
+
+		@SubscribeEvent
+		public static void registerBlocks(final RegistryEvent.Register<Block> event) {
+			register(event.getRegistry(), MOVING_LIGHT_SOURCE, "movingLightSource");
+		}
+
+		private static void register(IForgeRegistry<Block> registry, Block block, String blockName) {
+			allBlocks.add(block);
+			block.setRegistryName(BlockArmor.MODID, blockName);
+			block.setUnlocalizedName(block.getRegistryName().toString());
+			registry.register(block);
+		}
+
 	}
-
+	
 	public static void registerRenders() {
-		registerRender(movingLightSource);
+		for (Block block : allBlocks)
+			Minecraft.getMinecraft().getRenderItem().getItemModelMesher().register
+			(Item.getItemFromBlock(block), 0, new ModelResourceLocation(BlockArmor.MODID + ":" + 
+			block.getUnlocalizedName().substring(5), "inventory"));
 	}
 
-	private static Block registerBlock(final Block block, final String unlocalizedName) {
-		block.setUnlocalizedName(unlocalizedName);
-		GameRegistry.register(block.setRegistryName(unlocalizedName));
-		return block;
-	}
-
-	private static void registerRender(Block block) {	
-		Minecraft.getMinecraft().getRenderItem().getItemModelMesher().register(Item.getItemFromBlock(block), 0, new ModelResourceLocation(BlockArmor.MODID + ":" + block.getUnlocalizedName().substring(5), "inventory"));
-	}
 }

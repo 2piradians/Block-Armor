@@ -6,15 +6,16 @@ import net.minecraft.util.SoundCategory;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.living.LivingFallEvent;
+import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import twopiradians.blockArmor.common.item.ArmorSet;
 
+@Mod.EventBusSubscriber
 public class SetEffectSoft_Fall extends SetEffect 
 {
 	protected SetEffectSoft_Fall() {
 		this.color = TextFormatting.WHITE;
 		this.description = "Provides immunity to fall damage";
-		MinecraftForge.EVENT_BUS.register(this);
 	}
 
 	/**Reduce fall distance for less damage*/

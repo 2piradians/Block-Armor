@@ -43,7 +43,7 @@ public class SetEffectIlluminated extends SetEffect {
 				world.getLightFor(EnumSkyBlock.BLOCK, player.getPosition().up()) < lightLevel &&
 				!stack.getTagCompound().getBoolean("deactivated")) 
 			world.setBlockState(player.getPosition().up(), 
-					ModBlocks.movingLightSource.getDefaultState().withProperty(BlockMovingLightSource.LIGHT_LEVEL, lightLevel));
+					ModBlocks.MOVING_LIGHT_SOURCE.getDefaultState().withProperty(BlockMovingLightSource.LIGHT_LEVEL, lightLevel));
 	}
 
 	/**Can be overwritten to return a new instance depending on the given block*/

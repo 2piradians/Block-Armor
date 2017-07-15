@@ -10,18 +10,16 @@ import java.util.TreeMap;
 import com.google.common.collect.Multimap;
 import com.mojang.realmsclient.gui.ChatFormatting;
 
-import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.RenderHelper;
+import net.minecraft.client.util.ITooltipFlag.TooltipFlags;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.EnumCreatureAttribute;
 import net.minecraft.entity.SharedMonsterAttributes;
 import net.minecraft.entity.ai.attributes.AttributeModifier;
-import net.minecraft.init.Blocks;
-import net.minecraft.init.Items;
 import net.minecraft.inventory.EntityEquipmentSlot;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagList;
@@ -78,7 +76,7 @@ public class GuiArmorDisplay extends GuiScreen
 				}
 				if ((GUI_MODE == 3 || GUI_MODE == 4) && set.isEnabled())
 					for (SetEffect effect : set.setEffects) {
-						String tooltip = effect.addInformation(new ItemStack(set.helmet), true, guiPlayer, new ArrayList<String>(), false).get(0);
+						String tooltip = effect.addInformation(new ItemStack(set.helmet), true, guiPlayer, new ArrayList<String>(), TooltipFlags.NORMAL).get(0);
 						ArrayList<ItemStack> stacks = new ArrayList<ItemStack>(); 
 						stacks.add(0, set.stack);
 						if (tooltips.containsKey(tooltip)) 
@@ -139,8 +137,8 @@ public class GuiArmorDisplay extends GuiScreen
 				tooltip.add("");
 				int length = 0;
 				for (String string : tooltip)
-					if (this.fontRendererObj.getStringWidth(string) > length)
-						length = this.fontRendererObj.getStringWidth(string);
+					if (this.fontRenderer.getStringWidth(string) > length)
+						length = this.fontRenderer.getStringWidth(string);
 				if (GUI_MODE == 3)
 					this.drawHoveringText(tooltip, -length/2, 0);
 				else {
@@ -230,8 +228,8 @@ public class GuiArmorDisplay extends GuiScreen
 					//armors.get(index).addFullSetEffectTooltip(tooltip);
 					this.addStatTooltips(tooltip, new ItemStack[] {helmet, chestplate, leggings, boots});
 					for (String string : tooltip)
-						if (this.fontRendererObj.getStringWidth(string) > length)
-							length = this.fontRendererObj.getStringWidth(string);
+						if (this.fontRenderer.getStringWidth(string) > length)
+							length = this.fontRenderer.getStringWidth(string);
 					this.drawHoveringText(tooltip, -length/2, 0);
 					GlStateManager.popMatrix();
 					RenderHelper.disableStandardItemLighting();
