@@ -41,34 +41,33 @@ public class ModItems
 				ItemStack A = set.stack;
 				ItemStack B = ItemStack.EMPTY;
 
-				NonNullList<Ingredient> helmetRecipe = NonNullList.from(
+				NonNullList<Ingredient> helmetRecipe = NonNullList.from(Ingredient.EMPTY,
 						Ingredient.fromStacks(A), Ingredient.fromStacks(A), Ingredient.fromStacks(A),
 						Ingredient.fromStacks(A), Ingredient.fromStacks(B), Ingredient.fromStacks(A));
 
-				NonNullList<Ingredient> armorRecipe = NonNullList.from(
+				NonNullList<Ingredient> armorRecipe = NonNullList.from(Ingredient.EMPTY,
 						Ingredient.fromStacks(A), Ingredient.fromStacks(B), Ingredient.fromStacks(A),
 						Ingredient.fromStacks(A), Ingredient.fromStacks(A), Ingredient.fromStacks(A),
 						Ingredient.fromStacks(A), Ingredient.fromStacks(A), Ingredient.fromStacks(A));
 
-				NonNullList<Ingredient> legsRecipe = NonNullList.from(
+				NonNullList<Ingredient> legsRecipe = NonNullList.from(Ingredient.EMPTY,
 						Ingredient.fromStacks(A), Ingredient.fromStacks(A), Ingredient.fromStacks(A),
 						Ingredient.fromStacks(A), Ingredient.fromStacks(B), Ingredient.fromStacks(A),
 						Ingredient.fromStacks(A), Ingredient.fromStacks(B), Ingredient.fromStacks(A));
 
-				NonNullList<Ingredient> bootsRecipe = NonNullList.from(
+				NonNullList<Ingredient> bootsRecipe = NonNullList.from(Ingredient.EMPTY,
 						Ingredient.fromStacks(A), Ingredient.fromStacks(B), Ingredient.fromStacks(A),
 						Ingredient.fromStacks(A), Ingredient.fromStacks(B), Ingredient.fromStacks(A));
 
 
-				recipes.add(new ShapedRecipes("Block Armor", 3, 2, helmetRecipe, new ItemStack(set.helmet)).setRegistryName(A.getUnlocalizedName()));
-				recipes.add(new ShapedRecipes("Block Armor", 3, 3, armorRecipe, new ItemStack(set.chestplate)).setRegistryName(A.getUnlocalizedName()));
-				recipes.add(new ShapedRecipes("Block Armor", 3, 3, legsRecipe, new ItemStack(set.leggings)).setRegistryName(A.getUnlocalizedName()));
-				recipes.add(new ShapedRecipes("Block Armor", 3, 2, bootsRecipe, new ItemStack(set.boots)).setRegistryName(A.getUnlocalizedName()));
+				recipes.add(new ShapedRecipes("Block Armor", 3, 2, helmetRecipe, new ItemStack(set.helmet)).setRegistryName(A.getUnlocalizedName() + "_helmet"));
+				recipes.add(new ShapedRecipes("Block Armor", 3, 3, armorRecipe, new ItemStack(set.chestplate)).setRegistryName(A.getUnlocalizedName() + "_armor"));
+				recipes.add(new ShapedRecipes("Block Armor", 3, 3, legsRecipe, new ItemStack(set.leggings)).setRegistryName(A.getUnlocalizedName() + "_legs"));
+				recipes.add(new ShapedRecipes("Block Armor", 3, 2, bootsRecipe, new ItemStack(set.boots)).setRegistryName(A.getUnlocalizedName() + "_boots"));
 				set.recipes = recipes;
 			}
 		}
-		for (ArmorSet set : Config.disabledSets)
-			ArmorSet.allSets.remove(set);
+		ArmorSet.allSets.removeAll(Config.disabledSets);
 
 		BlockArmor.logger.info("Generated "+vanillaItems+" Block Armor items from Vanilla Blocks");
 		if (moddedItems > 0)

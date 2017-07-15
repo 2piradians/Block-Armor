@@ -500,7 +500,7 @@ public class ArmorSet {
 
 		//add recipes
 		for (IRecipe recipe : recipes)
-			if (CraftingManager.REGISTRY.getIDForObject(recipe) == -1)
+			if (!ForgeRegistries.RECIPES.containsValue(recipe))
 				ForgeRegistries.RECIPES.register(recipe);
 
 		return true;
