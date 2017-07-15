@@ -14,6 +14,7 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.registries.IForgeRegistry;
 import twopiradians.blockArmor.common.BlockArmor;
 import twopiradians.blockArmor.common.config.Config;
+import twopiradians.blockArmor.common.seteffect.SetEffect;
 
 public class ModItems
 {
@@ -23,7 +24,11 @@ public class ModItems
 	public static class RegistrationHandler {
 
 		@SubscribeEvent(priority=EventPriority.LOWEST)
-		public static void registerItems(final RegistryEvent.Register<Item> event) {			
+		public static void registerItems(final RegistryEvent.Register<Item> event) {						
+			ArmorSet.postInit();
+			SetEffect.postInit();
+			Config.postInit(BlockArmor.configFile);
+			
 			int vanillaItems = 0;
 			int moddedItems = 0;
 
@@ -55,6 +60,8 @@ public class ModItems
 			BlockArmor.logger.info("Generated "+vanillaItems+" Block Armor items from Vanilla Blocks");
 			if (moddedItems > 0)
 				BlockArmor.logger.info("Generated "+moddedItems+" Block Armor items from Modded Blocks");
+			
+			Config.syncConfig();
 		}
 
 		private static ItemBlockArmor register(IForgeRegistry<Item> registry, ItemBlockArmor armor, String itemName, boolean isFromModdedBlock) {

@@ -1,13 +1,10 @@
 package twopiradians.blockArmor.jei;
 
-import java.util.ArrayList;
-
 import mezz.jei.api.IJeiRuntime;
 import mezz.jei.api.IModPlugin;
 import mezz.jei.api.IModRegistry;
 import mezz.jei.api.JEIPlugin;
 import mezz.jei.api.ingredients.IIngredientBlacklist;
-import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemStack;
 import twopiradians.blockArmor.common.BlockArmor;
 import twopiradians.blockArmor.common.item.ArmorSet;
@@ -74,8 +71,8 @@ public class BlockArmorJEIPlugin implements IModPlugin
 					runtime != null) {
 				BlockArmor.logger.info("Reloading JEI item list...");
 				try {
-					registry.getIngredientRegistry().addIngredientsAtRuntime(ItemStack.class, 
-							new ArrayList<ItemStack>() {{add(new ItemStack(Blocks.STONE));}});
+					//registry.getIngredientRegistry().addIngredientsAtRuntime(ItemStack.class, //FIXME
+						//	new ArrayList<ItemStack>() {{add(new ItemStack(Blocks.STONE));}});
 				}
 				catch (Exception e) {
 					BlockArmor.logger.error("JEI did not reload correctly: ", e);

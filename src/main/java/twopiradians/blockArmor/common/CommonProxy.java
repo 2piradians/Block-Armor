@@ -16,8 +16,6 @@ import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerLoggedInEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import twopiradians.blockArmor.common.command.CommandDev;
 import twopiradians.blockArmor.common.config.Config;
-import twopiradians.blockArmor.common.item.ArmorSet;
-import twopiradians.blockArmor.common.seteffect.SetEffect;
 import twopiradians.blockArmor.common.tileentity.ModTileEntities;
 import twopiradians.blockArmor.packet.PacketActivateSetEffect;
 import twopiradians.blockArmor.packet.PacketDevColors;
@@ -28,6 +26,7 @@ public class CommonProxy
 	public ArrayList<ItemStack> itemsToDisable = new ArrayList<ItemStack>();
 	
 	public void preInit(FMLPreInitializationEvent event) {
+		registerEventListeners();
 		registerPackets();
 		BlockArmor.configFile = event.getSuggestedConfigurationFile();
 		BlockArmor.logger = event.getModLog();
@@ -35,14 +34,10 @@ public class CommonProxy
 	}
 
 	public void init(FMLInitializationEvent event) {
-		registerEventListeners();
 	}
 
 	public void postInit(FMLPostInitializationEvent event) {
-		ArmorSet.postInit();
-		SetEffect.postInit();
-		Config.postInit(BlockArmor.configFile);
-		Config.syncConfig();
+		
 	}
 
 	private void registerPackets() { // Side is where the packet goes TO
@@ -52,7 +47,7 @@ public class CommonProxy
 		BlockArmor.network.registerMessage(PacketSyncConfig.Handler.class, PacketSyncConfig.class, id++, Side.CLIENT);
 	}
 
-	private void registerEventListeners() {
+	public void registerEventListeners() {
 		MinecraftForge.EVENT_BUS.register(new Config());
 		MinecraftForge.EVENT_BUS.register(this);
 	}

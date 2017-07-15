@@ -18,7 +18,7 @@ import twopiradians.blockArmor.client.key.KeyActivateSetEffect;
 import twopiradians.blockArmor.common.command.CommandDev;
 import twopiradians.blockArmor.creativetab.BlockArmorCreativeTab;
 
-@Mod(modid = BlockArmor.MODID, version = BlockArmor.VERSION, name = BlockArmor.MODNAME, guiFactory = "twopiradians.blockArmor.client.gui.config.BlockArmorGuiFactory", updateJSON = "https://raw.githubusercontent.com/2piradians/Block-Armor/1.11.2/update.json")
+@Mod(modid = BlockArmor.MODID, version = BlockArmor.VERSION, name = BlockArmor.MODNAME, guiFactory = "twopiradians.blockArmor.client.gui.config.BlockArmorGuiFactory", updateJSON = "https://raw.githubusercontent.com/2piradians/Block-Armor/1.12/update.json")
 public class BlockArmor
 {
 	public static final String MODNAME = "Block Armor"; 
@@ -32,7 +32,7 @@ public class BlockArmor
 	public static SimpleNetworkWrapper network = NetworkRegistry.INSTANCE.newSimpleChannel(MODID);
 	public static KeyActivateSetEffect key = new KeyActivateSetEffect();
 	public static CommandDev command = new CommandDev();
-	protected static File configFile;
+	public static File configFile;
 
 	@EventHandler
 	public void preInit(FMLPreInitializationEvent event) {

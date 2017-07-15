@@ -56,10 +56,6 @@ public class ClientProxy extends CommonProxy
 	public void init(FMLInitializationEvent event) 
 	{
 		super.init(event);
-		MinecraftForge.EVENT_BUS.register(this);
-		MinecraftForge.EVENT_BUS.register(new OpenGuiEvent());
-		MinecraftForge.EVENT_BUS.register(BlockArmor.key);
-		MinecraftForge.EVENT_BUS.register(new GuiConfigUpdater());
 		ClientRegistry.registerKeyBinding(KeyActivateSetEffect.ACTIVATE_SET_EFFECT);
 	}
 
@@ -69,6 +65,14 @@ public class ClientProxy extends CommonProxy
 		super.postInit(event);
 		ModBlocks.registerRenders();
 		ModItems.registerRenders();
+	}
+	
+	@Override
+	public void registerEventListeners() {
+		MinecraftForge.EVENT_BUS.register(this);
+		MinecraftForge.EVENT_BUS.register(BlockArmor.key);
+		MinecraftForge.EVENT_BUS.register(new OpenGuiEvent());
+		MinecraftForge.EVENT_BUS.register(new GuiConfigUpdater());
 	}
 
 	/**Get model based on model's constructor parameters*/
