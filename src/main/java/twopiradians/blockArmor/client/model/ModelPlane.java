@@ -66,8 +66,8 @@ public class ModelPlane extends ModelBox {
 
 	@Override
 	@SideOnly(Side.CLIENT)
-	public void render(BufferBuilder renderer, float scale)
+	public void render(BufferBuilder builder, float scale)
 	{
-		this.quad.draw(renderer, scale);
+		this.quad.draw(builder, scale);
 	}
 }

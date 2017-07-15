@@ -42,6 +42,7 @@ import net.minecraftforge.client.model.IModel;
 import net.minecraftforge.client.model.ItemLayerModel;
 import net.minecraftforge.client.model.ItemTextureQuadConverter;
 import net.minecraftforge.client.model.ModelStateComposition;
+import net.minecraftforge.client.model.PerspectiveMapWrapper;
 import net.minecraftforge.client.model.SimpleModelState;
 import net.minecraftforge.common.model.IModelState;
 import net.minecraftforge.common.model.TRSRTransformation;
@@ -61,20 +62,15 @@ public final class ModelDynBlockArmor implements IModel
 
 	public static final IModel MODEL = new ModelDynBlockArmor();
 
-	public ModelDynBlockArmor()
-	{
-
-	}
+	public ModelDynBlockArmor() {}
 
 	@Override
-	public Collection<ResourceLocation> getDependencies()
-	{
+	public Collection<ResourceLocation> getDependencies() {
 		return ImmutableList.of();
 	}
 
 	@Override
-	public Collection<ResourceLocation> getTextures()
-	{
+	public Collection<ResourceLocation> getTextures() {
 		ImmutableSet.Builder<ResourceLocation> builder = ImmutableSet.builder();
 		return builder.build();
 	}
@@ -85,55 +81,47 @@ public final class ModelDynBlockArmor implements IModel
 	}
 
 	@Override
-	public IModelState getDefaultState()
-	{
+	public IModelState getDefaultState() {
 		return TRSRTransformation.identity();
 	}
 
 	@Override
-	public ModelDynBlockArmor process(ImmutableMap<String, String> customData)
-	{
+	public ModelDynBlockArmor process(ImmutableMap<String, String> customData) {
 		return new ModelDynBlockArmor();
 	}
 
 	@Override
-	public ModelDynBlockArmor retexture(ImmutableMap<String, String> textures)
-	{
+	public ModelDynBlockArmor retexture(ImmutableMap<String, String> textures) {
 		return new ModelDynBlockArmor();
 	}
 
-	public enum LoaderDynBlockArmor implements ICustomModelLoader
-	{
+	public enum LoaderDynBlockArmor implements ICustomModelLoader {
 		INSTANCE;
 
 		@Override
-		public boolean accepts(ResourceLocation modelLocation)
-		{
+		public boolean accepts(ResourceLocation modelLocation) {
 			return (modelLocation.getResourceDomain().equals(BlockArmor.MODID) && (modelLocation.getResourcePath().contains("helmet") 
 					|| modelLocation.getResourcePath().contains("chestplate") || modelLocation.getResourcePath().contains("leggings") ||
 					modelLocation.getResourcePath().contains("boots")));
 		}
 
 		@Override
-		public IModel loadModel(ResourceLocation modelLocation)
-		{
+		public IModel loadModel(ResourceLocation modelLocation)	{
 			return MODEL;
 		}
 
 		@Override
-		public void onResourceManagerReload(IResourceManager resourceManager)
-		{
+		public void onResourceManagerReload(IResourceManager resourceManager) {
 
 		}
 	}
 
-	public static final class BakedDynBlockArmorOverrideHandler extends ItemOverrideList
-	{
+	public static final class BakedDynBlockArmorOverrideHandler extends ItemOverrideList {
 		private static HashMap<Item, ImmutableList<BakedQuad>> itemQuadsMap = Maps.newHashMap();
 
 		public static final BakedDynBlockArmorOverrideHandler INSTANCE = new BakedDynBlockArmorOverrideHandler();
-		private BakedDynBlockArmorOverrideHandler()
-		{
+		
+		private BakedDynBlockArmorOverrideHandler()	{
 			super(ImmutableList.<ItemOverride>of());
 		}
 
@@ -223,8 +211,7 @@ public final class ModelDynBlockArmor implements IModel
 
 		/**Called every tick - sets inventory icon (via quads) from map*/
 		@Override
-		public IBakedModel handleItemState(IBakedModel originalModel, ItemStack stack, World world, EntityLivingBase entity)
-		{
+		public IBakedModel handleItemState(IBakedModel originalModel, ItemStack stack, World world, EntityLivingBase entity) {
 			ImmutableList<BakedQuad> quads = itemQuadsMap.get(stack.getItem());
 			((BakedDynBlockArmor)originalModel).quads = quads;
 
@@ -232,13 +219,11 @@ public final class ModelDynBlockArmor implements IModel
 		}
 	}
 
-	private static final class BakedDynBlockArmor implements IBakedModel
-	{
+	private static final class BakedDynBlockArmor implements IBakedModel	{
 		private final ImmutableMap<TransformType, TRSRTransformation> transforms;
 		private ImmutableList<BakedQuad> quads;
 
-		public BakedDynBlockArmor(VertexFormat format)
-		{
+		public BakedDynBlockArmor(VertexFormat format) {
 			ImmutableMap.Builder<TransformType, TRSRTransformation> builder = ImmutableMap.builder();
 			builder.put(TransformType.GROUND, new TRSRTransformation(new Vector3f(0.25f, 0.375f, 0.25f), new Quat4f(0.0f, 0.0f, 0.0f, 1.0f), new Vector3f(0.5f, 0.5f, 0.5f), new Quat4f(0.0f, 0.0f, 0.0f, 1.0f)));
 			builder.put(TransformType.HEAD, new TRSRTransformation(new Vector3f(1.0f, 0.8125f, 1.4375f), new Quat4f(0.0f, 1.0f, 0.0f, -4.371139E-8f), new Vector3f(1.0f, 1.0f, 1.0f), new Quat4f(0.0f, 0.0f, 0.0f, 1.0f)));
@@ -251,14 +236,14 @@ public final class ModelDynBlockArmor implements IModel
 		}
 
 		@Override
-		public ItemOverrideList getOverrides()
-		{
+		public ItemOverrideList getOverrides() {
 			return BakedDynBlockArmorOverrideHandler.INSTANCE;
 		}
 
 		@Override
-		public List<BakedQuad> getQuads(IBlockState state, EnumFacing side, long rand)
-		{
+		public Pair<? extends IBakedModel, Matrix4f> handlePerspective(TransformType cameraTransformType) {
+			return PerspectiveMapWrapper.handlePerspective(this, transforms, cameraTransformType);
+		public List<BakedQuad> getQuads(IBlockState state, EnumFacing side, long rand) {
 			if (side == null) return quads;
 			return ImmutableList.of();
 		}

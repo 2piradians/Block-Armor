@@ -2,6 +2,8 @@ package twopiradians.blockArmor.common.item;
 
 import java.util.List;
 
+import javax.annotation.Nullable;
+
 import com.google.common.collect.Multimap;
 
 import net.minecraft.client.Minecraft;
@@ -30,9 +32,6 @@ import twopiradians.blockArmor.common.BlockArmor;
 import twopiradians.blockArmor.common.command.CommandDev;
 import twopiradians.blockArmor.common.config.Config;
 import twopiradians.blockArmor.common.seteffect.SetEffect;
-import twopiradians.blockArmor.common.seteffect.SetEffectDiorite_Vision;
-
-import javax.annotation.Nullable;
 
 public class ItemBlockArmor extends ItemArmor
 {
@@ -121,8 +120,7 @@ public class ItemBlockArmor extends ItemArmor
 		if (stack.hasTagCompound() && stack.getTagCompound().hasKey("devSpawned"))
 			tooltip.add(TextFormatting.DARK_PURPLE+""+TextFormatting.BOLD+"Dev Spawned");
 
-		if (!set.setEffects.isEmpty() && !(set.setEffects.get(0).getClass() == SetEffectDiorite_Vision.class &&
-				!set.setEffects.get(0).isEnabled())) {
+		if (!set.setEffects.isEmpty() && set.setEffects.get(0).isEnabled()) {
 			//add header if shifting
 			if (GuiScreen.isShiftKeyDown())
 				tooltip.add(TextFormatting.ITALIC+""+TextFormatting.GOLD+"Set Effects: "+TextFormatting.ITALIC+
@@ -131,7 +129,7 @@ public class ItemBlockArmor extends ItemArmor
 
 			//set effect names and descriptions if shifting
 			for (SetEffect effect : set.setEffects)
-				tooltip = effect.addInformation(stack, GuiScreen.isShiftKeyDown(), Minecraft.getMinecraft().player, tooltip, flagIn.isAdvanced());
+				tooltip = effect.addInformation(stack, GuiScreen.isShiftKeyDown(), Minecraft.getMinecraft().player, tooltip, flagIn);
 		}
 	}
 
@@ -159,7 +157,7 @@ public class ItemBlockArmor extends ItemArmor
 	public boolean onEntityItemUpdate(EntityItem entityItem) {
 		//delete dev spawned items if not worn by dev and delete disabled items (except missingTexture items in SMP)
 		if ((!set.isEnabled() && !entityItem.world.isRemote) || 
-				(!entityItem.world.isRemote && entityItem != null && entityItem.getItem() != null &&
+				(!entityItem.world.isRemote && entityItem != null && entityItem.getItem() != null && 
 				entityItem.getItem().hasTagCompound() && entityItem.getItem().getTagCompound().hasKey("devSpawned"))) {
 			entityItem.setDead();
 			return true;

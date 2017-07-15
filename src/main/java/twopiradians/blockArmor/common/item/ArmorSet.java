@@ -490,8 +490,8 @@ public class ArmorSet {
 			}
 		}
 
-		//add recipes
-		for (IRecipe recipe : recipes)
+		//add recipes FIXME
+/*		for (IRecipe recipe : recipes)
 			if (!ForgeRegistries.RECIPES.containsValue(recipe))
 				ForgeRegistries.RECIPES.register(recipe);
 
@@ -527,7 +527,7 @@ public class ArmorSet {
 					}
 		}
 
-		//remove recipes
+		//remove recipes FIXME
 		for (IRecipe recipe : recipes) {
 			if (ForgeRegistries.RECIPES.containsValue(recipe)) {
 				((IForgeRegistryModifiable)ForgeRegistries.RECIPES).remove(recipe.getRegistryName());
@@ -618,19 +618,19 @@ public class ArmorSet {
 					this.animations[slot.getIndex()] = null;
 					//BlockArmor.logger.info("Override texture for "+this.stack.getDisplayName()+" found at: "+texture.toString());
 				} catch (Exception e) {
-					//BlockArmor.logger.info("Override texture for "+this.stack.getDisplayName()+" NOT found at: "+texture.toString());
+					//BlockArmor.logger.info("Override texture for "+this.stack.getDisplayName()+" NOT found at: "+texture.toString()); 
 				}
 			}
 
 		//If a sprite is missing, disable the set
-		if (this.sprites[EntityEquipmentSlot.HEAD.getIndex()] == null ||
-				this.sprites[EntityEquipmentSlot.CHEST.getIndex()] == null ||
-				this.sprites[EntityEquipmentSlot.LEGS.getIndex()] == null ||
+		if (this.sprites[EntityEquipmentSlot.HEAD.getIndex()] == null || 
+				this.sprites[EntityEquipmentSlot.CHEST.getIndex()] == null || 
+				this.sprites[EntityEquipmentSlot.LEGS.getIndex()] == null || 
 				this.sprites[EntityEquipmentSlot.FEET.getIndex()] == null ||
 				this.sprites[EntityEquipmentSlot.HEAD.getIndex()] == missingSprite ||
 				this.sprites[EntityEquipmentSlot.CHEST.getIndex()] == missingSprite ||
-				this.sprites[EntityEquipmentSlot.LEGS.getIndex()] == missingSprite ||
-				this.sprites[EntityEquipmentSlot.FEET.getIndex()] == missingSprite)
+				this.sprites[EntityEquipmentSlot.LEGS.getIndex()] == missingSprite || 
+				this.sprites[EntityEquipmentSlot.FEET.getIndex()] == missingSprite) 
 			missingTextures = true;
 
 		this.isTranslucent = this.block.getBlockLayer() != BlockRenderLayer.SOLID && this.block != Blocks.REEDS;

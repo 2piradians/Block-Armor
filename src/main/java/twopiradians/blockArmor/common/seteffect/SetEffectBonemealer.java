@@ -27,7 +27,6 @@ public class SetEffectBonemealer extends SetEffect {
 	}
 
 	/**Only called when player wearing full, enabled set*/
-	@SuppressWarnings("deprecation")
 	public void onArmorTick(World world, EntityPlayer player, ItemStack stack) {
 		super.onArmorTick(world, player, stack);
 
@@ -39,7 +38,7 @@ public class SetEffectBonemealer extends SetEffect {
 				for (int y=-radius; y<radius; y++)
 					for (int z=-radius; z<radius; z++)
 						if (ItemDye.applyBonemeal(new ItemStack(Items.DYE, 1, EnumDyeColor.WHITE.getMetadata()), 
-								world, player.getPosition().add(x, y, z), player, null))
+								world, player.getPosition().add(x, y, z), player, null)) 
 							bonemealed.add(player.getPosition().add(x, y, z));
 			if (!bonemealed.isEmpty()) {
 				this.setCooldown(player, 100);
