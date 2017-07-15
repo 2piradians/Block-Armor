@@ -1,19 +1,8 @@
 package twopiradians.blockArmor.common.item;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-
 import com.google.common.collect.Iterators;
 import com.google.common.collect.Maps;
-
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockBush;
-import net.minecraft.block.BlockContainer;
-import net.minecraft.block.BlockCrops;
-import net.minecraft.block.BlockLiquid;
-import net.minecraft.block.BlockOre;
-import net.minecraft.block.BlockSlab;
+import net.minecraft.block.*;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.ItemModelMesher;
 import net.minecraft.client.renderer.block.model.BakedQuad;
@@ -29,11 +18,7 @@ import net.minecraft.item.ItemArmor.ArmorMaterial;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.IRecipe;
-import net.minecraft.util.BlockRenderLayer;
-import net.minecraft.util.EnumBlockRenderType;
-import net.minecraft.util.EnumFacing;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.Tuple;
+import net.minecraft.util.*;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.TextFormatting;
@@ -42,12 +27,15 @@ import net.minecraftforge.fml.common.registry.ForgeRegistries;
 import net.minecraftforge.fml.relauncher.ReflectionHelper;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import net.minecraftforge.registries.IForgeRegistryModifiable;
 import twopiradians.blockArmor.common.BlockArmor;
 import twopiradians.blockArmor.common.command.CommandDev;
 import twopiradians.blockArmor.common.config.Config;
 import twopiradians.blockArmor.common.seteffect.SetEffect;
 import twopiradians.blockArmor.creativetab.BlockArmorCreativeTab;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 
 @SuppressWarnings({ "deprecation", "serial" })
 public class ArmorSet {
@@ -490,8 +478,8 @@ public class ArmorSet {
 			}
 		}
 
-		//add recipes FIXME
-/*		for (IRecipe recipe : recipes)
+		//add recipes
+		for (IRecipe recipe : recipes)
 			if (!ForgeRegistries.RECIPES.containsValue(recipe))
 				ForgeRegistries.RECIPES.register(recipe);
 
@@ -530,7 +518,7 @@ public class ArmorSet {
 		//remove recipes FIXME
 		for (IRecipe recipe : recipes) {
 			if (ForgeRegistries.RECIPES.containsValue(recipe)) {
-				((IForgeRegistryModifiable)ForgeRegistries.RECIPES).remove(recipe.getRegistryName());
+				//((IForgeRegistryModifiable)ForgeRegistries.RECIPES).remove(recipe.getRegistryName());
 			}
 		}
 

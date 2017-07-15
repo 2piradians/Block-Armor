@@ -1,11 +1,8 @@
 package twopiradians.blockArmor.common;
 
-import java.util.ArrayList;
-
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.inventory.EntityEquipmentSlot;
 import net.minecraft.item.ItemStack;
-import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.CommandEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
@@ -16,11 +13,12 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerLoggedInEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import twopiradians.blockArmor.common.command.CommandDev;
-import twopiradians.blockArmor.common.config.Config;
 import twopiradians.blockArmor.common.tileentity.ModTileEntities;
 import twopiradians.blockArmor.packet.PacketActivateSetEffect;
 import twopiradians.blockArmor.packet.PacketDevColors;
 import twopiradians.blockArmor.packet.PacketSyncConfig;
+
+import java.util.ArrayList;
 
 @Mod.EventBusSubscriber
 public class CommonProxy 
@@ -28,7 +26,6 @@ public class CommonProxy
 	public ArrayList<ItemStack> itemsToDisable = new ArrayList<ItemStack>();
 	
 	public void preInit(FMLPreInitializationEvent event) {
-		registerEventListeners();
 		registerPackets();
 		BlockArmor.configFile = event.getSuggestedConfigurationFile();
 		BlockArmor.logger = event.getModLog();

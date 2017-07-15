@@ -1,12 +1,8 @@
 package twopiradians.blockArmor.common.seteffect;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.UUID;
-
 import com.google.common.collect.Maps;
-
 import net.minecraft.block.Block;
+import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.init.Blocks;
@@ -17,7 +13,6 @@ import net.minecraft.network.play.server.SPacketBlockChange;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
-import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.Loader;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
@@ -26,6 +21,10 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import twopiradians.blockArmor.common.item.ArmorSet;
 import twopiradians.blockArmor.jei.BlockArmorJEIPlugin;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.UUID;
 
 @Mod.EventBusSubscriber
 public class SetEffectDiorite_Vision extends SetEffect {
@@ -105,11 +104,11 @@ public class SetEffectDiorite_Vision extends SetEffect {
 
 	/**Set effect name and description if shifting*/
 	@SideOnly(Side.CLIENT)
-	public List<String> addInformation(ItemStack stack, boolean isShiftDown, EntityPlayer player, List<String> tooltip, boolean advanced) {
+	public List<String> addInformation(ItemStack stack, boolean isShiftDown, EntityPlayer player, List<String> tooltip, ITooltipFlag flagIn) {
 		boolean deobfuscate = ArmorSet.getWornSetEffects(player).contains(this);
 		if (deobfuscate)
 			this.color = TextFormatting.WHITE;
-		List<String> list = super.addInformation(stack, isShiftDown, player, tooltip, advanced);
+		List<String> list = super.addInformation(stack, isShiftDown, player, tooltip, flagIn);
 		if (deobfuscate)
 			this.color = TextFormatting.OBFUSCATED;
 

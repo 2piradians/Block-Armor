@@ -1,31 +1,13 @@
 package twopiradians.blockArmor.client.model;
 
-import java.awt.Color;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.function.Function;
-
-import javax.vecmath.Matrix4f;
-import javax.vecmath.Quat4f;
-import javax.vecmath.Vector3f;
-
-import org.apache.commons.lang3.tuple.Pair;
-
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
-
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.block.model.BakedQuad;
-import net.minecraft.client.renderer.block.model.IBakedModel;
-import net.minecraft.client.renderer.block.model.ItemCameraTransforms;
+import net.minecraft.client.renderer.block.model.*;
 import net.minecraft.client.renderer.block.model.ItemCameraTransforms.TransformType;
-import net.minecraft.client.renderer.block.model.ItemOverride;
-import net.minecraft.client.renderer.block.model.ItemOverrideList;
-import net.minecraft.client.renderer.block.model.ModelResourceLocation;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.client.renderer.vertex.VertexFormat;
@@ -37,18 +19,22 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
-import net.minecraftforge.client.model.ICustomModelLoader;
-import net.minecraftforge.client.model.IModel;
-import net.minecraftforge.client.model.ItemLayerModel;
-import net.minecraftforge.client.model.ItemTextureQuadConverter;
-import net.minecraftforge.client.model.ModelStateComposition;
-import net.minecraftforge.client.model.PerspectiveMapWrapper;
-import net.minecraftforge.client.model.SimpleModelState;
+import net.minecraftforge.client.model.*;
 import net.minecraftforge.common.model.IModelState;
 import net.minecraftforge.common.model.TRSRTransformation;
+import org.apache.commons.lang3.tuple.Pair;
 import twopiradians.blockArmor.common.BlockArmor;
 import twopiradians.blockArmor.common.item.ArmorSet;
 import twopiradians.blockArmor.common.item.ItemBlockArmor;
+
+import javax.vecmath.Matrix4f;
+import javax.vecmath.Quat4f;
+import javax.vecmath.Vector3f;
+import java.awt.*;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.function.Function;
 
 public final class ModelDynBlockArmor implements IModel
 {
@@ -100,7 +86,7 @@ public final class ModelDynBlockArmor implements IModel
 
 		@Override
 		public boolean accepts(ResourceLocation modelLocation) {
-			return (modelLocation.getResourceDomain().equals(BlockArmor.MODID) && (modelLocation.getResourcePath().contains("helmet") 
+			return (modelLocation.getResourceDomain().equals(BlockArmor.MODID) && (modelLocation.getResourcePath().contains("helmet")
 					|| modelLocation.getResourcePath().contains("chestplate") || modelLocation.getResourcePath().contains("leggings") ||
 					modelLocation.getResourcePath().contains("boots")));
 		}
@@ -120,7 +106,7 @@ public final class ModelDynBlockArmor implements IModel
 		private static HashMap<Item, ImmutableList<BakedQuad>> itemQuadsMap = Maps.newHashMap();
 
 		public static final BakedDynBlockArmorOverrideHandler INSTANCE = new BakedDynBlockArmorOverrideHandler();
-		
+
 		private BakedDynBlockArmorOverrideHandler()	{
 			super(ImmutableList.<ItemOverride>of());
 		}
@@ -164,7 +150,7 @@ public final class ModelDynBlockArmor implements IModel
 
 					//Block texture background
 					//builder.add(ItemTextureQuadConverter.genQuad(format, transform, 0, 0, 16, 16, NORTH_Z_BASE, sprite, EnumFacing.NORTH, 0xffffffff));
-					//builder.add(ItemTextureQuadConverter.genQuad(format, transform, 0, 0, 16, 16, SOUTH_Z_BASE, sprite, EnumFacing.SOUTH, 0xffffffff));	            
+					//builder.add(ItemTextureQuadConverter.genQuad(format, transform, 0, 0, 16, 16, SOUTH_Z_BASE, sprite, EnumFacing.SOUTH, 0xffffffff));
 
 					//Base texture and model
 					ResourceLocation baseLocation = new ResourceLocation(BlockArmor.MODID+":items/icons/block_armor_"+armorType+"_base");
@@ -180,7 +166,7 @@ public final class ModelDynBlockArmor implements IModel
 					if (color != -1) {
 						float r = ((color >> 16) & 0xFF) / 255f;
 						float g = ((color >> 8) & 0xFF) / 255f;
-						float b = ((color >> 0) & 0xFF) / 255f; 
+						float b = ((color >> 0) & 0xFF) / 255f;
 						color = new Color(r, g, b).getRGB(); //set alpha to 1.0f (since sometimes 0f)
 					}
 
@@ -243,6 +229,9 @@ public final class ModelDynBlockArmor implements IModel
 		@Override
 		public Pair<? extends IBakedModel, Matrix4f> handlePerspective(TransformType cameraTransformType) {
 			return PerspectiveMapWrapper.handlePerspective(this, transforms, cameraTransformType);
+		}
+
+		@Override
 		public List<BakedQuad> getQuads(IBlockState state, EnumFacing side, long rand) {
 			if (side == null) return quads;
 			return ImmutableList.of();
