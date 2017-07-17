@@ -74,7 +74,8 @@ public class PacketSyncConfig implements IMessage
 		for (int i=0; i<numSets; ++i) {
 			try {
 				String name = ByteBufUtils.readUTF8String(buf);
-				ArmorSet set = ArmorSet.nameToSetMap.get(name);
+				ArmorSet set = ArmorSet.nameToSetMap.get(name); // TODO change map to something other than display name
+				// when language is changed during runtime, the packet won't recognize display names and won't enable sets
 				if (set != null)
 					enabledSets.add(set);
 			}
@@ -119,7 +120,7 @@ public class PacketSyncConfig implements IMessage
 		ArrayList<String> enabledNames = new ArrayList<String>();
 		for (ArmorSet set : ArmorSet.allSets) {
 			if (set.isEnabled())
-				enabledNames.add(set.stack.getDisplayName());
+				enabledNames.add(ArmorSet.getItemStackRegistryName(set.stack));
 		}		
 		buf.writeInt(enabledNames.size());
 		for (String name : enabledNames)

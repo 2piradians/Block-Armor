@@ -34,12 +34,12 @@ public class BlockArmorGuiFactory implements IModGuiFactory
 	}
 
 	@Override
-	public boolean hasConfigGui() { //TODO these two methods were added for some reason, test that everything still works
-		return false;
+	public boolean hasConfigGui() { //TODO require that this is installed with the forge version that adds these
+		return true;
 	}
 
 	@Override
 	public GuiScreen createConfigGui(GuiScreen parentScreen) {
-		return null;
+		return new BlockArmorGuiConfig(parentScreen);
 	}
 }
