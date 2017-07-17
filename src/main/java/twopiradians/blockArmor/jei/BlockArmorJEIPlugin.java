@@ -1,9 +1,9 @@
 package twopiradians.blockArmor.jei;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
-import mezz.jei.Internal;
 import mezz.jei.api.IJeiRuntime;
 import mezz.jei.api.IModPlugin;
 import mezz.jei.api.IModRegistry;
@@ -37,13 +37,13 @@ public class BlockArmorJEIPlugin implements IModPlugin
 			for (ArmorSet set : ArmorSet.allSets)
 				if (set.isEnabled()) {
 					for (ItemBlockArmor armor : new ItemBlockArmor[] {set.helmet, set.chestplate, set.leggings, set.boots})
-						if (Internal.getStackHelper().containsStack(ingredients, new ItemStack(armor)) == null)
+						if (registry.getJeiHelpers().getStackHelper().containsAnyStack(ingredients, Collections.singletonList(new ItemStack(armor))) == null)
 							ingredientsToAdd.add(new ItemStack(armor));
 				}
 				else
 					for (final ItemBlockArmor armor : new ItemBlockArmor[] {set.helmet, set.chestplate, set.leggings, set.boots})
-						if (Internal.getStackHelper().containsStack(ingredients, new ItemStack(armor)) != null)
-							ingredientsToRemove.add(Internal.getStackHelper().containsStack(ingredients, new ItemStack(armor)));
+						if (registry.getJeiHelpers().getStackHelper().containsAnyStack(ingredients, Collections.singletonList(new ItemStack(armor))) != null)
+							ingredientsToRemove.add(registry.getJeiHelpers().getStackHelper().containsAnyStack(ingredients, Collections.singletonList(new ItemStack(armor))));
 
 			if (!ingredientsToAdd.isEmpty()) {
 				registry.getIngredientRegistry().addIngredientsAtRuntime(ItemStack.class, ingredientsToAdd);
