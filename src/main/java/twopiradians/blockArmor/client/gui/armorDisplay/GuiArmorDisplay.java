@@ -39,9 +39,10 @@ public class GuiArmorDisplay extends GuiScreen
 {
 	/**Should armor display be opened on chat event?*/
 	public static final boolean DISPLAY_ARMOR_GUI = false;
-	/**0 = vanilla sets, 1 = modded sets, 2 = set effects w/armor, 3 = set effect tooltips, 4 set effect itemstacks*/
-	public static final int GUI_MODE = 4; //do modes 3 and 4 in normal gui size
+	/**0 = vanilla sets, 1 = modded sets, 2 = set effects w/armor, 3 = set effect tooltips, 4 set effect itemstacks, 5 = 3 & 4*/
+	public static final int GUI_MODE = 0; //do modes 3, 4, and 5 in normal gui size
 
+	private final ResourceLocation backgroundBlue = new ResourceLocation(BlockArmor.MODID+":textures/gui/blue.jpg");
 	private final ResourceLocation backgroundWhite = new ResourceLocation(BlockArmor.MODID+":textures/gui/white.png");
 	private final ResourceLocation backgroundTooltipColor = new ResourceLocation(BlockArmor.MODID+":textures/gui/tooltip_color.png");
 	private EntityGuiPlayer guiPlayer;
@@ -67,14 +68,14 @@ public class GuiArmorDisplay extends GuiScreen
 			if ((GUI_MODE == 0 && !set.isFromModdedBlock) ||
 					(GUI_MODE == 1 && set.isFromModdedBlock) || 
 					(GUI_MODE == 2 && !set.setEffects.isEmpty()) ||
-					GUI_MODE == 3 || GUI_MODE == 4) {
+					GUI_MODE == 3 || GUI_MODE == 4 || GUI_MODE == 5) {
 				if (set.isEnabled()) {
 					armors.add(set.helmet);
 					armors.add(set.chestplate);
 					armors.add(set.leggings);
 					armors.add(set.boots);
 				}
-				if ((GUI_MODE == 3 || GUI_MODE == 4) && set.isEnabled())
+				if ((GUI_MODE == 3 || GUI_MODE == 4 || GUI_MODE == 5) && set.isEnabled())
 					for (SetEffect effect : set.setEffects) {
 						String tooltip = effect.addInformation(new ItemStack(set.helmet), true, guiPlayer, new ArrayList<String>(), TooltipFlags.NORMAL).get(0);
 						ArrayList<ItemStack> stacks = new ArrayList<ItemStack>(); 
@@ -84,7 +85,6 @@ public class GuiArmorDisplay extends GuiScreen
 						tooltips.put(tooltip, stacks);
 					}						
 			}
-		guiPlayer.setInvisible(GUI_MODE == 0 || GUI_MODE == 1);
 	}
 
 	@Override
@@ -94,16 +94,19 @@ public class GuiArmorDisplay extends GuiScreen
 
 	@Override
 	public void drawScreen(int mouseX, int mouseY, float partialTicks) {
+		guiPlayer.setInvisible(GUI_MODE == 0 || GUI_MODE == 1);
 		//background
 		GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
-		if (GUI_MODE == 4)
+		if (GUI_MODE == 4 || GUI_MODE == 5)
 			mc.getTextureManager().bindTexture(backgroundTooltipColor);
+		else if (GUI_MODE == 0)
+			mc.getTextureManager().bindTexture(backgroundBlue);
 		else
 			mc.getTextureManager().bindTexture(backgroundWhite);
 		GlStateManager.pushMatrix();
 		float scale = 1f;
 		if (GUI_MODE == 0)
-			GlStateManager.scale(1.47f, 1.445f, scale);
+			GlStateManager.scale(3, 5, scale);
 		else if (GUI_MODE == 1)
 			GlStateManager.scale(1.47f*2, 1.445f*2, scale);
 		else if (GUI_MODE == 2)
@@ -111,27 +114,29 @@ public class GuiArmorDisplay extends GuiScreen
 		this.drawTexturedModalRect(0, 0, 0, 0, this.width, this.height);
 		GlStateManager.popMatrix();
 
-		if (GUI_MODE == 3 || GUI_MODE == 4) {
+		if (GUI_MODE == 3 || GUI_MODE == 4 || GUI_MODE == 5) {
 			for (int i=0; i<tooltips.size(); i++) {
 				GlStateManager.pushMatrix();
-				int spaceBetween = 52;
-				i -= 24;
-				if (i >= 0 && i <= 11)
-					GlStateManager.translate(width/7*2, 20+i*spaceBetween, 0);
-				else if (i >= 11 && i <= 23)
-					GlStateManager.translate(width/7*5, 20+(i-12)*spaceBetween, 0);
+				int spaceBetween = 49;
+				i -= 20;
+				if (i >= 0 && i <= 10)
+					GlStateManager.translate(width/3.5f, 17+i*spaceBetween, 0);
+				else if (i >= 10 && i <= 23)
+					GlStateManager.translate(width/1.35f, 17+(i-11)*spaceBetween, 0);
 				else
 					GlStateManager.translate(2035, 200+(i-24)*spaceBetween, 0);
-				i += 24;
+				i += 20;
 				List<String> tooltip = new ArrayList<String>();
 				tooltip.add(tooltips.keySet().toArray(new String[0])[i]);
 				int numStacks = tooltips.get(tooltips.keySet().toArray(new String[0])[i]).size();
 				if (tooltip.get(0).contains("Regrowth")) 
-					tooltip.set(0, "                             "+tooltip.get(0)+"                             ");
+					tooltip.set(0, "               "+tooltip.get(0)+"               ");
 				else if (tooltip.get(0).contains("Invisibility")) 
-					tooltip.set(0, "                                               "+tooltip.get(0)+"                                               ");
+					tooltip.set(0, "                                 "+tooltip.get(0)+"                                 ");
 				else if (tooltip.get(0).contains("Soft Fall")) 
-					tooltip.set(0, "                                         "+tooltip.get(0)+"                                         ");
+					tooltip.set(0, "                         "+tooltip.get(0)+"                         ");
+				else if (tooltip.get(0).contains("Falling"))
+					tooltip.set(0, "                         "+tooltip.get(0)+"                         ");
 				tooltip.add("");
 				tooltip.add("");
 				tooltip.add("");
@@ -139,15 +144,19 @@ public class GuiArmorDisplay extends GuiScreen
 				for (String string : tooltip)
 					if (this.fontRenderer.getStringWidth(string) > length)
 						length = this.fontRenderer.getStringWidth(string);
-				if (GUI_MODE == 3)
+				if (GUI_MODE == 3 || GUI_MODE == 5)
 					this.drawHoveringText(tooltip, -length/2, 0);
-				else {
+				if (GUI_MODE != 3) {
 					RenderHelper.enableGUIStandardItemLighting();
-					length = tooltips.get(tooltips.keySet().toArray(new String[0])[i]).size() * 20;
+					int size = tooltips.get(tooltips.keySet().toArray(new String[0])[i]).size();
+					length = size * 20;
 					scale = 1.6f;
 					GlStateManager.scale(scale, scale, scale);
-					for (int j=0; j<tooltips.get(tooltips.keySet().toArray(new String[0])[i]).size(); j++) 
-						this.itemRender.renderItemIntoGUI(tooltips.get(tooltips.keySet().toArray(new String[0])[i]).get(j), -length/2+j*20+10, 0);
+					for (int j=0; j<size; j++) {
+						spaceBetween = 16 - (size-1)/11;
+							this.itemRender.renderItemIntoGUI(tooltips.get(tooltips.keySet().toArray(new String[0])[i]).get(j),
+									j*spaceBetween - (size-1)*spaceBetween/2, 0);
+					}
 					RenderHelper.disableStandardItemLighting();
 				}
 				GlStateManager.popMatrix();
@@ -176,12 +185,12 @@ public class GuiArmorDisplay extends GuiScreen
 				GlStateManager.pushMatrix();
 				double spaceBetween = 0;
 				if (GUI_MODE == 0) {
-					scale = 29f;
-					double heightBetween = 44.3d;
-					int perRow = 17;
+					scale = 35;
+					int perRow = 20;
 					int row = index/4 / perRow;
-					spaceBetween = 21.8d + (row==7?1.3d:0);
-					GlStateManager.translate(-160+(index/4 % perRow)*spaceBetween, row*heightBetween, row);
+					double heightBetween = 50d + (row == 10 ? 100 : 0);
+					spaceBetween = 30d;
+					GlStateManager.translate(-160+(index/4 % perRow)*spaceBetween, row*heightBetween+1, row);
 				}
 				else if (GUI_MODE == 1) {
 					scale = 29f;

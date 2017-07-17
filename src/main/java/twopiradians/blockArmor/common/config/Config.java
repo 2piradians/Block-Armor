@@ -14,6 +14,7 @@ import net.minecraftforge.common.config.Property;
 import net.minecraftforge.fml.client.event.ConfigChangedEvent;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.Loader;
+import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerLoggedInEvent;
@@ -23,6 +24,7 @@ import twopiradians.blockArmor.common.seteffect.SetEffect;
 import twopiradians.blockArmor.jei.BlockArmorJEIPlugin;
 import twopiradians.blockArmor.packet.PacketSyncConfig;
 
+@Mod.EventBusSubscriber
 public class Config 
 {
 	public static Configuration config;
@@ -42,7 +44,7 @@ public class Config
 	public static ArrayList<ArmorSet> disabledSets;
 	/**Should set effects use durability*/
 	public static boolean effectsUseDurability;
-	
+
 	/**Map of lowercase modid to mod name*/
 	private static HashMap<String, String> modList;
 
@@ -57,10 +59,17 @@ public class Config
 			modList.put(modid.toLowerCase(), Loader.instance().getIndexedModList().get(modid).getName());
 		if (!modList.containsKey("minecraft"))
 			modList.put("minecraft", "Minecraft");
-		
+
 		//If loaded version < CONFIG_VERSION, delete it
 		String version = Config.config.getLoadedConfigVersion();
-		if (version == null || Float.parseFloat(version) < CONFIG_VERSION) {// TODO check for non-floats
+		try {
+			if (version == null || Float.parseFloat(version) < CONFIG_VERSION) {
+				for (String category : Config.config.getCategoryNames())
+					Config.config.removeCategory(Config.config.getCategory(category));
+				BlockArmor.logger.warn("Deleted config from older version");
+			}
+		}
+		catch (Exception e) {
 			for (String category : Config.config.getCategoryNames())
 				Config.config.removeCategory(Config.config.getCategory(category));
 			BlockArmor.logger.warn("Deleted config from older version");
@@ -124,7 +133,7 @@ public class Config
 
 		Config.config.save();
 
-		syncJEIBlacklist();
+		syncJEIIngredients();
 	}
 
 	/**Get effectsUseDurability prop*/
@@ -158,9 +167,9 @@ public class Config
 
 	/**Get armorSet config prop for given modName and armorSetName*/
 	public static Property getArmorSetProp(String modName, ArmorSet set) {
-		String name = ArmorSet.getItemStackDisplayName(set.stack, null);
+		String name = ArmorSet.getItemStackRegistryName(set.stack);
 		Property prop = Config.config.get(Config.ARMOR_SETS_CATEGORY+"."+modName.replace(".", ","), name+" Armor", true,
-				"Determines whether or not the "+name+" armor should be generated.");
+				"Determines whether or not the "+ArmorSet.getItemStackDisplayName(set.stack, null)+" armor should be generated.");
 		if (!Config.registerDisabledItems)
 			prop.setRequiresMcRestart(true);
 		return prop;
@@ -177,14 +186,14 @@ public class Config
 	}
 
 	/**Updates JEI's blacklist and reloads JEI's item list, if needed*/
-	public static void syncJEIBlacklist() {
+	public static void syncJEIIngredients() {
 		if (Loader.isModLoaded("jei"))
-			BlockArmorJEIPlugin.syncJEIBlacklist();
+			BlockArmorJEIPlugin.syncJEIIngredients();
 	}
 
 	/**Send PacketSyncConfig when a player joins a server*/
 	@SubscribeEvent
-	public void onJoinWorld(PlayerLoggedInEvent event) {
+	public static void onJoinWorld(PlayerLoggedInEvent event) {
 		if (!event.player.world.isRemote && event.player != null && event.player instanceof EntityPlayerMP) {
 			Config.syncConfig();
 			BlockArmor.network.sendTo(new PacketSyncConfig(), (EntityPlayerMP) event.player);
@@ -193,7 +202,7 @@ public class Config
 
 	/**Sync to config when changed*/
 	@SubscribeEvent(priority=EventPriority.NORMAL, receiveCanceled=true)
-	public void onConfigChanged(final ConfigChangedEvent.OnConfigChangedEvent event) 
+	public static void onConfigChanged(final ConfigChangedEvent.OnConfigChangedEvent event) 
 	{
 		if (event.getModID().equals(BlockArmor.MODID))
 			if (event.isWorldRunning() && FMLCommonHandler.instance().getMinecraftServerInstance() == null) {

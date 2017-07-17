@@ -29,7 +29,7 @@ public class SetEffectPuller extends SetEffect {
 
 		if (ArmorSet.getFirstSetItem(player, this) == stack &&
 				BlockArmor.key.isKeyDown(player) && !player.getCooldownTracker().hasCooldown(stack.getItem())) {
-			AxisAlignedBB aabb = player.getEntityBoundingBox().expand(10, 10, 10);
+			AxisAlignedBB aabb = player.getEntityBoundingBox().grow(10, 10, 10);
 			List<Entity> list = player.world.getEntitiesWithinAABBExcludingEntity(player, aabb);
 			
 			if (!list.isEmpty()) {

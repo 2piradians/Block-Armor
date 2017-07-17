@@ -2,8 +2,6 @@ package twopiradians.blockArmor.common.seteffect;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockAir;
-import net.minecraft.entity.SharedMonsterAttributes;
-import net.minecraft.entity.ai.attributes.AttributeModifier;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.text.TextFormatting;
@@ -15,8 +13,6 @@ public class SetEffectSlippery extends SetEffect {
 	protected SetEffectSlippery() {
 		this.color = TextFormatting.AQUA;
 		this.description = "Conserves velocity more while moving";
-		this.attributeModifiers.add(new AttributeModifier(MOVEMENT_SPEED_UUID, 
-				SharedMonsterAttributes.MOVEMENT_SPEED.getName(), 0.05d, 0));
 	}
 
 	/**Only called when player wearing full, enabled set*/

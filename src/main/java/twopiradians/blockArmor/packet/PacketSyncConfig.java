@@ -115,16 +115,15 @@ public class PacketSyncConfig implements IMessage
 		for (Class clazz : Config.disabledSetEffects)
 			ByteBufUtils.writeUTF8String(buf, clazz.getName());
 
-		//disabled armor sets
+		//enabled armor sets
 		ArrayList<String> enabledNames = new ArrayList<String>();
 		for (ArmorSet set : ArmorSet.allSets) {
 			if (set.isEnabled())
-				enabledNames.add(set.stack.getDisplayName());
+				enabledNames.add(ArmorSet.getItemStackRegistryName(set.stack));
 		}		
 		buf.writeInt(enabledNames.size());
 		for (String name : enabledNames)
 			ByteBufUtils.writeUTF8String(buf, name);
-
 	}
 
 	public static class Handler implements IMessageHandler<PacketSyncConfig, IMessage>
@@ -142,7 +141,7 @@ public class PacketSyncConfig implements IMessage
 
 					BlockArmor.logger.info("Synced client config with server config.");
 
-					Config.syncJEIBlacklist();
+					Config.syncJEIIngredients();
 				}
 			});
 			return null;

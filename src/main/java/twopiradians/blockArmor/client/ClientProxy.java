@@ -18,8 +18,8 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.Tuple;
 import net.minecraftforge.client.event.TextureStitchEvent;
 import net.minecraftforge.client.model.ModelLoaderRegistry;
-import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.client.registry.ClientRegistry;
+import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLLoadCompleteEvent;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
@@ -27,8 +27,6 @@ import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 import net.minecraftforge.fml.relauncher.Side;
-import twopiradians.blockArmor.client.gui.armorDisplay.OpenGuiEvent;
-import twopiradians.blockArmor.client.gui.config.GuiConfigUpdater;
 import twopiradians.blockArmor.client.key.KeyActivateSetEffect;
 import twopiradians.blockArmor.client.model.ModelBlockArmor;
 import twopiradians.blockArmor.client.model.ModelDynBlockArmor;
@@ -39,46 +37,35 @@ import twopiradians.blockArmor.common.config.Config;
 import twopiradians.blockArmor.common.item.ArmorSet;
 import twopiradians.blockArmor.common.item.ModItems;
 
+@Mod.EventBusSubscriber(Side.CLIENT)
 public class ClientProxy extends CommonProxy
 {
 	/**Map of models to their constructor fields - generated as needed*/
 	private HashMap<String, ModelBlockArmor> modelMaps = Maps.newHashMap();
 
 	@Override
-	public void preInit(FMLPreInitializationEvent event) 
-	{
+	public void preInit(FMLPreInitializationEvent event) {
 		super.preInit(event);
 		KeyActivateSetEffect.ACTIVATE_SET_EFFECT = new KeyBinding("Activate Set Effect", Keyboard.KEY_R, BlockArmor.MODNAME);
 		ModelLoaderRegistry.registerLoader(ModelDynBlockArmor.LoaderDynBlockArmor.INSTANCE);
 	}
 
 	@Override
-	public void init(FMLInitializationEvent event) 
-	{
+	public void init(FMLInitializationEvent event) {
 		super.init(event);
 		ClientRegistry.registerKeyBinding(KeyActivateSetEffect.ACTIVATE_SET_EFFECT);
 	}
 
 	@Override
-	public void postInit(FMLPostInitializationEvent event) 
-	{
+	public void postInit(FMLPostInitializationEvent event) {
 		super.postInit(event);
 		ModBlocks.registerRenders();
 		ModItems.registerRenders();
 	}
-	
-	@Override
-	public void registerEventListeners() {
-		MinecraftForge.EVENT_BUS.register(this);
-		MinecraftForge.EVENT_BUS.register(BlockArmor.key);
-		MinecraftForge.EVENT_BUS.register(new OpenGuiEvent());
-		MinecraftForge.EVENT_BUS.register(new GuiConfigUpdater());
-	}
 
 	/**Get model based on model's constructor parameters*/
 	@Override
-	public Object getBlockArmorModel(int height, int width, int currentFrame, int nextFrame, EntityEquipmentSlot slot) 
-	{
+	public Object getBlockArmorModel(int height, int width, int currentFrame, int nextFrame, EntityEquipmentSlot slot) {
 		String key = height+""+width+""+currentFrame+""+nextFrame+""+slot.getName();
 		ModelBlockArmor model = modelMaps.get(key);
 		if (model == null) {
@@ -89,21 +76,19 @@ public class ClientProxy extends CommonProxy
 	}
 
 	@Override
-	public void loadComplete(FMLLoadCompleteEvent event)
-	{
+	public void loadComplete(FMLLoadCompleteEvent event) {
 		//set MC to map textures when resources reloaded
 		((IReloadableResourceManager) Minecraft.getMinecraft().getResourceManager()).registerReloadListener(new IResourceManagerReloadListener() {
 			@Override
 			public void onResourceManagerReload(IResourceManager resourceManager) {
 				mapTextures();
-				Config.syncJEIBlacklist();
+				Config.syncJEIIngredients();
 			}
 		});
 	}
 
 	@SubscribeEvent
-	public void clientTick(TickEvent.ClientTickEvent event)
-	{
+	public static void clientTick(TickEvent.ClientTickEvent event) {
 		//manage all animated set's frames (ticks at same rate as TextureAtlasSprite's updateAnimation())
 		if (!Minecraft.getMinecraft().isGamePaused() && event.side == Side.CLIENT) 
 			for (ArmorSet set : ArmorSet.allSets) 
@@ -117,8 +102,7 @@ public class ClientProxy extends CommonProxy
 	}
 
 	/**Resets model and item quads and maps block textures (called when client joins world or resource pack loaded)*/
-	private void mapTextures() 
-	{
+	private void mapTextures() {
 		//reset model and item quad maps
 		modelMaps = Maps.newHashMap();
 
@@ -155,8 +139,7 @@ public class ClientProxy extends CommonProxy
 
 	/**Used to register block textures to override inventory textures and for inventory icons*/
 	@SubscribeEvent
-	public void textureStitch(TextureStitchEvent.Pre event) 
-	{
+	public static void textureStitch(TextureStitchEvent.Pre event) {
 		//textures for overriding
 		for (Item item : ArmorSet.TEXTURE_OVERRIDES)
 			for (EntityEquipmentSlot slot : ArmorSet.SLOTS)

@@ -9,7 +9,7 @@ import net.minecraftforge.fml.common.network.ByteBufUtils;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
-import twopiradians.blockArmor.common.BlockArmor;
+import twopiradians.blockArmor.client.key.KeyActivateSetEffect;
 
 public class PacketActivateSetEffect implements IMessage
 {
@@ -43,7 +43,7 @@ public class PacketActivateSetEffect implements IMessage
 			{
 				@Override
 				public void run() {
-					BlockArmor.key.isKeyDown.put(packet.player, packet.isKeyPressed);
+					KeyActivateSetEffect.isKeyDown.put(packet.player, packet.isKeyPressed);
 				}
 			});
 			return null;

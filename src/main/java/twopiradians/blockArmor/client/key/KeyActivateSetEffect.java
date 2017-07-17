@@ -8,6 +8,7 @@ import com.google.common.collect.Maps;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent.ClientTickEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent.Phase;
@@ -16,12 +17,13 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import twopiradians.blockArmor.common.BlockArmor;
 import twopiradians.blockArmor.packet.PacketActivateSetEffect;
 
+@Mod.EventBusSubscriber(Side.CLIENT)
 public class KeyActivateSetEffect 
 {
 	@SideOnly(Side.CLIENT)
 	public static KeyBinding ACTIVATE_SET_EFFECT;
 	/**True if key is pressed down*/
-	public HashMap<UUID, Boolean> isKeyDown = Maps.newHashMap();
+	public static HashMap<UUID, Boolean> isKeyDown = Maps.newHashMap();
 
 	public KeyActivateSetEffect() {}
 	
@@ -33,7 +35,7 @@ public class KeyActivateSetEffect
 
 	@SubscribeEvent
 	@SideOnly(Side.CLIENT)
-	public void playerTick(ClientTickEvent event) {
+	public static void playerTick(ClientTickEvent event) {
 		if (event.phase == Phase.END && Minecraft.getMinecraft().player != null) {
 			UUID player = Minecraft.getMinecraft().player.getPersistentID();
 			if (!isKeyDown.containsKey(player) || ACTIVATE_SET_EFFECT.isKeyDown() != isKeyDown.get(player)) {

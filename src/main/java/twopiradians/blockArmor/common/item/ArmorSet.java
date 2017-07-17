@@ -28,7 +28,6 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemArmor.ArmorMaterial;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
-import net.minecraft.item.crafting.IRecipe;
 import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.EnumBlockRenderType;
 import net.minecraft.util.EnumFacing;
@@ -105,7 +104,6 @@ public class ArmorSet {
 	public String modid;
 	/**should only be modified through enable() and disable(); enabled = in tab and has recipe*/
 	private boolean enabled;
-	public ArrayList<IRecipe> recipes;
 	/**Only changed on client*/
 	public boolean missingTextures; 
 
@@ -232,7 +230,7 @@ public class ArmorSet {
 				if (!registryNames.contains(registryName) && !registryName.equals("")) {
 					ArmorSet set = new ArmorSet(stack);
 					allSets.add(set);
-					nameToSetMap.put(stack.getDisplayName(), set);
+					nameToSetMap.put(registryName, set);
 					registryNames.add(registryName);
 				}
 			}
@@ -488,11 +486,6 @@ public class ArmorSet {
 			}
 		}
 
-		//add recipes FIXME
-/*		for (IRecipe recipe : recipes)
-			if (!CraftingManager.getInstance().getRecipeList().contains(recipe))
-				CraftingManager.getInstance().getRecipeList().add(recipe);*/
-
 		return true;
 	}
 
@@ -524,11 +517,6 @@ public class ArmorSet {
 						break;
 					}
 		}
-
-		//remove recipes FIXME
-/*		for (IRecipe recipe : recipes)
-			if (CraftingManager.getInstance().getRecipeList().contains(recipe))
-				CraftingManager.getInstance().getRecipeList().remove(recipe);*/
 
 		return true;
 	}
