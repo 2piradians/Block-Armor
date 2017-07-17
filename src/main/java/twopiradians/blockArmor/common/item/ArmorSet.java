@@ -48,7 +48,7 @@ import twopiradians.blockArmor.common.config.Config;
 import twopiradians.blockArmor.common.seteffect.SetEffect;
 import twopiradians.blockArmor.creativetab.BlockArmorCreativeTab;
 
-@SuppressWarnings({ "deprecation", "serial" })
+@SuppressWarnings({ "deprecation" })
 public class ArmorSet {
 	/**Used to add ItemStacks that will be approved for sets that would otherwise not be valid*/
 	private static final ArrayList<ItemStack> MANUALLY_ADDED_SETS;
@@ -233,7 +233,7 @@ public class ArmorSet {
 				if (!registryNames.contains(registryName) && !registryName.equals("")) {
 					ArmorSet set = new ArmorSet(stack);
 					allSets.add(set);
-					nameToSetMap.put(stack.getDisplayName(), set);
+					nameToSetMap.put(registryName, set);
 					registryNames.add(registryName);
 				}
 			}

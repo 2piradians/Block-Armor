@@ -163,9 +163,9 @@ public class Config
 
 	/**Get armorSet config prop for given modName and armorSetName*/
 	public static Property getArmorSetProp(String modName, ArmorSet set) {
-		String name = ArmorSet.getItemStackDisplayName(set.stack, null);
+		String name = ArmorSet.getItemStackRegistryName(set.stack);
 		Property prop = Config.config.get(Config.ARMOR_SETS_CATEGORY+"."+modName.replace(".", ","), name+" Armor", true,
-				"Determines whether or not the "+name+" armor should be generated.");
+				"Determines whether or not the "+ArmorSet.getItemStackDisplayName(set.stack, null)+" armor should be generated.");
 		if (!Config.registerDisabledItems)
 			prop.setRequiresMcRestart(true);
 		return prop;

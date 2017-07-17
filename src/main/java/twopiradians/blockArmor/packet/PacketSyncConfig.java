@@ -119,7 +119,7 @@ public class PacketSyncConfig implements IMessage
 		ArrayList<String> enabledNames = new ArrayList<String>();
 		for (ArmorSet set : ArmorSet.allSets) {
 			if (set.isEnabled())
-				enabledNames.add(set.stack.getDisplayName());
+				enabledNames.add(ArmorSet.getItemStackRegistryName(set.stack));
 		}		
 		buf.writeInt(enabledNames.size());
 		for (String name : enabledNames)
