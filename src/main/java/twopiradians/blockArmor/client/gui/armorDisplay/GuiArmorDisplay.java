@@ -40,7 +40,7 @@ public class GuiArmorDisplay extends GuiScreen
 	/**Should armor display be opened on chat event?*/
 	public static final boolean DISPLAY_ARMOR_GUI = false;
 	/**0 = vanilla sets, 1 = modded sets, 2 = set effects w/armor, 3 = set effect tooltips, 4 set effect itemstacks, 5 = 3 & 4*/
-	public static final int GUI_MODE = 0; //do modes 3, 4, and 5 in normal gui size
+	public static final int GUI_MODE = 4; //do modes 3, 4, and 5 in normal gui size
 
 	private final ResourceLocation backgroundBlue = new ResourceLocation(BlockArmor.MODID+":textures/gui/blue.jpg");
 	private final ResourceLocation backgroundWhite = new ResourceLocation(BlockArmor.MODID+":textures/gui/white.png");
@@ -118,14 +118,14 @@ public class GuiArmorDisplay extends GuiScreen
 			for (int i=0; i<tooltips.size(); i++) {
 				GlStateManager.pushMatrix();
 				int spaceBetween = 49;
-				i -= 20;
-				if (i >= 0 && i <= 10)
+				i -= 22;
+				if (i >= 0 && i <= 9)
 					GlStateManager.translate(width/3.5f, 17+i*spaceBetween, 0);
-				else if (i >= 10 && i <= 23)
-					GlStateManager.translate(width/1.35f, 17+(i-11)*spaceBetween, 0);
+				else if (i >= 9 && i <= 23)
+					GlStateManager.translate(width/1.35f, 17+(i-10)*spaceBetween, 0);
 				else
 					GlStateManager.translate(2035, 200+(i-24)*spaceBetween, 0);
-				i += 20;
+				i += 22;
 				List<String> tooltip = new ArrayList<String>();
 				tooltip.add(tooltips.keySet().toArray(new String[0])[i]);
 				int numStacks = tooltips.get(tooltips.keySet().toArray(new String[0])[i]).size();
