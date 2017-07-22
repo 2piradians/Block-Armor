@@ -163,10 +163,10 @@ public class ArmorSet {
 		if (blockHardness > 10)
 			toughness = Math.min(blockHardness / 10F, 10);
 		durability = Math.min(30, durability);
-		blockHardness = (float) Math.log(blockHardness+1.5D)+1;
-		int reductionHelmetBoots = (int) Math.min(Math.floor(Math.log10(Math.pow(blockHardness, 2)+1)+1.6D), 3);
-		int reductionChest = (int) Math.min(blockHardness + 1, 8);
-		int reductionLegs = (int) Math.max(reductionChest - 2, reductionHelmetBoots);
+		//blockHardness = (float) Math.log(blockHardness+1.5D)+1;
+		int reductionHelmetBoots = (int) ((Math.min(Math.floor(Math.log10(Math.pow(blockHardness, 2)+1)+1.6D), 3) + 4) / 2 - 1 + Math.min(blockHardness, 1));
+		int reductionChest = (int) ((Math.min(blockHardness + 1, 8) + 4) / 2 - 1 + Math.min(blockHardness, 1));
+		int reductionLegs = (int) ((Math.max(reductionChest - 2, reductionHelmetBoots) + 4) / 2 - 1 + Math.min(blockHardness, 1));
 		int[] reductionAmounts = new int[] {reductionHelmetBoots, reductionLegs, reductionChest, reductionHelmetBoots};
 		this.material = EnumHelper.addArmorMaterial(getItemStackDisplayName(stack, null)+" Material", "", 
 				(int) durability, reductionAmounts, enchantability, SoundEvents.ITEM_ARMOR_EQUIP_GENERIC, toughness);
