@@ -191,7 +191,11 @@ public class Config
 			BlockArmorJEIPlugin.syncJEIIngredients();
 	}
 
-	/**Send PacketSyncConfig when a player joins a server*/
+	/**Send PacketSyncConfig when a player joins a server
+	 * 
+	 * Would be best to do this with ServerConnectionFromClientEvent to sync config before
+	 * player is refused connection if items are disabled on client and not on server, but
+	 * that event has no player to send the packet with.*/
 	@SubscribeEvent
 	public static void onJoinWorld(PlayerLoggedInEvent event) {
 		if (!event.player.world.isRemote && event.player != null && event.player instanceof EntityPlayerMP) {
