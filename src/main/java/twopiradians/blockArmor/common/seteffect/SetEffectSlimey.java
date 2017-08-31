@@ -33,7 +33,7 @@ public class SetEffectSlimey extends SetEffect {
 
 		if (ArmorSet.getFirstSetItem(player, this) == stack && world.isRemote && !player.isSneaking()) {	
 			//increased movement speed while bouncing
-			if (!player.onGround) {
+			if (!player.onGround && !player.isElytraFlying()) {
 				player.motionX *= 1.07d;
 				player.motionZ *= 1.07d;
 			}
