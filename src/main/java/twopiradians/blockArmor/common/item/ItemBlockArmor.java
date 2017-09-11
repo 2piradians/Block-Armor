@@ -90,7 +90,7 @@ public class ItemBlockArmor extends ItemArmor
 	@Override
 	public Multimap<String, AttributeModifier> getAttributeModifiers(EntityEquipmentSlot slot, ItemStack stack) {
 		Multimap<String, AttributeModifier> map = this.getItemAttributeModifiers(slot);
-		
+
 		if (slot != this.armorType)
 			return map;
 
@@ -140,7 +140,8 @@ public class ItemBlockArmor extends ItemArmor
 				(!world.isRemote && entity instanceof EntityPlayer && stack.hasTagCompound() &&
 						stack.getTagCompound().hasKey("devSpawned") && !CommandDev.DEVS.contains(entity.getPersistentID()) &&
 						((EntityPlayer)entity).inventory.getStackInSlot(slot) == stack)) {
-			((EntityPlayer)entity).inventory.setInventorySlotContents(slot, null);
+			if (((EntityPlayer)entity).inventory.getStackInSlot(slot) == stack)
+				((EntityPlayer)entity).inventory.setInventorySlotContents(slot, null);
 			return;
 		}
 
@@ -172,7 +173,7 @@ public class ItemBlockArmor extends ItemArmor
 				(!world.isRemote && stack != null && stack.hasTagCompound() && stack.getTagCompound().hasKey("devSpawned") && 
 				!CommandDev.DEVS.contains(player.getPersistentID()) && 
 				player.getItemStackFromSlot(this.armorType) == stack)) {
-			player.setItemStackToSlot(this.armorType, null);
+			player.setItemStackToSlot(this.armorType, null); //TODO
 			return;
 		}
 

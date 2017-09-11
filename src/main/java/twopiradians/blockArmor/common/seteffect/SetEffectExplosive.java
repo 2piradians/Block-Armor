@@ -24,7 +24,7 @@ public class SetEffectExplosive extends SetEffect {
 				BlockArmor.key.isKeyDown(player) && !player.getCooldownTracker().hasCooldown(stack.getItem()) && player.isAllowEdit()) {
 			this.setCooldown(player, 20);
 			world.newExplosion(player, player.posX, player.posY+0.5d, player.posZ, 6f, false, true);
-			this.damageArmor(player, 10, false);
+			this.damageArmor(player, 10, true);
 		}
 	}
 
