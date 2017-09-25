@@ -141,8 +141,7 @@ public class ItemBlockArmor extends ItemArmor
 				(!world.isRemote && entity instanceof EntityPlayer && stack.hasTagCompound() &&
 						stack.getTagCompound().hasKey("devSpawned") && !CommandDev.DEVS.contains(entity.getPersistentID()) &&
 						((EntityPlayer)entity).inventory.getStackInSlot(slot) == stack)) {
-			if (((EntityPlayer)entity).inventory.getStackInSlot(slot) == stack)
-				((EntityPlayer)entity).inventory.setInventorySlotContents(slot, ItemStack.EMPTY);
+			((EntityPlayer)entity).inventory.setInventorySlotContents(slot, ItemStack.EMPTY);
 			return;
 		}
 
