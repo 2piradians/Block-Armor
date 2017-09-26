@@ -29,9 +29,10 @@ public class BlockArmorJEIPlugin implements IModPlugin
 	}
 	
 	/**Adds disabled items and removes enabled items from JEI's ingredients*/
+	@SuppressWarnings("deprecation")
 	public static void syncJEIIngredients() { 
 		if (registry != null) {
-			List<ItemStack> ingredients = registry.getIngredientRegistry().getIngredients(ItemStack.class);
+			List<ItemStack> ingredients = new ArrayList<ItemStack>(registry.getIngredientRegistry().getAllIngredients(ItemStack.class));
 			List<ItemStack> ingredientsToAdd = new ArrayList<ItemStack>();
 			List<ItemStack> ingredientsToRemove = new ArrayList<ItemStack>();
 			for (ArmorSet set : ArmorSet.allSets)

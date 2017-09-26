@@ -16,6 +16,7 @@ public class SetEffectSlippery extends SetEffect {
 	}
 
 	/**Only called when player wearing full, enabled set*/
+	@SuppressWarnings("deprecation")
 	@Override
 	public void onArmorTick(World world, EntityPlayer player, ItemStack stack) {
 		super.onArmorTick(world, player, stack);
@@ -34,6 +35,7 @@ public class SetEffectSlippery extends SetEffect {
 	}
 
 	/**Should block be given this set effect*/
+	@SuppressWarnings("deprecation")
 	@Override
 	protected boolean isValid(Block block, int meta) {		
 		if (block.slipperiness > 0.6f && !SetEffect.registryNameContains(block, meta, new String[] {"slime"}))

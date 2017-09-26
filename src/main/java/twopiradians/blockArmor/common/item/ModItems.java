@@ -102,7 +102,7 @@ public class ModItems
 	}
 
 	public static void registerRenders() {
-		for (ItemBlockArmor item : allArmors)
+		for (ItemBlockArmor item : allArmors) 
 			Minecraft.getMinecraft().getRenderItem().getItemModelMesher().register
 			(item, 0, new ModelResourceLocation(BlockArmor.MODID+":" + item.getUnlocalizedName().substring(5), "inventory"));
 	}

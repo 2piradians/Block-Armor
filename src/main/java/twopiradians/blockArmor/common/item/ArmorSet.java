@@ -240,6 +240,8 @@ public class ArmorSet {
 	@SideOnly(Side.CLIENT)
 	public static TextureAtlasSprite getSprite(ItemBlockArmor item) {		
 		if (item != null) {
+			if (item.set.sprites == null)
+				item.set.initTextures();
 			TextureAtlasSprite sprite = item.set.sprites[item.armorType.getIndex()];
 			return sprite == null ? missingSprite : sprite;
 		}
