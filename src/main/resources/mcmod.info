@@ -3,7 +3,7 @@
   "modid": "blockarmor",
   "name": "Block Armor",
   "description": "Block Armor is a mod that adds sets of armor made from many blocks in game, including blocks from other mods! They have different stats, depending on the block the armor is made from. Some armor sets also have effects when worn. The armor texture also supports resource packs!",
-  "version": "2.4.9",
+  "version": "2.4.10",
   "mcversion": "1.12",
   "url": "https://github.com/2piradians/Block-Armor",
   "updateUrl": "",
