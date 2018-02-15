@@ -4,6 +4,7 @@ import java.util.ArrayList;
 
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.init.Blocks;
+import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.NonNullList;
 import net.minecraftforge.fml.relauncher.Side;
@@ -23,8 +24,12 @@ public class BlockArmorCreativeTab extends CreativeTabs
 	public ItemStack getTabIconItem() {
 		if (BlockArmor.moddedTab == this && orderedStacks.size() > 2)
 			return orderedStacks.get(1);
-		else
+		else if (ArmorSet.getSet(Blocks.BEDROCK, 0) != null)
 			return new ItemStack(ArmorSet.getSet(Blocks.BEDROCK, 0).chestplate);
+		else if (orderedStacks.size() > 2)
+			return orderedStacks.get(1);
+		else
+			return new ItemStack(Items.IRON_CHESTPLATE);
 	}
 
 	@Override
