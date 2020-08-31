@@ -28,7 +28,7 @@ public class BlockArmor
 {
 	public static final String MODNAME = "Block Armor"; 
 	public static final String MODID = "blockarmor";
-	public static final String VERSION = "2.4.11";
+	public static final String VERSION = "2.4.12";
 	public static BlockArmorCreativeTab vanillaTab;
 	public static BlockArmorCreativeTab moddedTab;
 	@SidedProxy(clientSide = "twopiradians.blockArmor.client.ClientProxy", serverSide = "twopiradians.blockArmor.common.CommonProxy")

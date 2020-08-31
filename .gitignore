@@ -1,3 +1,7 @@
+
+# Minecraft
+minecraft
+
 # eclipse
 bin
 *.launch
@@ -5,6 +9,9 @@ bin
 .metadata
 .classpath
 .project
+libs/
+lib sources/
+.vs
 
 # idea
 out
@@ -18,9 +25,9 @@ build
 .gradle
 
 # other
-update.json
 eclipse
 run
+screenshots/
 saves/
 /config/
 world/
@@ -37,5 +44,4 @@ whitelist.json
 logs/
 crash-reports/
 *.launch
-# Minecraft
-minecraft
+*.jar

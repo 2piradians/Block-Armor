@@ -8,7 +8,10 @@ import mezz.jei.api.IJeiRuntime;
 import mezz.jei.api.IModPlugin;
 import mezz.jei.api.IModRegistry;
 import mezz.jei.api.JEIPlugin;
+import net.minecraft.client.Minecraft;
 import net.minecraft.item.ItemStack;
+import net.minecraftforge.fml.common.FMLCommonHandler;
+import net.minecraftforge.fml.relauncher.Side;
 import twopiradians.blockArmor.common.BlockArmor;
 import twopiradians.blockArmor.common.item.ArmorSet;
 import twopiradians.blockArmor.common.item.ItemBlockArmor;
@@ -22,16 +25,16 @@ public class BlockArmorJEIPlugin implements IModPlugin
 	public void register(IModRegistry registry) {
 		BlockArmorJEIPlugin.registry = registry;
 	}
-	
+
 	@Override
 	public void onRuntimeAvailable(IJeiRuntime jeiRuntime) {
 		syncJEIIngredients();
 	}
-	
+
 	/**Adds disabled items and removes enabled items from JEI's ingredients*/
 	@SuppressWarnings("deprecation")
 	public static void syncJEIIngredients() { 
-		if (registry != null) {
+		if (registry != null && FMLCommonHandler.instance().getSide() == Side.CLIENT) {
 			List<ItemStack> ingredients = new ArrayList<ItemStack>(registry.getIngredientRegistry().getAllIngredients(ItemStack.class));
 			List<ItemStack> ingredientsToAdd = new ArrayList<ItemStack>();
 			List<ItemStack> ingredientsToRemove = new ArrayList<ItemStack>();
@@ -47,11 +50,15 @@ public class BlockArmorJEIPlugin implements IModPlugin
 							ingredientsToRemove.add(registry.getJeiHelpers().getStackHelper().containsAnyStack(ingredients, Collections.singletonList(new ItemStack(armor))));
 
 			if (!ingredientsToAdd.isEmpty()) {
-				registry.getIngredientRegistry().addIngredientsAtRuntime(ItemStack.class, ingredientsToAdd);
+				Minecraft.getMinecraft().addScheduledTask(() -> { // prevent JEI crash - this needs to run on main thread
+					registry.getIngredientRegistry().addIngredientsAtRuntime(ItemStack.class, ingredientsToAdd);
+				});
 				BlockArmor.logger.info("Added "+ingredientsToAdd.size()+" items to JEI");
 			}
 			if (!ingredientsToRemove.isEmpty()) {
-				registry.getIngredientRegistry().removeIngredientsAtRuntime(ItemStack.class, ingredientsToRemove);
+				Minecraft.getMinecraft().addScheduledTask(() -> { // prevent JEI crash - this needs to run on main thread
+					registry.getIngredientRegistry().removeIngredientsAtRuntime(ItemStack.class, ingredientsToRemove);
+				});
 				BlockArmor.logger.info("Removed "+ingredientsToRemove.size()+" items from JEI");
 			}
 		}

@@ -228,10 +228,13 @@ public class ArmorSet {
 			if (isValid(stack) && ArmorSet.getSet(stack.getItem(), stack.getMetadata()) == null) {
 				String registryName = getItemStackRegistryName(stack);
 				if (!registryNames.contains(registryName) && !registryName.equals("")) {
-					ArmorSet set = new ArmorSet(stack);
-					allSets.add(set);
-					nameToSetMap.put(registryName, set);
-					registryNames.add(registryName);
+					try {
+						ArmorSet set = new ArmorSet(stack);
+						allSets.add(set);
+						nameToSetMap.put(registryName, set);
+						registryNames.add(registryName);
+					}
+					catch (Exception e) {}
 				}
 			}
 	}
@@ -413,7 +416,7 @@ public class ArmorSet {
 			for (ItemStack manualStack : MANUALLY_ADDED_SETS)
 				if (stack != null && stack.getItem() == manualStack.getItem() && stack.getMetadata() == manualStack.getMetadata())
 					return true;
-
+			// not ItemBlock, bad modded item, ore/ingot, or unnamed
 			if (stack == null || !(stack.getItem() instanceof ItemBlock) || 
 					stack.getItem().getRegistryName().getResourceDomain().contains("one_point_twelve_concrete") ||
 					stack.getItem().getRegistryName().getResourceDomain().contains("railcraft") ||
@@ -422,15 +425,16 @@ public class ArmorSet {
 					stack.getDisplayName().contains(".name") || stack.getDisplayName().contains("Ore") ||
 					stack.getDisplayName().contains("%") || stack.getDisplayName().contains("Ingot"))
 				return false;
-
+			// bad blocks
 			Block block = ((ItemBlock)stack.getItem()).getBlock();
 			if (block instanceof BlockLiquid || block instanceof BlockContainer || block.hasTileEntity() || 
 					block instanceof BlockOre || block instanceof BlockCrops || block instanceof BlockBush ||
 					block == Blocks.BARRIER || block instanceof BlockSlab || block == Blocks.MONSTER_EGG ||
 					block.getRenderType(block.getDefaultState()) != EnumBlockRenderType.MODEL ||
-					block == Blocks.IRON_BLOCK || block == Blocks.GOLD_BLOCK || block == Blocks.DIAMOND_BLOCK)
+					block == Blocks.IRON_BLOCK || block == Blocks.GOLD_BLOCK || block == Blocks.DIAMOND_BLOCK ||
+					block == Blocks.AIR)
 				return false;
-
+			// bad modded items
 			String registryName = block.getRegistryName().toString();
 			if (registryName.equalsIgnoreCase("evilcraft:darkBlock") || 
 					registryName.equalsIgnoreCase("evilcraft:obscuredGlass") ||
