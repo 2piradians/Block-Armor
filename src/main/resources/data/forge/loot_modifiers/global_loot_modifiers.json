@@ -1,0 +1,7 @@
+{
+  "replace": false,
+  "entries": [
+    "blockarmor:set_effect_autosmelt",
+    "blockarmor:set_effect_lucky"
+  ]
+}
