@@ -1,3 +1,9 @@
 {
-
+	"type": "blockarmor:set_effect_autosmelt",
+	"conditions": [
+		{
+			"condition": "minecraft:entity_properties",
+			"entity": "this"
+		}
+	]
 }

@@ -10,6 +10,7 @@ import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.event.RegistryEvent.MissingMappings.Mapping;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.common.Mod.EventBusSubscriber.Bus;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.network.NetworkRegistry;
@@ -19,6 +20,7 @@ import twopiradians.blockArmor.client.key.KeyActivateSetEffect;
 import twopiradians.blockArmor.creativetab.BlockArmorCreativeTab;
 
 @Mod(value = BlockArmor.MODID/*, guiFactory = "twopiradians.blockArmor.client.gui.config.BlockArmorGuiFactory"*/)
+@Mod.EventBusSubscriber(bus = Bus.MOD)
 public class BlockArmor {
 
 	/**TODO partially ported on 8/31/20, but gave up
@@ -43,9 +45,7 @@ public class BlockArmor {
 	//public static CommandDev commandDev = new CommandDev();
 	//public static File configFile;
 
-	public BlockArmor() {
-
-	}
+	public BlockArmor() {}
 	
 	@SubscribeEvent
 	public static void onClientSetupEvent(FMLClientSetupEvent event) {

@@ -1,9 +1,7 @@
-itemGroup.tabBlockArmorVanilla=Block Armor: Vanilla Armors
-itemGroup.tabBlockArmorModded=Block Armor: Modded Armors
+itemGroup.blockArmorVanilla=Block Armor: Vanilla Armors
+itemGroup.blockArmorModded=Block Armor: Modded Armors
 
 config.setEffects=Set Effects
 config.armorSets=Armor Sets
 
-tile.movingLightSource.name=Light
-
- =   
+tile.moving_light_source.name=Light

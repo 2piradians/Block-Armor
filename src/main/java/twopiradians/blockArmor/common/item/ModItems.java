@@ -10,6 +10,8 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.IRecipe;
 import net.minecraft.item.crafting.Ingredient;
 import net.minecraft.util.NonNullList;
+import net.minecraftforge.client.event.ModelRegistryEvent;
+import net.minecraftforge.client.model.ModelLoader;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -78,6 +80,8 @@ public class ModItems
 					//for (IRecipe recipe : recipes)
 					//	if (!ForgeRegistries.RECIPE_SERIALIZERS.containsValue(recipe))
 					//		ForgeRegistries.RECIPES.register(recipe);
+					
+					set.enable(); // TODO remove eventually?
 				}
 			}
 			//for (ArmorSet set : Config.disabledSets)

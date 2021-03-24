@@ -1,47 +1,124 @@
 package twopiradians.blockArmor.client;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
+import java.util.function.Predicate;
 
 import com.google.common.collect.Maps;
-import com.sun.glass.events.KeyEvent;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.model.BlockModel;
+import net.minecraft.client.renderer.model.IUnbakedModel;
+import net.minecraft.client.renderer.model.ModelBakery;
+import net.minecraft.client.renderer.model.ModelResourceLocation;
+import net.minecraft.client.renderer.texture.AtlasTexture;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.inventory.EquipmentSlotType;
 import net.minecraft.item.Item;
 import net.minecraft.resources.IReloadableResourceManager;
 import net.minecraft.resources.IResourceManager;
-import net.minecraft.resources.IResourceManagerReloadListener;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.Tuple;
 import net.minecraft.world.World;
 import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.client.event.ModelBakeEvent;
 import net.minecraftforge.client.event.ModelRegistryEvent;
 import net.minecraftforge.client.event.TextureStitchEvent;
+import net.minecraftforge.client.model.ModelLoader;
 import net.minecraftforge.client.model.ModelLoaderRegistry;
+import net.minecraftforge.event.AddReloadListenerEvent;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.LogicalSide;
 import net.minecraftforge.fml.client.registry.ClientRegistry;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.common.Mod.EventBusSubscriber.Bus;
+import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLLoadCompleteEvent;
+import net.minecraftforge.resource.IResourceType;
+import net.minecraftforge.resource.ISelectiveResourceReloadListener;
 import twopiradians.blockArmor.client.key.KeyActivateSetEffect;
 import twopiradians.blockArmor.client.model.ModelBlockArmor;
 import twopiradians.blockArmor.client.model.ModelDynBlockArmor;
 import twopiradians.blockArmor.common.BlockArmor;
 import twopiradians.blockArmor.common.block.ModBlocks;
 import twopiradians.blockArmor.common.item.ArmorSet;
+import twopiradians.blockArmor.common.item.BlockArmorItem;
 import twopiradians.blockArmor.common.item.ModItems;
 
 @SuppressWarnings("deprecation")
 @Mod.EventBusSubscriber(Dist.CLIENT)
 public class ClientProxy
+// FIXME ItemModelMesherForge models does not have custom model for block armor
 {
 	/**Map of models to their constructor fields - generated as needed*/
 	private static HashMap<String, ModelBlockArmor> modelMaps = Maps.newHashMap();
+	public static ModelLoader modelLoader;
+
+	@Mod.EventBusSubscriber(bus = Bus.MOD)
+	public static class RegistrationHandler {
+
+		@SubscribeEvent
+		public static void loadComplete(FMLLoadCompleteEvent event) {
+			System.out.println("load complete ================================================"); // TODO remove
+			//mapTextures(modelLoader); (item models not set up here for ArmorSet.init yet?)
+		}
+
+		/**Used to register block textures to override inventory textures and for inventory icons*/
+		@SubscribeEvent
+		public static void textureStitch(TextureStitchEvent.Pre event) {
+			if (event.getMap().getTextureLocation() == AtlasTexture.LOCATION_BLOCKS_TEXTURE) {
+				System.out.println("texture stitch pre "+event.getMap().getTextureLocation()+" ================================================"); // TODO remove
+
+				//textures for overriding
+				for (Item item : ArmorSet.TEXTURE_OVERRIDES)
+					for (EquipmentSlotType slot : ArmorSet.SLOTS)
+						event.addSprite(new ResourceLocation(BlockArmor.MODID, "items/overrides/"+
+								item.getRegistryName().getPath().toLowerCase().replace(" ", "_")+"_"+slot.getName()));
+
+				//textures for inventory icons
+				event.addSprite(new ResourceLocation(BlockArmor.MODID, "items/icons/block_armor_helmet_base"));
+				event.addSprite(new ResourceLocation(BlockArmor.MODID, "items/icons/block_armor_helmet_cover"));
+				event.addSprite(new ResourceLocation(BlockArmor.MODID, "items/icons/block_armor_helmet1_template"));
+				event.addSprite(new ResourceLocation(BlockArmor.MODID, "items/icons/block_armor_helmet2_template"));
+				event.addSprite(new ResourceLocation(BlockArmor.MODID, "items/icons/block_armor_chestplate_base"));
+				event.addSprite(new ResourceLocation(BlockArmor.MODID, "items/icons/block_armor_chestplate_cover"));
+				event.addSprite(new ResourceLocation(BlockArmor.MODID, "items/icons/block_armor_chestplate1_template"));
+				event.addSprite(new ResourceLocation(BlockArmor.MODID, "items/icons/block_armor_chestplate2_template"));
+				event.addSprite(new ResourceLocation(BlockArmor.MODID, "items/icons/block_armor_leggings_base"));
+				event.addSprite(new ResourceLocation(BlockArmor.MODID, "items/icons/block_armor_leggings_cover"));
+				event.addSprite(new ResourceLocation(BlockArmor.MODID, "items/icons/block_armor_leggings1_template"));
+				event.addSprite(new ResourceLocation(BlockArmor.MODID, "items/icons/block_armor_leggings2_template"));
+				event.addSprite(new ResourceLocation(BlockArmor.MODID, "items/icons/block_armor_boots_base"));
+				event.addSprite(new ResourceLocation(BlockArmor.MODID, "items/icons/block_armor_boots_cover"));
+				event.addSprite(new ResourceLocation(BlockArmor.MODID, "items/icons/block_armor_boots1_template"));
+				event.addSprite(new ResourceLocation(BlockArmor.MODID, "items/icons/block_armor_boots2_template"));
+			}
+		}
+
+		@SubscribeEvent
+		public static void onModelBake(ModelBakeEvent event) {
+			System.out.println("model bake ================================================"); // TODO remove
+			modelLoader = event.getModelLoader();
+			ModItems.registerRenders();
+			ModBlocks.registerRenders();	
+		}
+
+		@SubscribeEvent
+		public static void onModelRegister(ModelRegistryEvent event) {
+			System.out.println("model registry ================================================"); // TODO remove		
+			ModelLoaderRegistry.registerLoader(new ResourceLocation(BlockArmor.MODID, "item_loader"), ModelDynBlockArmor.LoaderDynBlockArmor.INSTANCE);
+			mapUnbakedModels();
+			//ModItems.registerRenders(event);
+			//ModBlocks.registerRenders();	
+		}
+
+	}
 
 	/**Set world time*/
 	public static void setWorldTime(World world, long time) {
@@ -49,21 +126,55 @@ public class ClientProxy
 			((ClientWorld)world).setDayTime(time);
 	}
 
+	/**Map block armor items to use assets/blockarmor/models/item/block_armor.json instead of looking for their own jsons*/
+	public static void mapUnbakedModels() {
+		try {
+			System.out.println("mapUnbakedModels ================================================"); // TODO remove
+			// get unbaked models map
+			Field unbakedModelsField = ObfuscationReflectionHelper.findField(ModelBakery.class, "field_217849_F");
+			unbakedModelsField.setAccessible(true);
+			Map<ResourceLocation, IUnbakedModel> unbakedModels = (Map<ResourceLocation, IUnbakedModel>) unbakedModelsField.get(ModelLoader.instance());
+			// get block_armor.json unbaked model
+			Method loadModelMethod = ObfuscationReflectionHelper.findMethod(ModelBakery.class, "func_177594_c", ResourceLocation.class);
+			loadModelMethod.setAccessible(true);
+			BlockModel model = (BlockModel) loadModelMethod.invoke(ModelLoader.instance(), new ModelResourceLocation(new ResourceLocation(BlockArmor.MODID, "item/block_armor"), "inventory"));
+			// add unbaked model to map so armor items use block_armor.json instead of looking for their registry_name.json
+			for (ArmorSet set : ArmorSet.allSets)
+				for (EquipmentSlotType slot : ArmorSet.SLOTS) {
+					BlockArmorItem item = set.getArmorForSlot(slot);
+					unbakedModels.put(new ModelResourceLocation(item.getRegistryName(), "inventory"), model);
+				}
+		}
+		catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+
 	public static void onSetup(FMLClientSetupEvent event) {
 		event.enqueueWork(ClientProxy::setup);
 	}
-	
+
 	public static void setup() {
-		mapTextures();
-		KeyActivateSetEffect.ACTIVATE_SET_EFFECT = new KeyBinding("Activate Set Effect", KeyEvent.getKeyCodeForChar('R'), BlockArmor.MODNAME);
+		KeyActivateSetEffect.ACTIVATE_SET_EFFECT = new KeyBinding("Activate Set Effect", 100, BlockArmor.MODNAME); // FIXME KeyEvent.getKeyCodeForChar('R') crashed for some reason
 		ClientRegistry.registerKeyBinding(KeyActivateSetEffect.ACTIVATE_SET_EFFECT);
-		ModBlocks.registerRenders();
-		ModItems.registerRenders();
+		//ModBlocks.registerRenders();
+		//ModItems.registerRenders();
 	}
-	
+
+	/**Set MC to map textures when resources reloaded*/
 	@SubscribeEvent
-	public static void onModelRegister(ModelRegistryEvent event) {
-		ModelLoaderRegistry.registerLoader(new ResourceLocation(BlockArmor.MODID, "blockArmorModels"), ModelDynBlockArmor.LoaderDynBlockArmor.INSTANCE);
+	public static void addReloadListener(AddReloadListenerEvent event) {
+		System.out.println("AddReloadListenerEvent ================================================"); // TODO remove
+		((IReloadableResourceManager) Minecraft.getInstance().getResourceManager()).addReloadListener(new ISelectiveResourceReloadListener() {
+			@Override
+			public void onResourceManagerReload(IResourceManager resourceManager,
+					Predicate<IResourceType> resourcePredicate) {
+				mapTextures();
+				mapUnbakedModels();
+				//Config.syncJEIIngredients(); TODO add JEI integration when it's updated
+				System.out.println("reload ================================================"); // TODO remove
+			}
+		});
 	}
 
 	/**Get model based on model's constructor parameters*/
@@ -75,18 +186,6 @@ public class ClientProxy
 			modelMaps.put(key, model);
 		}
 		return model;
-	}
-
-	@SubscribeEvent
-	public static void loadComplete(FMLLoadCompleteEvent event) {
-		//set MC to map textures when resources reloaded
-		((IReloadableResourceManager) Minecraft.getInstance().getResourceManager()).addReloadListener(new IResourceManagerReloadListener() {
-			@Override
-			public void onResourceManagerReload(IResourceManager resourceManager) {
-				mapTextures();
-				//Config.syncJEIIngredients(); TODO
-			}
-		});
 	}
 
 	@SubscribeEvent
@@ -104,11 +203,11 @@ public class ClientProxy
 	}
 
 	/**Resets model and item quads and maps block textures (called when client joins world or resource pack loaded)*/
-	private static void mapTextures() {
-		//reset model and item quad maps
+	public static void mapTextures() {
+		// reset model and item quad maps
 		modelMaps = Maps.newHashMap();
 
-		//find block textures
+		// find block textures
 		ArrayList<ArmorSet> setsToDisable = new ArrayList<ArmorSet>();
 		int numTextures = 0;
 		for (ArmorSet set : ArmorSet.allSets) {
@@ -118,53 +217,25 @@ public class ClientProxy
 				setsToDisable.add(set);
 		}
 
-		//textures not loaded yet
+		// textures not loaded yet
 		if (numTextures == 0) 
 			return;
-		else if (!setsToDisable.isEmpty()) { //disable sets with missing textures
+		// disable sets with missing textures
+		else if (!setsToDisable.isEmpty()) { 
 			int disabledSets = 0;
 			for (ArmorSet set : setsToDisable) {
 				set.missingTextures = true;
 				set.disable();
 				disabledSets++;
 			}
-			if (disabledSets > 0)
-				BlockArmor.LOGGER.info("Disabled "+disabledSets+" armor set"+(disabledSets > 1 ? "s" : "")+" without textures");
+			BlockArmor.LOGGER.info("Disabled "+disabledSets+" armor set"+(disabledSets > 1 ? "s" : "")+" without textures");
 		}
 
 		BlockArmor.LOGGER.info("Found "+numTextures+" block textures for Block Armor");
 
 		//create inventory icons
-		int numIcons = ModelDynBlockArmor.BakedDynBlockArmorOverrideHandler.createInventoryIcons();
+		int numIcons = ModelDynBlockArmor.BakedDynBlockArmorOverrideHandler.createInventoryIcons(ClientProxy.modelLoader);
 		BlockArmor.LOGGER.info("Created "+numIcons+" inventory icons for Block Armor");
-	}
-
-	/**Used to register block textures to override inventory textures and for inventory icons*/
-	@SubscribeEvent
-	public static void textureStitch(TextureStitchEvent.Pre event) {
-		//textures for overriding
-		for (Item item : ArmorSet.TEXTURE_OVERRIDES)
-			for (EquipmentSlotType slot : ArmorSet.SLOTS)
-				event.addSprite(new ResourceLocation(BlockArmor.MODID, "items/overrides/"+
-						item.getRegistryName().getPath().toLowerCase().replace(" ", "_")+"_"+slot.getName()));
-
-		//textures for inventory icons
-		event.addSprite(new ResourceLocation(BlockArmor.MODID, "items/icons/block_armor_helmet_base"));
-		event.addSprite(new ResourceLocation(BlockArmor.MODID, "items/icons/block_armor_helmet_cover"));
-		event.addSprite(new ResourceLocation(BlockArmor.MODID, "items/icons/block_armor_helmet1_template"));
-		event.addSprite(new ResourceLocation(BlockArmor.MODID, "items/icons/block_armor_helmet2_template"));
-		event.addSprite(new ResourceLocation(BlockArmor.MODID, "items/icons/block_armor_chestplate_base"));
-		event.addSprite(new ResourceLocation(BlockArmor.MODID, "items/icons/block_armor_chestplate_cover"));
-		event.addSprite(new ResourceLocation(BlockArmor.MODID, "items/icons/block_armor_chestplate1_template"));
-		event.addSprite(new ResourceLocation(BlockArmor.MODID, "items/icons/block_armor_chestplate2_template"));
-		event.addSprite(new ResourceLocation(BlockArmor.MODID, "items/icons/block_armor_leggings_base"));
-		event.addSprite(new ResourceLocation(BlockArmor.MODID, "items/icons/block_armor_leggings_cover"));
-		event.addSprite(new ResourceLocation(BlockArmor.MODID, "items/icons/block_armor_leggings1_template"));
-		event.addSprite(new ResourceLocation(BlockArmor.MODID, "items/icons/block_armor_leggings2_template"));
-		event.addSprite(new ResourceLocation(BlockArmor.MODID, "items/icons/block_armor_boots_base"));
-		event.addSprite(new ResourceLocation(BlockArmor.MODID, "items/icons/block_armor_boots_cover"));
-		event.addSprite(new ResourceLocation(BlockArmor.MODID, "items/icons/block_armor_boots1_template"));
-		event.addSprite(new ResourceLocation(BlockArmor.MODID, "items/icons/block_armor_boots2_template"));
 	}
 
 }

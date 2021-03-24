@@ -1,0 +1,19 @@
+{
+    "variants": {
+        "light_level=1": { "model": "blockarmor:block/moving_light_source" },
+        "light_level=2": { "model": "blockarmor:block/moving_light_source" },
+		"light_level=3": { "model": "blockarmor:block/moving_light_source" },
+		"light_level=4": { "model": "blockarmor:block/moving_light_source" },
+		"light_level=5": { "model": "blockarmor:block/moving_light_source" },
+		"light_level=6": { "model": "blockarmor:block/moving_light_source" },
+		"light_level=7": { "model": "blockarmor:block/moving_light_source" },
+		"light_level=8": { "model": "blockarmor:block/moving_light_source" },
+		"light_level=9": { "model": "blockarmor:block/moving_light_source" },
+		"light_level=10": { "model": "blockarmor:block/moving_light_source" },
+		"light_level=11": { "model": "blockarmor:block/moving_light_source" },
+		"light_level=12": { "model": "blockarmor:block/moving_light_source" },
+		"light_level=13": { "model": "blockarmor:block/moving_light_source" },
+		"light_level=14": { "model": "blockarmor:block/moving_light_source" },
+		"light_level=15": { "model": "blockarmor:block/moving_light_source" }
+    }
+}

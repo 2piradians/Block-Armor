@@ -9,6 +9,7 @@ import net.minecraft.block.material.Material;
 import net.minecraft.item.BlockItemUseContext;
 import net.minecraft.state.IntegerProperty;
 import net.minecraft.state.Property;
+import net.minecraft.state.StateContainer;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IBlockReader;
@@ -21,6 +22,11 @@ public class BlockMovingLightSource extends Block
 
 	public BlockMovingLightSource() {
 		super(AbstractBlock.Properties.create(Material.AIR));
+	}
+
+	@Override
+	protected void fillStateContainer(StateContainer.Builder<Block, BlockState> builder) {
+		builder.add(LIGHT_LEVEL);
 	}
 
 	@Override

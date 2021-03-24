@@ -67,8 +67,7 @@ public class BlockArmorItem extends ArmorItem {
 		float alpha = ArmorSet.getAlpha(this);
 		// ModelBlockArmor model = new ModelBlockArmor(height, width, currentFrame,
 		// nextFrame, slot);
-		ModelBlockArmor model = (ModelBlockArmor) ClientProxy.getBlockArmorModel(height, width, currentFrame, nextFrame,
-				slot);
+		ModelBlockArmor model = (ModelBlockArmor) ClientProxy.getBlockArmorModel(height, width, currentFrame, nextFrame, slot);
 		model.translucent = isTranslucent;
 		model.color = color;
 		model.alpha = alpha;
@@ -82,6 +81,11 @@ public class BlockArmorItem extends ArmorItem {
 			return;
 		else
 			super.fillItemGroup(group, items);
+	}
+
+	@Override
+	protected boolean isInGroup(ItemGroup group) {
+		return group != null && (group == ItemGroup.SEARCH || group == this.group);
 	}
 
 	/** Change display name based on the block */
@@ -138,7 +142,7 @@ public class BlockArmorItem extends ArmorItem {
 
 	/** Mostly handles nbt and enchanting armor */
 	@Override
-	   public void inventoryTick(ItemStack stack, World world, Entity entity, int itemSlot, boolean isSelected) {
+	public void inventoryTick(ItemStack stack, World world, Entity entity, int itemSlot, boolean isSelected) {
 		// delete dev spawned items if not in dev's inventory and delete disabled items
 		// (except missingTexture items in SMP)
 		if (stack.isEmpty() || (!set.isEnabled() && !world.isRemote & entity instanceof PlayerEntity)

@@ -21,6 +21,7 @@ import net.minecraft.block.SlabBlock;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.ItemModelMesher;
 import net.minecraft.client.renderer.model.BakedQuad;
+import net.minecraft.client.renderer.model.ModelBakery;
 import net.minecraft.client.renderer.texture.AtlasTexture;
 import net.minecraft.client.renderer.texture.MissingTextureSprite;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
@@ -107,7 +108,6 @@ public class ArmorSet {
 	/**Only changed on client*/
 	public boolean missingTextures; 
 
-
 	public boolean isTranslucent;
 	/**Array of block's textures sorted by EquipmentSlotType id*/
 
@@ -123,7 +123,7 @@ public class ArmorSet {
 	private int[] colors;
 	/**Minecraft's default missing texture sprite, assigned in initTextures()*/
 
-	private static TextureAtlasSprite missingSprite;
+	public static TextureAtlasSprite missingSprite;
 
 	public ArmorSet(ItemStack stack) {
 		this.stack = stack;
@@ -473,13 +473,13 @@ public class ArmorSet {
 			//add to tab
 			if (isFromModdedBlock) {
 				if (BlockArmor.moddedTab == null)
-					BlockArmor.moddedTab = new BlockArmorCreativeTab("tabBlockArmorModded");
+					BlockArmor.moddedTab = new BlockArmorCreativeTab("blockArmorModded");
 				BlockArmor.moddedTab.orderedStacks.add(new ItemStack(armor));
 				armor.setGroup(BlockArmor.moddedTab);
 			}
 			else {
 				if (BlockArmor.vanillaTab == null)
-					BlockArmor.vanillaTab = new BlockArmorCreativeTab("tabBlockArmorVanilla");
+					BlockArmor.vanillaTab = new BlockArmorCreativeTab("blockArmorVanilla");
 				BlockArmor.vanillaTab.orderedStacks.add(new ItemStack(armor));
 				armor.setGroup(BlockArmor.vanillaTab);
 			}
@@ -521,12 +521,13 @@ public class ArmorSet {
 	}
 
 	/**Initialize set's texture variable*/
-
 	public Tuple<Integer, Boolean> initTextures() {
+		//System.out.println("init textures ("+this.item.getRegistryName()+") ====================================="); // TODO remove
 		boolean missingTextures = false;
 
 		if (missingSprite == null)
-			missingSprite = MissingTextureSprite.create(new AtlasTexture(new ResourceLocation("")), 0, 16, 16, 0, 0);
+			missingSprite = MissingTextureSprite
+					.create(new AtlasTexture(ModelBakery.MODEL_MISSING/*new ResourceLocation("missingno")*/), 0, 16, 16, 0, 0);
 
 		int numTextures = 0;
 		this.sprites = new TextureAtlasSprite[EquipmentSlotType.values().length];
@@ -543,7 +544,7 @@ public class ArmorSet {
 
 			Random rand = new Random();
 			//getting quads may throw exception if a mod's modeler doesn't obey @Nullable
-			list.addAll(mesher.getItemModel(this.stack).getQuads(null, null, rand));
+			list.addAll(mesher.getItemModel(this.item).getQuads(null, null, rand));
 			for (Direction facing : Direction.values())
 				list.addAll(mesher.getItemModel(this.stack).getQuads(null, facing, rand));
 
@@ -587,7 +588,9 @@ public class ArmorSet {
 				}
 			}
 		}
-		catch (Exception e) {}
+		catch (Exception e) {
+			e.printStackTrace(); // TODO remove?
+		}
 
 		//Check for block texture overrides
 		if (TEXTURE_OVERRIDES.contains(item))
