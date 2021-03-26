@@ -65,9 +65,7 @@ public class BlockArmorItem extends ArmorItem {
 		int nextFrame = ArmorSet.getNextAnimationFrame(this);
 		int color = ArmorSet.getColor(this);
 		float alpha = ArmorSet.getAlpha(this);
-		// ModelBlockArmor model = new ModelBlockArmor(height, width, currentFrame,
-		// nextFrame, slot);
-		ModelBlockArmor model = (ModelBlockArmor) ClientProxy.getBlockArmorModel(height, width, currentFrame, nextFrame, slot);
+		ModelBlockArmor model = (ModelBlockArmor) ClientProxy.getBlockArmorModel(entity, height, width, currentFrame, nextFrame, slot);
 		model.translucent = isTranslucent;
 		model.color = color;
 		model.alpha = alpha;

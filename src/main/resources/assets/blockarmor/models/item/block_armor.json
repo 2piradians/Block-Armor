@@ -1,4 +1,4 @@
 {
-    "parent": "item/generated",
+    "parent": "minecraft:item/generated",
     "loader": "blockarmor:item_loader"
 }

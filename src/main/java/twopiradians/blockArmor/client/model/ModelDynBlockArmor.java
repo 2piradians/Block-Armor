@@ -153,7 +153,7 @@ public final class ModelDynBlockArmor implements IModelGeometry<ModelDynBlockArm
 
 		@Override
 		public void onResourceManagerReload(IResourceManager resourceManager) {
-			System.out.println("onResourceManagerReload2: "+BakedDynBlockArmorOverrideHandler.itemQuadsMap); // TODO remove
+			System.out.println("onResourceManagerReload2 ================================================= "); // TODO remove
 		}
 
 		@Override
@@ -168,11 +168,14 @@ public final class ModelDynBlockArmor implements IModelGeometry<ModelDynBlockArm
 			return VanillaResourceType.MODELS;
 		}
 
+		/**Called when resources are reloaded (not called during initial load)*/
 		@Override
 		public CompletableFuture<Void> reload(IFutureReloadListener.IStage stage, IResourceManager resourceManager, IProfiler preparationsProfiler, IProfiler reloadProfiler, Executor backgroundExecutor, Executor gameExecutor) {
-			System.out.println("reload: "+BakedDynBlockArmorOverrideHandler.itemQuadsMap); // TODO remove
-			//ClientProxy.mapTextures();
-			ClientProxy.mapUnbakedModels();
+			System.out.println("modeldynblockarmor reload ======================================================"); // TODO remove
+			// problem with this is that ModelBakery is prepared async and doesn't have any hooks during reload that I know of
+			// so reload still doesn't find the models
+			ClientProxy.mapUnbakedModels(); // need to do models in here because they're needed before onResourceManagerReload is called
+			ClientProxy.mapTextures();
 			return stage.markCompleteAwaitingOthers(Unit.INSTANCE).thenRunAsync(() -> {
 				reloadProfiler.startTick();
 				reloadProfiler.startSection("listener");
@@ -186,8 +189,6 @@ public final class ModelDynBlockArmor implements IModelGeometry<ModelDynBlockArm
 	public static final class BakedDynBlockArmorOverrideHandler extends ItemOverrideList {
 		/**Map of item to quads for the item's inventory model*/
 		private static HashMap<Item, ImmutableList<BakedQuad>> itemQuadsMap = Maps.newHashMap();
-		/**Map of resource location to quads for the item's inventory model*/
-		private static HashMap<ResourceLocation, ImmutableList<BakedQuad>> locQuadsMap = Maps.newHashMap();
 
 		public static final BakedDynBlockArmorOverrideHandler INSTANCE = new BakedDynBlockArmorOverrideHandler();
 
@@ -199,16 +200,15 @@ public final class ModelDynBlockArmor implements IModelGeometry<ModelDynBlockArm
 		@SuppressWarnings("deprecation")
 		public static int createInventoryIcons(ModelBakery bakery) {
 			ModelDynBlockArmor.BakedDynBlockArmorOverrideHandler.itemQuadsMap = Maps.newHashMap();
-			ModelDynBlockArmor.BakedDynBlockArmorOverrideHandler.locQuadsMap = Maps.newHashMap();
 			int numIcons = 0;
 
 			ImmutableMap.Builder<TransformType, TransformationMatrix> builder2 = ImmutableMap.builder();
-			builder2.put(TransformType.GROUND, new TransformationMatrix(new Vector3f(0.25f, 0.375f, 0.25f), new Quaternion(0.0f, 0.0f, 0.0f, 1.0f), new Vector3f(0.5f, 0.5f, 0.5f), new Quaternion(0.0f, 0.0f, 0.0f, 1.0f)));
-			builder2.put(TransformType.HEAD, new TransformationMatrix(new Vector3f(1.0f, 0.8125f, 1.4375f), new Quaternion(0.0f, 1.0f, 0.0f, -4.371139E-8f), new Vector3f(1.0f, 1.0f, 1.0f), new Quaternion(0.0f, 0.0f, 0.0f, 1.0f)));
-			builder2.put(TransformType.FIRST_PERSON_RIGHT_HAND, new TransformationMatrix(new Vector3f(0.910625f, 0.24816513f, 0.40617055f), new Quaternion(-0.15304594f, -0.6903456f, 0.15304594f, 0.6903456f), new Vector3f(0.68000007f, 0.68000007f, 0.68f), new Quaternion(0.0f, 0.0f, 0.0f, 1.0f)));
-			builder2.put(TransformType.FIRST_PERSON_LEFT_HAND, new TransformationMatrix(new Vector3f(0.910625f, 0.24816513f, 0.40617055f), new Quaternion(-0.15304594f, -0.6903456f, 0.15304594f, 0.6903456f), new Vector3f(0.68000007f, 0.68000007f, 0.68f), new Quaternion(0.0f, 0.0f, 0.0f, 1.0f)));
-			builder2.put(TransformType.THIRD_PERSON_RIGHT_HAND, new TransformationMatrix(new Vector3f(0.225f, 0.4125f, 0.2875f), new Quaternion(0.0f, 0.0f, 0.0f, 0.99999994f), new Vector3f(0.55f, 0.55f, 0.55f), new Quaternion(0.0f, 0.0f, 0.0f, 1.0f)));
-			builder2.put(TransformType.THIRD_PERSON_LEFT_HAND, new TransformationMatrix(new Vector3f(0.225f, 0.4125f, 0.2875f), new Quaternion(0.0f, 0.0f, 0.0f, 0.99999994f), new Vector3f(0.55f, 0.55f, 0.55f), new Quaternion(0.0f, 0.0f, 0.0f, 1.0f)));
+			builder2.put(TransformType.GROUND, new TransformationMatrix(new Vector3f(0.0f, 0.125f, 0.0f), new Quaternion(0.0f, 0.0f, 0.0f, 1.0f), new Vector3f(0.5f, 0.5f, 0.5f), new Quaternion(0.0f, 0.0f, 0.0f, 1.0f)));
+			builder2.put(TransformType.HEAD, new TransformationMatrix(new Vector3f(0.0f, 0.8125f, 0.4375f), new Quaternion(0.0f, 1.0f, 0.0f, -4.371139E-8f), new Vector3f(1.0f, 1.0f, 1.0f), new Quaternion(0.0f, 0.0f, 0.0f, 1.0f)));
+			builder2.put(TransformType.FIRST_PERSON_RIGHT_HAND, new TransformationMatrix(new Vector3f(0.070625f, 0.2f, 0.070625f), new Quaternion(-0.15304594f, -0.6903456f, 0.15304594f, 0.6903456f), new Vector3f(0.68000007f, 0.68000007f, 0.68f), new Quaternion(0.0f, 0.0f, 0.0f, 1.0f)));
+			builder2.put(TransformType.FIRST_PERSON_LEFT_HAND, new TransformationMatrix(new Vector3f(0.070625f, 0.2f, 0.070625f), new Quaternion(-0.15304594f, -0.6903456f, 0.15304594f, 0.6903456f), new Vector3f(0.68000007f, 0.68000007f, 0.68f), new Quaternion(0.0f, 0.0f, 0.0f, 1.0f)));
+			builder2.put(TransformType.THIRD_PERSON_RIGHT_HAND, new TransformationMatrix(new Vector3f(0.0f, 0.1875f, 0.0625f), new Quaternion(0.0f, 0.0f, 0.0f, 0.99999994f), new Vector3f(0.55f, 0.55f, 0.55f), new Quaternion(0.0f, 0.0f, 0.0f, 1.0f)));
+			builder2.put(TransformType.THIRD_PERSON_LEFT_HAND, new TransformationMatrix(new Vector3f(0.0f, 0.1875f, 0.0625f), new Quaternion(0.0f, 0.0f, 0.0f, 0.99999994f), new Vector3f(0.55f, 0.55f, 0.55f), new Quaternion(0.0f, 0.0f, 0.0f, 1.0f)));
 			ImmutableMap<TransformType, TransformationMatrix> transformMap = builder2.build();
 
 			for (ArmorSet set : ArmorSet.allSets) {
@@ -217,7 +217,7 @@ public final class ModelDynBlockArmor implements IModelGeometry<ModelDynBlockArm
 					//Initialize variables
 					TextureAtlasSprite sprite = ArmorSet.getSprite(item);
 					if (sprite == null)
-						BlockArmor.LOGGER.warn("Missing sprite for: "+new ItemStack(item).getDisplayName());
+						BlockArmor.LOGGER.warn("Missing sprite for: "+new ItemStack(item).getDisplayName().getUnformattedComponentText());
 					ImmutableList.Builder<BakedQuad> builder = ImmutableList.builder();
 					IModelTransform state = new SimpleModelTransform(transformMap);
 					TransformationMatrix transform = TransformationMatrix.identity();
@@ -255,7 +255,7 @@ public final class ModelDynBlockArmor implements IModelGeometry<ModelDynBlockArm
 						float r = ((color >> 16) & 0xFF) / 255f;
 						float g = ((color >> 8) & 0xFF) / 255f;
 						float b = ((color >> 0) & 0xFF) / 255f; 
-						color = new Color(r, g, b).getRGB(); //set alpha to 1.0f (since sometimes 0f)
+						color = new Color(r, g, b, 1).getRGB(); //set alpha to 1.0f (since sometimes 0f)
 					}
 
 					//Template texture for left half
@@ -273,12 +273,11 @@ public final class ModelDynBlockArmor implements IModelGeometry<ModelDynBlockArm
 					//Cover texture
 					ResourceLocation coverLocation = new ResourceLocation(BlockArmor.MODID+":items/icons/block_armor_"+armorType+"_cover");
 					TextureAtlasSprite coverTexture = templateTexture = Minecraft.getInstance().getModelManager().getAtlasTexture(AtlasTexture.LOCATION_BLOCKS_TEXTURE).getSprite(coverLocation);
-					builder.add(ItemTextureQuadConverter.genQuad(transform, 0, 0, 16, 16, NORTH_Z_BASE, coverTexture, Direction.NORTH, 0xffffffff, 1));
-					builder.add(ItemTextureQuadConverter.genQuad(transform, 0, 0, 16, 16, SOUTH_Z_BASE, coverTexture, Direction.SOUTH, 0xffffffff, 1));
+					builder.add(ItemTextureQuadConverter.genQuad(transform, 0, 0, 16, 16, NORTH_Z_BASE, coverTexture, Direction.NORTH, color, 1));
+					builder.add(ItemTextureQuadConverter.genQuad(transform, 0, 0, 16, 16, SOUTH_Z_BASE, coverTexture, Direction.SOUTH, color, 1));
 
 					ImmutableList<BakedQuad> quads = builder.build();
 					itemQuadsMap.put(item, quads);
-					locQuadsMap.put(new ModelResourceLocation(item.getRegistryName(), "inventory"), quads);
 					numIcons++;
 				}
 			}
@@ -302,12 +301,12 @@ public final class ModelDynBlockArmor implements IModelGeometry<ModelDynBlockArm
 
 		public BakedDynBlockArmor() {
 			ImmutableMap.Builder<TransformType, TransformationMatrix> builder = ImmutableMap.builder();
-			builder.put(TransformType.GROUND, new TransformationMatrix(new Vector3f(0.25f, 0.375f, 0.25f), new Quaternion(0.0f, 0.0f, 0.0f, 1.0f), new Vector3f(0.5f, 0.5f, 0.5f), new Quaternion(0.0f, 0.0f, 0.0f, 1.0f)));
-			builder.put(TransformType.HEAD, new TransformationMatrix(new Vector3f(1.0f, 0.8125f, 1.4375f), new Quaternion(0.0f, 1.0f, 0.0f, -4.371139E-8f), new Vector3f(1.0f, 1.0f, 1.0f), new Quaternion(0.0f, 0.0f, 0.0f, 1.0f)));
-			builder.put(TransformType.FIRST_PERSON_RIGHT_HAND, new TransformationMatrix(new Vector3f(0.910625f, 0.24816513f, 0.40617055f), new Quaternion(-0.15304594f, -0.6903456f, 0.15304594f, 0.6903456f), new Vector3f(0.68000007f, 0.68000007f, 0.68f), new Quaternion(0.0f, 0.0f, 0.0f, 1.0f)));
-			builder.put(TransformType.FIRST_PERSON_LEFT_HAND, new TransformationMatrix(new Vector3f(0.910625f, 0.24816513f, 0.40617055f), new Quaternion(-0.15304594f, -0.6903456f, 0.15304594f, 0.6903456f), new Vector3f(0.68000007f, 0.68000007f, 0.68f), new Quaternion(0.0f, 0.0f, 0.0f, 1.0f)));
-			builder.put(TransformType.THIRD_PERSON_RIGHT_HAND, new TransformationMatrix(new Vector3f(0.225f, 0.4125f, 0.2875f), new Quaternion(0.0f, 0.0f, 0.0f, 0.99999994f), new Vector3f(0.55f, 0.55f, 0.55f), new Quaternion(0.0f, 0.0f, 0.0f, 1.0f)));
-			builder.put(TransformType.THIRD_PERSON_LEFT_HAND, new TransformationMatrix(new Vector3f(0.225f, 0.4125f, 0.2875f), new Quaternion(0.0f, 0.0f, 0.0f, 0.99999994f), new Vector3f(0.55f, 0.55f, 0.55f), new Quaternion(0.0f, 0.0f, 0.0f, 1.0f)));
+			builder.put(TransformType.GROUND, new TransformationMatrix(new Vector3f(0.0f, 0.125f, 0.0f), new Quaternion(0.0f, 0.0f, 0.0f, 1.0f), new Vector3f(0.5f, 0.5f, 0.5f), new Quaternion(0.0f, 0.0f, 0.0f, 1.0f)));
+			builder.put(TransformType.HEAD, new TransformationMatrix(new Vector3f(0.0f, 0.8125f, 0.4375f), new Quaternion(0.0f, 1.0f, 0.0f, -4.371139E-8f), new Vector3f(1.0f, 1.0f, 1.0f), new Quaternion(0.0f, 0.0f, 0.0f, 1.0f)));
+			builder.put(TransformType.FIRST_PERSON_RIGHT_HAND, new TransformationMatrix(new Vector3f(0.070625f, 0.2f, 0.070625f), new Quaternion(-0.15304594f, -0.6903456f, 0.15304594f, 0.6903456f), new Vector3f(0.68000007f, 0.68000007f, 0.68f), new Quaternion(0.0f, 0.0f, 0.0f, 1.0f)));
+			builder.put(TransformType.FIRST_PERSON_LEFT_HAND, new TransformationMatrix(new Vector3f(0.070625f, 0.2f, 0.070625f), new Quaternion(-0.15304594f, -0.6903456f, 0.15304594f, 0.6903456f), new Vector3f(0.68000007f, 0.68000007f, 0.68f), new Quaternion(0.0f, 0.0f, 0.0f, 1.0f)));
+			builder.put(TransformType.THIRD_PERSON_RIGHT_HAND, new TransformationMatrix(new Vector3f(0.0f, 0.1875f, 0.0625f), new Quaternion(0.0f, 0.0f, 0.0f, 0.99999994f), new Vector3f(0.55f, 0.55f, 0.55f), new Quaternion(0.0f, 0.0f, 0.0f, 1.0f)));
+			builder.put(TransformType.THIRD_PERSON_LEFT_HAND, new TransformationMatrix(new Vector3f(0.0f, 0.1875f, 0.0625f), new Quaternion(0.0f, 0.0f, 0.0f, 0.99999994f), new Vector3f(0.55f, 0.55f, 0.55f), new Quaternion(0.0f, 0.0f, 0.0f, 1.0f)));
 			ImmutableMap<TransformType, TransformationMatrix> transformMap = builder.build();
 			this.transforms = Maps.immutableEnumMap(transformMap);
 		}
@@ -328,7 +327,7 @@ public final class ModelDynBlockArmor implements IModelGeometry<ModelDynBlockArm
 			return ImmutableList.of();
 		}
 
-		public boolean isSideLit() { return true; }
+		public boolean isSideLit() { return false; }
 		public boolean isAmbientOcclusion() { return true;  }
 		public boolean isGui3d() { return false; }
 		public boolean isBuiltInRenderer() { return false; }

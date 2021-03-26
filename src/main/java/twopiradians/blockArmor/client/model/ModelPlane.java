@@ -8,11 +8,10 @@ import net.minecraft.client.renderer.model.ModelRenderer.ModelBox;
 
 public class ModelPlane extends ModelBox {
 
-	private TexturedQuad quad;
+	private TexturedQuad quad; // private - can't do...
 
-	public ModelPlane(ModelRenderer renderer, int textureX, int textureY, float offX, float offY, float offZ, int width, int height, int depth, boolean flip)
-	{
-		super(renderer, textureX, textureY, offX, offY, offZ, width, height, depth, 0, false);
+	public ModelPlane(ModelRenderer renderer, int textureX, int textureY, float offX, float offY, float offZ, int width, int height, int depth, boolean flip) {
+		super(textureX, textureY, offX, offY, offZ, width, height, depth, 0, 0, 0, false, 16, 16);
 
 		PositionTextureVertex vertex1 = null;
 		PositionTextureVertex vertex2 = null;
@@ -68,5 +67,5 @@ public class ModelPlane extends ModelBox {
 	{
 		this.quad.draw(builder, scale);
 	}
-}
-*/
+
+}*/

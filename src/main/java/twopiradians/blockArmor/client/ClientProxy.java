@@ -17,6 +17,7 @@ import net.minecraft.client.renderer.model.ModelResourceLocation;
 import net.minecraft.client.renderer.texture.AtlasTexture;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.client.world.ClientWorld;
+import net.minecraft.entity.LivingEntity;
 import net.minecraft.inventory.EquipmentSlotType;
 import net.minecraft.item.Item;
 import net.minecraft.resources.IReloadableResourceManager;
@@ -25,6 +26,7 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.Tuple;
 import net.minecraft.world.World;
 import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.client.event.ClientPlayerNetworkEvent;
 import net.minecraftforge.client.event.ModelBakeEvent;
 import net.minecraftforge.client.event.ModelRegistryEvent;
 import net.minecraftforge.client.event.TextureStitchEvent;
@@ -119,6 +121,12 @@ public class ClientProxy
 		}
 
 	}
+	
+	@SubscribeEvent
+	public static void onLogin(ClientPlayerNetworkEvent.LoggedInEvent event) {
+		System.out.println("LoggedInEvent ================================================"); // TODO remove		
+		mapTextures();
+	}
 
 	/**Set world time*/
 	public static void setWorldTime(World world, long time) {
@@ -157,6 +165,15 @@ public class ClientProxy
 	public static void setup() {
 		KeyActivateSetEffect.ACTIVATE_SET_EFFECT = new KeyBinding("Activate Set Effect", 100, BlockArmor.MODNAME); // FIXME KeyEvent.getKeyCodeForChar('R') crashed for some reason
 		ClientRegistry.registerKeyBinding(KeyActivateSetEffect.ACTIVATE_SET_EFFECT);
+		((IReloadableResourceManager) Minecraft.getInstance().getResourceManager()).addReloadListener(new ISelectiveResourceReloadListener() {
+			@Override
+			public void onResourceManagerReload(IResourceManager resourceManager,
+					Predicate<IResourceType> resourcePredicate) {
+				//mapTextures();
+				//Config.syncJEIIngredients(); TODO add JEI integration when it's updated
+				System.out.println("reload ================================================"); // TODO remove
+			}
+		});
 		//ModBlocks.registerRenders();
 		//ModItems.registerRenders();
 	}
@@ -165,26 +182,18 @@ public class ClientProxy
 	@SubscribeEvent
 	public static void addReloadListener(AddReloadListenerEvent event) {
 		System.out.println("AddReloadListenerEvent ================================================"); // TODO remove
-		((IReloadableResourceManager) Minecraft.getInstance().getResourceManager()).addReloadListener(new ISelectiveResourceReloadListener() {
-			@Override
-			public void onResourceManagerReload(IResourceManager resourceManager,
-					Predicate<IResourceType> resourcePredicate) {
-				mapTextures();
-				mapUnbakedModels();
-				//Config.syncJEIIngredients(); TODO add JEI integration when it's updated
-				System.out.println("reload ================================================"); // TODO remove
-			}
-		});
 	}
 
-	/**Get model based on model's constructor parameters*/
-	public static Object getBlockArmorModel(int height, int width, int currentFrame, int nextFrame, EquipmentSlotType slot) {
+	/**Get model based on model's constructor parameters
+	 * @param entity */
+	public static Object getBlockArmorModel(LivingEntity entity, int height, int width, int currentFrame, int nextFrame, EquipmentSlotType slot) {
 		String key = height+""+width+""+currentFrame+""+nextFrame+""+slot.getName();
 		ModelBlockArmor model = modelMaps.get(key);
 		if (model == null) {
 			model = new ModelBlockArmor(height, width, currentFrame, nextFrame, slot);
 			modelMaps.put(key, model);
 		}
+		model.entity = entity;
 		return model;
 	}
 
@@ -204,6 +213,7 @@ public class ClientProxy
 
 	/**Resets model and item quads and maps block textures (called when client joins world or resource pack loaded)*/
 	public static void mapTextures() {
+		System.out.println("map textures =========================================="); // TODO remove
 		// reset model and item quad maps
 		modelMaps = Maps.newHashMap();
 
