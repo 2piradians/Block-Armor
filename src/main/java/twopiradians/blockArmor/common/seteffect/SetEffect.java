@@ -95,7 +95,7 @@ public class SetEffect {
 	public String description;
 
 	/**Goes through allSets and assigns set effects to appropriate sets*/
-	public static void postInit() {
+	public static void setup() {
 		for (ArmorSet set : ArmorSet.allSets) {
 			boolean hasEffectWithButton = false;
 			set.setEffects = new ArrayList<SetEffect>();
@@ -110,7 +110,7 @@ public class SetEffect {
 	}
 
 	/**Checks if block's registry name contains any of the provided strings (with or without capitalized first letter)*/
-	protected static boolean registryNameContains(Block block, String[] strings) {
+	public static boolean registryNameContains(Block block, String[] strings) {
 		try {
 			String registryName = block.getRegistryName().getPath();
 			String displayName = new ItemStack(block, 1).getDisplayName().getUnformattedComponentText();

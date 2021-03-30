@@ -1,15 +1,14 @@
 package twopiradians.blockArmor.client.model;
 
+import java.awt.Color;
 import java.lang.reflect.Field;
 
 import com.mojang.blaze3d.matrix.MatrixStack;
-import com.mojang.blaze3d.platform.GlStateManager.DestFactor;
-import com.mojang.blaze3d.platform.GlStateManager.SourceFactor;
+import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.IVertexBuilder;
 
 import it.unimi.dsi.fastutil.objects.ObjectList;
-import net.minecraft.client.renderer.BufferBuilder;
 import net.minecraft.client.renderer.entity.model.BipedModel;
 import net.minecraft.client.renderer.model.ModelRenderer;
 import net.minecraft.client.renderer.model.ModelRenderer.ModelBox;
@@ -21,6 +20,7 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
 import twopiradians.blockArmor.common.BlockArmor;
+import twopiradians.blockArmor.common.command.CommandDev;
 import twopiradians.blockArmor.common.item.BlockArmorItem;
 
 @OnlyIn(Dist.CLIENT)
@@ -335,29 +335,30 @@ public class ModelBlockArmor<T extends LivingEntity> extends BipedModel<T> {
 			blue = cb / 255f;
 		}
 
-		// dev effects TODO add dev colors
-		/*Float[] color = CommandDev.devColors.get(entityIn.getUniqueID());
+		// dev effects 
+		Float[] color = CommandDev.devColors.get(this.entity.getUniqueID());
 		if (color != null) {
 			if (color[0] == 0 && color[1] == 0 && color[2] == 0) { //rainbow
-				Color color2 = Color.getHSBColor(ageInTicks/30f, 1f, 1f);
+				Color color2 = Color.getHSBColor(this.entity.ticksExisted/30f, 1f, 1f);
 				red = color2.getRed()/255f;
 				green = color2.getGreen()/255f;
 				blue = color2.getBlue()/255f;
 			}
-			else {//pulse
-				double pulse = (Math.cos(ageInTicks/5f)+1d)/3d+0.01d;
+			else { //pulse
+				double pulse = (Math.cos(this.entity.ticksExisted/5f)+1d)/3d+0.01d;
 				red += pulse * color[0];
 				green += pulse * color[1];
 				blue += pulse * color[2];
 			}
-		}*/
-		
-		//System.out.println(this.entity+", translucent: "+this.translucent+", alpha: "+this.alpha+", animationOverlay: "+animationOverlay);
+		}
 
+		//System.out.println(this.entity+", translucent: "+this.translucent+", alpha: "+this.alpha+", animationOverlay: "+animationOverlay);
+		alpha = 0.5f;
+		//RenderSystem.color4f(red, green, blue, alpha);
 		matrix.push();
 
-		if ((this.translucent || animationOverlay)/* && !this.renderingEnchantment*/) {
-			/*GlStateManager.enableBlend(); // enables transparency
+		//if ((this.translucent || animationOverlay)/* && !this.renderingEnchantment*/) {
+		/*GlStateManager.enableBlend(); // enables transparency
 			//GlStateManager.blendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA.param,
 			//		GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA.param, GlStateManager.SourceFactor.ONE.param,
 			//		GlStateManager.DestFactor.ZERO.param);
@@ -367,12 +368,32 @@ public class ModelBlockArmor<T extends LivingEntity> extends BipedModel<T> {
 					GlStateManager.DestFactor.ZERO.param);
 			GlStateManager.alphaFunc(GL11.GL_ALPHA_TEST, GL11.GL_ALWAYS);
 			GlStateManager.enableAlphaTest();*/
-			//RenderSystem.enableAlphaTest();
-			RenderSystem.enableBlend();
-			//RenderSystem.blendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
-			RenderSystem.blendFunc(SourceFactor.SRC_ALPHA, DestFactor.DST_ALPHA);
-		}
-//System.out.println(lightMapUV); // TODO remove
+		//RenderSystem.enableAlphaTest();
+		//RenderSystem.enableBlend();
+		//RenderSystem.blendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
+		//GL14.glBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA.param, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA.param, GlStateManager.SourceFactor.ONE.param, GlStateManager.DestFactor.ZERO.param);
+		//GlStateManager.glBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA.param, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA.param, GlStateManager.SourceFactor.ONE.param, GlStateManager.DestFactor.ZERO.param);
+		//EXTBlendFuncSeparate.glBlendFuncSeparateEXT(GlStateManager.SourceFactor.SRC_ALPHA.param, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA.param, GlStateManager.SourceFactor.ONE.param, GlStateManager.DestFactor.ZERO.param);
+		//OpenGlHelper.glBlendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
+		//RenderSystem.blendFunc(SourceFactor.SRC_ALPHA, DestFactor.DST_ALPHA);
+		//}
+		RenderSystem.disableCull();
+		RenderSystem.enableBlend();
+		RenderSystem.enableAlphaTest();
+		RenderSystem.enableDepthTest();
+		RenderSystem.defaultAlphaFunc();
+		RenderSystem.blendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
+		RenderSystem.enableFog();
+		RenderSystem.depthMask(true);
+		/*try { // crashes
+			Method method = BufferBuilder.class.getDeclaredMethod("setVertexFormat", VertexFormat.class);
+			method.setAccessible(true);
+			method.invoke(vertex, DefaultVertexFormats.POSITION_TEX_COLOR_NORMAL);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}*/
+
+		//System.out.println(lightMapUV); // TODO remove
 		//vertex.color(red, green, blue, alpha);
 		//if (vertex instanceof BufferBuilder)
 		//	((BufferBuilder)vertex).addVertexData(matrixEntry, bakedQuad, baseBrightness, red, green, blue, blue, lightmapCoords, overlayCoords, readExistingColor);
@@ -401,20 +422,20 @@ public class ModelBlockArmor<T extends LivingEntity> extends BipedModel<T> {
 			this.bipedLeftFoot.render(matrix, vertex, lightMapUV, overlayUV, red, green, blue, animationOverlay ? alpha : 1.0f);
 			matrix.pop();
 		} else {
-			this.bipedHead.render(matrix, vertex, lightMapUV, overlayUV, red, green, blue, animationOverlay ? alpha : 1.0f);
-			this.bipedBody.render(matrix, vertex, lightMapUV, overlayUV, red, green, blue, animationOverlay ? alpha : 1.0f);
-			this.bipedRightArm.render(matrix, vertex, lightMapUV, overlayUV, red, green, blue, animationOverlay ? alpha : 1.0f);
-			this.bipedLeftArm.render(matrix, vertex, lightMapUV, overlayUV, red, green, blue, animationOverlay ? alpha : 1.0f);
-			this.bipedWaist.render(matrix, vertex, lightMapUV, overlayUV, red, green, blue, animationOverlay ? alpha : 1.0f);
-			this.bipedRightLeg.render(matrix, vertex, lightMapUV, overlayUV, red, green, blue, animationOverlay ? alpha : 1.0f);
-			this.bipedLeftLeg.render(matrix, vertex, lightMapUV, overlayUV, red, green, blue, animationOverlay ? alpha : 1.0f);
-			this.bipedRightFoot.render(matrix, vertex, lightMapUV, overlayUV, red, green, blue, animationOverlay ? alpha : 1.0f);
-			this.bipedLeftFoot.render(matrix, vertex, lightMapUV, overlayUV, red, green, blue, animationOverlay ? alpha : 1.0f);
+			this.bipedHead.render(matrix, vertex, lightMapUV, overlayUV, red, green, blue, alpha);
+			this.bipedBody.render(matrix, vertex, lightMapUV, overlayUV, red, green, blue, alpha);
+			this.bipedRightArm.render(matrix, vertex, lightMapUV, overlayUV, red, green, blue, alpha);
+			this.bipedLeftArm.render(matrix, vertex, lightMapUV, overlayUV, red, green, blue, alpha);
+			this.bipedWaist.render(matrix, vertex, lightMapUV, overlayUV, red, green, blue, alpha);
+			this.bipedRightLeg.render(matrix, vertex, lightMapUV, overlayUV, red, green, blue, alpha);
+			this.bipedLeftLeg.render(matrix, vertex, lightMapUV, overlayUV, red, green, blue, alpha);
+			this.bipedRightFoot.render(matrix, vertex, lightMapUV, overlayUV, red, green, blue, alpha);
+			this.bipedLeftFoot.render(matrix, vertex, lightMapUV, overlayUV, red, green, blue, alpha);
 		}
 
-		if ((this.translucent || animationOverlay)/* && !this.renderingEnchantment*/)
-			RenderSystem.disableBlend();
-			//GlStateManager.disableBlend(); // disable transparency
+		//if ((this.translucent || animationOverlay)/* && !this.renderingEnchantment*/)
+		RenderSystem.disableBlend();
+		//GlStateManager.disableBlend(); // disable transparency
 
 		matrix.pop();
 	}

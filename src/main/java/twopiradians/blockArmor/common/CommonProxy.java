@@ -1,27 +1,41 @@
 package twopiradians.blockArmor.common;
 
-import java.util.ArrayList;
+import java.lang.reflect.Field;
+import java.util.Map;
 import java.util.Optional;
 
 import javax.annotation.Nonnull;
 
-import net.minecraft.block.Block;
+import com.google.common.collect.Maps;
+import com.ibm.icu.impl.locale.XCldrStub.ImmutableMap;
+
 import net.minecraft.entity.player.ServerPlayerEntity;
+import net.minecraft.inventory.EquipmentSlotType;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.crafting.IRecipe;
+import net.minecraft.item.crafting.IRecipeType;
+import net.minecraft.item.crafting.Ingredient;
+import net.minecraft.item.crafting.RecipeManager;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.util.NonNullList;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
 import net.minecraft.world.server.ServerWorld;
 import net.minecraftforge.common.loot.GlobalLootModifierSerializer;
-import net.minecraftforge.event.CommandEvent;
+import net.minecraftforge.event.RegisterCommandsEvent;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent.PlayerLoggedInEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber.Bus;
+import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
+import net.minecraftforge.fml.event.server.FMLServerStartedEvent;
 import net.minecraftforge.fml.network.NetworkDirection;
 import net.minecraftforge.fml.network.PacketDistributor;
-import net.minecraftforge.registries.IForgeRegistry;
+import twopiradians.blockArmor.common.command.CommandDev;
+import twopiradians.blockArmor.common.item.ArmorSet;
+import twopiradians.blockArmor.common.recipe.RecipeBlockArmor;
 import twopiradians.blockArmor.common.seteffect.SetEffectAutoSmelt.SetEffectAutoSmeltModifier;
 import twopiradians.blockArmor.common.seteffect.SetEffectLucky.SetEffectLuckyModifier;
 import twopiradians.blockArmor.packet.CActivateSetEffectPacket;
@@ -29,9 +43,7 @@ import twopiradians.blockArmor.packet.SDevColorsPacket;
 import twopiradians.blockArmor.packet.SSyncConfigPacket;
 
 @Mod.EventBusSubscriber
-public class CommonProxy 
-{
-	public ArrayList<ItemStack> itemsToDisable = new ArrayList<ItemStack>();
+public class CommonProxy {
 
 	@Mod.EventBusSubscriber(bus = Bus.MOD)
 	public static class RegistrationHandler {
@@ -41,13 +53,7 @@ public class CommonProxy
 			event.getRegistry().register(new SetEffectAutoSmeltModifier.Serializer().setRegistryName(new ResourceLocation(BlockArmor.MODID,"set_effect_autosmelt")));
 			event.getRegistry().register(new SetEffectLuckyModifier.Serializer().setRegistryName(new ResourceLocation(BlockArmor.MODID,"set_effect_lucky")));
 		}
-		
-	}
-	
-	/**Set world time*/
-	public static void setWorldTime(World world, long time) {
-		if (world instanceof ServerWorld)
-			((ServerWorld)world).setDayTime(time);
+
 	}
 
 	public static void onSetup(FMLCommonSetupEvent event) {
@@ -57,31 +63,81 @@ public class CommonProxy
 	public static void setup() {
 		registerPackets();
 		//BlockArmor.configFile = event.getSuggestedConfigurationFile();
-		//ModTileEntities.preInit();
 	}
-
+	
 	private static void registerPackets() { // Dist is where the packet goes TO
 		int id = 0;
 		BlockArmor.NETWORK.registerMessage(id++, SDevColorsPacket.class, SDevColorsPacket::encode, SDevColorsPacket::decode, SDevColorsPacket.Handler::handle, Optional.of(NetworkDirection.PLAY_TO_CLIENT));
 		BlockArmor.NETWORK.registerMessage(id++, CActivateSetEffectPacket.class, CActivateSetEffectPacket::encode, CActivateSetEffectPacket::decode, CActivateSetEffectPacket.Handler::handle, Optional.of(NetworkDirection.PLAY_TO_SERVER));
 		BlockArmor.NETWORK.registerMessage(id++, SSyncConfigPacket.class, SSyncConfigPacket::encode, SSyncConfigPacket::decode, SSyncConfigPacket.Handler::handle, Optional.of(NetworkDirection.PLAY_TO_CLIENT));
 	}
+	
+	@SubscribeEvent
+	public static void registerCommands(RegisterCommandsEvent event) {
+		CommandDev.register(event.getDispatcher());
+	}
 
-	@SubscribeEvent(receiveCanceled=true)
-	public static void commandDev(CommandEvent event) {
-		try { // FIXME commandDev
-			/*if (event.getCommand().getName().equalsIgnoreCase("dev") && 
-					event.getCommand().checkPermission(event.getSender().getServer(), event.getSender()) &&
-					CommandDev.runCommand(event.getSender().getServer(), event.getSender(), event.getParameters())) 
-				event.setCanceled(true);*/
+	@SubscribeEvent
+	public static void serverStart(FMLServerStartedEvent event) {
+		registerRecipes(event.getServer());
+	}
+	
+	private static void registerRecipes(MinecraftServer server) {
+		try {
+			Field recipesField = ObfuscationReflectionHelper.findField(RecipeManager.class, "field_192117_d");
+			recipesField.setAccessible(true);
+			Map<IRecipeType<?>, Map<ResourceLocation, IRecipe<?>>> recipes = Maps.newHashMap((Map<IRecipeType<?>, Map<ResourceLocation, IRecipe<?>>>) recipesField.get(server.getRecipeManager()));
+			for (ArmorSet set : ArmorSet.allSets) {
+				if (set.isEnabled()) {
+					String name = ArmorSet.getItemStackRegistryName(set.stack);
+
+					NonNullList<Ingredient> helmetRecipe = NonNullList.from(Ingredient.EMPTY,
+							Ingredient.fromStacks(set.stack), Ingredient.fromStacks(set.stack), Ingredient.fromStacks(set.stack),
+							Ingredient.fromStacks(set.stack), Ingredient.EMPTY, Ingredient.fromStacks(set.stack));
+
+					NonNullList<Ingredient> armorRecipe = NonNullList.from(Ingredient.EMPTY,
+							Ingredient.fromStacks(set.stack), Ingredient.EMPTY, Ingredient.fromStacks(set.stack),
+							Ingredient.fromStacks(set.stack), Ingredient.fromStacks(set.stack), Ingredient.fromStacks(set.stack),
+							Ingredient.fromStacks(set.stack), Ingredient.fromStacks(set.stack), Ingredient.fromStacks(set.stack));
+
+					NonNullList<Ingredient> legsRecipe = NonNullList.from(Ingredient.EMPTY,
+							Ingredient.fromStacks(set.stack), Ingredient.fromStacks(set.stack), Ingredient.fromStacks(set.stack),
+							Ingredient.fromStacks(set.stack), Ingredient.EMPTY, Ingredient.fromStacks(set.stack),
+							Ingredient.fromStacks(set.stack), Ingredient.EMPTY, Ingredient.fromStacks(set.stack));
+
+					NonNullList<Ingredient> bootsRecipe = NonNullList.from(Ingredient.EMPTY,
+							Ingredient.fromStacks(set.stack), Ingredient.EMPTY, Ingredient.fromStacks(set.stack),
+							Ingredient.fromStacks(set.stack), Ingredient.EMPTY, Ingredient.fromStacks(set.stack));
+
+					Map<ResourceLocation, IRecipe<?>> map = Maps.newHashMap(recipes.get(IRecipeType.CRAFTING));
+					map.put(new ResourceLocation(BlockArmor.MODID, name+"_"+EquipmentSlotType.HEAD.getName()),
+							new RecipeBlockArmor(set.helmet.getRegistryName(), set, BlockArmor.MODID+"_"+EquipmentSlotType.HEAD.getName(), 3, 2, helmetRecipe, new ItemStack(set.helmet)));
+					map.put(new ResourceLocation(BlockArmor.MODID, name+"_"+EquipmentSlotType.CHEST.getName()),
+							new RecipeBlockArmor(set.chestplate.getRegistryName(), set, BlockArmor.MODID+"_"+EquipmentSlotType.CHEST.getName(), 3, 3, armorRecipe, new ItemStack(set.chestplate)));
+					map.put(new ResourceLocation(BlockArmor.MODID, name+"_"+EquipmentSlotType.LEGS.getName()),
+							new RecipeBlockArmor(set.leggings.getRegistryName(), set, BlockArmor.MODID+"_"+EquipmentSlotType.LEGS.getName(), 3, 3, legsRecipe, new ItemStack(set.leggings)));
+					map.put(new ResourceLocation(BlockArmor.MODID, name+"_"+EquipmentSlotType.FEET.getName()),
+							new RecipeBlockArmor(set.boots.getRegistryName(), set, BlockArmor.MODID+"_"+EquipmentSlotType.FEET.getName(), 3, 2, bootsRecipe, new ItemStack(set.boots)));
+					recipes.put(IRecipeType.CRAFTING, ImmutableMap.copyOf(map));
+					recipesField.set(server.getRecipeManager(), recipes);
+				}
+			}
 		}
-		catch (Exception e) {}
+		catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 
 	@SubscribeEvent
 	public static void playerJoin(PlayerLoggedInEvent event) {
 		if (!event.getPlayer().world.isRemote && event.getPlayer() instanceof ServerPlayerEntity)
 			BlockArmor.NETWORK.send(PacketDistributor.PLAYER.with(()->(ServerPlayerEntity) event.getPlayer()), new SDevColorsPacket());
+	}
+	
+	/**Set world time*/
+	public static void setWorldTime(World world, long time) {
+		if (world instanceof ServerWorld)
+			((ServerWorld)world).setDayTime(time);
 	}
 
 }

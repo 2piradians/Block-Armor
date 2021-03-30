@@ -218,7 +218,6 @@ public final class ModelDynBlockArmor implements IModelGeometry<ModelDynBlockArm
 					TextureAtlasSprite sprite = ArmorSet.getSprite(item);
 					if (sprite == null)
 						BlockArmor.LOGGER.warn("Missing sprite for: "+new ItemStack(item).getDisplayName().getUnformattedComponentText());
-					ImmutableList.Builder<BakedQuad> builder = ImmutableList.builder();
 					IModelTransform state = new SimpleModelTransform(transformMap);
 					TransformationMatrix transform = TransformationMatrix.identity();
 					state = new ModelTransformComposition(state, SimpleModelTransform.IDENTITY);
@@ -235,8 +234,8 @@ public final class ModelDynBlockArmor implements IModelGeometry<ModelDynBlockArm
 						armorType = "boots";
 
 					//Block texture background
-					//builder.add(ItemTextureQuadConverter.genQuad(format, transform, 0, 0, 16, 16, NORTH_Z_BASE, sprite, EnumFacing.NORTH, 0xffffffff));
-					//builder.add(ItemTextureQuadConverter.genQuad(format, transform, 0, 0, 16, 16, SOUTH_Z_BASE, sprite, EnumFacing.SOUTH, 0xffffffff));	            
+					//builder.add(ItemTextureQuadConverter.genQuad(transform, 0, 0, 16, 16, NORTH_Z_BASE, sprite, Direction.NORTH, 0xffffffff, 1));
+					//builder.add(ItemTextureQuadConverter.genQuad(transform, 0, 0, 16, 16, SOUTH_Z_BASE, sprite, Direction.SOUTH, 0xffffffff, 1));	            
 
 					//Base texture and model
 					ResourceLocation baseLocation = new ResourceLocation(BlockArmor.MODID+":items/icons/block_armor_"+armorType+"_base");
@@ -248,6 +247,8 @@ public final class ModelDynBlockArmor implements IModelGeometry<ModelDynBlockArm
 									return bakery.getSpriteMap().getAtlasTexture(mat.getAtlasLocation()).getSprite(mat.getTextureLocation());
 								}
 							}, state, INSTANCE, baseLocation);
+					
+					ImmutableList.Builder<BakedQuad> builder = ImmutableList.builder();
 					builder.addAll(model.getQuads(null, null, new Random()));
 
 					int color = ArmorSet.getColor(item);
@@ -257,7 +258,7 @@ public final class ModelDynBlockArmor implements IModelGeometry<ModelDynBlockArm
 						float b = ((color >> 0) & 0xFF) / 255f; 
 						color = new Color(r, g, b, 1).getRGB(); //set alpha to 1.0f (since sometimes 0f)
 					}
-
+					
 					//Template texture for left half
 					ResourceLocation templateLocation = new ResourceLocation(BlockArmor.MODID+":items/icons/block_armor_"+armorType+"1_template");
 					TextureAtlasSprite templateTexture = Minecraft.getInstance().getModelManager().getAtlasTexture(AtlasTexture.LOCATION_BLOCKS_TEXTURE).getSprite(templateLocation);
@@ -269,7 +270,7 @@ public final class ModelDynBlockArmor implements IModelGeometry<ModelDynBlockArm
 					templateTexture = Minecraft.getInstance().getModelManager().getAtlasTexture(AtlasTexture.LOCATION_BLOCKS_TEXTURE).getSprite(templateLocation);
 					builder.addAll(ItemTextureQuadConverter.convertTexture(transform, templateTexture, sprite, NORTH_Z_FLUID, Direction.NORTH, color, 1));
 					builder.addAll(ItemTextureQuadConverter.convertTexture(transform, templateTexture, sprite, SOUTH_Z_FLUID, Direction.SOUTH, color, 1));
-
+					
 					//Cover texture
 					ResourceLocation coverLocation = new ResourceLocation(BlockArmor.MODID+":items/icons/block_armor_"+armorType+"_cover");
 					TextureAtlasSprite coverTexture = templateTexture = Minecraft.getInstance().getModelManager().getAtlasTexture(AtlasTexture.LOCATION_BLOCKS_TEXTURE).getSprite(coverLocation);
@@ -296,6 +297,7 @@ public final class ModelDynBlockArmor implements IModelGeometry<ModelDynBlockArm
 	}
 
 	private static final class BakedDynBlockArmor implements IBakedModel {
+		
 		private final ImmutableMap<TransformType, TransformationMatrix> transforms;
 		private ImmutableList<BakedQuad> quads = ImmutableList.of();
 

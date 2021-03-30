@@ -15,15 +15,10 @@ public class RecipeBlockArmor extends ShapedRecipe {
 		super(loc, group, width, height, ingredients, result);
 		this.set = set;
 	}
-
-	/*	@Override // TODO
-	public boolean isHidden() {
-	    return !set.isEnabled();
-	}*/
 	
 	@Override
-    public ItemStack getRecipeOutput() {
-        return set.isEnabled() ? super.getRecipeOutput() : ItemStack.EMPTY;
-    }
-	
+	public ItemStack getRecipeOutput() {
+		return set.isEnabled() ? super.getRecipeOutput() : ItemStack.EMPTY;
+	}
+
 }

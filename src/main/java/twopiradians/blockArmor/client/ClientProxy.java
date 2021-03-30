@@ -9,6 +9,7 @@ import java.util.function.Predicate;
 
 import com.google.common.collect.Maps;
 
+import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.model.BlockModel;
 import net.minecraft.client.renderer.model.IUnbakedModel;
@@ -19,7 +20,6 @@ import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.inventory.EquipmentSlotType;
-import net.minecraft.item.Item;
 import net.minecraft.resources.IReloadableResourceManager;
 import net.minecraft.resources.IResourceManager;
 import net.minecraft.util.ResourceLocation;
@@ -55,9 +55,8 @@ import twopiradians.blockArmor.common.item.ModItems;
 
 @SuppressWarnings("deprecation")
 @Mod.EventBusSubscriber(Dist.CLIENT)
-public class ClientProxy
-// FIXME ItemModelMesherForge models does not have custom model for block armor
-{
+public class ClientProxy {
+	
 	/**Map of models to their constructor fields - generated as needed*/
 	private static HashMap<String, ModelBlockArmor> modelMaps = Maps.newHashMap();
 	public static ModelLoader modelLoader;
@@ -78,10 +77,10 @@ public class ClientProxy
 				System.out.println("texture stitch pre "+event.getMap().getTextureLocation()+" ================================================"); // TODO remove
 
 				//textures for overriding
-				for (Item item : ArmorSet.TEXTURE_OVERRIDES)
+				for (Block block : ArmorSet.TEXTURE_OVERRIDES)
 					for (EquipmentSlotType slot : ArmorSet.SLOTS)
 						event.addSprite(new ResourceLocation(BlockArmor.MODID, "items/overrides/"+
-								item.getRegistryName().getPath().toLowerCase().replace(" ", "_")+"_"+slot.getName()));
+								block.getRegistryName().getPath().toLowerCase().replace(" ", "_")+"_"+slot.getName()));
 
 				//textures for inventory icons
 				event.addSprite(new ResourceLocation(BlockArmor.MODID, "items/icons/block_armor_helmet_base"));

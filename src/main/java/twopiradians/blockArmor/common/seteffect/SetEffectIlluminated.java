@@ -3,6 +3,7 @@ package twopiradians.blockArmor.common.seteffect;
 import net.minecraft.block.Block;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraft.world.LightType;
@@ -11,6 +12,7 @@ import twopiradians.blockArmor.common.BlockArmor;
 import twopiradians.blockArmor.common.block.BlockMovingLightSource;
 import twopiradians.blockArmor.common.block.ModBlocks;
 import twopiradians.blockArmor.common.item.ArmorSet;
+import twopiradians.blockArmor.utils.BlockUtils;
 
 @SuppressWarnings("deprecation")
 public class SetEffectIlluminated extends SetEffect {
@@ -18,7 +20,7 @@ public class SetEffectIlluminated extends SetEffect {
 	private int lightLevel;
 
 	public SetEffectIlluminated(int lightLevel) {
-		this.lightLevel = Math.min(lightLevel, 15);
+		this.lightLevel = MathHelper.clamp(lightLevel, 1, 15);
 		this.color = TextFormatting.GOLD;
 		this.description = "Produces light level "+this.lightLevel;
 		this.usesButton = true;
@@ -49,15 +51,14 @@ public class SetEffectIlluminated extends SetEffect {
 	/**Can be overwritten to return a new instance depending on the given block*/
 	@Override
 	protected SetEffect create(Block block) {
-		return new SetEffectIlluminated(block.getDefaultState().getLightValue());
+		return new SetEffectIlluminated(BlockUtils.getLightLevel(block));
 	}
 
 	/**Should block be given this set effect*/
 	@Override
 	protected boolean isValid(Block block) {		
 		try {
-			int lightLevel = block.getDefaultState().getLightValue();
-			if (lightLevel > 0)
+			if (BlockUtils.getLightLevel(block) > 0)
 				return true;
 		} catch (Exception e) {}
 		return false;

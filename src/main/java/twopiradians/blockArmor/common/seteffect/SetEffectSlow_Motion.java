@@ -1,6 +1,7 @@
 package twopiradians.blockArmor.common.seteffect;
 
 import net.minecraft.block.Block;
+import net.minecraft.block.Blocks;
 import net.minecraft.block.SoulSandBlock;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
@@ -40,7 +41,7 @@ public class SetEffectSlow_Motion extends SetEffect
 	/**Should block be given this set effect*/
 	@Override
 	protected boolean isValid(Block block) {	
-		if (block instanceof SoulSandBlock)
+		if (block instanceof SoulSandBlock || block == Blocks.SOUL_SOIL)
 			return true;	
 		return false;
 	}	

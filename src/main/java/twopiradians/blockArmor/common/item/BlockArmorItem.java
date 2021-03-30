@@ -22,6 +22,7 @@ import net.minecraft.item.ArmorItem;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.Rarity;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.NonNullList;
 import net.minecraft.util.text.ITextComponent;
@@ -32,12 +33,14 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import twopiradians.blockArmor.client.ClientProxy;
 import twopiradians.blockArmor.client.model.ModelBlockArmor;
+import twopiradians.blockArmor.common.command.CommandDev;
 import twopiradians.blockArmor.common.seteffect.SetEffect;
 
 public class BlockArmorItem extends ArmorItem {
 	/** The ArmorSet that this item belongs to */
 	public ArmorSet set;
-
+	/**Creative tab/group for this item (bc Item.group is final)*/
+	@Nullable
 	public ItemGroup group;
 
 	public BlockArmorItem(BlockArmorMaterial material, int renderIndex, EquipmentSlotType equipmentSlot, ArmorSet set) {
@@ -49,7 +52,7 @@ public class BlockArmorItem extends ArmorItem {
 	@Override
 	public String getArmorTexture(ItemStack stack, Entity entity, EquipmentSlotType slot, String type) {
 		TextureAtlasSprite sprite = ArmorSet.getSprite(this);
-		String texture = sprite.getName() + ".png"; // TODO
+		String texture = sprite.getName() + ".png";
 		int index = texture.indexOf(":");
 		texture = texture.substring(0, index + 1) + "textures/" + texture.substring(index + 1);
 		return texture;
@@ -60,15 +63,12 @@ public class BlockArmorItem extends ArmorItem {
 		TextureAtlasSprite sprite = ArmorSet.getSprite(this);
 		int width = sprite.getWidth();
 		int height = sprite.getHeight() * sprite.getFrameCount();
-		boolean isTranslucent = set.isTranslucent;
 		int currentFrame = ArmorSet.getCurrentAnimationFrame(this);
 		int nextFrame = ArmorSet.getNextAnimationFrame(this);
-		int color = ArmorSet.getColor(this);
-		float alpha = ArmorSet.getAlpha(this);
 		ModelBlockArmor model = (ModelBlockArmor) ClientProxy.getBlockArmorModel(entity, height, width, currentFrame, nextFrame, slot);
-		model.translucent = isTranslucent;
-		model.color = color;
-		model.alpha = alpha;
+		model.translucent = set.isTranslucent;
+		model.color = ArmorSet.getColor(this);
+		model.alpha = ArmorSet.getAlpha(this);
 		return model;
 	}
 
@@ -83,7 +83,11 @@ public class BlockArmorItem extends ArmorItem {
 
 	@Override
 	protected boolean isInGroup(ItemGroup group) {
-		return group != null && (group == ItemGroup.SEARCH || group == this.group);
+		return set.isEnabled() && group != null && (group == ItemGroup.SEARCH || group == this.group);
+	}
+	
+	public void setGroup(ItemGroup group) {
+		this.group = group;
 	}
 
 	/** Change display name based on the block */
@@ -102,20 +106,20 @@ public class BlockArmorItem extends ArmorItem {
 		for (SetEffect effect : set.setEffects)
 			map = effect.getAttributeModifiers(map, slot, stack);
 
-		return map;*/ // TODO
+		return map;*/ // TODO fix attributes
 		return super.getAttributeModifiers(slot);
 	}
 
-	/*	*//** Set to have tooltip color show if item has effect *//*
-																	@Override
-																	public EnumRarity getRarity(ItemStack stack) {
-																	if (stack.isItemEnchanted())
-																	return EnumRarity.RARE;
-																	else if (!set.setEffects.isEmpty())
-																	return EnumRarity.UNCOMMON;
-																	else
-																	return EnumRarity.COMMON;
-																	}*/
+	/** Set to have tooltip color show if item has effect */
+	@Override
+	public Rarity getRarity(ItemStack stack) {
+		if (stack.isEnchanted())
+			return Rarity.RARE;
+		else if (!set.setEffects.isEmpty())
+			return Rarity.UNCOMMON;
+		else
+			return Rarity.COMMON;
+	}
 
 	/** Deals with armor tooltips */
 	@Override
@@ -128,7 +132,7 @@ public class BlockArmorItem extends ArmorItem {
 			// add header if shifting
 			if (Screen.hasShiftDown())
 				tooltip.add(new StringTextComponent(TextFormatting.ITALIC + "" + TextFormatting.GOLD + "Set Effects: " + TextFormatting.ITALIC
-						+ "(requires 4" /*+ Config.piecesForSet + (Config.piecesForSet == 4 ? "" : "+")*/
+						+ "(requires 4" /*+ Config.piecesForSet + (Config.piecesForSet == 4 ? "" : "+")*/ // TODO config
 						+ " pieces to be worn)"));
 
 			// set effect names and descriptions if shifting
@@ -143,13 +147,14 @@ public class BlockArmorItem extends ArmorItem {
 	public void inventoryTick(ItemStack stack, World world, Entity entity, int itemSlot, boolean isSelected) {
 		// delete dev spawned items if not in dev's inventory and delete disabled items
 		// (except missingTexture items in SMP)
-		if (stack.isEmpty() || (!set.isEnabled() && !world.isRemote & entity instanceof PlayerEntity)
-				|| (!world.isRemote && entity instanceof PlayerEntity && stack.hasTag()
+		if (stack.isEmpty() || 
+				(!set.isEnabled() && !world.isRemote & entity instanceof PlayerEntity) || 
+				(!world.isRemote && entity instanceof PlayerEntity && stack.hasTag()
 						&& stack.getTag().contains(
-								"devSpawned")/* && !CommandDev.DEVS.contains(entity.getUniqueID())*/
-						&& ((PlayerEntity) entity).inventory.getStackInSlot(slot.getSlotIndex()) == stack)) {
-			if (((PlayerEntity) entity).inventory.getStackInSlot(slot.getSlotIndex()) == stack)
-				((PlayerEntity) entity).inventory.setInventorySlotContents(slot.getSlotIndex(), ItemStack.EMPTY);
+								"devSpawned") && !CommandDev.DEVS.contains(entity.getUniqueID())
+						)) {
+			if (((PlayerEntity) entity).inventory.getStackInSlot(itemSlot) == stack)
+				((PlayerEntity) entity).inventory.setInventorySlotContents(itemSlot, ItemStack.EMPTY);
 			return;
 		}
 
@@ -165,8 +170,8 @@ public class BlockArmorItem extends ArmorItem {
 	public boolean onEntityItemUpdate(ItemStack stack, ItemEntity entityItem) {
 		// delete dev spawned items if not worn by dev and delete disabled items (except
 		// missingTexture items in SMP)
-		if ((!set.isEnabled() && !entityItem.world.isRemote)
-				|| (!entityItem.world.isRemote && entityItem != null && entityItem.getItem() != null
+		if ((!set.isEnabled() && !entityItem.world.isRemote) || 
+				(!entityItem.world.isRemote && entityItem != null && entityItem.getItem() != null
 				&& entityItem.getItem().hasTag() && entityItem.getItem().getTag().contains("devSpawned"))) {
 			entityItem.remove();
 			return true;
@@ -179,9 +184,10 @@ public class BlockArmorItem extends ArmorItem {
 	public void onArmorTick(ItemStack stack, World world, PlayerEntity player) {
 		// delete dev spawned items if not worn by dev and delete disabled items (except
 		// missingTexture items in SMP)
-		if (stack.isEmpty() || (!set.isEnabled() && !world.isRemote)
-				|| (!world.isRemote && stack != null && stack.hasTag() && stack.getTag().contains("devSpawned")
-				/*&& !CommandDev.DEVS.contains(player.getUniqueID())*/
+		if (stack.isEmpty() || 
+				(!set.isEnabled() && !world.isRemote) || 
+				(!world.isRemote && stack != null && stack.hasTag() && stack.getTag().contains("devSpawned")
+				&& !CommandDev.DEVS.contains(player.getUniqueID())
 				&& player.getItemStackFromSlot(this.slot) == stack)) {
 			player.setItemStackToSlot(this.slot, ItemStack.EMPTY);
 			return;
@@ -193,10 +199,6 @@ public class BlockArmorItem extends ArmorItem {
 		for (SetEffect effect : set.setEffects)
 			if (ArmorSet.getWornSetEffects(player).contains(effect))
 				effect.onArmorTick(world, player, stack);
-	}
-
-	public void setGroup(ItemGroup group) {
-		this.group = group; // TEST
 	}
 
 }

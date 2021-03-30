@@ -2,22 +2,25 @@ package twopiradians.blockArmor.utils;
 
 import java.lang.reflect.Field;
 
+import com.google.common.collect.Lists;
+
 import net.minecraft.block.AbstractBlock;
 import net.minecraft.block.AbstractBlock.Properties;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
+import twopiradians.blockArmor.common.seteffect.SetEffect;
 
 public class BlockUtils {
-	
+
 	private static final Field MATERIAL_FIELD;
-	
+
 	static {
 		MATERIAL_FIELD = ObfuscationReflectionHelper.findField(AbstractBlock.Properties.class, "field_149764_J");
 		MATERIAL_FIELD.setAccessible(true);
 	}
-	
+
 	/**Get block material*/
 	public static Material getMaterial(Block block) {
 		Properties prop = AbstractBlock.Properties.from(block);
@@ -37,6 +40,19 @@ public class BlockUtils {
 			blockHardness = 0.5f;
 		}
 		return blockHardness;
+	}
+
+	/**Get light level for block*/
+	@SuppressWarnings("deprecation")
+	public static int getLightLevel(Block block) {
+		int lightLevel = block.getDefaultState().getLightValue();
+		if (lightLevel <= 0) {
+			Material material = BlockUtils.getMaterial(block);
+			if (SetEffect.registryNameContains(block, new String[] {"lamp"}) ||
+					Lists.newArrayList(Material.REDSTONE_LIGHT).contains(material))
+				lightLevel = 15;
+		}
+		return lightLevel;
 	}
 
 

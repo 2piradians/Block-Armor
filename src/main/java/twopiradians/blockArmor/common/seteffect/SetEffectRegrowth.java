@@ -4,6 +4,7 @@ import com.google.common.collect.Lists;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.IGrowable;
+import net.minecraft.block.NetherrackBlock;
 import net.minecraft.block.material.Material;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
@@ -29,15 +30,21 @@ public class SetEffectRegrowth extends SetEffect {
 
 	/**Should block be given this set effect*/
 	@Override
-	protected boolean isValid(Block block) {		
+	protected boolean isValid(Block block) {	
+		// ignore netherrack (would be accepted otherwise bc it's IGrowable)
+		if (block instanceof NetherrackBlock)
+			return false;
+		
 		if (block instanceof IGrowable || block instanceof IPlantable || 
-				SetEffect.registryNameContains(block, new String[] {"moss", "plant", "mycelium", "mushroom", "flower"}))
+				SetEffect.registryNameContains(block, new String[] {"moss", "plant", "mycelium", "mushroom", "flower",
+						"log", "wood", "stem", "plank"}))
 			return true;	
 		
 		Material material = BlockUtils.getMaterial(block);
 		if (Lists.newArrayList(Material.BAMBOO, Material.BAMBOO_SAPLING, Material.CACTUS, Material.CORAL,
 				Material.GOURD, Material.LEAVES, Material.PLANTS, Material.OCEAN_PLANT, Material.NETHER_PLANTS,
-				Material.OCEAN_PLANT, Material.WOOD, Material.SEA_GRASS, Material.TALL_PLANTS).contains(material))
+				Material.OCEAN_PLANT, Material.SEA_GRASS, Material.TALL_PLANTS)
+				.contains(material))
 			return true;
 		
 		return false;
