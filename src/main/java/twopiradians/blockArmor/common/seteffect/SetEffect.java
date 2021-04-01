@@ -1,19 +1,27 @@
 package twopiradians.blockArmor.common.seteffect;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
 
+import javax.annotation.Nullable;
+
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.google.common.collect.Multimap;
 
 import net.minecraft.block.Block;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.enchantment.Enchantment;
+import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.ai.attributes.Attribute;
 import net.minecraft.entity.ai.attributes.AttributeModifier;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.EquipmentSlotType;
+import net.minecraft.inventory.EquipmentSlotType.Group;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.ListNBT;
@@ -25,12 +33,17 @@ import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
+import net.minecraftforge.event.entity.living.LivingEquipmentChangeEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.common.Mod;
 import twopiradians.blockArmor.client.gui.armorDisplay.EntityGuiPlayer;
 import twopiradians.blockArmor.client.key.KeyActivateSetEffect;
 import twopiradians.blockArmor.common.BlockArmor;
+import twopiradians.blockArmor.common.config.Config;
 import twopiradians.blockArmor.common.item.ArmorSet;
 import twopiradians.blockArmor.common.item.BlockArmorItem;
 
+@Mod.EventBusSubscriber
 public class SetEffect {
 
 	public static final UUID ATTACK_SPEED_UUID = UUID.fromString("3094e67f-88f1-4d81-a59d-655d4e7e8065");
@@ -40,46 +53,48 @@ public class SetEffect {
 	protected static final UUID MAX_HEALTH_UUID = UUID.fromString("0fefa40c-fd5a-4019-a25e-7fffc8dcf621");
 	protected static final UUID LUCK_UUID = UUID.fromString("537fd0e2-78ef-4dd3-affb-959ff059b1bd");
 
+	public static HashMap<String, SetEffect> nameToSetEffectMap = Maps.newHashMap();
+	
 	/**List of all set effects*/
-	public static final ArrayList<SetEffect> SET_EFFECTS = new ArrayList<SetEffect>() {{
-		//effects that use the button
-		add(new SetEffectCrafter());
-		//add(new SetEffectDJ());
-		add(new SetEffectEnder_Hoarder());
-		add(new SetEffectIlluminated(0));
-		add(new SetEffectSnowy());
-		add(new SetEffectEnder());
-		add(new SetEffectAbsorbent());
-		add(new SetEffectExplosive());
-		add(new SetEffectTime_Control(null));
-		add(new SetEffectPusher());
-		add(new SetEffectPuller());
-		add(new SetEffectArrow_Defence());
-		add(new SetEffectBonemealer());
-		//effects that don't use the button
-		add(new SetEffectMusical());
-		add(new SetEffectSlow_Motion());
-		add(new SetEffectSoft_Fall());
-		add(new SetEffectFeeder());
-		add(new SetEffectLightweight());
-		add(new SetEffectInvisibility());
-		add(new SetEffectImmovable(0));
-		add(new SetEffectLucky());
-		add(new SetEffectFiery());
-		add(new SetEffectFrosty());
-		add(new SetEffectRegrowth());
-		add(new SetEffectPrickly());
-		add(new SetEffectSlimey());
-		add(new SetEffectSpeedy());
-		add(new SetEffectFlame_Resistant());
-		add(new SetEffectAutoSmelt());
-		add(new SetEffectHealth_Boost(0));
-		add(new SetEffectDiving_Suit());
-		add(new SetEffectExperience_Giving());
-		add(new SetEffectSlippery());
-		add(new SetEffectFalling());
-		add(new SetEffectPowerful());
-	}};
+	public static final ArrayList<SetEffect> SET_EFFECTS = Lists.newArrayList();
+
+	//effects that use the button
+	public static final SetEffect CRAFTER = new SetEffectCrafter();
+	//public static final SetEffect CRAFTER = new SetEffectDJ();
+	public static final SetEffect ENDER_HOARDER = new SetEffectEnder_Hoarder();
+	public static final SetEffect ILLUMINATED = new SetEffectIlluminated(0);
+	public static final SetEffect SNOWY = new SetEffectSnowy();
+	public static final SetEffect ENDER = new SetEffectEnder();
+	public static final SetEffect ABSORBENT = new SetEffectAbsorbent();
+	public static final SetEffect EXPLOSIVE = new SetEffectExplosive();
+	public static final SetEffect TIME_CONTROL = new SetEffectTime_Control(null);
+	public static final SetEffect PUSHER = new SetEffectPusher();
+	public static final SetEffect PULLER = new SetEffectPuller();
+	public static final SetEffect ARROW_DEFENCE = new SetEffectArrow_Defence();
+	public static final SetEffect BONEMEALER = new SetEffectBonemealer();
+	//effects that don't use the button
+	public static final SetEffect MUSICAL = new SetEffectMusical();
+	public static final SetEffect SLOW_MOTION = new SetEffectSlow_Motion();
+	public static final SetEffect SOFT_FALL = new SetEffectSoft_Fall();
+	public static final SetEffect FEEDER = new SetEffectFeeder();
+	public static final SetEffect LIGHTWEIGHT = new SetEffectLightweight();
+	public static final SetEffect INVISIBILITY = new SetEffectInvisibility();
+	public static final SetEffect IMMOVABLE = new SetEffectImmovable(0);
+	public static final SetEffect LUCKY = new SetEffectLucky();
+	public static final SetEffect FIERY = new SetEffectFiery();
+	public static final SetEffect FROSTY = new SetEffectFrosty();
+	public static final SetEffect REGROWTH = new SetEffectRegrowth();
+	public static final SetEffect PRICKLY = new SetEffectPrickly();
+	public static final SetEffect SLIMEY = new SetEffectSlimey();
+	public static final SetEffect SPEEDY = new SetEffectSpeedy();
+	public static final SetEffect FLAME_RESISTANT = new SetEffectFlame_Resistant();
+	public static final SetEffect AUTOSMELT = new SetEffectAutoSmelt();
+	public static final SetEffect HEALTH_BOOST = new SetEffectHealth_Boost(0);
+	public static final SetEffect DIVING_SUIT = new SetEffectDiving_Suit();
+	public static final SetEffect EXPERIENCE_GIVING = new SetEffectExperience_Giving();
+	public static final SetEffect SLIPPERY = new SetEffectSlippery();
+	public static final SetEffect FALLING = new SetEffectFalling();
+	public static final SetEffect POWERFUL = new SetEffectPowerful();
 
 	/**Does set effect require button to activate*/
 	protected boolean usesButton;
@@ -87,12 +102,29 @@ public class SetEffect {
 	protected TextFormatting color;
 	/**Potion effects that will be applied in onArmorTick*/
 	protected ArrayList<EffectInstance> potionEffects = new ArrayList<EffectInstance>();
-	/**AttributeModifiers that will be applied in getAttributeModifiers*/
-	protected ArrayList<AttributeModifier> attributeModifiers = new ArrayList<AttributeModifier>();
+	/**Attributes that will be applied in getAttributeModifiers*/
+	protected HashMap<Attribute, AttributeModifier> attributes = Maps.newHashMap();
 	/**EnchantmentData that will be applied in onUpdate*/
 	protected ArrayList<EnchantmentData> enchantments = new ArrayList<EnchantmentData>();
 	/**Description of effect for tooltip*/
 	public String description;
+	/**Name of this effect (class name without SetEffect)*/
+	public String name;
+
+	protected SetEffect() {
+		this.name = this.getClass().getSimpleName().replace("SetEffect", "").replace("_", " ");
+		// if this effect is unique (not in the list already) add it to SET_EFFECTS and maps
+		boolean unique = true;
+		for (SetEffect effect : SET_EFFECTS)
+			if (effect.getClass() == this.getClass()) {
+				unique = false;
+				break;
+			}
+		if (unique) {
+			SET_EFFECTS.add(this);
+			nameToSetEffectMap.put(this.name, this);
+		}
+	}
 
 	/**Goes through allSets and assigns set effects to appropriate sets*/
 	public static void setup() {
@@ -127,9 +159,10 @@ public class SetEffect {
 		return false;
 	}
 
-	/**Is this set effect enabled in the config*/
+	/**Is this set effect enabled in the config
+	 * Not used anymore - all set effects are enabled, but can be removed from sets*/
 	public boolean isEnabled() {
-		return true;// TODO !Config.disabledSetEffects.contains(this.getClass());
+		return true;
 	}
 
 	/**Can be overwritten to return a new instance depending on the given block*/
@@ -149,8 +182,8 @@ public class SetEffect {
 
 	/**Damage worn armor with this effect, if enabled in config - split damage amongst items prioritizing highest durability items*/
 	protected void damageArmor(LivingEntity entity, int amount, boolean ignoreConfig) {
-		if ((!ignoreConfig/* && !Config.effectsUseDurability*/) || entity == null || entity.world.isRemote)
-			return; // TODO ^
+		if ((!ignoreConfig && !Config.effectsUseDurability) || entity == null || entity.world.isRemote)
+			return;
 
 		//get list of all worn armor with this effect
 		ArrayList<ItemStack> armor = new ArrayList<ItemStack>();
@@ -208,29 +241,14 @@ public class SetEffect {
 	@SuppressWarnings("deprecation")
 	public void onUpdate(ItemStack stack, World world, Entity entity, int slot, boolean isSelected) {
 		if (!world.isRemote) {
-			//keep track of wearingFullSet nbt if it has attributeModifiers
-			if (!this.attributeModifiers.isEmpty()) {
-				if (!(entity instanceof LivingEntity) || !ArmorSet.getWornSetEffects((LivingEntity) entity).contains(this) || 
-						((LivingEntity) entity).getItemStackFromSlot(((BlockArmorItem)stack.getItem()).getEquipmentSlot()) != stack ||
-						!this.isEnabled()) 
-					stack.getTag().putBoolean("wearingFullSet", false);
-				else
-					stack.getTag().putBoolean("wearingFullSet", true);
-			}
-
 			//do enchantments
 			if (!this.enchantments.isEmpty()) {
-				ListNBT enchantNbt = stack.getTag().getList("ench", 10);
+				ListNBT enchantNbt = stack.getEnchantmentTagList();
 				for (EnchantmentData enchant : this.enchantments) {
 					if (((BlockArmorItem)stack.getItem()).getEquipmentSlot() != enchant.slot)
 						continue;
 					//see if it has enchant already
-					boolean hasEnchant = false;
-					for (int i=0; i<enchantNbt.size(); i++) {
-						if (enchantNbt.getCompound(i).getString("id") == Registry.ENCHANTMENT.getKey(enchant.ench).toString() &&
-								enchantNbt.getCompound(i).getShort("lvl") >= enchant.level)
-							hasEnchant = true;
-					}
+					boolean hasEnchant = EnchantmentHelper.getEnchantmentLevel(enchant.ench, stack) >= enchant.level;
 
 					//should remove enchantment
 					if (hasEnchant && (!(entity instanceof LivingEntity) || 
@@ -239,6 +257,7 @@ public class SetEffect {
 						for (int i=enchantNbt.size()-1; i>=0; i--)
 							if (enchantNbt.getCompound(i).getBoolean(BlockArmor.MODID+" enchant"))
 								enchantNbt.remove(i);
+						stack.setTagInfo("Enchantments", enchantNbt);
 					}
 
 					//should add enchantment
@@ -250,6 +269,7 @@ public class SetEffect {
 						nbt.putShort("lvl", enchant.level);
 						nbt.putBoolean(BlockArmor.MODID+" enchant", true);
 						enchantNbt.add(nbt);
+						stack.setTagInfo("Enchantments", enchantNbt);
 					}
 				}
 				if (enchantNbt.isEmpty())
@@ -260,22 +280,42 @@ public class SetEffect {
 		}
 	}
 
+	/**Update stack nbt to show full set for getAttributeModifiers*/
+	@SubscribeEvent
+	public static void onEquipmentChange(LivingEquipmentChangeEvent event) {
+		ArrayList<SetEffect> effects = ArmorSet.getWornSetEffects(event.getEntityLiving());
+		for (EquipmentSlotType slot : EquipmentSlotType.values())
+			if (slot.getSlotType() == Group.ARMOR) {
+				ItemStack stack = event.getEntityLiving().getItemStackFromSlot(slot);
+				if (stack == event.getFrom())
+					stack = event.getTo();
+				if (stack != null && stack.getItem() instanceof BlockArmorItem) {
+					if (!stack.hasTag())
+						stack.setTag(new CompoundNBT());
+					
+					if (effects.containsAll(((BlockArmorItem)stack.getItem()).set.setEffects))
+						stack.getTag().putBoolean("wearingFullSet", true);
+					else
+						stack.getTag().putBoolean("wearingFullSet", false);
+				}
+			}
+	}
+
 	/**Handles the attributes when wearing an armor set*/
-	public Multimap<String, AttributeModifier> getAttributeModifiers(Multimap<String, AttributeModifier> map,
+	public Multimap<Attribute, AttributeModifier> getAttributeModifiers(Multimap<Attribute, AttributeModifier> map,
 			EquipmentSlotType slot, ItemStack stack) {
 
 		if (!stack.hasTag())
 			stack.setTag(new CompoundNBT());
 
-		if (stack.getTag().getBoolean("wearingFullSet")) //FIXME removing piece will reset attributes
-			for (AttributeModifier attribute : this.attributeModifiers)
-				map.put(attribute.getName(), attribute);
-
+		if (stack.getTag().getBoolean("wearingFullSet")) //FIXME removing piece will reset attributes (not sure how to fix)
+			for (Attribute attribute : this.attributes.keySet())
+				map.put(attribute, this.attributes.get(attribute));
+		
 		return map;
 	}
 
 	/**Set effect name and description if shifting*/
-
 	public List<ITextComponent> addInformation(ItemStack stack, boolean isShiftDown, PlayerEntity player, List<ITextComponent> tooltip, ITooltipFlag flagIn) {
 		String string = color.toString();
 		if (player instanceof EntityGuiPlayer || (ArmorSet.getWornSetEffects(player).contains(this) && 
@@ -288,7 +328,7 @@ public class SetEffect {
 			string += this.isEnabled() ? "" : TextFormatting.STRIKETHROUGH.toString();
 			string += ": "+TextFormatting.ITALIC+description+TextFormatting.RESET;
 			if (this.usesButton)
-				string += TextFormatting.BLUE+" <"+TextFormatting.BOLD+KeyActivateSetEffect.ACTIVATE_SET_EFFECT.func_238171_j_().getUnformattedComponentText()
+				string += TextFormatting.BLUE+" <"+TextFormatting.BOLD+KeyActivateSetEffect.ACTIVATE_SET_EFFECT.func_238171_j_().getString().toUpperCase()
 				+TextFormatting.RESET+""+TextFormatting.BLUE+">";
 		}
 		tooltip.add(new StringTextComponent(string));
@@ -298,7 +338,7 @@ public class SetEffect {
 
 	@Override
 	public String toString() {
-		return this.getClass().getSimpleName().replace("SetEffect", "").replace("_", " ");
+		return this.name;
 	}
 
 	@Override
@@ -306,8 +346,35 @@ public class SetEffect {
 		return obj.getClass() == this.getClass() && this.description.equals(((SetEffect)obj).description);
 	}
 
+	/**Write this effect to string for config (variables need to be included)*/
+	public String writeToString() {
+		return this.name;
+	}
+
+	/**Read an effect from this string in config (takes into account variables in parenthesis)*/
+	public SetEffect readFromString(String str) throws Exception {
+		return this;
+	}
+
+	/**Read an effect from this string in config*/
+	@Nullable
+	public static SetEffect getEffectFromString(String strIn) {
+		// ignore anything in parenthesis for finding which effect this is
+		String str = strIn;
+		if (strIn.contains("("))
+			str = strIn.substring(0, strIn.indexOf("(")).trim();
+		SetEffect effect = SetEffect.nameToSetEffectMap.get(str);
+		// get actual effect for this string (including variables in parenthesis)
+		try {
+			return effect.readFromString(strIn);
+		}
+		catch (Exception e) {
+			return null;
+		}
+	}
+
 	/**Used to store data for enchantments easily*/
-	static class EnchantmentData {
+	protected static class EnchantmentData {
 		public Enchantment ench;
 		public Short level;
 		public EquipmentSlotType slot;

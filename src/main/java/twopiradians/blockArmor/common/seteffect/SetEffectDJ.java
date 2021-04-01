@@ -16,6 +16,7 @@ import twopiradians.blockArmor.common.item.ArmorSet;
 public class SetEffectDJ extends SetEffect
 {
 	protected SetEffectDJ() {
+		super();
 		this.color = TextFormatting.PURPLE;
 		this.description = "Plays a record from your inventory.";
 		this.usesButton = true;

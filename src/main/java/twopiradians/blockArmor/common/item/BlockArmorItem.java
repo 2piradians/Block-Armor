@@ -4,7 +4,11 @@ import java.util.List;
 
 import javax.annotation.Nullable;
 
+import org.antlr.v4.runtime.misc.MultiMap;
+
+import com.google.common.collect.LinkedListMultimap;
 import com.google.common.collect.Multimap;
+import com.google.common.collect.MultimapBuilder;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screen.Screen;
@@ -33,7 +37,9 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import twopiradians.blockArmor.client.ClientProxy;
 import twopiradians.blockArmor.client.model.ModelBlockArmor;
+import twopiradians.blockArmor.common.BlockArmor;
 import twopiradians.blockArmor.common.command.CommandDev;
+import twopiradians.blockArmor.common.config.Config;
 import twopiradians.blockArmor.common.seteffect.SetEffect;
 
 public class BlockArmorItem extends ArmorItem {
@@ -44,7 +50,7 @@ public class BlockArmorItem extends ArmorItem {
 	public ItemGroup group;
 
 	public BlockArmorItem(BlockArmorMaterial material, int renderIndex, EquipmentSlotType equipmentSlot, ArmorSet set) {
-		super(material, equipmentSlot, new Item.Properties().group(ItemGroup.COMBAT));
+		super(material, equipmentSlot, new Item.Properties().group(set.isFromModdedBlock ? BlockArmor.moddedTab : BlockArmor.vanillaTab));
 		this.set = set;
 	}
 
@@ -85,7 +91,7 @@ public class BlockArmorItem extends ArmorItem {
 	protected boolean isInGroup(ItemGroup group) {
 		return set.isEnabled() && group != null && (group == ItemGroup.SEARCH || group == this.group);
 	}
-	
+
 	public void setGroup(ItemGroup group) {
 		this.group = group;
 	}
@@ -98,16 +104,15 @@ public class BlockArmorItem extends ArmorItem {
 
 	/** Handles the attributes when wearing an armor set */
 	@Override
-	public Multimap<Attribute, AttributeModifier> getAttributeModifiers(EquipmentSlotType slot) {
-		/*Multimap<String, AttributeModifier> map = this.getItemAttributeModifiers(slot);
-		if (slot != this.armorType)
+	public Multimap<Attribute, AttributeModifier> getAttributeModifiers(EquipmentSlotType slot, ItemStack stack) {
+		Multimap<Attribute, AttributeModifier> map = LinkedListMultimap.create();
+		if (slot != this.slot)
 			return map;
 
 		for (SetEffect effect : set.setEffects)
 			map = effect.getAttributeModifiers(map, slot, stack);
 
-		return map;*/ // TODO fix attributes
-		return super.getAttributeModifiers(slot);
+		return map;
 	}
 
 	/** Set to have tooltip color show if item has effect */
@@ -132,7 +137,7 @@ public class BlockArmorItem extends ArmorItem {
 			// add header if shifting
 			if (Screen.hasShiftDown())
 				tooltip.add(new StringTextComponent(TextFormatting.ITALIC + "" + TextFormatting.GOLD + "Set Effects: " + TextFormatting.ITALIC
-						+ "(requires 4" /*+ Config.piecesForSet + (Config.piecesForSet == 4 ? "" : "+")*/ // TODO config
+						+ "(requires " + Config.piecesForSet + (Config.piecesForSet == 4 ? "" : "+")
 						+ " pieces to be worn)"));
 
 			// set effect names and descriptions if shifting

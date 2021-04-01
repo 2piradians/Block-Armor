@@ -12,6 +12,7 @@ import twopiradians.blockArmor.common.item.ArmorSet;
 public class SetEffectSoft_Fall extends SetEffect 
 {
 	protected SetEffectSoft_Fall() {
+		super();
 		this.color = TextFormatting.WHITE;
 		this.description = "Provides immunity to fall damage";
 		MinecraftForge.EVENT_BUS.register(this);

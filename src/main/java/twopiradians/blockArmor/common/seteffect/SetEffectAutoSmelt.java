@@ -2,6 +2,7 @@ package twopiradians.blockArmor.common.seteffect;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import javax.annotation.Nullable;
 
@@ -40,6 +41,7 @@ public class SetEffectAutoSmelt extends SetEffect {
 	public static SetEffectAutoSmelt INSTANCE;
 
 	protected SetEffectAutoSmelt() {
+		super();
 		this.color = TextFormatting.DARK_RED;
 		this.description = "Smelts harvested blocks";
 		this.usesButton = true;
@@ -55,8 +57,8 @@ public class SetEffectAutoSmelt extends SetEffect {
 				!world.isRemote && BlockArmor.key.isKeyDown(player) && !player.getCooldownTracker().hasCooldown(stack.getItem())) {
 			boolean deactivated = !stack.getTag().getBoolean("deactivated");
 			stack.getTag().putBoolean("deactivated", deactivated);
-			player.sendMessage(new TranslationTextComponent(TextFormatting.GRAY+"[Block Armor] "+TextFormatting.ITALIC+"AutoSmelt set effect "
-					+ (deactivated ? TextFormatting.RED+""+TextFormatting.ITALIC+"disabled." : TextFormatting.GREEN+""+TextFormatting.ITALIC+"enabled.")), null);
+			player.sendMessage(new TranslationTextComponent(TextFormatting.GRAY+""+TextFormatting.ITALIC+"AutoSmelt set effect "
+					+ (deactivated ? TextFormatting.RED+""+TextFormatting.ITALIC+"disabled" : TextFormatting.GREEN+""+TextFormatting.ITALIC+"enabled")), UUID.randomUUID());
 			this.setCooldown(player, 10);
 		}
 	}
@@ -78,7 +80,7 @@ public class SetEffectAutoSmelt extends SetEffect {
 		@Override
 		protected List<ItemStack> doApply(List<ItemStack> generatedLoot, LootContext context) {
 			Entity entityIn = context.get(LootParameters.THIS_ENTITY);
-			if (entityIn instanceof LivingEntity && ArmorSet.getWornSetEffects((LivingEntity) entityIn).contains(this)) {
+			if (entityIn instanceof LivingEntity && ArmorSet.getWornSetEffects((LivingEntity) entityIn).contains(SetEffectAutoSmelt.INSTANCE)) {
 				LivingEntity entity = (LivingEntity) entityIn;
 				ItemStack stack = ArmorSet.getFirstSetItem(entity, SetEffectAutoSmelt.INSTANCE);
 				if (entity.world.isRemote || 

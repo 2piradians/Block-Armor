@@ -1,14 +1,18 @@
 package twopiradians.blockArmor.common.item;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Random;
+import java.util.TreeSet;
 
 import javax.annotation.Nullable;
 
 import com.google.common.collect.Iterators;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockRenderType;
@@ -51,6 +55,7 @@ import net.minecraft.util.text.TextFormatting;
 import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
 import twopiradians.blockArmor.common.BlockArmor;
 import twopiradians.blockArmor.common.command.CommandDev;
+import twopiradians.blockArmor.common.config.Config;
 import twopiradians.blockArmor.common.seteffect.SetEffect;
 import twopiradians.blockArmor.creativetab.BlockArmorCreativeTab;
 import twopiradians.blockArmor.utils.BlockUtils;
@@ -92,9 +97,11 @@ public class ArmorSet {
 		}};
 	}
 	/**All sets, including disabled sets*/
-	public static ArrayList<ArmorSet> allSets;
+	public static ArrayList<ArmorSet> allSets = Lists.newArrayList();
 	/**All sets, mapped by their stack's display name*/
-	public static HashMap<String, ArmorSet> nameToSetMap;
+	public static HashMap<String, ArmorSet> nameToSetMap = Maps.newHashMap();
+	/**All sets, mapped by their block's modid*/
+	public static HashMap<String, TreeSet<ArmorSet>> modidToSetMap = Maps.newHashMap();
 	/**Armor slots*/
 	public static final EquipmentSlotType[] SLOTS = new EquipmentSlotType[] 
 			{EquipmentSlotType.HEAD, EquipmentSlotType.CHEST, EquipmentSlotType.LEGS, EquipmentSlotType.FEET};
@@ -111,6 +118,7 @@ public class ArmorSet {
 	public boolean isFromModdedBlock;
 	public ArrayList<SetEffect> setEffects;
 	public String modid;
+	public String registryName;
 	/**should only be modified through enable() and disable(); enabled = in creative tab and has recipe*/
 	private boolean enabled;
 	/**Only changed on client*/
@@ -130,6 +138,7 @@ public class ArmorSet {
 	public ArmorSet(ItemStack stack) {
 		this.stack = stack;
 		this.item = stack.getItem();
+		this.registryName = ArmorSet.getItemStackRegistryName(this.stack);
 		try {
 			ResourceLocation loc = this.item.getRegistryName();
 			this.modid = loc.getNamespace().toLowerCase();
@@ -219,6 +228,7 @@ public class ArmorSet {
 		//checks list of ItemStacks for valid ones and creates set and adds to allSets
 		allSets = new ArrayList<ArmorSet>();
 		nameToSetMap = Maps.newHashMap();
+		modidToSetMap = Maps.newHashMap();
 		for (ItemStack stack : stacks) {
 			if (isValid(stack) && ArmorSet.getSet(stack.getItem()) == null) {
 				String registryName = getItemStackRegistryName(stack);
@@ -226,7 +236,15 @@ public class ArmorSet {
 					try {
 						ArmorSet set = new ArmorSet(stack);
 						allSets.add(set);
-						nameToSetMap.put(registryName, set);
+						nameToSetMap.put(set.registryName, set);
+						TreeSet<ArmorSet> list = modidToSetMap.containsKey(set.modid) ? modidToSetMap.get(set.modid) : Sets.newTreeSet(new Comparator<ArmorSet>() {
+							@Override
+							public int compare(ArmorSet s1, ArmorSet s2) {
+								return s1.registryName.compareTo(s2.registryName);
+							}
+						});
+						list.add(set);
+						modidToSetMap.put(set.modid, list);
 						registryNames.add(registryName);
 					}
 					catch (Exception e) {}
@@ -379,10 +397,18 @@ public class ArmorSet {
 				}
 			}
 			for (String description : setCounts.keySet())
-				if (setCounts.get(description).getB() >= /*Config.piecesForSet*/4) // TODO config
+				if (setCounts.get(description).getB() >= Config.piecesForSet) 
 					effects.add(setCounts.get(description).getA());
 		}
 		return effects;
+	}
+	
+	/**Does this entity have this worn set effect type active*/
+	public static boolean hasSetEffect(LivingEntity entity, SetEffect effect) {
+		for (SetEffect effect2 : getWornSetEffects(entity))
+			if (effect.getClass() == effect2.getClass())
+				return true;
+		return false;
 	}
 
 	/**Returns armor set corresponding to given block and meta, or null if none exists*/

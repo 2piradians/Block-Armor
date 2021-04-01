@@ -252,11 +252,6 @@ public class ModelBlockArmor<T extends LivingEntity> extends BipedModel<T> {
 		this.renderingEnchantment = false;
 	}
 
-	@Override
-	protected void func_230486_a_(T entity, float p_230486_2_) { // TODO not used, remove
-		super.func_230486_a_(entity, p_230486_2_);
-	}
-
 	/**
 	 * Sets the models various rotation angles then renders the model.
 	 */
@@ -266,7 +261,7 @@ public class ModelBlockArmor<T extends LivingEntity> extends BipedModel<T> {
 		// this.createModel(slot, 0);// TODO remove
 
 		boolean renderEnchant = true;
-		//don't render enchant if only enchant is from set effect
+		//don't render enchant if only enchant is from set effect TODO
 		if (this.renderingEnchantment) {
 			ItemStack stack = entity.getItemStackFromSlot(slot);
 			if (stack != null && stack.getItem() instanceof BlockArmorItem && stack.hasTag()) {

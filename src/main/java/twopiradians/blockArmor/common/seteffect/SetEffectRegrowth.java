@@ -16,6 +16,7 @@ import twopiradians.blockArmor.utils.BlockUtils;
 public class SetEffectRegrowth extends SetEffect {
 
 	protected SetEffectRegrowth() {
+		super();
 		this.color = TextFormatting.DARK_GREEN;
 		this.description = "Slowly regrows and repairs durability";
 	}

@@ -14,6 +14,7 @@ import net.minecraft.world.World;
 public class SetEffectDiving_Suit extends SetEffect {
 
 	protected SetEffectDiving_Suit() {
+		super();
 		this.color = TextFormatting.DARK_AQUA;
 		this.description = "Provides Depth Strider, Respiration, and Night Vision in water";
 		this.potionEffects.add(new EffectInstance(Effects.NIGHT_VISION, 210, 0, true, false));

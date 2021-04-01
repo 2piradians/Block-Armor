@@ -17,6 +17,7 @@ import twopiradians.blockArmor.common.item.ArmorSet;
 public class SetEffectEnder_Hoarder extends SetEffect {
 
 	protected SetEffectEnder_Hoarder() {
+		super();
 		this.color = TextFormatting.DARK_PURPLE;
 		this.description = "Provides access to your ender chest";
 		this.usesButton = true;

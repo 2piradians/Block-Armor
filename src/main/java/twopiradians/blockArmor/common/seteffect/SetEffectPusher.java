@@ -18,6 +18,7 @@ import twopiradians.blockArmor.common.item.ArmorSet;
 public class SetEffectPusher extends SetEffect {
 
 	protected SetEffectPusher() {
+		super();
 		this.color = TextFormatting.GRAY;
 		this.description = "Pushes away nearby entities";
 		this.usesButton = true;

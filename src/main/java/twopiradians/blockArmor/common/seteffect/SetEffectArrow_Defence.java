@@ -17,6 +17,7 @@ import twopiradians.blockArmor.common.item.ArmorSet;
 public class SetEffectArrow_Defence extends SetEffect {
 
 	protected SetEffectArrow_Defence() {
+		super();
 		this.color = TextFormatting.WHITE;
 		this.description = "Fires arrows outwards";
 		this.usesButton = true;

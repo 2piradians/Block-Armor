@@ -23,9 +23,9 @@ displayName="Block Armor" #mandatory
 # A URL to query for updates for this mod. See the JSON update specification <here>
 # updateJSONURL="https://raw.githubusercontent.com/Furgl/Global-Mod-Info/master/Block_Armor/update.json" #optional
 # A URL for the "homepage" for this mod, displayed in the mod UI
-displayURL="https://github.com/2piradians/Block-Armor" #optional
+displayURL="https://www.curseforge.com/minecraft/mc-mods/block-armor" #optional
 # A file name (in the root of the mod JAR) containing a logo for display
-logoFile="assets/blockarmor/logo.png" #optional
+logoFile="logo.png" #optional
 # A text field displayed in the mod UI
 credits="" #optional
 # A text field displayed in the mod UI

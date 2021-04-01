@@ -17,6 +17,7 @@ public class SetEffectFalling extends SetEffect {
 	private static final SetEffectDiving_Suit DIVING_SUIT = new SetEffectDiving_Suit();
 
 	protected SetEffectFalling() {
+		super();
 		this.color = TextFormatting.GRAY;
 		this.description = "Falls faster in air and sinks faster in water while sneaking";
 	}

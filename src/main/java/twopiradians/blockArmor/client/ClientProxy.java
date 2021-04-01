@@ -114,9 +114,7 @@ public class ClientProxy {
 		public static void onModelRegister(ModelRegistryEvent event) {
 			System.out.println("model registry ================================================"); // TODO remove		
 			ModelLoaderRegistry.registerLoader(new ResourceLocation(BlockArmor.MODID, "item_loader"), ModelDynBlockArmor.LoaderDynBlockArmor.INSTANCE);
-			mapUnbakedModels();
-			//ModItems.registerRenders(event);
-			//ModBlocks.registerRenders();	
+			mapUnbakedModels();	
 		}
 
 	}
@@ -162,19 +160,16 @@ public class ClientProxy {
 	}
 
 	public static void setup() {
-		KeyActivateSetEffect.ACTIVATE_SET_EFFECT = new KeyBinding("Activate Set Effect", 100, BlockArmor.MODNAME); // FIXME KeyEvent.getKeyCodeForChar('R') crashed for some reason
+		KeyActivateSetEffect.ACTIVATE_SET_EFFECT = new KeyBinding("Activate Set Effect", 82, BlockArmor.MODNAME);
 		ClientRegistry.registerKeyBinding(KeyActivateSetEffect.ACTIVATE_SET_EFFECT);
 		((IReloadableResourceManager) Minecraft.getInstance().getResourceManager()).addReloadListener(new ISelectiveResourceReloadListener() {
 			@Override
 			public void onResourceManagerReload(IResourceManager resourceManager,
 					Predicate<IResourceType> resourcePredicate) {
-				//mapTextures();
-				//Config.syncJEIIngredients(); TODO add JEI integration when it's updated
+				//Config.syncJEIIngredients();
 				System.out.println("reload ================================================"); // TODO remove
 			}
 		});
-		//ModBlocks.registerRenders();
-		//ModItems.registerRenders();
 	}
 
 	/**Set MC to map textures when resources reloaded*/
@@ -183,8 +178,7 @@ public class ClientProxy {
 		System.out.println("AddReloadListenerEvent ================================================"); // TODO remove
 	}
 
-	/**Get model based on model's constructor parameters
-	 * @param entity */
+	/**Get model based on model's constructor parameters*/
 	public static Object getBlockArmorModel(LivingEntity entity, int height, int width, int currentFrame, int nextFrame, EquipmentSlotType slot) {
 		String key = height+""+width+""+currentFrame+""+nextFrame+""+slot.getName();
 		ModelBlockArmor model = modelMaps.get(key);

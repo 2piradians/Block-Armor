@@ -9,10 +9,10 @@ import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
 import twopiradians.blockArmor.common.item.ArmorSet;
 
-public class SetEffectFeeder extends SetEffect
-{
+public class SetEffectFeeder extends SetEffect {
 
 	protected SetEffectFeeder() {
+		super();
 		this.color = TextFormatting.RED;
 		this.description = "Automatically feeds the wearer";
 	}
@@ -32,10 +32,10 @@ public class SetEffectFeeder extends SetEffect
 				if (foodLevel < 16)
 					for (int i=0; i<2; ++i)
 						world.playSound((PlayerEntity)null, player.getPosition(), SoundEvents.ENTITY_GENERIC_EAT, 
-								SoundCategory.PLAYERS, 0.3F, world.rand.nextFloat()*0.2f + 1.0f);
+								SoundCategory.PLAYERS, 0.15F, world.rand.nextFloat()*0.2f + 1.0f);
 				else
 					world.playSound((PlayerEntity)null, player.getPosition(), SoundEvents.ENTITY_PLAYER_BURP, 
-							SoundCategory.PLAYERS, 0.3F, world.rand.nextFloat()*0.2f + 1.0f);
+							SoundCategory.PLAYERS, 0.15F, world.rand.nextFloat()*0.2f + 1.0f);
 				
 				this.setCooldown(player, 80);
 				this.damageArmor(player, foodToFeed, true);

@@ -20,6 +20,7 @@ import twopiradians.blockArmor.common.item.ArmorSet;
 public class SetEffectCrafter extends SetEffect {
 
 	protected SetEffectCrafter() {
+		super();
 		this.color = TextFormatting.GOLD;
 		this.description = "Opens a crafting screen";
 		this.usesButton = true;

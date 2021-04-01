@@ -1,6 +1,7 @@
 package twopiradians.blockArmor.common.item;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.model.ModelResourceLocation;
@@ -9,10 +10,14 @@ import net.minecraft.item.Item;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber.Bus;
+import net.minecraftforge.fml.config.ModConfig;
+import net.minecraftforge.fml.loading.FMLPaths;
 import net.minecraftforge.registries.IForgeRegistry;
 import twopiradians.blockArmor.common.BlockArmor;
+import twopiradians.blockArmor.common.config.Config;
 import twopiradians.blockArmor.common.seteffect.SetEffect;
 
 public class ModItems
@@ -26,13 +31,17 @@ public class ModItems
 		public static void registerItems(final RegistryEvent.Register<Item> event) {						
 			ArmorSet.setup();
 			SetEffect.setup();
-			//Config.setup(BlockArmor.configFile);
+			ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, Config.init());
+			Config.loadConfig(Config.COMMON_SPEC, FMLPaths.CONFIGDIR.get().resolve("blockarmor-common.toml"));
 
 			int vanillaItems = 0;
 			int moddedItems = 0;
 
-			for (ArmorSet set : ArmorSet.allSets) { 
-				/*if (!Config.disabledSets.contains(set))*/ {
+			Iterator<ArmorSet> it = ArmorSet.allSets.iterator();
+			while (it.hasNext()) { 
+				ArmorSet set = it.next();
+				/*if (!Config.disabledSets.contains(set))*/ 
+				/*if (Config.registerDisabledItems || set.isEnabled())*/ {
 					String registryName = ArmorSet.getItemStackRegistryName(set.stack);
 					set.helmet = register(event.getRegistry(), new BlockArmorItem(set.material, 0, EquipmentSlotType.HEAD, set), registryName+"_helmet", true);
 					set.chestplate = register(event.getRegistry(), new BlockArmorItem(set.material, 0, EquipmentSlotType.CHEST, set), registryName+"_chestplate", true);
@@ -42,17 +51,14 @@ public class ModItems
 						moddedItems += 4;
 					else
 						vanillaItems += 4;
-					set.enable(); // TODO remove eventually?
 				}
+				
+				set.enable(); // enable here so they're added to creative tab right away (can be disabled when config loads)
 			}
-			//for (ArmorSet set : Config.disabledSets)
-			//	ArmorSet.allSets.remove(set);
 
 			BlockArmor.LOGGER.info("Generated "+vanillaItems+" Block Armor items from Vanilla Blocks");
 			if (moddedItems > 0)
 				BlockArmor.LOGGER.info("Generated "+moddedItems+" Block Armor items from Modded Blocks");
-
-			//Config.syncConfig();
 		}
 
 		private static BlockArmorItem register(IForgeRegistry<Item> registry, BlockArmorItem armor, String itemName, boolean isFromModdedBlock) {

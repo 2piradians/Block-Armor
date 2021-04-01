@@ -14,12 +14,14 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.fluid.FluidState;
 import net.minecraft.fluid.Fluids;
 import net.minecraft.inventory.EquipmentSlotType;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.particles.ParticleTypes;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.Direction;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.SoundEvents;
 import net.minecraft.util.Tuple;
@@ -34,6 +36,7 @@ import twopiradians.blockArmor.common.item.BlockArmorItem;
 public class SetEffectAbsorbent extends SetEffect {
 
 	protected SetEffectAbsorbent() {
+		super();
 		this.color = TextFormatting.YELLOW;
 		this.description = "Absorbs nearby liquids";
 		this.usesButton = true;
@@ -45,8 +48,8 @@ public class SetEffectAbsorbent extends SetEffect {
 		super.onArmorTick(world, player, stack);
 
 		if (!world.isRemote && player.getCooldownTracker().hasCooldown(stack.getItem())) 
-			((ServerWorld)world).spawnParticle(ParticleTypes.DRIPPING_WATER, player.getPosX(), player.getPosY()+1.0d,player.getPosZ(), 
-					5, 0.2d, 0.5d, 0.2d, 0);
+			((ServerWorld)world).spawnParticle(ParticleTypes.FALLING_WATER, player.getPosX(), player.getPosY()+1.0d,player.getPosZ(), 
+					3, 0.2d, 0.5d, 0.2d, 0);
 
 		if (!world.isRemote && !player.getCooldownTracker().hasCooldown(stack.getItem())) {
 			ArmorSet wornSet = ((BlockArmorItem)stack.getItem()).set;
@@ -61,17 +64,15 @@ public class SetEffectAbsorbent extends SetEffect {
 						if (oldStack != null && oldStack.getItem() instanceof BlockArmorItem && 
 								((BlockArmorItem)oldStack.getItem()).set == wornSet) { //only change if wet sponge 
 							CompoundNBT nbt = new CompoundNBT();
-							stack.write(nbt);
-							// TODO wtf is this doing?
-							//ResourceLocation resourcelocation = (ResourceLocation)Item.REGISTRY.getNameForObject(drySet.getArmorForSlot(slot));
-							//nbt.putString("id", resourcelocation == null ? "minecraft:air" : resourcelocation.toString());
-							//player.setItemStackToSlot(slot, new ItemStack(nbt));
+							oldStack.write(nbt);
+							nbt.putString("id", drySet.getArmorForSlot(slot).getRegistryName().toString());
+							player.setItemStackToSlot(slot, ItemStack.read(nbt));
 						}
 					}
 				}
 				else if (wornSet.block == Blocks.SPONGE &&
 						!world.isRemote && player.isAllowEdit() && BlockArmor.key.isKeyDown(player) &&
-						this.absorb(world, player.getPosition())) {
+						this.absorb(world, player.getPosition(), player, stack)) {
 					world.playSound((PlayerEntity)null, player.getPosX(), player.getPosY(), player.getPosZ(), SoundEvents.ITEM_BUCKET_FILL, 
 							SoundCategory.PLAYERS, 1.0F, world.rand.nextFloat() + 0.5f);
 
@@ -82,10 +83,8 @@ public class SetEffectAbsorbent extends SetEffect {
 								((BlockArmorItem)oldStack.getItem()).set == wornSet) { //only change if dry sponge 
 							CompoundNBT nbt = new CompoundNBT();
 							oldStack.write(nbt);
-							// TODO wtf?
-							//ResourceLocation resourcelocation = (ResourceLocation)Item.REGISTRY.getNameForObject(wetSet.getArmorForSlot(slot));
-							//nbt.putString("id", resourcelocation == null ? "minecraft:air" : resourcelocation.toString());
-							//player.setItemStackToSlot(slot, new ItemStack(nbt));
+							nbt.putString("id", wetSet.getArmorForSlot(slot).getRegistryName().toString());
+							player.setItemStackToSlot(slot, ItemStack.read(nbt));
 						}
 					}
 					
@@ -99,7 +98,7 @@ public class SetEffectAbsorbent extends SetEffect {
 	}
 	
 	/**Copied from SpongeBlock.class*/
-	private boolean absorb(World worldIn, BlockPos pos) {
+	private boolean absorb(World worldIn, BlockPos pos, PlayerEntity player, ItemStack stack) {
 	      Queue<Tuple<BlockPos, Integer>> queue = Lists.newLinkedList();
 	      queue.add(new Tuple<>(pos, 0));
 	      int i = 0;
@@ -114,7 +113,7 @@ public class SetEffectAbsorbent extends SetEffect {
 	            BlockState blockstate = worldIn.getBlockState(blockpos1);
 	            FluidState fluidstate = worldIn.getFluidState(blockpos1);
 	            Material material = blockstate.getMaterial();
-	            if (fluidstate.isTagged(FluidTags.WATER)) {
+	            if (fluidstate.isTagged(FluidTags.WATER) && player.canPlayerEdit(blockpos1, Direction.UP, stack)) {
 	               if (blockstate.getBlock() instanceof IBucketPickupHandler && ((IBucketPickupHandler)blockstate.getBlock()).pickupFluid(worldIn, blockpos1, blockstate) != Fluids.EMPTY) {
 	                  ++i;
 	                  if (j < 6) {

@@ -18,6 +18,7 @@ import twopiradians.blockArmor.common.item.ArmorSet;
 public class SetEffectSnowy extends SetEffect {
 
 	protected SetEffectSnowy() {
+		super();
 		this.color = TextFormatting.WHITE;
 		this.description = "Spawns snow and snowballs";
 		this.usesButton = true;

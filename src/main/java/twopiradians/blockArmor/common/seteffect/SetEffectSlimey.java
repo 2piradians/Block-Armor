@@ -21,6 +21,7 @@ public class SetEffectSlimey extends SetEffect {
 	private static double motionY;
 
 	protected SetEffectSlimey() {
+		super();
 		this.color = TextFormatting.GREEN;
 		this.description = "Bounces off walls and floors";
 		MinecraftForge.EVENT_BUS.register(this);

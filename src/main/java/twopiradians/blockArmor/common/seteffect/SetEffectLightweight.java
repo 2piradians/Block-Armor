@@ -16,6 +16,7 @@ import twopiradians.blockArmor.common.item.ArmorSet;
 public class SetEffectLightweight extends SetEffect 
 {
 	protected SetEffectLightweight() {
+		super();
 		this.color = TextFormatting.GREEN;
 		this.description = "Fall slowly, like a leaf in the wind";
 		MinecraftForge.EVENT_BUS.register(this);

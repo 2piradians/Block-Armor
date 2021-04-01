@@ -20,6 +20,7 @@ import twopiradians.blockArmor.common.item.ArmorSet;
 public class SetEffectBonemealer extends SetEffect {
 
 	protected SetEffectBonemealer() {
+		super();
 		this.color = TextFormatting.WHITE;
 		this.description = "Applies bonemeal to nearby blocks";
 		this.usesButton = true;

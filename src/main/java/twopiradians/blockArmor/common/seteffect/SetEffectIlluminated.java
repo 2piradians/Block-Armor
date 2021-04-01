@@ -1,5 +1,7 @@
 package twopiradians.blockArmor.common.seteffect;
 
+import javax.annotation.Nullable;
+
 import net.minecraft.block.Block;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
@@ -14,12 +16,12 @@ import twopiradians.blockArmor.common.block.ModBlocks;
 import twopiradians.blockArmor.common.item.ArmorSet;
 import twopiradians.blockArmor.utils.BlockUtils;
 
-@SuppressWarnings("deprecation")
 public class SetEffectIlluminated extends SetEffect {
 
 	private int lightLevel;
 
 	public SetEffectIlluminated(int lightLevel) {
+		super();
 		this.lightLevel = MathHelper.clamp(lightLevel, 1, 15);
 		this.color = TextFormatting.GOLD;
 		this.description = "Produces light level "+this.lightLevel;
@@ -52,6 +54,18 @@ public class SetEffectIlluminated extends SetEffect {
 	@Override
 	protected SetEffect create(Block block) {
 		return new SetEffectIlluminated(BlockUtils.getLightLevel(block));
+	}
+
+	/**Write this effect to string for config (variables need to be included)*/
+	@Override
+	public String writeToString() {
+		return this.name+" ("+this.lightLevel+")";
+	}
+
+	/**Read an effect from this string in config (takes into account variables in parenthesis)*/
+	@Override
+	public SetEffect readFromString(String str) throws Exception {
+		return new SetEffectIlluminated(Integer.valueOf(str.substring(str.indexOf("(")+1, str.indexOf(")"))));
 	}
 
 	/**Should block be given this set effect*/

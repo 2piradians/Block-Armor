@@ -7,6 +7,7 @@ import com.google.gson.JsonObject;
 import net.minecraft.block.Block;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.ai.attributes.AttributeModifier;
+import net.minecraft.entity.ai.attributes.Attributes;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.loot.LootContext;
@@ -30,9 +31,10 @@ public class SetEffectLucky extends SetEffect {
 	public static SetEffectLucky INSTANCE;
 	
 	protected SetEffectLucky() {
+		super();
 		this.color = TextFormatting.DARK_GREEN;
 		this.description = "Greatly increases Fortune, Looting, and Luck";
-		this.attributeModifiers.add(new AttributeModifier(LUCK_UUID, 
+		this.attributes.put(Attributes.LUCK, new AttributeModifier(LUCK_UUID, 
 				"Luck", 3, AttributeModifier.Operation.ADDITION));
 		MinecraftForge.EVENT_BUS.register(this);
 		INSTANCE = this;

@@ -1,237 +1,159 @@
-/*package twopiradians.blockArmor.common.config;
+package twopiradians.blockArmor.common.config;
 
-import java.io.File;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
+import java.util.stream.Collectors;
 
+import org.apache.commons.lang3.tuple.Pair;
+
+import com.electronwill.nightconfig.core.file.CommentedFileConfig;
+import com.electronwill.nightconfig.core.io.WritingMode;
 import com.google.common.collect.Maps;
 
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.util.text.TextFormatting;
-import net.minecraftforge.common.config.ConfigCategory;
-import net.minecraftforge.event.entity.player.PlayerEvent.PlayerLoggedInEvent;
-import net.minecraftforge.eventbus.api.EventPriority;
+import net.minecraftforge.common.ForgeConfigSpec;
+import net.minecraftforge.common.ForgeConfigSpec.BooleanValue;
+import net.minecraftforge.common.ForgeConfigSpec.ConfigValue;
+import net.minecraftforge.common.ForgeConfigSpec.IntValue;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.client.event.ConfigChangedEvent;
-import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
+import net.minecraftforge.fml.config.ModConfig;
 import twopiradians.blockArmor.common.BlockArmor;
 import twopiradians.blockArmor.common.item.ArmorSet;
 import twopiradians.blockArmor.common.seteffect.SetEffect;
-import twopiradians.blockArmor.jei.BlockArmorJEIPlugin;
-import twopiradians.blockArmor.packet.SSyncConfigPacket;
 
-@Mod.EventBusSubscriber
-public class Config 
-{
-	public static Configuration config;
+@Mod.EventBusSubscriber(modid = BlockArmor.MODID, bus = EventBusSubscriber.Bus.MOD)
+public class Config {
 
-	public static final String SET_EFFECTS_CATEGORY = "config.setEffects"; 
-	public static final String ARMOR_SETS_CATEGORY = "config.armorSets";
-	*//**
-		 * Version of this config - if loaded version is less than this, delete the
-		 * config
-		 */
-/*
-private static final float CONFIG_VERSION = 2.4F;
+	/** How many pieces of armor must be worn to activate set effects */
+	public static int piecesForSet;
+	/** Should items from disabled sets be registered */
+	//public static boolean registerDisabledItems; // not gonna work bc config is read after items are registered
+	/*** Sets that should not have items generated - only used by ModItems.postInit()*/
+	public static ArrayList<ArmorSet> disabledSets;
+	/** Should set effects use durability */
+	public static boolean effectsUseDurability;
 
-*//** How many pieces of armor must be worn to activate set effects */
-/*
-public static int piecesForSet;
-*//** Classes of any set effects that are disabled in config */
-/*
-public static ArrayList<Class> disabledSetEffects;
-*//** Should disabled items be registered */
-/*
-public static boolean registerDisabledItems;
-*//**
-	 * Sets that should not have items generated - only used by ModItems.postInit()
-	 */
-/*
-public static ArrayList<ArmorSet> disabledSets;
-*//** Should set effects use durability */
-/*
-public static boolean effectsUseDurability;
+	/** Map of lowercase modid to mod name */
+	private static HashMap<String, String> modList;
 
-*//** Map of lowercase modid to mod name */
-/*
-private static HashMap<String, String> modList;
+	public static ForgeConfigSpec COMMON_SPEC;
+	public static Common COMMON;
 
-public static void postInit(final File file) 
-{
-Config.config = new Configuration(file, String.valueOf(CONFIG_VERSION));
-Config.config.load();
+	public static class Common {
 
-//create modList
-modList = Maps.newHashMap();
-for (String modid : Loader.instance().getIndexedModList().keySet())
-modList.put(modid.toLowerCase(), Loader.instance().getIndexedModList().get(modid).getName());
-if (!modList.containsKey("minecraft"))
-modList.put("minecraft", "Minecraft");
+		private static HashMap<ArmorSet, ForgeConfigSpec.BooleanValue> enabledMap = Maps.newHashMap();
+		private static HashMap<ArmorSet, ConfigValue<List<? extends String>>> setEffectsMap = Maps.newHashMap();
+		//private static BooleanValue registerDisabledItems;
+		private static IntValue piecesForSet; // TEST do these update dynamically?
+		private static BooleanValue effectsUseDurability;
 
-//If loaded version < CONFIG_VERSION, delete it
-String version = Config.config.getLoadedConfigVersion();
-try {
-if (version == null || Float.parseFloat(version) < CONFIG_VERSION) {
-for (String category : Config.config.getCategoryNames())
-Config.config.removeCategory(Config.config.getCategory(category));
-BlockArmor.LOGGER.warn("Deleted config from older version");
+		private Common(ForgeConfigSpec.Builder builder) {
+			// general
+			builder.comment("General settings");
+			builder.push("General");
+			// Register disabled items
+			//builder.worldRestart();
+			//builder.comment("Should only need to be changed in the very rare scenario that your world is using all of its item ID's (32k).\n"
+			//+ "\tTrue: all armor sets will be registered and you can freely enable/disable armor sets without restarting.\n"
+			//+ "\tFalse: only enabled armor sets will be registered and you need to restart whenever armor sets are enabled/disabled.\n"
+			//+ "Players joining a server with disabled armor sets may need to restart their clients after joining to sync their registered items.");
+			//Common.registerDisabledItems = builder.define("Register disabled items", true);
+			//Armor pieces required to activate set effect
+			builder.comment("Specifies how many armor pieces must be worn for a set's effect(s) to work.");
+			Common.piecesForSet = builder.defineInRange("Armor pieces required for Set Effects", 4, 1, 4);
+			//Should set effects use durability
+			builder.comment("Should Set Effects use durability of worn armor to work");
+			Common.effectsUseDurability = builder.define("Set Effects use durability", false);
+			builder.pop();
+
+			// armor sets
+			builder.comment("Configure armor sets and their set effects");
+			builder.push("Armor_Sets");
+			for (String modid : ArmorSet.modidToSetMap.keySet()) {
+				builder.push(modid);
+				for (ArmorSet set : ArmorSet.modidToSetMap.get(modid)) {
+					// they go in alphabetically here, but are not alphabetical in config for some reason..
+					builder.push(set.registryName);
+					// Enabled
+					Common.enabledMap.put(set, builder.define("Enabled", true));
+					// Set Effects
+					Common.setEffectsMap.put(set, builder.defineList("Set_Effects", set.setEffects.stream().map(SetEffect::writeToString).collect(Collectors.toList()), 
+							(effect) -> SetEffect.getEffectFromString((String) effect) != null));
+					builder.pop();
+				}
+				builder.pop();
+			}
+			builder.pop();
+		}
+
+	}
+
+	public static ForgeConfigSpec init() {
+		final Pair<Common, ForgeConfigSpec> specPair = new ForgeConfigSpec.Builder().configure(Common::new);
+		COMMON_SPEC = specPair.getRight();
+		COMMON = specPair.getLeft();
+		return COMMON_SPEC;
+	}
+
+	public static void loadConfig(ForgeConfigSpec spec, Path path) {
+		final CommentedFileConfig configData = CommentedFileConfig.builder(path)
+				.sync()
+				.autosave()
+				.autoreload()
+				.preserveInsertionOrder()
+				.writingMode(WritingMode.REPLACE)
+				.build();
+
+		configData.load();
+		spec.setConfig(configData);
+	}
+
+	/**Read values from config*/
+	public static void sync() {
+		// register disabled items
+		//Config.registerDisabledItems = Common.registerDisabledItems.get() == null ||
+		//		Common.registerDisabledItems.get();
+		// pieces for set
+		Config.piecesForSet = Common.piecesForSet.get();
+		// effects use durability
+		Config.effectsUseDurability = Common.effectsUseDurability.get() == null ||
+				Common.effectsUseDurability.get();
+		for (ArmorSet set : ArmorSet.allSets) {
+			// Enabled
+			Boolean enabled = Common.enabledMap.get(set).get();
+			if (enabled == null || enabled == true)
+				set.enable();
+			else
+				set.disable();
+			// Set Effects
+			set.setEffects.clear(); // TODO need read/write string for non-basic set effects
+			for (String str : Common.setEffectsMap.get(set).get()) {
+				SetEffect effect = SetEffect.getEffectFromString(str);
+				if (effect != null)
+					set.setEffects.add(effect);
+				else
+					BlockArmor.LOGGER.warn("Invalid set effect in config for "+set.registryName+": "+str);
+			}
+		}
+	}
+
+	@SubscribeEvent
+	public static void onLoad(final ModConfig.ModConfigEvent configEvent) { // TODO figure out how to reload in-game?
+		BlockArmor.LOGGER.info("Loaded config file! Syncing!");
+		sync();
+	}
+
+	@SubscribeEvent
+	public static void onLoad(final ModConfig.Loading configEvent) {
+		BlockArmor.LOGGER.info("Loaded config file {}", configEvent.getConfig().getFileName());
+	}
+
+	@SubscribeEvent
+	public static void onFileChange(final ModConfig.Reloading configEvent) {
+		BlockArmor.LOGGER.info("Config just got changed on the file system!");
+	}
+
 }
-}
-catch (Exception e) {
-for (String category : Config.config.getCategoryNames())
-Config.config.removeCategory(Config.config.getCategory(category));
-BlockArmor.LOGGER.warn("Deleted config from older version");
-}
-
-//Register disabled items for ModItems.postInit()
-Property prop = getRegisterDisableItemsProp();
-Config.registerDisabledItems = prop.getBoolean();
-
-//Get disabled armor sets for ModItems.postInit()
-disabledSets = new ArrayList<ArmorSet>();
-if (!Config.registerDisabledItems) {
-Config.config.getCategory(ARMOR_SETS_CATEGORY).setComment("Enable or disable armor sets.");
-for (ArmorSet set : ArmorSet.allSets) {
-String name = modList.get(set.modid) == null ? "???" : modList.get(set.modid);
-ConfigCategory category = Config.config.getCategory(ARMOR_SETS_CATEGORY+"."+name.replace(".", ","));
-category.setComment("Enable or disable armor made from "+name+" blocks.");
-prop = getArmorSetProp(name, set);
-if (!prop.getBoolean()) 
-disabledSets.add(set);
-}
-}
-}
-
-public static void syncConfig() 
-{
-disabledSetEffects = new ArrayList<Class>();
-
-//Armor sets
-Config.config.getCategory(ARMOR_SETS_CATEGORY).setComment("Enable or disable armor sets.");
-for (ArmorSet set : ArmorSet.allSets) {
-String name = modList.get(set.modid) == null ? "???" : modList.get(set.modid);
-ConfigCategory category = Config.config.getCategory(ARMOR_SETS_CATEGORY+"."+name.replace(".", ","));
-category.setComment("Enable or disable armor made from "+name+" blocks.");
-Property prop = getArmorSetProp(name, set);
-if (prop.getBoolean()) 
-set.enable();
-else
-set.disable();
-}
-
-//Set effects
-Config.config.getCategory(SET_EFFECTS_CATEGORY).setComment("Enable or disable set effects.");
-for (SetEffect effect : SetEffect.SET_EFFECTS) {
-Property prop = getSetEffectProp(effect.toString());
-if (!prop.getBoolean())
-disabledSetEffects.add(effect.getClass());
-}		
-
-//Armor pieces required to activate set effect
-Property prop = getPiecesForSetProp();
-Config.piecesForSet = prop.getInt();
-
-//Should set effects use durability
-prop = getEffectsUseDurablityProp();
-Config.effectsUseDurability = prop.getBoolean();
-
-//Register disabled items
-prop = getRegisterDisableItemsProp();
-Config.registerDisabledItems = prop.getBoolean();
-
-Config.config.save();
-
-syncJEIIngredients();
-}
-
-*//** Get effectsUseDurability prop */
-/*
-public static Property getEffectsUseDurablityProp() {
-Property prop = Config.config.get(Configuration.CATEGORY_GENERAL, "Set Effects use durability", false, 
-"Should Set Effects use durability of worn armor to work");
-return prop;
-}
-
-*//** Get registerDisableItems prop */
-/*
-public static Property getRegisterDisableItemsProp() {
-Property prop = Config.config.get(Configuration.CATEGORY_GENERAL, "Register disabled items", true, 
-"Should only need to be changed in the very rare scenario that your world is using all of its item ID's (32k).\n"
-+ TextFormatting.DARK_GREEN+"True: all armor sets will be registered and you can freely enable/disable armor sets without restarting.\n"
-+ TextFormatting.DARK_RED+"False: only enabled armor sets will be registered and you need to restart whenever armor sets are "
-+ "enabled/disabled. Players joining a server with disabled armor sets may need to restart their clients after joining to sync "
-+ "their registered items.");
-prop.setRequiresMcRestart(true);
-return prop;
-}
-
-*//** Get setEffect prop for given set effect name */
-/*
-public static Property getSetEffectProp(String effectName) {
-Property prop;
-if (effectName.equalsIgnoreCase("Diorite Vision"))
-prop = Config.config.get(Config.SET_EFFECTS_CATEGORY, effectName, false, "Determines whether or not the "+effectName+" set effect can be used.");
-else
-prop = Config.config.get(Config.SET_EFFECTS_CATEGORY, effectName, true, "Determines whether or not the "+effectName+" set effect can be used.");
-return prop;
-}
-
-*//** Get armorSet config prop for given modName and armorSetName */
-/*
-public static Property getArmorSetProp(String modName, ArmorSet set) {
-String name = ArmorSet.getItemStackRegistryName(set.stack);
-Property prop = Config.config.get(Config.ARMOR_SETS_CATEGORY+"."+modName.replace(".", ","), name+" Armor", true,
-"Determines whether or not the "+ArmorSet.getItemStackDisplayName(set.stack, null)+" armor should be generated.");
-if (!Config.registerDisabledItems)
-prop.setRequiresMcRestart(true);
-return prop;
-}
-
-*//** Get piecesForSet config prop and makes sure it's between 1-4 */
-/*
-public static Property getPiecesForSetProp() {
-Property prop = Config.config.get(Configuration.CATEGORY_GENERAL, "Armor pieces required for Set Effects", 4, "Specifies how many armor pieces must be worn for a set's effect(s) to work.", 1, 4);
-if (prop.getInt() > 4)
-prop.set(4);
-else if (prop.getInt() < 1)
-prop.set(1);
-return prop;
-}
-
-*//** Updates JEI's blacklist and reloads JEI's item list, if needed */
-/*
-public static void syncJEIIngredients() {
-if (Loader.isModLoaded("jei"))
-BlockArmorJEIPlugin.syncJEIIngredients();
-}
-
-*//**
-	 * Send PacketSyncConfig when a player joins a server
-	 * 
-	 * Would be best to do this with ServerConnectionFromClientEvent to sync config
-	 * before player is refused connection if items are disabled on client and not
-	 * on server, but that event has no player to send the packet with.
-	 */
-/*
-@SubscribeEvent
-public static void onJoinWorld(PlayerLoggedInEvent event) {
-if (!event.player.world.isRemote && event.player != null && event.player instanceof ServerPlayerEntity) {
-Config.syncConfig();
-BlockArmor.NETWORK.sendTo(new SSyncConfigPacket(), (ServerPlayerEntity) event.player);
-}
-}
-
-*//** Sync to config when changed *//*
-										@SubscribeEvent(priority=EventPriority.NORMAL, receiveCanceled=true)
-										public static void onConfigChanged(final ConfigChangedEvent.OnConfigChangedEvent event) 
-										{
-										if (event.getModID().equals(BlockArmor.MODID))
-										if (event.isWorldRunning() && FMLCommonHandler.instance().getMinecraftServerInstance() == null) {
-										BlockArmor.LOGGER.warn("Config changes will not be saved while on a server.");
-										Config.config.save();				
-										}
-										else
-										Config.syncConfig();
-										}
-										}*/

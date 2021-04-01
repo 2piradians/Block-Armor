@@ -18,6 +18,7 @@ import twopiradians.blockArmor.common.item.ArmorSet;
 public class SetEffectPuller extends SetEffect {
 
 	protected SetEffectPuller() {
+		super();
 		this.color = TextFormatting.GRAY;
 		this.description = "Pulls in nearby entities";
 		this.usesButton = true;

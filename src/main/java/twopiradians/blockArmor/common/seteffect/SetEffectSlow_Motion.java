@@ -15,6 +15,7 @@ import twopiradians.blockArmor.common.item.ArmorSet;
 public class SetEffectSlow_Motion extends SetEffect 
 {
 	protected SetEffectSlow_Motion() {
+		super();
 		this.color = TextFormatting.GRAY;
 		this.description = "Live life in the slow lane";
 		this.potionEffects.add(new EffectInstance(Effects.SLOWNESS, 10, 2, true, false));

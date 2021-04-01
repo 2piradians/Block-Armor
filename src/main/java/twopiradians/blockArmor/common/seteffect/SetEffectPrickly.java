@@ -20,6 +20,7 @@ import twopiradians.blockArmor.common.item.ArmorSet;
 public class SetEffectPrickly extends SetEffect {
 
 	protected SetEffectPrickly() {
+		super();
 		this.color = TextFormatting.GREEN;
 		this.description = "Pricks colliding enemies and provides Thorns";
 		this.enchantments.add(new EnchantmentData(Enchantments.THORNS, (short) 1, EquipmentSlotType.HEAD));

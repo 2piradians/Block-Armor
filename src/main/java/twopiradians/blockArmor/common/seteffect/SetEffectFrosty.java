@@ -8,6 +8,7 @@ import net.minecraft.util.text.TextFormatting;
 public class SetEffectFrosty extends SetEffect {
 
 	protected SetEffectFrosty() {
+		super();
 		this.color = TextFormatting.AQUA;
 		this.description = "Provides Frost Walking II";
 		this.enchantments.add(new EnchantmentData(Enchantments.FROST_WALKER, (short) 2, EquipmentSlotType.FEET));
@@ -20,4 +21,5 @@ public class SetEffectFrosty extends SetEffect {
 			return true;		
 		return false;
 	}
+	
 }

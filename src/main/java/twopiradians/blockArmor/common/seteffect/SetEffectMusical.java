@@ -14,6 +14,7 @@ import twopiradians.blockArmor.common.item.ArmorSet;
 public class SetEffectMusical extends SetEffect {
 	
 	protected SetEffectMusical() {
+		super();
 		this.color = TextFormatting.LIGHT_PURPLE;
 		this.description = "Every step you take becomes a musical melody";
 	}

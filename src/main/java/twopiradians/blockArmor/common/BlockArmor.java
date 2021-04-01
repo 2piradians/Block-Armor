@@ -19,31 +19,33 @@ import twopiradians.blockArmor.client.ClientProxy;
 import twopiradians.blockArmor.client.key.KeyActivateSetEffect;
 import twopiradians.blockArmor.creativetab.BlockArmorCreativeTab;
 
-@Mod(value = BlockArmor.MODID/*, guiFactory = "twopiradians.blockArmor.client.gui.config.BlockArmorGuiFactory"*/)
+@Mod(value = BlockArmor.MODID)
 @Mod.EventBusSubscriber(bus = Bus.MOD)
 public class BlockArmor {
 
-	/**TODO partially ported on 8/31/20, but gave up
-	 * and continued on 3/18/21*/
+	// TODO adjust armor texture lineup (see dispenser / logs)
+	// TODO add stats to config
+	// FIXME item rendering
+	// FIXME translucent armor
+	// FIXME f3+t breaking textures
+	// FIXME can't auto-fill crafting recipes
+	// TEST on server
+	// TEST all set effects
+	// TEST resource packs
 
 	public static final String MODNAME = "Block Armor"; 
 	public static final String MODID = "blockarmor";
 	public static final String VERSION = "2.4.12";
 	public static BlockArmorCreativeTab vanillaTab;
 	public static BlockArmorCreativeTab moddedTab;
-	//@DistExecutor(clientDist = "twopiradians.blockArmor.client.ClientProxy", serverDist = "twopiradians.blockArmor.common.CommonProxy")
-	//public static CommonProxy proxy;
 	public static final Logger LOGGER = LogManager.getLogger(MODID);
-	private static final String PROTOCOL_VERSION = NetworkRegistry.ABSENT;
 	public static final SimpleChannel NETWORK = NetworkRegistry.ChannelBuilder
 			.named(new ResourceLocation(MODID, "main_channel"))
-			.clientAcceptedVersions(PROTOCOL_VERSION::equals)
-			.serverAcceptedVersions(PROTOCOL_VERSION::equals)
-			.networkProtocolVersion(() -> PROTOCOL_VERSION)
+			.clientAcceptedVersions(NetworkRegistry.ABSENT::equals)
+			.serverAcceptedVersions(NetworkRegistry.ABSENT::equals)
+			.networkProtocolVersion(() -> NetworkRegistry.ABSENT)
 			.simpleChannel();
 	public static KeyActivateSetEffect key = new KeyActivateSetEffect();
-	//public static CommandDev commandDev = new CommandDev();
-	//public static File configFile;
 
 	public BlockArmor() {}
 	
@@ -58,7 +60,7 @@ public class BlockArmor {
 	}
 
 	@Mod.EventBusSubscriber
-	public static class MissingMappingsHandler {
+	public static class MissingMappingsHandler { // TEST missingmappingshandler - is this needed still?
 
 		@SubscribeEvent
 		public static void missingItemMappings(final RegistryEvent.MissingMappings<Item> event) {

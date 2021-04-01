@@ -31,9 +31,11 @@ import net.minecraftforge.fml.common.Mod.EventBusSubscriber.Bus;
 import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.event.server.FMLServerStartedEvent;
+import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.fml.network.NetworkDirection;
 import net.minecraftforge.fml.network.PacketDistributor;
 import twopiradians.blockArmor.common.command.CommandDev;
+import twopiradians.blockArmor.common.config.Config;
 import twopiradians.blockArmor.common.item.ArmorSet;
 import twopiradians.blockArmor.common.recipe.RecipeBlockArmor;
 import twopiradians.blockArmor.common.seteffect.SetEffectAutoSmelt.SetEffectAutoSmeltModifier;
@@ -62,7 +64,11 @@ public class CommonProxy {
 
 	public static void setup() {
 		registerPackets();
-		//BlockArmor.configFile = event.getSuggestedConfigurationFile();
+		registerEventHandlers();
+	}
+	
+	private static void registerEventHandlers() {
+		FMLJavaModLoadingContext.get().getModEventBus().register(Config.class);
 	}
 	
 	private static void registerPackets() { // Dist is where the packet goes TO

@@ -12,6 +12,7 @@ import twopiradians.blockArmor.common.item.ArmorSet;
 public class SetEffectSlippery extends SetEffect {
 
 	protected SetEffectSlippery() {
+		super();
 		this.color = TextFormatting.AQUA;
 		this.description = "Conserves velocity more while moving";
 	}

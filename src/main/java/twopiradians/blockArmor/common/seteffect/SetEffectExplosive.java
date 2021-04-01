@@ -12,6 +12,7 @@ import twopiradians.blockArmor.common.item.ArmorSet;
 public class SetEffectExplosive extends SetEffect {
 
 	protected SetEffectExplosive() {
+		super();
 		this.color = TextFormatting.RED;
 		this.description = "Explodes and uses some durability";
 		this.usesButton = true;

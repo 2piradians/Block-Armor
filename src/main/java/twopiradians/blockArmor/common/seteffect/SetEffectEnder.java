@@ -16,6 +16,7 @@ import twopiradians.blockArmor.common.item.ArmorSet;
 public class SetEffectEnder extends SetEffect {
 
 	protected SetEffectEnder() {
+		super();
 		this.color = TextFormatting.DARK_PURPLE;
 		this.description = "Teleports in the direction you're looking";
 		this.usesButton = true;
@@ -46,8 +47,7 @@ public class SetEffectEnder extends SetEffect {
 				double newZ = 8*(world.rand.nextDouble()-0.5D);
 				if (!posFound && player.world.isAirBlock(pos.add(newX, newY, newZ)) 
 						&& player.world.isAirBlock(pos.add(newX, newY+1, newZ)) 
-						&& !player.world.isAirBlock(pos.add(newX, newY-1, newZ)) 
-				/*&& !(player.world.getBlockState(pos.add(newX, newY-1, newZ)).getBlock() instanceof BlockLiquid)*/) { // TODO
+						&& !player.world.isAirBlock(pos.add(newX, newY-1, newZ))) { 
 					pos = pos.add(newX, newY, newZ);
 					posFound = true;
 					break;
@@ -63,6 +63,7 @@ public class SetEffectEnder extends SetEffect {
 					((ServerWorld)world).spawnParticle(ParticleTypes.PORTAL, player.getPosX()+2*world.rand.nextDouble(), player.getPosY()+world.rand.nextDouble()+1, player.getPosZ()+2*world.rand.nextDouble(), 1, 0, 0, 0, 1);
 					((ServerWorld)world).spawnParticle(ParticleTypes.PORTAL, player.getPosX()+2*world.rand.nextDouble(), player.getPosY()+world.rand.nextDouble()+1.0D, player.getPosZ()+2*world.rand.nextDouble(), 1, 0, 0, 0, 1);
 				}
+				player.fallDistance = 0;
 			}
 			else { //no valid pos found
 				world.playSound((PlayerEntity)null, player.getPosX(), player.getPosY(), player.getPosZ(), SoundEvents.BLOCK_NOTE_BLOCK_BASS, 

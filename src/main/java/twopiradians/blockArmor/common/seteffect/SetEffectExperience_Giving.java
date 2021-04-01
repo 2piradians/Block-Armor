@@ -10,6 +10,7 @@ import twopiradians.blockArmor.common.item.ArmorSet;
 public class SetEffectExperience_Giving extends SetEffect {
 
 	protected SetEffectExperience_Giving() {
+		super();
 		this.color = TextFormatting.GREEN;
 		this.description = "Gives experience over time";
 	}
