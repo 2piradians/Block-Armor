@@ -5,6 +5,7 @@ import java.util.List;
 
 import net.minecraft.block.Block;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.item.ItemFrameEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.SoundCategory;
@@ -37,7 +38,7 @@ public class SetEffectPuller extends SetEffect {
 				Iterator<Entity> iterator = list.iterator();            
 				while (iterator.hasNext()) {
 					Entity entityCollided = iterator.next();
-					if (!entityCollided.isImmuneToExplosions()) {
+					if (!entityCollided.isImmuneToExplosions() && !(entityCollided instanceof ItemFrameEntity)) {
 						double xVel = entityCollided.getPosX() - player.getPosX();
 						double yVel = entityCollided.getPosY() - player.getPosY();
 						double zVel = entityCollided.getPosZ() - player.getPosZ();

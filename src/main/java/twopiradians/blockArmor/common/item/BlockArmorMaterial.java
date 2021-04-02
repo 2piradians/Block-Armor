@@ -41,8 +41,8 @@ public class BlockArmorMaterial implements IArmorMaterial {
 	}
 
 	@Override
-	public int getDamageReductionAmount(EquipmentSlotType p_200902_1_) {
-		return this.damageReductionAmountArray[p_200902_1_.getIndex()];
+	public int getDamageReductionAmount(EquipmentSlotType slotType) {
+		return this.damageReductionAmountArray[slotType.getIndex()];
 	}
 
 	@Override

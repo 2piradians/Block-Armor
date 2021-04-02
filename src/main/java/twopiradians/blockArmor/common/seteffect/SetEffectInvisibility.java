@@ -14,6 +14,8 @@ public class SetEffectInvisibility extends SetEffect {
 		this.potionEffects.add(new EffectInstance(Effects.INVISIBILITY, 10, 0, true, false));
 	}
 	
+	// was going to make other mobs ignore invisible players, but no way to recognize bosses?
+	
 	/**Should block be given this set effect*/
 	@Override
 	protected boolean isValid(Block block) {		

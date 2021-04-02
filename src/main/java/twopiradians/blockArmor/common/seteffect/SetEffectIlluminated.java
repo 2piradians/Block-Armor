@@ -1,6 +1,6 @@
 package twopiradians.blockArmor.common.seteffect;
 
-import javax.annotation.Nullable;
+import java.util.UUID;
 
 import net.minecraft.block.Block;
 import net.minecraft.entity.player.PlayerEntity;
@@ -36,8 +36,8 @@ public class SetEffectIlluminated extends SetEffect {
 				!world.isRemote && BlockArmor.key.isKeyDown(player) && !player.getCooldownTracker().hasCooldown(stack.getItem())) {
 			boolean deactivated = !stack.getTag().getBoolean("deactivated");
 			stack.getTag().putBoolean("deactivated", deactivated);
-			player.sendMessage(new TranslationTextComponent(TextFormatting.GRAY+"[Block Armor] "+TextFormatting.ITALIC+"Illuminated set effect "
-					+ (deactivated ? TextFormatting.RED+""+TextFormatting.ITALIC+"disabled." : TextFormatting.GREEN+""+TextFormatting.ITALIC+"enabled.")), null);
+			player.sendMessage(new TranslationTextComponent(TextFormatting.GRAY+""+TextFormatting.ITALIC+"Illuminated set effect "
+					+ (deactivated ? TextFormatting.RED+""+TextFormatting.ITALIC+"disabled" : TextFormatting.GREEN+""+TextFormatting.ITALIC+"enabled")), UUID.randomUUID());
 			this.setCooldown(player, 10);
 		}
 

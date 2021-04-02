@@ -25,7 +25,7 @@ public class SetEffectSoft_Fall extends SetEffect
 			if (!event.getEntityLiving().world.isRemote && event.getDistance() > 2)
 				event.getEntityLiving().world.playSound(null, event.getEntityLiving().getPosition(), 
 						SoundEvents.BLOCK_WOOL_FALL, SoundCategory.PLAYERS, 
-						Math.min(event.getDistance()/30f, 1), 
+						Math.min(event.getDistance()/20f, 1), 
 						event.getEntityLiving().world.rand.nextFloat()+0.8f);
 			event.setDistance(0);
 			event.setDamageMultiplier(0);

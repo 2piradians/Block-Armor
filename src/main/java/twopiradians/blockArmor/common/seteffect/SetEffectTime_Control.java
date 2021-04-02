@@ -4,6 +4,8 @@ import net.minecraft.block.Block;
 import net.minecraft.block.Blocks;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.SoundCategory;
+import net.minecraft.util.SoundEvents;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.GameRules;
 import net.minecraft.world.World;
@@ -15,7 +17,7 @@ import twopiradians.blockArmor.common.CommonProxy;
 import twopiradians.blockArmor.common.item.ArmorSet;
 
 public class SetEffectTime_Control extends SetEffect {
-	
+
 	private Type type;
 
 	protected SetEffectTime_Control(Type type) {
@@ -25,7 +27,7 @@ public class SetEffectTime_Control extends SetEffect {
 		this.color = TextFormatting.LIGHT_PURPLE;
 		this.usesButton = true;
 	}
-	
+
 	/**Write this effect to string for config (variables need to be included)*/
 	@Override
 	public String writeToString() {
@@ -45,21 +47,30 @@ public class SetEffectTime_Control extends SetEffect {
 
 		if (ArmorSet.getFirstSetItem(player, this) == stack &&
 				BlockArmor.key.isKeyDown(player)) {
-			if (type == Type.REWIND)
+			if (type == Type.REWIND) {
 				if (world.getWorldInfo().getDayTime()< 21)
 					setWorldTime(world, 23999 + world.getDayTime() - 21);
 				else
 					setWorldTime(world, world.getDayTime() - 21);
-			else if (type == Type.STOP && world.getGameRules().getBoolean(GameRules.DO_DAYLIGHT_CYCLE))
+				if (player.ticksExisted % 4 == 0)
+					world.playSound(player, player.getPosition(), SoundEvents.ITEM_LODESTONE_COMPASS_LOCK, SoundCategory.PLAYERS, 0.3f, 0f);
+			}
+			else if (type == Type.STOP && world.getGameRules().getBoolean(GameRules.DO_DAYLIGHT_CYCLE)) {
 				setWorldTime(world, world.getDayTime() - 1);
-			else if (type == Type.ACCELERATE)
+				if (player.ticksExisted % 8 == 0)
+				world.playSound(player, player.getPosition(), SoundEvents.BLOCK_NOTE_BLOCK_SNARE, SoundCategory.PLAYERS, 0.2f, 0f);
+			}
+			else if (type == Type.ACCELERATE) {
 				setWorldTime(world, world.getDayTime() + 19);
+				if (player.ticksExisted % 2 == 0)
+					world.playSound(player, player.getPosition(), SoundEvents.ITEM_LODESTONE_COMPASS_LOCK, SoundCategory.PLAYERS, 0.3f, 2f);
+			}
 		}
 	}
-	
+
 	private void setWorldTime(World world, long time) {
-		DistExecutor.safeRunWhenOn(Dist.CLIENT, () -> () -> {ClientProxy.setWorldTime(world, time);});
-		DistExecutor.safeRunWhenOn(Dist.DEDICATED_SERVER, () -> () -> {CommonProxy.setWorldTime(world, time);});
+		DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> {ClientProxy.setWorldTime(world, time);});
+		DistExecutor.unsafeRunWhenOn(Dist.DEDICATED_SERVER, () -> () -> {CommonProxy.setWorldTime(world, time);});
 	}
 
 	/**Can be overwritten to return a new instance depending on the given block*/
@@ -76,12 +87,12 @@ public class SetEffectTime_Control extends SetEffect {
 			return true;
 		return false;
 	}
-	
+
 	private enum Type {
 		REWIND(Blocks.REPEATING_COMMAND_BLOCK, "Rewind", "Rewinds time"), 
 		STOP(Blocks.CHAIN_COMMAND_BLOCK, "Stop", "Stops Time"), 
 		ACCELERATE(Blocks.COMMAND_BLOCK, "Accelerate", "Accelerates time");
-		
+
 		public Block block;
 		public String name;
 		public String description;
@@ -91,14 +102,14 @@ public class SetEffectTime_Control extends SetEffect {
 			this.name = name;
 			this.description = description;
 		}
-		
+
 		public static Type getType(Block block) {
 			for (Type type : Type.values())
 				if (type.block == block)
 					return type;
 			return Type.ACCELERATE;
 		}
-		
+
 		public static Type getType(String str) {
 			for (Type type : Type.values())
 				if (type.name.equalsIgnoreCase(str))
@@ -106,5 +117,5 @@ public class SetEffectTime_Control extends SetEffect {
 			return Type.ACCELERATE;
 		}
 	}
-	
+
 }

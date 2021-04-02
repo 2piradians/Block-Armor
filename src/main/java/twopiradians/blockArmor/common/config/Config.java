@@ -36,18 +36,25 @@ public class Config {
 	/** Should set effects use durability */
 	public static boolean effectsUseDurability;
 
-	/** Map of lowercase modid to mod name */
-	private static HashMap<String, String> modList;
-
 	public static ForgeConfigSpec COMMON_SPEC;
 	public static Common COMMON;
 
+	private static class ArmorSetOptions {
+		private ForgeConfigSpec.BooleanValue enabled;
+		private ConfigValue<List<? extends String>> setEffects;
+		private ConfigValue<Double> armorDamageReduction;
+		private ConfigValue<Integer> armorDurability;
+		private ConfigValue<Double> armorToughness;
+		private ConfigValue<Integer> armorKnockbackResistance;
+		private ConfigValue<Integer> armorEnchantability;
+	}
+
 	public static class Common {
 
-		private static HashMap<ArmorSet, ForgeConfigSpec.BooleanValue> enabledMap = Maps.newHashMap();
-		private static HashMap<ArmorSet, ConfigValue<List<? extends String>>> setEffectsMap = Maps.newHashMap();
+		/**Config options for each armor set*/
+		private static HashMap<ArmorSet, ArmorSetOptions> armorSetOptions = Maps.newHashMap();
 		//private static BooleanValue registerDisabledItems;
-		private static IntValue piecesForSet; // TEST do these update dynamically?
+		public static IntValue piecesForSet; 
 		private static BooleanValue effectsUseDurability;
 
 		private Common(ForgeConfigSpec.Builder builder) {
@@ -75,14 +82,22 @@ public class Config {
 			for (String modid : ArmorSet.modidToSetMap.keySet()) {
 				builder.push(modid);
 				for (ArmorSet set : ArmorSet.modidToSetMap.get(modid)) {
+					ArmorSetOptions options = new ArmorSetOptions();
 					// they go in alphabetically here, but are not alphabetical in config for some reason..
 					builder.push(set.registryName);
 					// Enabled
-					Common.enabledMap.put(set, builder.define("Enabled", true));
+					options.enabled = builder.define("Enabled", true);
+					// armor values
+					options.armorDurability = builder.define("Armor_Durability", set.armorDurability);
+					options.armorDamageReduction = builder.define("Armor_Damage_Reduction", (double) set.armorDamageReduction);
+					options.armorToughness = builder.define("Armor_Toughness", (double) set.armorToughness);
+					options.armorKnockbackResistance = builder.define("Armor_Knockback_Resistance", set.armorKnockbackResistance);
+					options.armorEnchantability = builder.define("Armor_Enchantability", set.armorEnchantability);
 					// Set Effects
-					Common.setEffectsMap.put(set, builder.defineList("Set_Effects", set.setEffects.stream().map(SetEffect::writeToString).collect(Collectors.toList()), 
-							(effect) -> SetEffect.getEffectFromString((String) effect) != null));
+					options.setEffects = builder.defineList("Set_Effects", set.setEffects.stream().map(SetEffect::writeToString).collect(Collectors.toList()), 
+							(effect) -> SetEffect.getEffectFromString((String) effect) != null);
 					builder.pop();
+					Common.armorSetOptions.put(set, options);
 				}
 				builder.pop();
 			}
@@ -109,6 +124,7 @@ public class Config {
 
 		configData.load();
 		spec.setConfig(configData);
+		sync(); // sync right away to read armor stats before they're created
 	}
 
 	/**Read values from config*/
@@ -122,15 +138,25 @@ public class Config {
 		Config.effectsUseDurability = Common.effectsUseDurability.get() == null ||
 				Common.effectsUseDurability.get();
 		for (ArmorSet set : ArmorSet.allSets) {
-			// Enabled
-			Boolean enabled = Common.enabledMap.get(set).get();
-			if (enabled == null || enabled == true)
-				set.enable();
-			else
-				set.disable();
+			ArmorSetOptions options = Common.armorSetOptions.get(set);
+			// Enabled (wait until after items are registered to enable)
+			if (set.helmet != null) {
+				Boolean enabled = options.enabled.get();
+				if (enabled == null || enabled == true)
+					set.enable();
+				else
+					set.disable();
+			}
+			// armor values
+			set.armorDurability = options.armorDurability.get();
+			set.armorDamageReduction = options.armorDamageReduction.get().floatValue();
+			set.armorToughness = options.armorToughness.get().floatValue();
+			set.armorEnchantability = options.armorEnchantability.get();
+			set.armorKnockbackResistance = options.armorKnockbackResistance.get();
+			set.createMaterial();
 			// Set Effects
-			set.setEffects.clear(); // TODO need read/write string for non-basic set effects
-			for (String str : Common.setEffectsMap.get(set).get()) {
+			set.setEffects.clear();
+			for (String str : options.setEffects.get()) {
 				SetEffect effect = SetEffect.getEffectFromString(str);
 				if (effect != null)
 					set.setEffects.add(effect);

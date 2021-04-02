@@ -1,6 +1,7 @@
 package twopiradians.blockArmor.common.item;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
@@ -69,7 +70,6 @@ public class ArmorSet {
 		MANUALLY_ADDED_SETS = new ArrayList<Block>() {{
 			add(Blocks.SUGAR_CANE);
 			add(Blocks.CACTUS);
-			add(Blocks.SNOW);
 			add(Blocks.DISPENSER);
 			add(Blocks.DROPPER);
 			add(Blocks.BEACON);
@@ -134,10 +134,17 @@ public class ArmorSet {
 	private int[] colors;
 	/**Minecraft's default missing texture sprite, assigned in initTextures()*/
 	public static TextureAtlasSprite missingSprite;
+	// armor values calculated from block / config
+	public float armorDamageReduction;
+	public float armorToughness;
+	public int armorDurability;
+	public int armorEnchantability;
+	public int armorKnockbackResistance;
 
 	public ArmorSet(ItemStack stack) {
 		this.stack = stack;
 		this.item = stack.getItem();
+		this.block = ((BlockItem) item).getBlock();
 		this.registryName = ArmorSet.getItemStackRegistryName(this.stack);
 		try {
 			ResourceLocation loc = this.item.getRegistryName();
@@ -149,36 +156,41 @@ public class ArmorSet {
 			this.modid = "???";
 			isFromModdedBlock = true;
 		}
-		this.block = ((BlockItem) item).getBlock();
 		//calculate values for and set material
-		float blockHardness = BlockUtils.getHardness(block); 
-		double durability = 5;
-		float toughness = 0;
-		int enchantability = 12;
-		float knockbackResistance = 0; // TODO tweak calculating values
-
-		if (blockHardness == -1) {
-			durability = 0;
-			blockHardness = 1000;
-		}
-		else
-			durability = 2 + 8* Math.log(blockHardness + 1);
-		if (blockHardness > 10)
-			toughness = Math.min(blockHardness / 10F, 10);
-		durability = Math.min(30, durability);
-		//blockHardness = (float) Math.log(blockHardness+1.5D)+1;
-		int reductionHelmetBoots = (int) ((Math.min(Math.floor(Math.log10(Math.pow(blockHardness, 2)+1)+1.6D), 3) + 4) / 2 - 1 + Math.min(blockHardness, 1));
-		int reductionChest = (int) ((Math.min(blockHardness + 1, 8) + 4) / 2 - 1 + Math.min(blockHardness, 1));
-		int reductionLegs = (int) ((Math.max(reductionChest - 2, reductionHelmetBoots) + 4) / 2 - 1 + Math.min(blockHardness, 1));
-		int[] reductionAmounts = new int[] {reductionHelmetBoots, reductionLegs, reductionChest, reductionHelmetBoots};
-		this.material = new BlockArmorMaterial(getItemStackDisplayName(stack, null)+" Material", 
-				(int) durability, reductionAmounts, enchantability, SoundEvents.ITEM_ARMOR_EQUIP_GENERIC, toughness,
-				knockbackResistance, () -> {
-					return Ingredient.fromItems(new IItemProvider[]{this.item});
-				});
-		//BlockArmor.logger.info(getItemStackDisplayName(stack, null)+": blockHardness = "+blockHardness+", toughness = "+toughness+", durability = "+durability);
+		boolean indestructible = BlockUtils.getHardness(block) == -1;
+		float hardness = Math.min(BlockUtils.getHardness(block), 100);
+		if (indestructible) 
+			hardness = 100;
+		float blastResistance = BlockUtils.getBlastResistance(block);
+		boolean requiresTool = BlockUtils.getRequiresTool(block);
+		boolean isSolid = BlockUtils.getIsSolid(block);
+		//BlockArmor.LOGGER.info(getItemStackDisplayName(stack, null).getString()+": hardness = "+hardness+", blastResistance = "+blastResistance+", requiresTool = "+requiresTool+", isSolid = "+isSolid); // TODO remove
+		this.armorDamageReduction = hardness >= 8 ? (hardness * 0.003f + 4.5f) : (hardness * 0.65f); 
+		if (requiresTool)
+			this.armorDamageReduction *= 1.2f;
+		if (!isSolid)
+			this.armorDamageReduction *= 0.5f;
+		if (indestructible)
+			this.armorDamageReduction *= 20f;
+		this.armorDamageReduction = Math.max((armorDamageReduction * 0.6f), 1);
+		this.armorDurability = (int) (indestructible ? 0 : Math.min(30, armorDamageReduction * 8f));
+		this.armorToughness = Math.min(20, blastResistance > 100 ? blastResistance / 400f : 0);
+		this.armorEnchantability = 12;
+		this.armorKnockbackResistance = 0;  // leaving 0 cuz of set effects that give it
+		this.createMaterial();
 
 		CommandDev.addBlockName(this); 
+	}
+
+	/**Create material for this set based on block values*/
+	public void createMaterial() {
+		int[] reductionAmounts = new int[] {(int) (armorDamageReduction), (int) (armorDamageReduction*2f), (int) (armorDamageReduction*2.5f), (int) (armorDamageReduction*1.45f)};
+		this.material = new BlockArmorMaterial(getItemStackDisplayName(stack, null)+" Material", 
+				armorDurability, reductionAmounts, armorEnchantability, SoundEvents.ITEM_ARMOR_EQUIP_GENERIC, armorToughness,
+				armorKnockbackResistance, () -> {
+					return Ingredient.fromItems(new IItemProvider[]{this.item});
+				});
+		//BlockArmor.LOGGER.info(getItemStackDisplayName(stack, null).getString()+": blockHardness = "+armorDamageReduction+", toughness = "+armorToughness+", durability = "+armorDurability+", reductionAmounts = "+Arrays.toString(reductionAmounts)); // TODO remove
 	}
 
 	/**Returns armor item for slot*/
@@ -204,7 +216,6 @@ public class ArmorSet {
 		Block[] blocks = Iterators.toArray(Registry.BLOCK.iterator(), Block.class);
 		ArrayList<ItemStack> stacks = new ArrayList<ItemStack>();
 		for (Block block : blocks) {
-			boolean approved = false;
 			try { 
 				ItemStack stack = new ItemStack(block);
 				boolean manuallyAdded = false;
@@ -216,10 +227,8 @@ public class ArmorSet {
 						!displayNames.contains(stack.getDisplayName()))) {
 					stacks.add(stack);
 					displayNames.add(stack.getDisplayName().getString());
-					approved = true;
 				}
 			} catch (Exception e) {continue;}
-			//BlockArmor.LOGGER.info(block.getTranslatedName().getString()+" approved: "+approved); // TODO remove
 		}
 
 		//creates list of names that the items will be registered with to prevent duplicates
@@ -247,7 +256,9 @@ public class ArmorSet {
 						modidToSetMap.put(set.modid, list);
 						registryNames.add(registryName);
 					}
-					catch (Exception e) {}
+					catch (Exception e) {
+						e.printStackTrace();
+					}
 				}
 			}
 		}
@@ -402,7 +413,7 @@ public class ArmorSet {
 		}
 		return effects;
 	}
-	
+
 	/**Does this entity have this worn set effect type active*/
 	public static boolean hasSetEffect(LivingEntity entity, SetEffect effect) {
 		for (SetEffect effect2 : getWornSetEffects(entity))
@@ -505,18 +516,20 @@ public class ArmorSet {
 
 		BlockArmorItem[] armors = new BlockArmorItem[] {this.helmet, this.chestplate, this.leggings, this.boots};
 		for (BlockArmorItem armor : armors) {
-			//add to tab
-			if (isFromModdedBlock) {
-				if (BlockArmor.moddedTab == null)
-					BlockArmor.moddedTab = new BlockArmorCreativeTab("blockArmorModded");
-				BlockArmor.moddedTab.orderedStacks.add(new ItemStack(armor));
-				armor.group = BlockArmor.moddedTab;
-			}
-			else {
-				if (BlockArmor.vanillaTab == null)
-					BlockArmor.vanillaTab = new BlockArmorCreativeTab("blockArmorVanilla");
-				BlockArmor.vanillaTab.orderedStacks.add(new ItemStack(armor));
-				armor.group = BlockArmor.vanillaTab;
+			if (armor != null) {
+				//add to tab
+				if (isFromModdedBlock) {
+					if (BlockArmor.moddedTab == null)
+						BlockArmor.moddedTab = new BlockArmorCreativeTab("blockArmorModded");
+					BlockArmor.moddedTab.orderedStacks.add(new ItemStack(armor));
+					armor.group = BlockArmor.moddedTab;
+				}
+				else {
+					if (BlockArmor.vanillaTab == null)
+						BlockArmor.vanillaTab = new BlockArmorCreativeTab("blockArmorVanilla");
+					BlockArmor.vanillaTab.orderedStacks.add(new ItemStack(armor));
+					armor.group = BlockArmor.vanillaTab;
+				}
 			}
 		}
 

@@ -37,6 +37,7 @@ public class SetEffectLightweight extends SetEffect
 	}
 
 	/**Only called when player wearing full, enabled set*/
+	@Override
 	public void onArmorTick(World world, PlayerEntity player, ItemStack stack) {
 		super.onArmorTick(world, player, stack);
 		if (!player.isSneaking() && ArmorSet.getFirstSetItem(player, this) == stack && player.getMotion().getY() < 0 && !player.isOnGround() &&

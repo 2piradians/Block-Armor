@@ -24,14 +24,20 @@ import twopiradians.blockArmor.creativetab.BlockArmorCreativeTab;
 public class BlockArmor {
 
 	// TODO adjust armor texture lineup (see dispenser / logs)
-	// TODO add stats to config
 	// FIXME item rendering
 	// FIXME translucent armor
+	// FIXME render enchantments
 	// FIXME f3+t breaking textures
 	// FIXME can't auto-fill crafting recipes
 	// TEST on server
-	// TEST all set effects
 	// TEST resource packs
+	// TODO speed factor
+	
+	/**Changelog
+	 *  Rebalanced armor stats
+	 *  Revamped config to allow more customization like changing armor stats and set effects
+	 *  Added sound effects to Time Control set effect
+	 *  Health Boost set effect will restore your boosted health on login / after respawning*/
 
 	public static final String MODNAME = "Block Armor"; 
 	public static final String MODID = "blockarmor";

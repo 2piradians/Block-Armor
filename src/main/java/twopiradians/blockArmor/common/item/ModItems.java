@@ -43,10 +43,10 @@ public class ModItems
 				/*if (!Config.disabledSets.contains(set))*/ 
 				/*if (Config.registerDisabledItems || set.isEnabled())*/ {
 					String registryName = ArmorSet.getItemStackRegistryName(set.stack);
-					set.helmet = register(event.getRegistry(), new BlockArmorItem(set.material, 0, EquipmentSlotType.HEAD, set), registryName+"_helmet", true);
-					set.chestplate = register(event.getRegistry(), new BlockArmorItem(set.material, 0, EquipmentSlotType.CHEST, set), registryName+"_chestplate", true);
-					set.leggings = register(event.getRegistry(), new BlockArmorItem(set.material, 0, EquipmentSlotType.LEGS, set), registryName+"_leggings", true);
-					set.boots = register(event.getRegistry(), new BlockArmorItem(set.material, 0, EquipmentSlotType.FEET, set), registryName+"_boots", true);
+					set.helmet = register(event.getRegistry(), new BlockArmorItem(set.material, EquipmentSlotType.HEAD, set), registryName+"_helmet");
+					set.chestplate = register(event.getRegistry(), new BlockArmorItem(set.material, EquipmentSlotType.CHEST, set), registryName+"_chestplate");
+					set.leggings = register(event.getRegistry(), new BlockArmorItem(set.material, EquipmentSlotType.LEGS, set), registryName+"_leggings");
+					set.boots = register(event.getRegistry(), new BlockArmorItem(set.material, EquipmentSlotType.FEET, set), registryName+"_boots");
 					if (set.isFromModdedBlock)
 						moddedItems += 4;
 					else
@@ -61,7 +61,7 @@ public class ModItems
 				BlockArmor.LOGGER.info("Generated "+moddedItems+" Block Armor items from Modded Blocks");
 		}
 
-		private static BlockArmorItem register(IForgeRegistry<Item> registry, BlockArmorItem armor, String itemName, boolean isFromModdedBlock) {
+		private static BlockArmorItem register(IForgeRegistry<Item> registry, BlockArmorItem armor, String itemName) {
 			allArmors.add(armor);
 			armor.setRegistryName(BlockArmor.MODID, itemName);
 			registry.register(armor);

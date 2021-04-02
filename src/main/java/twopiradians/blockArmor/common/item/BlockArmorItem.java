@@ -4,11 +4,8 @@ import java.util.List;
 
 import javax.annotation.Nullable;
 
-import org.antlr.v4.runtime.misc.MultiMap;
-
-import com.google.common.collect.LinkedListMultimap;
+import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
-import com.google.common.collect.MultimapBuilder;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screen.Screen;
@@ -23,6 +20,7 @@ import net.minecraft.entity.item.ItemEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.EquipmentSlotType;
 import net.minecraft.item.ArmorItem;
+import net.minecraft.item.IArmorMaterial;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemStack;
@@ -49,8 +47,8 @@ public class BlockArmorItem extends ArmorItem {
 	@Nullable
 	public ItemGroup group;
 
-	public BlockArmorItem(BlockArmorMaterial material, int renderIndex, EquipmentSlotType equipmentSlot, ArmorSet set) {
-		super(material, equipmentSlot, new Item.Properties().group(set.isFromModdedBlock ? BlockArmor.moddedTab : BlockArmor.vanillaTab));
+	public BlockArmorItem(BlockArmorMaterial material, EquipmentSlotType slot, ArmorSet set) {
+		super(material, slot, new Item.Properties().group(set.isFromModdedBlock ? BlockArmor.moddedTab : BlockArmor.vanillaTab));
 		this.set = set;
 	}
 
@@ -105,7 +103,7 @@ public class BlockArmorItem extends ArmorItem {
 	/** Handles the attributes when wearing an armor set */
 	@Override
 	public Multimap<Attribute, AttributeModifier> getAttributeModifiers(EquipmentSlotType slot, ItemStack stack) {
-		Multimap<Attribute, AttributeModifier> map = LinkedListMultimap.create();
+		Multimap<Attribute, AttributeModifier> map = HashMultimap.create(super.getAttributeModifiers(slot, stack));
 		if (slot != this.slot)
 			return map;
 
@@ -133,6 +131,8 @@ public class BlockArmorItem extends ArmorItem {
 		if (stack.hasTag() && stack.getTag().contains("devSpawned"))
 			tooltip.add(new StringTextComponent(TextFormatting.DARK_PURPLE + "" + TextFormatting.BOLD + "Dev Spawned"));
 
+		tooltip.add(new StringTextComponent("Max Durability: "+this.getMaxDamage(stack)));// TODO remove
+
 		if (!set.setEffects.isEmpty() && set.setEffects.get(0).isEnabled()) {
 			// add header if shifting
 			if (Screen.hasShiftDown())
@@ -142,8 +142,9 @@ public class BlockArmorItem extends ArmorItem {
 
 			// set effect names and descriptions if shifting
 			for (SetEffect effect : set.setEffects)
-				tooltip = effect.addInformation(stack, Screen.hasShiftDown(), Minecraft.getInstance().player,
-						tooltip, flagIn);
+				if (effect.isEnabled())
+					tooltip = effect.addInformation(stack, Screen.hasShiftDown(), Minecraft.getInstance().player,
+							tooltip, flagIn);
 		}
 	}
 

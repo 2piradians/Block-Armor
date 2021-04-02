@@ -31,12 +31,13 @@ public class SetEffectSnowy extends SetEffect {
 		if (BlockArmor.key.isKeyDown(player) && ArmorSet.getFirstSetItem(player, this) == stack) {
 			int radius = 3;
 			if (!world.isRemote) {
-				((ServerWorld)world).spawnParticle(ParticleTypes.ITEM_SNOWBALL, player.getPosX()+(world.rand.nextDouble()-0.5D)*radius, 
+				((ServerWorld)world).spawnParticle(ParticleTypes.WHITE_ASH, player.getPosX()+(world.rand.nextDouble()-0.5D)*radius, 
 						player.getPosY()+world.rand.nextDouble()+2D, player.getPosZ()+(world.rand.nextDouble()-0.5D)*radius, 
-						1, 0, 0, 0, 0);
-				((ServerWorld)world).spawnParticle(ParticleTypes.CLOUD, player.getPosX()+(world.rand.nextDouble()-0.5D)*radius, 
-						player.getPosY()+world.rand.nextDouble()*0.5d+2.5D, player.getPosZ()+(world.rand.nextDouble()-0.5D)*radius, 
-						3, 0, 0, 0, 0);
+						5, 0, 0, 0, 0);
+				for (int i=0; i<2; ++i)
+					((ServerWorld)world).spawnParticle(ParticleTypes.CLOUD, player.getPosX()+(world.rand.nextDouble()-0.5D)*radius, 
+							player.getPosY()+world.rand.nextDouble()*0.5d+2.5D, player.getPosZ()+(world.rand.nextDouble()-0.5D)*radius, 
+							5, 0, 0, 0, 0);
 				if (world.rand.nextInt(2) == 0)
 					world.playSound(null, player.getPosX(), player.getPosY(), player.getPosZ(), SoundEvents.WEATHER_RAIN, 
 							player.getSoundCategory(), 0.1f, world.rand.nextFloat());

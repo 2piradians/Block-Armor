@@ -5,19 +5,24 @@ import java.util.List;
 import com.google.gson.JsonObject;
 
 import net.minecraft.block.Block;
+import net.minecraft.block.BlockState;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.ai.attributes.AttributeModifier;
 import net.minecraft.entity.ai.attributes.Attributes;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.loot.LootContext;
+import net.minecraft.loot.LootParameters;
 import net.minecraft.loot.conditions.ILootCondition;
 import net.minecraft.particles.ParticleTypes;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.SoundEvents;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.util.text.TextFormatting;
+import net.minecraft.world.World;
 import net.minecraft.world.server.ServerWorld;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.loot.GlobalLootModifierSerializer;
@@ -29,7 +34,7 @@ import twopiradians.blockArmor.common.item.ArmorSet;
 public class SetEffectLucky extends SetEffect {
 
 	public static SetEffectLucky INSTANCE;
-	
+
 	protected SetEffectLucky() {
 		super();
 		this.color = TextFormatting.DARK_GREEN;
@@ -39,10 +44,10 @@ public class SetEffectLucky extends SetEffect {
 		MinecraftForge.EVENT_BUS.register(this);
 		INSTANCE = this;
 	}
-	
+
 	/**Increase looting*/
 	@SubscribeEvent
-	public void addLooting(LootingLevelEvent event) { // TEST - does this fire for mining too???
+	public void addLooting(LootingLevelEvent event) { 
 		if (event.getDamageSource().getTrueSource() instanceof PlayerEntity && 
 				event.getEntity().world instanceof ServerWorld &&
 				ArmorSet.getWornSetEffects((LivingEntity) event.getDamageSource().getTrueSource()).contains(this)) {
@@ -50,15 +55,6 @@ public class SetEffectLucky extends SetEffect {
 			doParticlesAndSound((ServerWorld) event.getEntity().world, event.getEntity().getPosition(), 
 					(PlayerEntity) event.getDamageSource().getTrueSource(), 4);
 		}
-	}
-
-	/**Spawn particles and make sound*/
-	private void doParticlesAndSound(ServerWorld world, BlockPos pos, PlayerEntity player, float amplifier) {
-		((ServerWorld)world).spawnParticle(ParticleTypes.HAPPY_VILLAGER, 
-				pos.getX()+0.5d, pos.getY()+0.5d, pos.getZ()+0.5d, 5, 0.4f, 0.4f, 0.4f, 0);
-		world.playSound(null, player.getPosX(), player.getPosY(), player.getPosZ(), 
-				SoundEvents.ENTITY_PLAYER_LEVELUP, SoundCategory.PLAYERS, 
-				0.05f*amplifier, world.rand.nextFloat()+0.9f);
 	}
 
 	/**Should block be given this set effect*/
@@ -69,6 +65,17 @@ public class SetEffectLucky extends SetEffect {
 		return false;
 	}
 	
+	/**Spawn particles and make sound*/
+	private void doParticlesAndSound(World world, BlockPos pos, LivingEntity player, float amplifier) {
+		if (world instanceof ServerWorld) {
+			((ServerWorld)world).spawnParticle(ParticleTypes.HAPPY_VILLAGER, 
+					pos.getX()+0.5d, pos.getY()+0.5d, pos.getZ()+0.5d, 5, 0.4f, 0.4f, 0.4f, 0);
+			world.playSound(null, player.getPosX(), player.getPosY(), player.getPosZ(), 
+					SoundEvents.ENTITY_PLAYER_LEVELUP, SoundCategory.PLAYERS, 
+					0.05f*amplifier, world.rand.nextFloat()+0.9f);
+		}
+	}
+
 	public static class SetEffectLuckyModifier extends LootModifier {
 
 		protected SetEffectLuckyModifier(ILootCondition[] conditionsIn) {
@@ -78,23 +85,25 @@ public class SetEffectLucky extends SetEffect {
 		/**Increase fortune*/
 		@Override
 		protected List<ItemStack> doApply(List<ItemStack> generatedLoot, LootContext context) {
-			/*Entity entityIn = context.get(LootParameters.THIS_ENTITY);
-			if (entityIn instanceof LivingEntity && ArmorSet.getWornSetEffects((LivingEntity) entityIn).contains(this)) {
+			Entity entityIn = context.get(LootParameters.THIS_ENTITY);
+			if (entityIn instanceof LivingEntity && ArmorSet.getWornSetEffects((LivingEntity) entityIn).contains(SetEffect.LUCKY)) {
 				LivingEntity entity = (LivingEntity) entityIn;
-				context.addCondition(new )
-				
-				
-				NonNullList<ItemStack> newDrops = NonNullList.create();
-				event.getState().getBlock().getDrops(newDrops, event.getWorld(), event.getPos(), event.getState(), event.getFortuneLevel()+4);
-				if (newDrops.size() > event.getDrops().size()) {
-					doParticlesAndSound((ServerWorld) event.getWorld(), event.getPos(), event.getHarvester(), 
-							(newDrops.size()-event.getDrops().size()));
-					
-					event.getDrops().clear();
-					event.getDrops().addAll(newDrops);
-					this.damageArmor(event.getHarvester(), 1, false);
+				Vector3d pos = context.get(LootParameters.ORIGIN);
+				BlockState state = context.get(LootParameters.BLOCK_STATE);
+				if (pos != null && state != null) {
+					int beforeCount = 0;
+					int afterCount = 0;
+					for (ItemStack stack : generatedLoot) {
+						beforeCount += stack.getCount();
+						stack.setCount(Math.min(stack.getCount()*2, stack.getMaxStackSize()));
+						afterCount += stack.getCount();
+					}
+					if (afterCount > beforeCount) {
+						SetEffect.LUCKY.doParticlesAndSound(entity.world, new BlockPos(pos), entity, afterCount-beforeCount);
+						SetEffect.LUCKY.damageArmor(entity, afterCount-beforeCount, false);
+					}
 				}
-			}*/ // TODO
+			}
 			return generatedLoot;
 		}
 
@@ -113,5 +122,5 @@ public class SetEffectLucky extends SetEffect {
 		}
 
 	}
-	
+
 }

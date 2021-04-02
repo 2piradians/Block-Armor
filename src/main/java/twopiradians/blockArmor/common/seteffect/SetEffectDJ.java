@@ -39,10 +39,10 @@ public class SetEffectDJ extends SetEffect
 			if (!BlockArmor.proxy.stopMovingSound(player, true)) {//FIXME do with packet - keep map of player/sounds here?
 				SoundEvent soundEvent = records.get(player.world.rand.nextInt(records.size()));
 				BlockArmor.proxy.startMovingSound(player, soundEvent, true);
-				player.sendMessage(new TextComponentString("Started playing "+soundEvent.toString()+"."));
+				player.sendMessage(new TextComponentString("Started playing "+soundEvent.toString()+".", UUID.randomUUID()));
 			}
 			else
-				player.sendMessage(new TextComponentString("Stopped playing record."));
+				player.sendMessage(new TextComponentString("Stopped playing record.", UUID.randomUUID()));
 			
 			this.setCooldown(player, 10);
 			this.damageArmor(player, 1, false);

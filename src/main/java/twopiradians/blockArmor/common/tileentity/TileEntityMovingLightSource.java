@@ -1,8 +1,8 @@
 package twopiradians.blockArmor.common.tileentity;
 
-import net.minecraft.client.renderer.texture.ITickable;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
+import net.minecraft.tileentity.ITickableTileEntity;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.tileentity.TileEntityType;
 import twopiradians.blockArmor.common.block.BlockMovingLightSource;
@@ -11,9 +11,8 @@ import twopiradians.blockArmor.common.seteffect.SetEffect;
 import twopiradians.blockArmor.common.seteffect.SetEffectIlluminated;
 
 /**Used for armor set effects that produce light*/
-public class TileEntityMovingLightSource extends TileEntity implements ITickable
-{
-	
+public class TileEntityMovingLightSource extends TileEntity implements ITickableTileEntity {
+
 	public static TileEntityType<TileEntityMovingLightSource> type;
 
 	private SetEffect effect;

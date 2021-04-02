@@ -48,6 +48,7 @@ import twopiradians.blockArmor.client.key.KeyActivateSetEffect;
 import twopiradians.blockArmor.client.model.ModelBlockArmor;
 import twopiradians.blockArmor.client.model.ModelDynBlockArmor;
 import twopiradians.blockArmor.common.BlockArmor;
+import twopiradians.blockArmor.common.CommonProxy;
 import twopiradians.blockArmor.common.block.ModBlocks;
 import twopiradians.blockArmor.common.item.ArmorSet;
 import twopiradians.blockArmor.common.item.BlockArmorItem;
@@ -129,6 +130,8 @@ public class ClientProxy {
 	public static void setWorldTime(World world, long time) {
 		if (world instanceof ClientWorld)
 			((ClientWorld)world).setDayTime(time);
+		else
+			CommonProxy.setWorldTime(world, time);
 	}
 
 	/**Map block armor items to use assets/blockarmor/models/item/block_armor.json instead of looking for their own jsons*/
