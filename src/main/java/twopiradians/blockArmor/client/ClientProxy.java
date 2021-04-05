@@ -46,7 +46,7 @@ import net.minecraftforge.resource.IResourceType;
 import net.minecraftforge.resource.ISelectiveResourceReloadListener;
 import twopiradians.blockArmor.client.key.KeyActivateSetEffect;
 import twopiradians.blockArmor.client.model.ModelBlockArmor;
-import twopiradians.blockArmor.client.model.ModelDynBlockArmor;
+import twopiradians.blockArmor.client.model.ModelBlockArmorItem;
 import twopiradians.blockArmor.common.BlockArmor;
 import twopiradians.blockArmor.common.CommonProxy;
 import twopiradians.blockArmor.common.block.ModBlocks;
@@ -114,7 +114,7 @@ public class ClientProxy {
 		@SubscribeEvent
 		public static void onModelRegister(ModelRegistryEvent event) {
 			System.out.println("model registry ================================================"); // TODO remove		
-			ModelLoaderRegistry.registerLoader(new ResourceLocation(BlockArmor.MODID, "item_loader"), ModelDynBlockArmor.LoaderDynBlockArmor.INSTANCE);
+			ModelLoaderRegistry.registerLoader(new ResourceLocation(BlockArmor.MODID, "item_loader"), ModelBlockArmorItem.LoaderDynBlockArmor.INSTANCE);
 			mapUnbakedModels();	
 		}
 
@@ -163,8 +163,10 @@ public class ClientProxy {
 	}
 
 	public static void setup() {
+		// keybinding
 		KeyActivateSetEffect.ACTIVATE_SET_EFFECT = new KeyBinding("Activate Set Effect", 82, BlockArmor.MODNAME);
 		ClientRegistry.registerKeyBinding(KeyActivateSetEffect.ACTIVATE_SET_EFFECT);
+		// resource reload listener
 		((IReloadableResourceManager) Minecraft.getInstance().getResourceManager()).addReloadListener(new ISelectiveResourceReloadListener() {
 			@Override
 			public void onResourceManagerReload(IResourceManager resourceManager,
@@ -185,10 +187,10 @@ public class ClientProxy {
 	public static Object getBlockArmorModel(LivingEntity entity, int height, int width, int currentFrame, int nextFrame, EquipmentSlotType slot) {
 		String key = height+""+width+""+currentFrame+""+nextFrame+""+slot.getName();
 		ModelBlockArmor model = modelMaps.get(key);
-		if (model == null) {
+		//if (model == null) {
 			model = new ModelBlockArmor(height, width, currentFrame, nextFrame, slot);
-			modelMaps.put(key, model);
-		}
+		//	modelMaps.put(key, model);
+		//} // TODO
 		model.entity = entity;
 		return model;
 	}
@@ -240,7 +242,7 @@ public class ClientProxy {
 		BlockArmor.LOGGER.info("Found "+numTextures+" block textures for Block Armor");
 
 		//create inventory icons
-		int numIcons = ModelDynBlockArmor.BakedDynBlockArmorOverrideHandler.createInventoryIcons(ClientProxy.modelLoader);
+		int numIcons = ModelBlockArmorItem.BakedDynBlockArmorOverrideHandler.createInventoryIcons(ClientProxy.modelLoader);
 		BlockArmor.LOGGER.info("Created "+numIcons+" inventory icons for Block Armor");
 	}
 

@@ -2,20 +2,27 @@ package twopiradians.blockArmor.client.model;
 
 import java.awt.Color;
 import java.lang.reflect.Field;
+import java.util.HashMap;
 
+import com.google.common.collect.Maps;
 import com.mojang.blaze3d.matrix.MatrixStack;
-import com.mojang.blaze3d.platform.GlStateManager;
-import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.IVertexBuilder;
 
 import it.unimi.dsi.fastutil.objects.ObjectList;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.IRenderTypeBuffer;
+import net.minecraft.client.renderer.ItemRenderer;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.model.BipedModel;
+import net.minecraft.client.renderer.model.ItemCameraTransforms.TransformType;
 import net.minecraft.client.renderer.model.ModelRenderer;
 import net.minecraft.client.renderer.model.ModelRenderer.ModelBox;
+import net.minecraft.client.renderer.tileentity.ItemStackTileEntityRenderer;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.inventory.EquipmentSlotType;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.ListNBT;
+import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
@@ -28,6 +35,8 @@ public class ModelBlockArmor<T extends LivingEntity> extends BipedModel<T> {
 
 	private static final Field MODEL_RENDERER_CUBELIST;
 	private static final Field MODEL_BOX_QUADS;
+	/**Cached resource locations for armor textures*/
+	private static final HashMap<String, ResourceLocation> TEXTURES = Maps.newHashMap();
 
 	static {
 		MODEL_RENDERER_CUBELIST = ObfuscationReflectionHelper.findField(ModelRenderer.class, "field_78804_l");
@@ -64,7 +73,6 @@ public class ModelBlockArmor<T extends LivingEntity> extends BipedModel<T> {
 	public int color;
 	public float alpha;
 
-	private boolean renderingEnchantment;
 	private EquipmentSlotType slot;
 	/**
 	 * Entity currently being rendered in this model (since entity isn't passed into
@@ -72,9 +80,8 @@ public class ModelBlockArmor<T extends LivingEntity> extends BipedModel<T> {
 	 */
 	public LivingEntity entity;
 
-	public ModelBlockArmor(int textureHeight, int textureWidth, int currentFrame, int nextFrame,
-			EquipmentSlotType slot) {
-		super(0f);
+	public ModelBlockArmor(int textureHeight, int textureWidth, int currentFrame, int nextFrame, EquipmentSlotType slot) { 
+		super(0);
 		int size = Math.max(1, textureWidth / 16);
 		this.textureHeight = textureHeight / size;
 		this.textureWidth = textureWidth / size;
@@ -136,9 +143,9 @@ public class ModelBlockArmor<T extends LivingEntity> extends BipedModel<T> {
 		case HEAD:
 			// HELMET
 			this.addPlane(bipedHead, 9, 3 + yOffset, -5.0f, -9.0f, -5.0f, 10, 0, 10, false); // top
-			this.addPlane(bipedHead, 3, 0 + yOffset, -5.0f, -9.0f, 5.0f, 10, 8, 0, true); // back
-			this.addPlane(bipedHead, 5, 8 + yOffset, -3.0f, -1.0f, 5.0f, 6, 1, 0, true); // back bottom
-			this.addPlane(bipedHead, 0, -10 + yOffset, -5.0f, -9.0f, -5.0f, 0, 5, 10, false); // right
+			this.addPlane(bipedHead, 9, 0 + yOffset, -5.0f, -9.0f, 5.0f, 10, 8, 0, true); // back
+			this.addPlane(bipedHead, -1, 8 + yOffset, -3.0f, -1.0f, 5.0f, 6, 1, 0, true); // back bottom
+			this.addPlane(bipedHead, 6, -10 + yOffset, -5.0f, -9.0f, -5.0f, 0, 5, 10, false); // right
 			this.addPlane(bipedHead, 0, 0 + yOffset, -5.0f, -4.0f, -0.0f, 0, 1, 5, false); // right bottom
 			this.addPlane(bipedHead, 6, -10 + yOffset, 5.0f, -9.0f, -5.0f, 0, 5, 10, true); // left
 			this.addPlane(bipedHead, 11, 0 + yOffset, 5.0f, -4.0f, -0.0f, 0, 1, 5, true); // left bottom
@@ -158,23 +165,23 @@ public class ModelBlockArmor<T extends LivingEntity> extends BipedModel<T> {
 			this.addPlane(bipedBody, 11, 2 + yOffset, 3.0F, -1.0F, -3.0F, 2, 2, 0, false); // front top left 2x2
 			this.addPlane(bipedBody, 10, 2 + yOffset, 2.0F, -0.0F, -3.0F, 1, 1, 0, false); // front top left 1x1
 			this.addPlane(bipedBody, 5, -4 + yOffset, -5.0F, -1.0F, -3.0F, 0, 10, 6, true); // right
-			this.addPlane(bipedBody, 5, -4 + yOffset, 5.0F, -1.0F, -3.0F, 0, 10, 6, false); // left
-			this.addPlane(bipedBody, 3, 3 + yOffset, -5.0F, 0.0F, 3.0F, 10, 9, 0, true); // back
+			this.addPlane(bipedBody, -1, -4 + yOffset, 5.0F, -1.0F, -3.0F, 0, 10, 6, false); // left
+			this.addPlane(bipedBody, 9, 3 + yOffset, -5.0F, 0.0F, 3.0F, 10, 9, 0, true); // back
 			this.addPlane(bipedBody, 11, 2 + yOffset, -5.0F, -1.0F, 3.0F, 2, 0, 0, true); // back top right
 			this.addPlane(bipedBody, 3, 2 + yOffset, 3.0F, -1.0F, 3.0F, 2, 1, 0, true); // back top left
 			this.addPlane(bipedBody, 4, 12 + yOffset, -4.0F, 9.0F, 3.0F, 8, 1, 0, true); // back bottom
 
 			// RIGHT ARM
-			this.addPlane(bipedRightArm, 5, -1 + yOffset, -4.5F, -3.0F, -3.0F, 0, 6, 6, true); // right
+			this.addPlane(bipedRightArm, 5, -4 + yOffset, -4.5F, -3.0F, -3.0F, 0, 6, 6, true); // right
 			this.addPlane(bipedRightArm, 5, -1 + yOffset, 1.5F, -3.0F, -3.0F, 0, 6, 6, true); // left
-			this.addPlane(bipedRightArm, 5, 5 + yOffset, -4.5F, -3.0F, -3.0F, 6, 6, 0, false); // front
-			this.addPlane(bipedRightArm, 5, 5 + yOffset, -4.5F, -3.0F, 3.0F, 6, 6, 0, true); // back
+			this.addPlane(bipedRightArm, -2, 2 + yOffset, -4.5F, -3.0F, -3.0F, 6, 6, 0, false); // front
+			this.addPlane(bipedRightArm, -8, 2 + yOffset, -4.5F, -3.0F, 3.0F, 6, 6, 0, true); // back
 			this.addPlane(bipedRightArm, 15, 5 + yOffset, -4.5F, -3.0F, -3.0F, 6, 0, 6, false); // top
 
 			// LEFT ARM
-			this.addPlane(bipedLeftArm, 5, -1 + yOffset, -1.5F, -3.0F, -3.0F, 0, 6, 6, false); // right
-			this.addPlane(bipedLeftArm, 5, -1 + yOffset, 4.5F, -3.0F, -3.0F, 0, 6, 6, false); // left
-			this.addPlane(bipedLeftArm, 5, 5 + yOffset, -1.5F, -3.0F, -3.0F, 6, 6, 0, false); // front
+			this.addPlane(bipedLeftArm, -1, -1 + yOffset, -1.5F, -3.0F, -3.0F, 0, 6, 6, false); // right
+			this.addPlane(bipedLeftArm, -1, -4 + yOffset, 4.5F, -3.0F, -3.0F, 0, 6, 6, false); // left
+			this.addPlane(bipedLeftArm, 12, 2 + yOffset, -1.5F, -3.0F, -3.0F, 6, 6, 0, false); // front
 			this.addPlane(bipedLeftArm, 5, 5 + yOffset, -1.5F, -3.0F, 3.0F, 6, 6, 0, true); // back
 			this.addPlane(bipedLeftArm, 15, 5 + yOffset, -1.5F, -3.0F, -3.0F, 6, 0, 6, false); // top
 			break;
@@ -182,20 +189,20 @@ public class ModelBlockArmor<T extends LivingEntity> extends BipedModel<T> {
 		case LEGS:
 			// WAIST
 			this.addPlane(bipedWaist, 3, 0 + yOffset, -4.5F, 6.5F, -2.5F, 9, 6, 0, false); // front
-			this.addPlane(bipedWaist, 5, -5 + yOffset, -4.5F, 6.5F, -2.5F, 0, 6, 5, true); // right
-			this.addPlane(bipedWaist, 5, -5 + yOffset, 4.5F, 6.5F, -2.5F, 0, 6, 5, false); // left
-			this.addPlane(bipedWaist, 3, 1 + yOffset, -4.5F, 6.5F, 2.5F, 9, 6, 0, true); // back
+			this.addPlane(bipedWaist, 6, -5 + yOffset, -4.5F, 6.5F, -2.5F, 0, 6, 5, false); // right
+			this.addPlane(bipedWaist, 6, -5 + yOffset, 4.5F, 6.5F, -2.5F, 0, 6, 5, false); // left
+			this.addPlane(bipedWaist, 11, 0 + yOffset, -4.5F, 6.5F, 2.5F, 9, 6, 0, true); // back
 
 			// RIGHT LEG
-			this.addPlane(bipedRightLeg, 5, 0 + yOffset, -2.5F, -0.5F, -2.5F, 0, 10, 5, true); // right
+			this.addPlane(bipedRightLeg, 6, 0 + yOffset, -2.5F, -0.5F, -2.5F, 0, 10, 5, false); // right
 			this.addPlane(bipedRightLeg, 9, 5 + yOffset, 2.5F, -0.5F, -2.5F, 0, 10, 5, true); // left
 			this.addPlane(bipedRightLeg, 3, 5 + yOffset, -2.5F, -0.5F, -2.5F, 5, 10, 0, false); // front
-			this.addPlane(bipedRightLeg, 7, 5 + yOffset, -2.5F, -0.5F, 2.5F, 5, 10, 0, true); // back
+			this.addPlane(bipedRightLeg, -1, 5 + yOffset, -2.5F, -0.5F, 2.5F, 5, 10, 0, true); // back
 			this.addPlane(bipedRightLeg, 9, 0 + yOffset, -2.5F, -0.5F, -2.5F, 5, 0, 5, false); // top
 
 			// LEFT LEG
-			this.addPlane(bipedLeftLeg, 9, 5 + yOffset, -2.5F, -0.5F, -2.5F, 0, 10, 5, true); // right
-			this.addPlane(bipedLeftLeg, 6, 0 + yOffset, 2.5F, -0.5F, -2.5F, 0, 10, 5, true); // left
+			this.addPlane(bipedLeftLeg, 9, 5 + yOffset, -2.5F, -0.5F, -2.5F, 0, 10, 5, false); // right
+			this.addPlane(bipedLeftLeg, 6, 0 + yOffset, 2.5F, -0.5F, -2.5F, 0, 10, 5, false); // left
 			this.addPlane(bipedLeftLeg, 7, 5 + yOffset, -2.5F, -0.5F, -2.5F, 5, 10, 0, false); // front
 			this.addPlane(bipedLeftLeg, 3, 5 + yOffset, -2.5F, -0.5F, 2.5F, 5, 10, 0, true); // back
 			this.addPlane(bipedLeftLeg, 9, 0 + yOffset, -2.5F, -0.5F, -2.5F, 5, 0, 5, false); // top
@@ -203,18 +210,18 @@ public class ModelBlockArmor<T extends LivingEntity> extends BipedModel<T> {
 
 		case FEET:
 			// RIGHT FOOT
-			this.addPlane(bipedRightFoot, 21, -6 + yOffset, -3.0F, 6.0F, -3.0F, 0, 7, 6, false); // right
-			this.addPlane(bipedRightFoot, 21, -6 + yOffset, 3.0F, 6.0F, -3.0F, 0, 7, 6, true); // left
-			this.addPlane(bipedRightFoot, 11, 0 + yOffset, -3.0F, 6.0F, -3.0F, 6, 7, 0, false); // front
-			this.addPlane(bipedRightFoot, 15, 0 + yOffset, -3.0F, 6.0F, 3.0F, 6, 7, 0, true); // back
-			this.addPlane(bipedRightFoot, 18, 0 + yOffset, -3.0F, 13.0F, -3.0F, 6, 0, 6, false); // bottom
+			this.addPlane(bipedRightFoot, 20, 3 + yOffset, -3.0F, 6.0F, -3.0F, 0, 7, 6, false); // right
+			this.addPlane(bipedRightFoot, 21, 3 + yOffset, 3.0F, 6.0F, -3.0F, 0, 7, 6, true); // left
+			this.addPlane(bipedRightFoot, 2, 7 + yOffset, -3.0F, 6.0F, -3.0F, 6, 7, 0, false); // front
+			this.addPlane(bipedRightFoot, -2, 9 + yOffset, -3.0F, 6.0F, 3.0F, 6, 7, 0, true); // back
+			this.addPlane(bipedRightFoot, -1, 5 + yOffset, -3.0F, 13.0F, -3.0F, 6, 0, 6, false); // bottom
 
 			// LEFT FOOT
-			this.addPlane(bipedLeftFoot, 21, -6 + yOffset, -3.0F, 6.0F, -3.0F, 0, 7, 6, true); // right
-			this.addPlane(bipedLeftFoot, 21, -6 + yOffset, 3.0F, 6.0F, -3.0F, 0, 7, 6, true); // left
-			this.addPlane(bipedLeftFoot, 15, 0 + yOffset, -3.0F, 6.0F, -3.0F, 6, 7, 0, false); // front
-			this.addPlane(bipedLeftFoot, 11, 0 + yOffset, -3.0F, 6.0F, 3.0F, 6, 7, 0, true); // back
-			this.addPlane(bipedLeftFoot, 18, 0 + yOffset, -3.0F, 13.0F, -3.0F, 6, 0, 6, false); // bottom
+			this.addPlane(bipedLeftFoot, 21, 3 + yOffset, -3.0F, 6.0F, -3.0F, 0, 7, 6, true); // right
+			this.addPlane(bipedLeftFoot, 0, 3 + yOffset, 3.0F, 6.0F, -3.0F, 0, 7, 6, true); // left
+			this.addPlane(bipedLeftFoot, -8, 7 + yOffset, -3.0F, 6.0F, -3.0F, 6, 7, 0, false); // front
+			this.addPlane(bipedLeftFoot, 0, 9 + yOffset, -3.0F, 6.0F, 3.0F, 6, 7, 0, true); // back
+			this.addPlane(bipedLeftFoot, -1, 5 + yOffset, -3.0F, 13.0F, -3.0F, 6, 0, 6, false); // bottom
 			break;
 
 		default:
@@ -224,7 +231,7 @@ public class ModelBlockArmor<T extends LivingEntity> extends BipedModel<T> {
 
 	/** Add a plane (model box with just one quad) to this model */
 	private void addPlane(ModelRenderer model, int textureOffsetX, int textureOffsetY, float x, float y, float z,
-			int width, int height, int depth, boolean flip) {
+			float width, float height, float depth, boolean flip) {
 		model.setTextureOffset(textureOffsetX, textureOffsetY);
 		model.addBox(x, y, z, width, height, depth, flip);
 		try {
@@ -245,38 +252,48 @@ public class ModelBlockArmor<T extends LivingEntity> extends BipedModel<T> {
 		}
 	}
 
-	@Override
-	public void setLivingAnimations(T p_212843_1_, float p_212843_2_, float p_212843_3_, float p_212843_4_) {
-		super.setLivingAnimations(p_212843_1_, p_212843_2_, p_212843_3_, p_212843_4_);
-
-		this.renderingEnchantment = false;
-	}
-
 	/**
 	 * Sets the models various rotation angles then renders the model.
 	 */
 	@Override
 	public void render(MatrixStack matrix, IVertexBuilder vertex, int lightMapUV, int overlayUV, float ageInTicks,
 			float netHeadYaw, float headPitch, float scale) {
-		// this.createModel(slot, 0);// TODO remove
+		//this.createModel(slot, 0);
 
-		boolean renderEnchant = true;
-		//don't render enchant if only enchant is from set effect TODO
-		if (this.renderingEnchantment) {
-			ItemStack stack = entity.getItemStackFromSlot(slot);
-			if (stack != null && stack.getItem() instanceof BlockArmorItem && stack.hasTag()) {
-				ListNBT enchantNbt = stack.getTag().getList("ench", 10);
-				if (enchantNbt.size() == 1 && enchantNbt.getCompound(0).getBoolean(BlockArmor.MODID+" enchant"))
-					renderEnchant = false;
+		this.setRotationAngles((T) entity, lightMapUV, overlayUV, ageInTicks, netHeadYaw, headPitch);
+
+		ItemStack stack = entity.getItemStackFromSlot(slot);
+
+		//don't render enchant if only enchant is from set effect
+		boolean renderEnchant = stack != null && stack.isEnchanted();
+		if (stack != null && stack.getItem() instanceof BlockArmorItem && stack.hasTag()) {
+			ListNBT enchantNbt = stack.getTag().getList("ench", 10);
+			if (enchantNbt.size() == 1 && enchantNbt.getCompound(0).getBoolean(BlockArmor.MODID+" enchant"))
+				renderEnchant = false;
+		}
+
+		// use different vertex builder to allow translucency
+		if (stack != null && stack.getItem() instanceof BlockArmorItem) {
+			// get texture location
+			String str = ((BlockArmorItem)stack.getItem()).getArmorTexture(stack, entity, slot, "");
+			ResourceLocation loc = TEXTURES.get(str);
+			if (loc == null) {
+				loc = new ResourceLocation(str);
+				TEXTURES.put(str, loc);
+			}
+			// normal render - use translucent vertex
+			vertex = Minecraft.getInstance().getRenderTypeBuffers().getBufferSource().getBuffer(RenderType.getEntityTranslucent(loc));
+			this.actualRender(matrix, vertex, false, lightMapUV, overlayUV, ageInTicks, netHeadYaw, headPitch, scale);	
+			// if enchanted - use entity glint vertex on top
+			if (renderEnchant) {
+				vertex = ItemRenderer.getArmorVertexBuilder(Minecraft.getInstance().getRenderTypeBuffers().getBufferSource(), RenderType.getEntityGlint(), false, true);
+				this.actualRender(matrix, vertex, false, lightMapUV, overlayUV, ageInTicks, netHeadYaw, headPitch, scale);
 			}
 		}
 
-		if (renderEnchant)
-			this.actualRender(matrix, vertex, false, lightMapUV, overlayUV, ageInTicks, netHeadYaw, headPitch, scale);
-
 		// If animated, switch to offset models, render animation overlay, then switch
 		// back to normal models
-		if (alpha > 0 && offsetBipedHead != null/* && !this.renderingEnchantment*/) {
+		if (alpha > 0 && offsetBipedHead != null) {
 			offsetBipedHead.copyModelAngles(bipedHead);
 			offsetBipedBody.copyModelAngles(bipedBody);
 			offsetBipedRightArm.copyModelAngles(bipedRightArm);
@@ -306,20 +323,18 @@ public class ModelBlockArmor<T extends LivingEntity> extends BipedModel<T> {
 			bipedRightFoot = this.normalBipedRightFoot;
 			bipedLeftFoot = this.normalBipedLeftFoot;
 		}
-
-		this.renderingEnchantment = true;
 	}
 
+	/**Do the actual rendering*/
 	private void actualRender(MatrixStack matrix, IVertexBuilder vertex, boolean animationOverlay, int lightMapUV,
 			int overlayUV, float ageInTicks, float netHeadYaw, float headPitch, float scale) {
-		this.setRotationAngles((T) entity, lightMapUV, overlayUV, ageInTicks, netHeadYaw,
-				headPitch);
 
 		float red = 1.0f;
 		float green = 1.0f;
 		float blue = 1.0f;
 
-		if (color != -1) { // change color if needed
+		// change color if needed (i.e. grass)
+		if (color != -1) { 
 			color = color | -16777216;
 			float cb = color & 0xFF;
 			float cg = (color >>> 8) & 0xFF;
@@ -347,51 +362,8 @@ public class ModelBlockArmor<T extends LivingEntity> extends BipedModel<T> {
 			}
 		}
 
-		//System.out.println(this.entity+", translucent: "+this.translucent+", alpha: "+this.alpha+", animationOverlay: "+animationOverlay);
-		alpha = 0.5f;
-		//RenderSystem.color4f(red, green, blue, alpha);
 		matrix.push();
 
-		//if ((this.translucent || animationOverlay)/* && !this.renderingEnchantment*/) {
-		/*GlStateManager.enableBlend(); // enables transparency
-			//GlStateManager.blendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA.param,
-			//		GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA.param, GlStateManager.SourceFactor.ONE.param,
-			//		GlStateManager.DestFactor.ZERO.param);
-			GlStateManager.glBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA.param, 
-					GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA.param, 
-					GlStateManager.SourceFactor.ONE.param, 
-					GlStateManager.DestFactor.ZERO.param);
-			GlStateManager.alphaFunc(GL11.GL_ALPHA_TEST, GL11.GL_ALWAYS);
-			GlStateManager.enableAlphaTest();*/
-		//RenderSystem.enableAlphaTest();
-		//RenderSystem.enableBlend();
-		//RenderSystem.blendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
-		//GL14.glBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA.param, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA.param, GlStateManager.SourceFactor.ONE.param, GlStateManager.DestFactor.ZERO.param);
-		//GlStateManager.glBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA.param, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA.param, GlStateManager.SourceFactor.ONE.param, GlStateManager.DestFactor.ZERO.param);
-		//EXTBlendFuncSeparate.glBlendFuncSeparateEXT(GlStateManager.SourceFactor.SRC_ALPHA.param, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA.param, GlStateManager.SourceFactor.ONE.param, GlStateManager.DestFactor.ZERO.param);
-		//OpenGlHelper.glBlendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
-		//RenderSystem.blendFunc(SourceFactor.SRC_ALPHA, DestFactor.DST_ALPHA);
-		//}
-		RenderSystem.disableCull();
-		RenderSystem.enableBlend();
-		RenderSystem.enableAlphaTest();
-		RenderSystem.enableDepthTest();
-		RenderSystem.defaultAlphaFunc();
-		RenderSystem.blendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
-		RenderSystem.enableFog();
-		RenderSystem.depthMask(true);
-		/*try { // crashes
-			Method method = BufferBuilder.class.getDeclaredMethod("setVertexFormat", VertexFormat.class);
-			method.setAccessible(true);
-			method.invoke(vertex, DefaultVertexFormats.POSITION_TEX_COLOR_NORMAL);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}*/
-
-		//System.out.println(lightMapUV); // TODO remove
-		//vertex.color(red, green, blue, alpha);
-		//if (vertex instanceof BufferBuilder)
-		//	((BufferBuilder)vertex).addVertexData(matrixEntry, bakedQuad, baseBrightness, red, green, blue, blue, lightmapCoords, overlayCoords, readExistingColor);
 		if (this.isChild) {
 			matrix.push();         
 			float num;
@@ -417,28 +389,25 @@ public class ModelBlockArmor<T extends LivingEntity> extends BipedModel<T> {
 			this.bipedLeftFoot.render(matrix, vertex, lightMapUV, overlayUV, red, green, blue, animationOverlay ? alpha : 1.0f);
 			matrix.pop();
 		} else {
-			this.bipedHead.render(matrix, vertex, lightMapUV, overlayUV, red, green, blue, alpha);
-			this.bipedBody.render(matrix, vertex, lightMapUV, overlayUV, red, green, blue, alpha);
-			this.bipedRightArm.render(matrix, vertex, lightMapUV, overlayUV, red, green, blue, alpha);
-			this.bipedLeftArm.render(matrix, vertex, lightMapUV, overlayUV, red, green, blue, alpha);
-			this.bipedWaist.render(matrix, vertex, lightMapUV, overlayUV, red, green, blue, alpha);
-			this.bipedRightLeg.render(matrix, vertex, lightMapUV, overlayUV, red, green, blue, alpha);
-			this.bipedLeftLeg.render(matrix, vertex, lightMapUV, overlayUV, red, green, blue, alpha);
-			this.bipedRightFoot.render(matrix, vertex, lightMapUV, overlayUV, red, green, blue, alpha);
-			this.bipedLeftFoot.render(matrix, vertex, lightMapUV, overlayUV, red, green, blue, alpha);
+			this.bipedHead.render(matrix, vertex, lightMapUV, overlayUV, red, green, blue, animationOverlay ? alpha : 1.0f);
+			this.bipedBody.render(matrix, vertex, lightMapUV, overlayUV, red, green, blue, animationOverlay ? alpha : 1.0f);
+			this.bipedRightArm.render(matrix, vertex, lightMapUV, overlayUV, red, green, blue, animationOverlay ? alpha : 1.0f);
+			this.bipedLeftArm.render(matrix, vertex, lightMapUV, overlayUV, red, green, blue, animationOverlay ? alpha : 1.0f);
+			this.bipedWaist.render(matrix, vertex, lightMapUV, overlayUV, red, green, blue, animationOverlay ? alpha : 1.0f);
+			this.bipedRightLeg.render(matrix, vertex, lightMapUV, overlayUV, red, green, blue, animationOverlay ? alpha : 1.0f);
+			this.bipedLeftLeg.render(matrix, vertex, lightMapUV, overlayUV, red, green, blue, animationOverlay ? alpha : 1.0f);
+			this.bipedRightFoot.render(matrix, vertex, lightMapUV, overlayUV, red, green, blue, animationOverlay ? alpha : 1.0f);
+			this.bipedLeftFoot.render(matrix, vertex, lightMapUV, overlayUV, red, green, blue, animationOverlay ? alpha : 1.0f);
 		}
-
-		//if ((this.translucent || animationOverlay)/* && !this.renderingEnchantment*/)
-		RenderSystem.disableBlend();
-		//GlStateManager.disableBlend(); // disable transparency
 
 		matrix.pop();
 	}
 
-	/**Manually added setRotationAngles from ModelZombie, ModelSkeleton, and ModelArmorStand*/
 	@Override
 	public void setRotationAngles(T entityIn, float limbSwing, float limbSwingAmount, float ageInTicks,
 			float netHeadYaw, float headPitch) {
+		// offset slightly to prevent z-fighting
+		this.bipedLeftLeg.rotateAngleX -= 0.001f;
 		bipedWaist.copyModelAngles(bipedBody);
 		bipedLeftFoot.copyModelAngles(bipedLeftLeg);
 		bipedRightFoot.copyModelAngles(bipedRightLeg);

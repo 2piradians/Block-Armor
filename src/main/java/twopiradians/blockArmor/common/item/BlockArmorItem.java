@@ -20,7 +20,6 @@ import net.minecraft.entity.item.ItemEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.EquipmentSlotType;
 import net.minecraft.item.ArmorItem;
-import net.minecraft.item.IArmorMaterial;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemStack;
@@ -35,6 +34,7 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import twopiradians.blockArmor.client.ClientProxy;
 import twopiradians.blockArmor.client.model.ModelBlockArmor;
+import twopiradians.blockArmor.client.model.ModelBlockArmorItem;
 import twopiradians.blockArmor.common.BlockArmor;
 import twopiradians.blockArmor.common.command.CommandDev;
 import twopiradians.blockArmor.common.config.Config;
@@ -48,7 +48,10 @@ public class BlockArmorItem extends ArmorItem {
 	public ItemGroup group;
 
 	public BlockArmorItem(BlockArmorMaterial material, EquipmentSlotType slot, ArmorSet set) {
-		super(material, slot, new Item.Properties().group(set.isFromModdedBlock ? BlockArmor.moddedTab : BlockArmor.vanillaTab));
+		super(material, slot, 
+				new Item.Properties()
+				.group(set.isFromModdedBlock ? BlockArmor.moddedTab : BlockArmor.vanillaTab)
+				.setISTER(() -> () -> new ModelBlockArmorItem.ItemBlockArmorRenderer()));
 		this.set = set;
 	}
 

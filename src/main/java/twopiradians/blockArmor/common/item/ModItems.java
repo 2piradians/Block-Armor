@@ -20,8 +20,8 @@ import twopiradians.blockArmor.common.BlockArmor;
 import twopiradians.blockArmor.common.config.Config;
 import twopiradians.blockArmor.common.seteffect.SetEffect;
 
-public class ModItems
-{
+public class ModItems {
+	
 	public static ArrayList<BlockArmorItem> allArmors = new ArrayList<BlockArmorItem>();
 
 	@Mod.EventBusSubscriber(modid = BlockArmor.MODID, bus = Bus.MOD)
@@ -40,19 +40,16 @@ public class ModItems
 			Iterator<ArmorSet> it = ArmorSet.allSets.iterator();
 			while (it.hasNext()) { 
 				ArmorSet set = it.next();
-				/*if (!Config.disabledSets.contains(set))*/ 
-				/*if (Config.registerDisabledItems || set.isEnabled())*/ {
-					String registryName = ArmorSet.getItemStackRegistryName(set.stack);
-					set.helmet = register(event.getRegistry(), new BlockArmorItem(set.material, EquipmentSlotType.HEAD, set), registryName+"_helmet");
-					set.chestplate = register(event.getRegistry(), new BlockArmorItem(set.material, EquipmentSlotType.CHEST, set), registryName+"_chestplate");
-					set.leggings = register(event.getRegistry(), new BlockArmorItem(set.material, EquipmentSlotType.LEGS, set), registryName+"_leggings");
-					set.boots = register(event.getRegistry(), new BlockArmorItem(set.material, EquipmentSlotType.FEET, set), registryName+"_boots");
-					if (set.isFromModdedBlock)
-						moddedItems += 4;
-					else
-						vanillaItems += 4;
-				}
-				
+				String registryName = ArmorSet.getItemStackRegistryName(set.stack);
+				set.helmet = register(event.getRegistry(), new BlockArmorItem(set.material, EquipmentSlotType.HEAD, set), registryName+"_helmet");
+				set.chestplate = register(event.getRegistry(), new BlockArmorItem(set.material, EquipmentSlotType.CHEST, set), registryName+"_chestplate");
+				set.leggings = register(event.getRegistry(), new BlockArmorItem(set.material, EquipmentSlotType.LEGS, set), registryName+"_leggings");
+				set.boots = register(event.getRegistry(), new BlockArmorItem(set.material, EquipmentSlotType.FEET, set), registryName+"_boots");
+				if (set.isFromModdedBlock)
+					moddedItems += 4;
+				else
+					vanillaItems += 4;
+
 				set.enable(); // enable here so they're added to creative tab right away (can be disabled when config loads)
 			}
 
@@ -67,7 +64,7 @@ public class ModItems
 			registry.register(armor);
 			return armor;
 		}
-
+		
 	}
 
 	public static void registerRenders() {

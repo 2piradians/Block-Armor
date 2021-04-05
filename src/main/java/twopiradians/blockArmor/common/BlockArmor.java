@@ -23,15 +23,10 @@ import twopiradians.blockArmor.creativetab.BlockArmorCreativeTab;
 @Mod.EventBusSubscriber(bus = Bus.MOD)
 public class BlockArmor {
 
-	// TODO adjust armor texture lineup (see dispenser / logs)
-	// FIXME item rendering
-	// FIXME translucent armor
-	// FIXME render enchantments
 	// FIXME f3+t breaking textures
 	// FIXME can't auto-fill crafting recipes
 	// TEST on server
 	// TEST resource packs
-	// TODO speed factor
 	
 	/**Changelog
 	 *  Rebalanced armor stats

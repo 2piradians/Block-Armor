@@ -23,9 +23,15 @@ import com.google.common.collect.Maps;
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonObject;
 import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.IVertexBuilder;
+import com.mojang.datafixers.util.Pair;
 
 import net.minecraft.block.BlockState;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.Atlases;
+import net.minecraft.client.renderer.IRenderTypeBuffer;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.model.BakedQuad;
 import net.minecraft.client.renderer.model.BlockModel;
 import net.minecraft.client.renderer.model.IBakedModel;
@@ -38,6 +44,7 @@ import net.minecraft.client.renderer.model.ModelResourceLocation;
 import net.minecraft.client.renderer.model.RenderMaterial;
 import net.minecraft.client.renderer.texture.AtlasTexture;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import net.minecraft.client.renderer.tileentity.ItemStackTileEntityRenderer;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.inventory.EquipmentSlotType;
@@ -69,8 +76,25 @@ import twopiradians.blockArmor.common.BlockArmor;
 import twopiradians.blockArmor.common.item.ArmorSet;
 import twopiradians.blockArmor.common.item.BlockArmorItem;
 
-public final class ModelDynBlockArmor implements IModelGeometry<ModelDynBlockArmor>
-{
+public final class ModelBlockArmorItem implements IModelGeometry<ModelBlockArmorItem> {
+
+	public static class ItemBlockArmorRenderer extends ItemStackTileEntityRenderer {
+		// TODO prob get rid of
+		public void func_239207_a_(ItemStack stack, TransformType transform, MatrixStack matrix, IRenderTypeBuffer buffer, int combinedLightIn, int combinedOverlayIn) {
+			IBakedModel model = Minecraft.getInstance().getItemRenderer().getItemModelWithOverrides(stack, null, null);
+			model = net.minecraftforge.client.ForgeHooksClient.handleCameraTransforms(matrix, model, transform, false);
+			RenderType rendertype = RenderType.getTripwire();//RenderTypeLookup.func_239219_a_(stack, false);
+			IVertexBuilder vertex = buffer.getBuffer(rendertype);//ItemRenderer.getBuffer(buffer, rendertype, true, stack.hasEffect());
+			//Minecraft.getInstance().getItemRenderer();
+			matrix.push();
+			RenderSystem.enableBlend();
+			RenderSystem.enableAlphaTest();
+			Minecraft.getInstance().getItemRenderer().renderModel(model, stack, combinedLightIn, combinedOverlayIn, matrix, vertex);
+			matrix.pop();
+		}
+
+	}
+
 	public static final ModelResourceLocation LOCATION = new ModelResourceLocation(BlockArmor.MODID+":block_armor", "inventory");
 
 	// minimal Z offset to prevent depth-fighting
@@ -79,7 +103,7 @@ public final class ModelDynBlockArmor implements IModelGeometry<ModelDynBlockArm
 	private static final float NORTH_Z_FLUID = 7.498f / 16f;
 	private static final float SOUTH_Z_FLUID = 8.502f / 16f;
 
-	public ModelDynBlockArmor() {}
+	public ModelBlockArmorItem() {}
 
 	/*	@Override
 		public Collection<ResourceLocation> getDependencies() {
@@ -89,7 +113,7 @@ public final class ModelDynBlockArmor implements IModelGeometry<ModelDynBlockArm
 	@Override
 	public Collection getTextures(IModelConfiguration owner, Function modelGetter, Set missingTextureErrors) {
 		ImmutableSet.Builder<ResourceLocation> builder = ImmutableSet.builder();
-		//System.out.println("gettextures: "+BakedDynBlockArmorOverrideHandler.itemQuadsMap); // TODO remove
+		//System.out.println("gettextures"); // TODO remove
 		return builder.build();
 	}
 
@@ -103,13 +127,13 @@ public final class ModelDynBlockArmor implements IModelGeometry<ModelDynBlockArm
 
 	@Override
 	public Collection<? extends IModelGeometryPart> getParts() {
-		System.out.println("getparts: "+BakedDynBlockArmorOverrideHandler.itemQuadsMap); // TODO remove
+		System.out.println("getparts"); // TODO remove
 		return Collections.emptyList();
 	}
 
 	@Override
 	public Optional<? extends IModelGeometryPart> getPart(String name) {
-		System.out.println("getpart: "+BakedDynBlockArmorOverrideHandler.itemQuadsMap); // TODO remove
+		System.out.println("getpart"); // TODO remove
 		return Optional.empty();
 	}
 
@@ -128,7 +152,7 @@ public final class ModelDynBlockArmor implements IModelGeometry<ModelDynBlockArm
 		return this;
 	}*/
 
-	public enum LoaderDynBlockArmor implements IModelLoader<ModelDynBlockArmor> {
+	public enum LoaderDynBlockArmor implements IModelLoader<ModelBlockArmorItem> {
 		INSTANCE;
 
 		/*@Override
@@ -145,7 +169,7 @@ public final class ModelDynBlockArmor implements IModelGeometry<ModelDynBlockArm
 
 		@Override
 		public void onResourceManagerReload(IResourceManager resourceManager, Predicate<IResourceType> resourcePredicate) {
-			System.out.println("onResourceManagerReload1: "+BakedDynBlockArmorOverrideHandler.itemQuadsMap); // TODO remove
+			System.out.println("onResourceManagerReload1"); // TODO remove
 			if (resourcePredicate.test(getResourceType())) {
 				onResourceManagerReload(resourceManager);
 			}
@@ -157,14 +181,14 @@ public final class ModelDynBlockArmor implements IModelGeometry<ModelDynBlockArm
 		}
 
 		@Override
-		public ModelDynBlockArmor read(JsonDeserializationContext deserializationContext, JsonObject modelContents) {
-			System.out.println("read: "+BakedDynBlockArmorOverrideHandler.itemQuadsMap); // TODO remove
-			return new ModelDynBlockArmor();
+		public ModelBlockArmorItem read(JsonDeserializationContext deserializationContext, JsonObject modelContents) {
+			System.out.println("read"); // TODO remove
+			return new ModelBlockArmorItem();
 		}
 
 		@Override
 		public IResourceType getResourceType() {
-			System.out.println("getResourceType: "+BakedDynBlockArmorOverrideHandler.itemQuadsMap); // TODO remove
+			System.out.println("getResourceType"); // TODO remove
 			return VanillaResourceType.MODELS;
 		}
 
@@ -188,7 +212,7 @@ public final class ModelDynBlockArmor implements IModelGeometry<ModelDynBlockArm
 
 	public static final class BakedDynBlockArmorOverrideHandler extends ItemOverrideList {
 		/**Map of item to quads for the item's inventory model*/
-		private static HashMap<Item, ImmutableList<BakedQuad>> itemQuadsMap = Maps.newHashMap();
+		private static HashMap<Item, HashMap<Layer, ImmutableList<BakedQuad>>> itemQuadsMap = Maps.newHashMap();
 
 		public static final BakedDynBlockArmorOverrideHandler INSTANCE = new BakedDynBlockArmorOverrideHandler();
 
@@ -199,7 +223,7 @@ public final class ModelDynBlockArmor implements IModelGeometry<ModelDynBlockArm
 		/**Creates inventory icons (via quads) for each Block Armor piece and adds to itemQuadsMap*/
 		@SuppressWarnings("deprecation")
 		public static int createInventoryIcons(ModelBakery bakery) {
-			ModelDynBlockArmor.BakedDynBlockArmorOverrideHandler.itemQuadsMap = Maps.newHashMap();
+			ModelBlockArmorItem.BakedDynBlockArmorOverrideHandler.itemQuadsMap = Maps.newHashMap();
 			int numIcons = 0;
 
 			ImmutableMap.Builder<TransformType, TransformationMatrix> builder2 = ImmutableMap.builder();
@@ -247,9 +271,13 @@ public final class ModelDynBlockArmor implements IModelGeometry<ModelDynBlockArm
 									return bakery.getSpriteMap().getAtlasTexture(mat.getAtlasLocation()).getSprite(mat.getTextureLocation());
 								}
 							}, state, INSTANCE, baseLocation);
-					
+
 					ImmutableList.Builder<BakedQuad> builder = ImmutableList.builder();
+					HashMap<Layer, ImmutableList<BakedQuad>> quads = Maps.newHashMap();
+
+					//Base
 					builder.addAll(model.getQuads(null, null, new Random()));
+					quads.put(Layer.BASE, builder.build());
 
 					int color = ArmorSet.getColor(item);
 					if (color != -1) {
@@ -258,8 +286,9 @@ public final class ModelDynBlockArmor implements IModelGeometry<ModelDynBlockArm
 						float b = ((color >> 0) & 0xFF) / 255f; 
 						color = new Color(r, g, b, 1).getRGB(); //set alpha to 1.0f (since sometimes 0f)
 					}
-					
+
 					//Template texture for left half
+					builder = ImmutableList.builder();
 					ResourceLocation templateLocation = new ResourceLocation(BlockArmor.MODID+":items/icons/block_armor_"+armorType+"1_template");
 					TextureAtlasSprite templateTexture = Minecraft.getInstance().getModelManager().getAtlasTexture(AtlasTexture.LOCATION_BLOCKS_TEXTURE).getSprite(templateLocation);
 					builder.addAll(ItemTextureQuadConverter.convertTexture(transform, templateTexture, sprite, NORTH_Z_FLUID, Direction.NORTH, color, 1));
@@ -270,14 +299,16 @@ public final class ModelDynBlockArmor implements IModelGeometry<ModelDynBlockArm
 					templateTexture = Minecraft.getInstance().getModelManager().getAtlasTexture(AtlasTexture.LOCATION_BLOCKS_TEXTURE).getSprite(templateLocation);
 					builder.addAll(ItemTextureQuadConverter.convertTexture(transform, templateTexture, sprite, NORTH_Z_FLUID, Direction.NORTH, color, 1));
 					builder.addAll(ItemTextureQuadConverter.convertTexture(transform, templateTexture, sprite, SOUTH_Z_FLUID, Direction.SOUTH, color, 1));
-					
+					quads.put(Layer.TEMPLATE, builder.build());
+
 					//Cover texture
+					builder = ImmutableList.builder();
 					ResourceLocation coverLocation = new ResourceLocation(BlockArmor.MODID+":items/icons/block_armor_"+armorType+"_cover");
 					TextureAtlasSprite coverTexture = templateTexture = Minecraft.getInstance().getModelManager().getAtlasTexture(AtlasTexture.LOCATION_BLOCKS_TEXTURE).getSprite(coverLocation);
 					builder.add(ItemTextureQuadConverter.genQuad(transform, 0, 0, 16, 16, NORTH_Z_BASE, coverTexture, Direction.NORTH, color, 1));
 					builder.add(ItemTextureQuadConverter.genQuad(transform, 0, 0, 16, 16, SOUTH_Z_BASE, coverTexture, Direction.SOUTH, color, 1));
+					quads.put(Layer.COVER, builder.build());
 
-					ImmutableList<BakedQuad> quads = builder.build();
 					itemQuadsMap.put(item, quads);
 					numIcons++;
 				}
@@ -289,19 +320,44 @@ public final class ModelDynBlockArmor implements IModelGeometry<ModelDynBlockArm
 		@Override
 		public IBakedModel getOverrideModel(IBakedModel originalModel, ItemStack stack, @Nullable ClientWorld world, @Nullable LivingEntity livingEntity) {
 			if (originalModel instanceof BakedDynBlockArmor && 
-					(((BakedDynBlockArmor)originalModel).quads == null || ((BakedDynBlockArmor)originalModel).quads.isEmpty()) &&
-					itemQuadsMap.get(stack.getItem()) != null)
-				((BakedDynBlockArmor)originalModel).quads = itemQuadsMap.get(stack.getItem());
+					(((BakedDynBlockArmor)originalModel).layers.get(Layer.BASE).quads == null || 
+					((BakedDynBlockArmor)originalModel).layers.get(Layer.BASE).quads.isEmpty()) &&
+					itemQuadsMap.get(stack.getItem()) != null) {
+				for (Layer layer : Layer.values())
+					((BakedDynBlockArmor)originalModel).layers.get(layer).quads = itemQuadsMap.get(stack.getItem()).get(layer);
+			}
 			return originalModel;
 		}
 	}
 
+	private enum Layer {
+		BASE, TEMPLATE, COVER;
+
+		/**Need to render cover transparent so it isn't culled*/
+		public RenderType getRenderType() {
+			if (this == COVER)
+				return RenderType.getTranslucent();
+			else
+				return Atlases.getItemEntityTranslucentCullType();
+		}
+	}
+
 	private static final class BakedDynBlockArmor implements IBakedModel {
-		
+
+		@Nullable
+		public final Layer layer;
+		private HashMap<Layer, BakedDynBlockArmor> layers = Maps.newHashMap();
 		private final ImmutableMap<TransformType, TransformationMatrix> transforms;
 		private ImmutableList<BakedQuad> quads = ImmutableList.of();
 
 		public BakedDynBlockArmor() {
+			this(null);
+			for (Layer layer : Layer.values())
+				layers.put(layer, new BakedDynBlockArmor(layer));
+		}
+
+		private BakedDynBlockArmor(Layer layer) {
+			this.layer = layer;
 			ImmutableMap.Builder<TransformType, TransformationMatrix> builder = ImmutableMap.builder();
 			builder.put(TransformType.GROUND, new TransformationMatrix(new Vector3f(0.0f, 0.125f, 0.0f), new Quaternion(0.0f, 0.0f, 0.0f, 1.0f), new Vector3f(0.5f, 0.5f, 0.5f), new Quaternion(0.0f, 0.0f, 0.0f, 1.0f)));
 			builder.put(TransformType.HEAD, new TransformationMatrix(new Vector3f(0.0f, 0.8125f, 0.4375f), new Quaternion(0.0f, 1.0f, 0.0f, -4.371139E-8f), new Vector3f(1.0f, 1.0f, 1.0f), new Quaternion(0.0f, 0.0f, 0.0f, 1.0f)));
@@ -325,10 +381,21 @@ public final class ModelDynBlockArmor implements IModelGeometry<ModelDynBlockArm
 
 		@Override
 		public List<BakedQuad> getQuads(BlockState state, Direction side, Random rand) {
-			if (side == null) return quads;
+			if (side == null) 
+				return quads;
 			return ImmutableList.of();
 		}
 
+		/**Need to render cover layer transparent so it isn't culled*/
+		@Override
+		public List<Pair<IBakedModel, RenderType>> getLayerModels(ItemStack itemStack, boolean fabulous) {
+			List<Pair<IBakedModel, RenderType>> ret = Lists.newArrayList();
+			for (Layer layer : Layer.values())
+				ret.add(Pair.of(this.layers.get(layer), layer.getRenderType()));
+			return ret;
+		}
+
+		public boolean isLayered() { return true; }
 		public boolean isSideLit() { return false; }
 		public boolean isAmbientOcclusion() { return true;  }
 		public boolean isGui3d() { return false; }

@@ -42,7 +42,8 @@ public class SetEffectSlow_Motion extends SetEffect
 	/**Should block be given this set effect*/
 	@Override
 	protected boolean isValid(Block block) {	
-		if (block instanceof SoulSandBlock || block == Blocks.SOUL_SOIL)
+		if (block instanceof SoulSandBlock || 
+				block == Blocks.SOUL_SOIL)
 			return true;	
 		return false;
 	}	

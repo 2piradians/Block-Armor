@@ -19,7 +19,9 @@ public class SetEffectSpeedy extends SetEffect {
 	/**Should block be given this set effect*/
 	@Override
 	protected boolean isValid(Block block) {
-		if (SetEffect.registryNameContains(block, new String[] {"fast", "speed", "sugar"}) || block == Blocks.SUGAR_CANE)
+		if (SetEffect.registryNameContains(block, new String[] {"fast", "speed", "sugar"}) || 
+				block == Blocks.SUGAR_CANE ||
+				block.getSpeedFactor() > 1f)
 			return true;		
 		return false;
 	}
