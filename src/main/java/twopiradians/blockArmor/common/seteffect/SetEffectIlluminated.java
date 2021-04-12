@@ -16,7 +16,7 @@ import twopiradians.blockArmor.common.block.ModBlocks;
 import twopiradians.blockArmor.common.item.ArmorSet;
 import twopiradians.blockArmor.utils.BlockUtils;
 
-public class SetEffectIlluminated extends SetEffect {
+public class SetEffectIlluminated extends SetEffect { 
 
 	private int lightLevel;
 

@@ -10,14 +10,11 @@ import com.mojang.blaze3d.vertex.IVertexBuilder;
 
 import it.unimi.dsi.fastutil.objects.ObjectList;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.IRenderTypeBuffer;
 import net.minecraft.client.renderer.ItemRenderer;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.model.BipedModel;
-import net.minecraft.client.renderer.model.ItemCameraTransforms.TransformType;
 import net.minecraft.client.renderer.model.ModelRenderer;
 import net.minecraft.client.renderer.model.ModelRenderer.ModelBox;
-import net.minecraft.client.renderer.tileentity.ItemStackTileEntityRenderer;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.inventory.EquipmentSlotType;
 import net.minecraft.item.ItemStack;
@@ -31,7 +28,7 @@ import twopiradians.blockArmor.common.command.CommandDev;
 import twopiradians.blockArmor.common.item.BlockArmorItem;
 
 @OnlyIn(Dist.CLIENT)
-public class ModelBlockArmor<T extends LivingEntity> extends BipedModel<T> {
+public class ModelBAArmor<T extends LivingEntity> extends BipedModel<T> {
 
 	private static final Field MODEL_RENDERER_CUBELIST;
 	private static final Field MODEL_BOX_QUADS;
@@ -69,7 +66,6 @@ public class ModelBlockArmor<T extends LivingEntity> extends BipedModel<T> {
 	private ModelRenderer bipedRightFoot;
 	private ModelRenderer bipedLeftFoot;
 
-	public boolean translucent;
 	public int color;
 	public float alpha;
 
@@ -80,7 +76,7 @@ public class ModelBlockArmor<T extends LivingEntity> extends BipedModel<T> {
 	 */
 	public LivingEntity entity;
 
-	public ModelBlockArmor(int textureHeight, int textureWidth, int currentFrame, int nextFrame, EquipmentSlotType slot) { 
+	public ModelBAArmor(int textureHeight, int textureWidth, int currentFrame, int nextFrame, EquipmentSlotType slot) { 
 		super(0);
 		int size = Math.max(1, textureWidth / 16);
 		this.textureHeight = textureHeight / size;

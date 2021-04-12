@@ -4,24 +4,24 @@ import net.minecraft.block.Block;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.SoundEvents;
 import net.minecraft.util.text.TextFormatting;
-import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.living.LivingFallEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.common.Mod;
 import twopiradians.blockArmor.common.item.ArmorSet;
 
-public class SetEffectSoft_Fall extends SetEffect 
-{
+@Mod.EventBusSubscriber
+public class SetEffectSoft_Fall extends SetEffect {
+	
 	protected SetEffectSoft_Fall() {
 		super();
 		this.color = TextFormatting.WHITE;
 		this.description = "Provides immunity to fall damage";
-		MinecraftForge.EVENT_BUS.register(this);
 	}
 
-	/**Reduce fall distance for less damage*/
+	/**Prevent fall damage*/
 	@SubscribeEvent
-	public void onEvent(LivingFallEvent event) {
-		if (ArmorSet.getWornSetEffects(event.getEntityLiving()).contains(this)) {
+	public static void onEvent(LivingFallEvent event) {
+		if (ArmorSet.getWornSetEffects(event.getEntityLiving()).contains(SetEffect.SOFT_FALL)) {
 			if (!event.getEntityLiving().world.isRemote && event.getDistance() > 2)
 				event.getEntityLiving().world.playSound(null, event.getEntityLiving().getPosition(), 
 						SoundEvents.BLOCK_WOOL_FALL, SoundCategory.PLAYERS, 

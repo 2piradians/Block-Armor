@@ -19,7 +19,7 @@ public class SetEffectFiery extends SetEffect {
 		this.description = "Ignites enemies after attacking or being attacked";
 	}
 
-	/**Ignites attackers/attackees*/ // TEST
+	/**Ignites attackers/attackees*/ 
 	@SubscribeEvent
 	public static void onEvent(LivingAttackEvent event) {		
 		if (SetEffect.FIERY.isEnabled() && event.getSource().getTrueSource() instanceof LivingEntity 
@@ -48,7 +48,8 @@ public class SetEffectFiery extends SetEffect {
 	/**Should block be given this set effect*/
 	@Override
 	protected boolean isValid(Block block) {		
-		if (SetEffect.registryNameContains(block, new String[] {"netherrack", "magma", "fire", "flame", "lava", "nylium"}))
+		if (SetEffect.registryNameContains(block, new String[] {"netherrack", "magma", "fire", "flame", "lava", "nylium"}) &&
+				!SetEffect.registryNameContains(block, new String[] {"coral"}))
 			return true;		
 		return false;
 	}

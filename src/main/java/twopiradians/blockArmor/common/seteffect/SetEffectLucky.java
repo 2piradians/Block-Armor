@@ -6,6 +6,7 @@ import com.google.gson.JsonObject;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
+import net.minecraft.block.OreBlock;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.ai.attributes.AttributeModifier;
@@ -24,16 +25,15 @@ import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
 import net.minecraft.world.server.ServerWorld;
-import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.loot.GlobalLootModifierSerializer;
 import net.minecraftforge.common.loot.LootModifier;
 import net.minecraftforge.event.entity.living.LootingLevelEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.common.Mod;
 import twopiradians.blockArmor.common.item.ArmorSet;
 
+@Mod.EventBusSubscriber
 public class SetEffectLucky extends SetEffect {
-
-	public static SetEffectLucky INSTANCE;
 
 	protected SetEffectLucky() {
 		super();
@@ -41,18 +41,17 @@ public class SetEffectLucky extends SetEffect {
 		this.description = "Greatly increases Fortune, Looting, and Luck";
 		this.attributes.put(Attributes.LUCK, new AttributeModifier(LUCK_UUID, 
 				"Luck", 3, AttributeModifier.Operation.ADDITION));
-		MinecraftForge.EVENT_BUS.register(this);
-		INSTANCE = this;
 	}
 
 	/**Increase looting*/
 	@SubscribeEvent
-	public void addLooting(LootingLevelEvent event) { 
-		if (event.getDamageSource().getTrueSource() instanceof PlayerEntity && 
+	public static void addLooting(LootingLevelEvent event) { 
+		if (event.getDamageSource() != null &&
+				event.getDamageSource().getTrueSource() instanceof PlayerEntity && 
 				event.getEntity().world instanceof ServerWorld &&
-				ArmorSet.getWornSetEffects((LivingEntity) event.getDamageSource().getTrueSource()).contains(this)) {
+				ArmorSet.getWornSetEffects((LivingEntity) event.getDamageSource().getTrueSource()).contains(SetEffect.LUCKY)) {
 			event.setLootingLevel(event.getLootingLevel()+4);
-			doParticlesAndSound((ServerWorld) event.getEntity().world, event.getEntity().getPosition(), 
+			SetEffect.LUCKY.doParticlesAndSound((ServerWorld) event.getEntity().world, event.getEntity().getPosition(), 
 					(PlayerEntity) event.getDamageSource().getTrueSource(), 4);
 		}
 	}
@@ -86,11 +85,12 @@ public class SetEffectLucky extends SetEffect {
 		@Override
 		protected List<ItemStack> doApply(List<ItemStack> generatedLoot, LootContext context) {
 			Entity entityIn = context.get(LootParameters.THIS_ENTITY);
-			if (entityIn instanceof LivingEntity && ArmorSet.getWornSetEffects((LivingEntity) entityIn).contains(SetEffect.LUCKY)) {
+			if (entityIn instanceof LivingEntity && 
+					ArmorSet.getWornSetEffects((LivingEntity) entityIn).contains(SetEffect.LUCKY)) {
 				LivingEntity entity = (LivingEntity) entityIn;
 				Vector3d pos = context.get(LootParameters.ORIGIN);
 				BlockState state = context.get(LootParameters.BLOCK_STATE);
-				if (pos != null && state != null) {
+				if (pos != null && state != null && state.getBlock() instanceof OreBlock) {
 					int beforeCount = 0;
 					int afterCount = 0;
 					for (ItemStack stack : generatedLoot) {

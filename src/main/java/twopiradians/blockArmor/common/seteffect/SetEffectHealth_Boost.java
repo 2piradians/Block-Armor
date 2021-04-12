@@ -38,7 +38,6 @@ public class SetEffectHealth_Boost extends SetEffect {
 	@Override
 	public void onArmorTick(World world, PlayerEntity player, ItemStack stack) {
 		if (!world.isRemote && playersToCheck.contains(player)) {
-			System.out.println("health: "+player.getHealth()+", max health: "+player.getMaxHealth()); // TODO remove
 			// if max health already, restore health from this effect
 			if (player.getHealth() >= 20f) {
 				float amount = 0;

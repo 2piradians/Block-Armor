@@ -8,15 +8,19 @@ import net.minecraft.util.SoundCategory;
 import net.minecraft.util.SoundEvents;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
-import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.living.LivingFallEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.common.Mod;
 import twopiradians.blockArmor.common.item.ArmorSet;
 
+@Mod.EventBusSubscriber
 public class SetEffectSlimey extends SetEffect {
 
-	/**Static is fine bc this is only used on client - chances of two players bouncing same tick is very slim*/
+	/**
+	 * Static is fine bc this is only used on client - chances of two players
+	 * bouncing same tick is very slim
+	 */
 	private static LivingEntity bouncingEntity;
 	private static double motionY;
 
@@ -24,10 +28,9 @@ public class SetEffectSlimey extends SetEffect {
 		super();
 		this.color = TextFormatting.GREEN;
 		this.description = "Bounces off walls and floors";
-		MinecraftForge.EVENT_BUS.register(this);
 	}
 
-	/**Only called when player wearing full, enabled set*/
+	/** Only called when player wearing full, enabled set */
 	@Override
 	public void onArmorTick(World world, PlayerEntity player, ItemStack stack) {
 		super.onArmorTick(world, player, stack);
@@ -36,7 +39,7 @@ public class SetEffectSlimey extends SetEffect {
 			//increased movement speed while bouncing
 			if (!player.isOnGround() && !player.isElytraFlying()) 
 				player.setMotion(player.getMotion().x*1.07d, player.getMotion().y, player.getMotion().z*1.07d);
-
+		
 			if (!player.getCooldownTracker().hasCooldown(stack.getItem()) && player.collidedHorizontally 
 					&& Math.sqrt(Math.pow(player.getPosX() - player.prevChasingPosX, 2) + 
 							Math.pow(player.getPosZ() - player.prevChasingPosZ, 2)) >= 1.1D) {	
@@ -59,13 +62,12 @@ public class SetEffectSlimey extends SetEffect {
 	}
 
 	@SubscribeEvent
-	public void onEvent(LivingFallEvent event) {
-		if (ArmorSet.getWornSetEffects(event.getEntityLiving()).contains(this)) {
+	public static void onEvent(LivingFallEvent event) {
+		if (ArmorSet.hasSetEffect(event.getEntityLiving(), SetEffect.SLIMEY)) {
 			if (!(event.getEntity() instanceof PlayerEntity))
 				return;
 
 			PlayerEntity player = (PlayerEntity) event.getEntity();
-
 			if (!player.isSneaking()) {
 				event.setDamageMultiplier(0);
 				if (player.world.isRemote) {
@@ -75,13 +77,14 @@ public class SetEffectSlimey extends SetEffect {
 						player.setMotion(player.getMotion().x, Math.abs(player.getMotion().y * 0.9d * 1.5D), player.getMotion().z);
 					else if (event.getDistance() > 100) 
 						player.setMotion(player.getMotion().x, Math.abs(player.getMotion().y * 0.9d * 2D), player.getMotion().z);
-
+				
 					if (event.getDistance() > 2D)
 						player.world.playSound(player, player.getPosX(), player.getPosY(), player.getPosZ(), 
 								event.getDistance() > 40 ? SoundEvents.ENTITY_SLIME_JUMP : SoundEvents.ENTITY_SLIME_SQUISH, 
 										SoundCategory.PLAYERS, 0.4F, 1.0F);
 					player.isAirBorne = true;
 					player.setOnGround(false);
+					player.velocityChanged = true;
 					bouncingEntity = player;
 					motionY = player.getMotion().getY();
 				}
@@ -94,8 +97,7 @@ public class SetEffectSlimey extends SetEffect {
 	}
 
 	@SubscribeEvent
-	public void onEvent(TickEvent.PlayerTickEvent event) {
-
+	public static void onEvent(TickEvent.PlayerTickEvent event) {
 		if (bouncingEntity != null && event.player == bouncingEntity && bouncingEntity.world.isRemote &&
 				event.phase == TickEvent.Phase.END) {
 			bouncingEntity.setMotion(bouncingEntity.getMotion().x, motionY, bouncingEntity.getMotion().z);
@@ -104,10 +106,10 @@ public class SetEffectSlimey extends SetEffect {
 		}
 	}
 
-	/**Should block be given this set effect*/
+	/** Should block be given this set effect */
 	@Override
-	protected boolean isValid(Block block) {		
-		if (SetEffect.registryNameContains(block, new String[] {"slime"}))
+	protected boolean isValid(Block block) {
+		if (SetEffect.registryNameContains(block, new String[] { "slime" }))
 			return true;
 		return false;
 	}

@@ -14,7 +14,6 @@ import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber.Bus;
 import net.minecraftforge.fml.config.ModConfig;
-import net.minecraftforge.fml.loading.FMLPaths;
 import net.minecraftforge.registries.IForgeRegistry;
 import twopiradians.blockArmor.common.BlockArmor;
 import twopiradians.blockArmor.common.config.Config;
@@ -31,8 +30,8 @@ public class ModItems {
 		public static void registerItems(final RegistryEvent.Register<Item> event) {						
 			ArmorSet.setup();
 			SetEffect.setup();
-			ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, Config.init());
-			Config.loadConfig(Config.COMMON_SPEC, FMLPaths.CONFIGDIR.get().resolve("blockarmor-common.toml"));
+			// load config
+			ModLoadingContext.get().registerConfig(ModConfig.Type.SERVER, Config.init());
 
 			int vanillaItems = 0;
 			int moddedItems = 0;

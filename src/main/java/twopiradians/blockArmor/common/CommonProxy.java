@@ -6,11 +6,13 @@ import java.util.Optional;
 
 import javax.annotation.Nonnull;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
-import com.ibm.icu.impl.locale.XCldrStub.ImmutableMap;
 
+import net.minecraft.block.Block;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.inventory.EquipmentSlotType;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.IRecipe;
 import net.minecraft.item.crafting.IRecipeType;
@@ -24,25 +26,22 @@ import net.minecraft.world.server.ServerWorld;
 import net.minecraftforge.common.loot.GlobalLootModifierSerializer;
 import net.minecraftforge.event.RegisterCommandsEvent;
 import net.minecraftforge.event.RegistryEvent;
+import net.minecraftforge.event.RegistryEvent.MissingMappings.Mapping;
 import net.minecraftforge.event.entity.player.PlayerEvent.PlayerLoggedInEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber.Bus;
 import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
-import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.event.server.FMLServerStartedEvent;
-import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import net.minecraftforge.fml.network.NetworkDirection;
 import net.minecraftforge.fml.network.PacketDistributor;
 import twopiradians.blockArmor.common.command.CommandDev;
-import twopiradians.blockArmor.common.config.Config;
 import twopiradians.blockArmor.common.item.ArmorSet;
 import twopiradians.blockArmor.common.recipe.RecipeBlockArmor;
 import twopiradians.blockArmor.common.seteffect.SetEffectAutoSmelt.SetEffectAutoSmeltModifier;
 import twopiradians.blockArmor.common.seteffect.SetEffectLucky.SetEffectLuckyModifier;
 import twopiradians.blockArmor.packet.CActivateSetEffectPacket;
 import twopiradians.blockArmor.packet.SDevColorsPacket;
-import twopiradians.blockArmor.packet.SSyncConfigPacket;
 
 @Mod.EventBusSubscriber
 public class CommonProxy {
@@ -55,27 +54,29 @@ public class CommonProxy {
 			event.getRegistry().register(new SetEffectAutoSmeltModifier.Serializer().setRegistryName(new ResourceLocation(BlockArmor.MODID,"set_effect_autosmelt")));
 			event.getRegistry().register(new SetEffectLuckyModifier.Serializer().setRegistryName(new ResourceLocation(BlockArmor.MODID,"set_effect_lucky")));
 		}
+		
+		@SubscribeEvent
+		public static void missingItemMappings(final RegistryEvent.MissingMappings<Item> event) {
+			for (Mapping<Item> mapping : event.getMappings(BlockArmor.MODID))
+				mapping.ignore();
+		}
 
-	}
+		@SubscribeEvent
+		public static void missingBlockMappings(final RegistryEvent.MissingMappings<Block> event) {
+			for (Mapping<Block> mapping : event.getMappings(BlockArmor.MODID))
+				mapping.ignore();
+		}
 
-	public static void onSetup(FMLCommonSetupEvent event) {
-		event.enqueueWork(CommonProxy::setup);
 	}
 
 	public static void setup() {
 		registerPackets();
-		registerEventHandlers();
-	}
-	
-	private static void registerEventHandlers() {
-		FMLJavaModLoadingContext.get().getModEventBus().register(Config.class);
 	}
 	
 	private static void registerPackets() { // Dist is where the packet goes TO
 		int id = 0;
 		BlockArmor.NETWORK.registerMessage(id++, SDevColorsPacket.class, SDevColorsPacket::encode, SDevColorsPacket::decode, SDevColorsPacket.Handler::handle, Optional.of(NetworkDirection.PLAY_TO_CLIENT));
 		BlockArmor.NETWORK.registerMessage(id++, CActivateSetEffectPacket.class, CActivateSetEffectPacket::encode, CActivateSetEffectPacket::decode, CActivateSetEffectPacket.Handler::handle, Optional.of(NetworkDirection.PLAY_TO_SERVER));
-		BlockArmor.NETWORK.registerMessage(id++, SSyncConfigPacket.class, SSyncConfigPacket::encode, SSyncConfigPacket::decode, SSyncConfigPacket.Handler::handle, Optional.of(NetworkDirection.PLAY_TO_CLIENT));
 	}
 	
 	@SubscribeEvent
@@ -90,13 +91,11 @@ public class CommonProxy {
 	
 	private static void registerRecipes(MinecraftServer server) {
 		try {
-			Field recipesField = ObfuscationReflectionHelper.findField(RecipeManager.class, "field_192117_d");
+			Field recipesField = ObfuscationReflectionHelper.findField(RecipeManager.class, "field_199522_d");
 			recipesField.setAccessible(true);
 			Map<IRecipeType<?>, Map<ResourceLocation, IRecipe<?>>> recipes = Maps.newHashMap((Map<IRecipeType<?>, Map<ResourceLocation, IRecipe<?>>>) recipesField.get(server.getRecipeManager()));
 			for (ArmorSet set : ArmorSet.allSets) {
 				if (set.isEnabled()) {
-					String name = ArmorSet.getItemStackRegistryName(set.stack);
-
 					NonNullList<Ingredient> helmetRecipe = NonNullList.from(Ingredient.EMPTY,
 							Ingredient.fromStacks(set.stack), Ingredient.fromStacks(set.stack), Ingredient.fromStacks(set.stack),
 							Ingredient.fromStacks(set.stack), Ingredient.EMPTY, Ingredient.fromStacks(set.stack));
@@ -116,13 +115,13 @@ public class CommonProxy {
 							Ingredient.fromStacks(set.stack), Ingredient.EMPTY, Ingredient.fromStacks(set.stack));
 
 					Map<ResourceLocation, IRecipe<?>> map = Maps.newHashMap(recipes.get(IRecipeType.CRAFTING));
-					map.put(new ResourceLocation(BlockArmor.MODID, name+"_"+EquipmentSlotType.HEAD.getName()),
+					map.put(set.helmet.getRegistryName(),
 							new RecipeBlockArmor(set.helmet.getRegistryName(), set, BlockArmor.MODID+"_"+EquipmentSlotType.HEAD.getName(), 3, 2, helmetRecipe, new ItemStack(set.helmet)));
-					map.put(new ResourceLocation(BlockArmor.MODID, name+"_"+EquipmentSlotType.CHEST.getName()),
+					map.put(set.chestplate.getRegistryName(),
 							new RecipeBlockArmor(set.chestplate.getRegistryName(), set, BlockArmor.MODID+"_"+EquipmentSlotType.CHEST.getName(), 3, 3, armorRecipe, new ItemStack(set.chestplate)));
-					map.put(new ResourceLocation(BlockArmor.MODID, name+"_"+EquipmentSlotType.LEGS.getName()),
+					map.put(set.leggings.getRegistryName(),
 							new RecipeBlockArmor(set.leggings.getRegistryName(), set, BlockArmor.MODID+"_"+EquipmentSlotType.LEGS.getName(), 3, 3, legsRecipe, new ItemStack(set.leggings)));
-					map.put(new ResourceLocation(BlockArmor.MODID, name+"_"+EquipmentSlotType.FEET.getName()),
+					map.put(set.boots.getRegistryName(),
 							new RecipeBlockArmor(set.boots.getRegistryName(), set, BlockArmor.MODID+"_"+EquipmentSlotType.FEET.getName(), 3, 2, bootsRecipe, new ItemStack(set.boots)));
 					recipes.put(IRecipeType.CRAFTING, ImmutableMap.copyOf(map));
 					recipesField.set(server.getRecipeManager(), recipes);

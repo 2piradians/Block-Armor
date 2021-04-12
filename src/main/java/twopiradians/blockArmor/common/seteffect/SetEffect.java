@@ -33,6 +33,8 @@ import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.event.entity.living.LivingEquipmentChangeEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -142,8 +144,8 @@ public class SetEffect {
 	}
 
 	/**Checks if block's registry name contains any of the provided strings (with or without capitalized first letter)*/
-	public static boolean registryNameContains(Block block, String[] strings) {
-		try {
+	public static boolean registryNameContains(Block block, String... strings) {
+		try { // TODO only work for " word ", "<eof>word ", " word<eof>", "<eof>word<eof>" (NOT "asdfWord")
 			String registryName = block.getRegistryName().getPath();
 			String displayName = new ItemStack(block, 1).getDisplayName().getUnformattedComponentText();
 			for (String string : strings) {
@@ -316,6 +318,7 @@ public class SetEffect {
 	}
 
 	/**Set effect name and description if shifting*/
+	@OnlyIn(Dist.CLIENT)
 	public List<ITextComponent> addInformation(ItemStack stack, boolean isShiftDown, PlayerEntity player, List<ITextComponent> tooltip, ITooltipFlag flagIn) {
 		String string = color.toString();
 		if (player instanceof EntityGuiPlayer || (ArmorSet.getWornSetEffects(player).contains(this) && 

@@ -30,7 +30,7 @@ public class SDevColorsPacket
 		CommandDev.devColors = Maps.newHashMap();
 		int count = buf.readInt();
 		for (int i=0; i<count; i++) {
-			UUID uuid = UUID.fromString(buf.readString());
+			UUID uuid = UUID.fromString(buf.readString(32767));
 			Float[] color = new Float[] { buf.readFloat(),  buf.readFloat(),  buf.readFloat()};
 			CommandDev.devColors.put(uuid, color);
 		}

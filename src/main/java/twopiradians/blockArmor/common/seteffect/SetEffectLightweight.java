@@ -8,24 +8,24 @@ import net.minecraft.util.SoundCategory;
 import net.minecraft.util.SoundEvents;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
-import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.living.LivingFallEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.common.Mod;
 import twopiradians.blockArmor.common.item.ArmorSet;
 
+@Mod.EventBusSubscriber
 public class SetEffectLightweight extends SetEffect 
 {
 	protected SetEffectLightweight() {
 		super();
 		this.color = TextFormatting.GREEN;
 		this.description = "Fall slowly, like a leaf in the wind";
-		MinecraftForge.EVENT_BUS.register(this);
 	}
 
 	/**Reduce fall distance for less damage*/
 	@SubscribeEvent
-	public void onEvent(LivingFallEvent event) {
-		if (ArmorSet.getWornSetEffects(event.getEntityLiving()).contains(this)) {
+	public static void onEvent(LivingFallEvent event) {
+		if (ArmorSet.getWornSetEffects(event.getEntityLiving()).contains(SetEffect.LIGHTWEIGHT)) {
 			if (event.getEntityLiving().isSneaking()) {
 				event.setDamageMultiplier(0.1f);
 			}

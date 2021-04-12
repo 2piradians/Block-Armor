@@ -8,6 +8,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.particles.ParticleTypes;
 import net.minecraft.potion.EffectInstance;
 import net.minecraft.potion.Effects;
+import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
 import twopiradians.blockArmor.common.item.ArmorSet;
@@ -26,16 +27,18 @@ public class SetEffectSlow_Motion extends SetEffect
 	public void onArmorTick(World world, PlayerEntity player, ItemStack stack) {
 		super.onArmorTick(world, player, stack);
 
+		// particles
 		if (world.isRemote && world.rand.nextInt(10) == 0) 
 			world.addParticle(ParticleTypes.SOUL, player.getPosX()+world.rand.nextDouble()-0.5D, 
-					player.getPosY()+world.rand.nextDouble(), player.getPosZ()+world.rand.nextDouble()-0.5D, 
+					player.getPosY()+world.rand.nextDouble()+0.3d, player.getPosZ()+world.rand.nextDouble()-0.5D, 
 					0, 0, 0);
-		
-		if (ArmorSet.getFirstSetItem(player, this) == stack && !player.isSneaking() && 
-				player.getMotion().y < 0) {
+
+		if (ArmorSet.getFirstSetItem(player, this) == stack && !player.isSneaking()) {
 			player.fallDistance = 0;
-			if (world.isRemote) 
-				player.setMotion(player.getMotion().x*0.5d, player.getMotion().y*0.4d, player.getMotion().z*0.5d);
+			if (world.isRemote) { // don't add motion y to try to slow down in case they're in a place with lower gravity
+				Vector3d motion = player.getMotion();
+				player.setMotion(motion.x*0.7d, motion.y < 0 ? motion.y*0.7d : motion.y, motion.z*0.7d);
+			}
 		}
 	}
 

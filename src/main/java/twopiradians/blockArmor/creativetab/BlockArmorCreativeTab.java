@@ -6,11 +6,12 @@ import net.minecraft.block.Blocks;
 import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
-import twopiradians.blockArmor.common.BlockArmor;
 import twopiradians.blockArmor.common.item.ArmorSet;
 
-public class BlockArmorCreativeTab extends ItemGroup 
-{
+public class BlockArmorCreativeTab extends ItemGroup {
+	
+	public static BlockArmorCreativeTab vanillaTab;
+	public static BlockArmorCreativeTab moddedTab;
 	public ArrayList<ItemStack> orderedStacks = new ArrayList<ItemStack>();
 
 	public BlockArmorCreativeTab(String label) {
@@ -19,7 +20,7 @@ public class BlockArmorCreativeTab extends ItemGroup
 
 	@Override
 	public ItemStack createIcon() {
-		if (BlockArmor.moddedTab == this && orderedStacks.size() > 2)
+		if (moddedTab == this && orderedStacks.size() > 2)
 			return orderedStacks.get(1);
 		else if (ArmorSet.getSet(Blocks.BEDROCK) != null)
 			return new ItemStack(ArmorSet.getSet(Blocks.BEDROCK).chestplate);

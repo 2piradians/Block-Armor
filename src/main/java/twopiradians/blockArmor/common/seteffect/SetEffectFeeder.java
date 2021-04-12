@@ -20,7 +20,7 @@ public class SetEffectFeeder extends SetEffect {
 	/**Only called when player wearing full, enabled set*/
 	@Override
 	public void onArmorTick(World world, PlayerEntity player, ItemStack stack) {
-		super.onArmorTick(world, player, stack);//TODO add particles (of block)
+		super.onArmorTick(world, player, stack);
 
 		if (!player.getCooldownTracker().hasCooldown(stack.getItem()) && 
 				!world.isRemote && ArmorSet.getFirstSetItem(player, this) == stack)

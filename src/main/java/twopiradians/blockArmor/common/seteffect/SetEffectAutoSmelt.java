@@ -29,7 +29,6 @@ import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraft.world.World;
-import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.loot.GlobalLootModifierSerializer;
 import net.minecraftforge.common.loot.LootModifier;
 import net.minecraftforge.items.ItemHandlerHelper;
@@ -38,15 +37,11 @@ import twopiradians.blockArmor.common.item.ArmorSet;
 
 public class SetEffectAutoSmelt extends SetEffect {
 
-	public static SetEffectAutoSmelt INSTANCE;
-
 	protected SetEffectAutoSmelt() {
 		super();
 		this.color = TextFormatting.DARK_RED;
 		this.description = "Smelts harvested blocks";
 		this.usesButton = true;
-		MinecraftForge.EVENT_BUS.register(this);
-		INSTANCE = this;
 	}
 
 	@Override
@@ -66,7 +61,8 @@ public class SetEffectAutoSmelt extends SetEffect {
 	/**Should block be given this set effect*/
 	@Override
 	protected boolean isValid(Block block) {		
-		if (SetEffect.registryNameContains(block, new String[] {"furnace", "fire", "flame", "smelt"}))
+		if (SetEffect.registryNameContains(block, new String[] {"furnace", "fire", "flame", "smelt"}) &&
+				!SetEffect.registryNameContains(block, new String[] {"coral"}))
 			return true;		
 		return false;
 	}
@@ -80,9 +76,9 @@ public class SetEffectAutoSmelt extends SetEffect {
 		@Override
 		protected List<ItemStack> doApply(List<ItemStack> generatedLoot, LootContext context) {
 			Entity entityIn = context.get(LootParameters.THIS_ENTITY);
-			if (entityIn instanceof LivingEntity && ArmorSet.getWornSetEffects((LivingEntity) entityIn).contains(SetEffectAutoSmelt.INSTANCE)) {
+			if (entityIn instanceof LivingEntity && ArmorSet.hasSetEffect((LivingEntity) entityIn, SetEffect.AUTOSMELT)) {
 				LivingEntity entity = (LivingEntity) entityIn;
-				ItemStack stack = ArmorSet.getFirstSetItem(entity, SetEffectAutoSmelt.INSTANCE);
+				ItemStack stack = ArmorSet.getFirstSetItem(entity, SetEffect.AUTOSMELT);
 				if (entity.world.isRemote || 
 						EnchantmentHelper.getEnchantments(context.get(LootParameters.TOOL)).containsKey(Enchantments.SILK_TOUCH) || 
 						!stack.hasTag() || stack.getTag().getBoolean("deactivated"))
@@ -105,7 +101,7 @@ public class SetEffectAutoSmelt extends SetEffect {
 							10, 0.3f, 0.3f, 0.3f, 0);
 					context.getWorld().playSound(null, entity.getPosition(), 
 							SoundEvents.ENTITY_BLAZE_SHOOT, SoundCategory.PLAYERS, 0.1f, context.getWorld().rand.nextFloat()+0.7f);			
-					INSTANCE.damageArmor(entity, 1, false);
+					SetEffect.AUTOSMELT.damageArmor(entity, 1, false);
 					return newLoot;
 				}
 			}

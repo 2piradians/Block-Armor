@@ -1,0 +1,2507 @@
+
+#Settings that affect armor stats for all sets
+["Armor Stats"]
+	#Multiplied by armor's durability
+	#Range: 0.0 ~ 999999.0
+	"Global Durability Modifier" = 1.0
+	#Multiplied by armor's knockback resistance
+	#Range: 0.0 ~ 999999.0
+	"Global Knockback Resistance Modifier" = 1.0
+	#Multiplied by armor's enchantability
+	#Range: 0.0 ~ 999999.0
+	"Global Enchantability Modifier" = 1.0
+	#Multiplied by armor's damage reduction
+	#Range: 0.0 ~ 999999.0
+	"Global Damage Reduction Modifier" = 1.0
+	#Multiplied by armor's toughness
+	#Range: 0.0 ~ 999999.0
+	"Global Tougness Modifier" = 1.0
+
+#General settings
+[General]
+	#Specifies how many armor pieces must be worn for a set's effect(s) to work.
+	#Range: 1 ~ 4
+	"Armor pieces required for Set Effects" = 2
+	#Should Set Effects use durability of worn armor to work
+	"Set Effects use durability" = false
+
+#Configure armor sets and their set effects
+[Armor_Sets]
+
+	[Armor_Sets.minecraft]
+
+		[Armor_Sets.minecraft.acacia_leaves]
+			Enabled = true
+			Armor_Durability = 8
+			Armor_Damage_Reduction = 1.0
+			Armor_Toughness = 0.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = ["Lightweight", "Regrowth"]
+
+		[Armor_Sets.minecraft.acacia_log]
+			Enabled = true
+			Armor_Durability = 8
+			Armor_Damage_Reduction = 1.0
+			Armor_Toughness = 0.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = ["Regrowth"]
+
+		[Armor_Sets.minecraft.acacia_planks]
+			Enabled = true
+			Armor_Durability = 8
+			Armor_Damage_Reduction = 1.0
+			Armor_Toughness = 0.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = ["Regrowth"]
+
+		[Armor_Sets.minecraft.acacia_wood]
+			Enabled = true
+			Armor_Durability = 8
+			Armor_Damage_Reduction = 1.0
+			Armor_Toughness = 0.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = ["Regrowth"]
+
+		[Armor_Sets.minecraft.ancient_debris]
+			Enabled = true
+			Armor_Durability = 26
+			Armor_Damage_Reduction = 3.304800271987915
+			Armor_Toughness = 3.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = []
+
+		[Armor_Sets.minecraft.andesite]
+			Enabled = true
+			Armor_Durability = 8
+			Armor_Damage_Reduction = 1.0
+			Armor_Toughness = 0.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = []
+
+		[Armor_Sets.minecraft.basalt]
+			Enabled = true
+			Armor_Durability = 8
+			Armor_Damage_Reduction = 1.0
+			Armor_Toughness = 0.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = []
+
+		[Armor_Sets.minecraft.beacon]
+			Enabled = true
+			Armor_Durability = 8
+			Armor_Damage_Reduction = 1.0
+			Armor_Toughness = 0.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = ["Illuminated (15)"]
+
+		[Armor_Sets.minecraft.bedrock]
+			Enabled = true
+			Armor_Durability = 0
+			Armor_Damage_Reduction = 57.60000228881836
+			Armor_Toughness = 20.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = ["Immovable (1.0)", "Health Boost (40.0)"]
+
+		[Armor_Sets.minecraft.birch_leaves]
+			Enabled = true
+			Armor_Durability = 8
+			Armor_Damage_Reduction = 1.0
+			Armor_Toughness = 0.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = ["Lightweight", "Regrowth"]
+
+		[Armor_Sets.minecraft.birch_log]
+			Enabled = true
+			Armor_Durability = 8
+			Armor_Damage_Reduction = 1.0
+			Armor_Toughness = 0.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = ["Regrowth"]
+
+		[Armor_Sets.minecraft.birch_planks]
+			Enabled = true
+			Armor_Durability = 8
+			Armor_Damage_Reduction = 1.0
+			Armor_Toughness = 0.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = ["Regrowth"]
+
+		[Armor_Sets.minecraft.birch_wood]
+			Enabled = true
+			Armor_Durability = 8
+			Armor_Damage_Reduction = 1.0
+			Armor_Toughness = 0.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = ["Regrowth"]
+
+		[Armor_Sets.minecraft.black_concrete]
+			Enabled = true
+			Armor_Durability = 8
+			Armor_Damage_Reduction = 1.0
+			Armor_Toughness = 0.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = []
+
+		[Armor_Sets.minecraft.black_concrete_powder]
+			Enabled = true
+			Armor_Durability = 8
+			Armor_Damage_Reduction = 1.0
+			Armor_Toughness = 0.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = ["Falling"]
+
+		[Armor_Sets.minecraft.black_glazed_terracotta]
+			Enabled = true
+			Armor_Durability = 8
+			Armor_Damage_Reduction = 1.0
+			Armor_Toughness = 0.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = []
+
+		[Armor_Sets.minecraft.black_stained_glass]
+			Enabled = true
+			Armor_Durability = 8
+			Armor_Damage_Reduction = 1.0
+			Armor_Toughness = 0.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = ["Invisibility"]
+
+		[Armor_Sets.minecraft.black_terracotta]
+			Enabled = true
+			Armor_Durability = 8
+			Armor_Damage_Reduction = 1.0
+			Armor_Toughness = 0.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = []
+
+		[Armor_Sets.minecraft.black_wool]
+			Enabled = true
+			Armor_Durability = 8
+			Armor_Damage_Reduction = 1.0
+			Armor_Toughness = 0.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = ["Soft Fall"]
+
+		[Armor_Sets.minecraft.blackstone]
+			Enabled = true
+			Armor_Durability = 8
+			Armor_Damage_Reduction = 1.0
+			Armor_Toughness = 0.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = []
+
+		[Armor_Sets.minecraft.blue_concrete]
+			Enabled = true
+			Armor_Durability = 8
+			Armor_Damage_Reduction = 1.0
+			Armor_Toughness = 0.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = []
+
+		[Armor_Sets.minecraft.blue_concrete_powder]
+			Enabled = true
+			Armor_Durability = 8
+			Armor_Damage_Reduction = 1.0
+			Armor_Toughness = 0.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = ["Falling"]
+
+		[Armor_Sets.minecraft.blue_glazed_terracotta]
+			Enabled = true
+			Armor_Durability = 8
+			Armor_Damage_Reduction = 1.0
+			Armor_Toughness = 0.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = []
+
+		[Armor_Sets.minecraft.blue_ice]
+			Enabled = true
+			Armor_Durability = 8
+			Armor_Damage_Reduction = 1.0920000076293945
+			Armor_Toughness = 0.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = ["Frosty", "Slippery"]
+
+		[Armor_Sets.minecraft.blue_stained_glass]
+			Enabled = true
+			Armor_Durability = 8
+			Armor_Damage_Reduction = 1.0
+			Armor_Toughness = 0.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = ["Invisibility"]
+
+		[Armor_Sets.minecraft.blue_terracotta]
+			Enabled = true
+			Armor_Durability = 8
+			Armor_Damage_Reduction = 1.0
+			Armor_Toughness = 0.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = []
+
+		[Armor_Sets.minecraft.blue_wool]
+			Enabled = true
+			Armor_Durability = 8
+			Armor_Damage_Reduction = 1.0
+			Armor_Toughness = 0.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = ["Soft Fall"]
+
+		[Armor_Sets.minecraft.bone_block]
+			Enabled = true
+			Armor_Durability = 8
+			Armor_Damage_Reduction = 1.0
+			Armor_Toughness = 0.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = ["Bonemealer"]
+
+		[Armor_Sets.minecraft.bookshelf]
+			Enabled = true
+			Armor_Durability = 8
+			Armor_Damage_Reduction = 1.0
+			Armor_Toughness = 0.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = []
+
+		[Armor_Sets.minecraft.brain_coral_block]
+			Enabled = true
+			Armor_Durability = 8
+			Armor_Damage_Reduction = 1.0
+			Armor_Toughness = 0.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = []
+
+		[Armor_Sets.minecraft.bricks]
+			Enabled = true
+			Armor_Durability = 8
+			Armor_Damage_Reduction = 1.0
+			Armor_Toughness = 0.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = ["Immovable (0.25)", "Health Boost (4.0)"]
+
+		[Armor_Sets.minecraft.brown_concrete]
+			Enabled = true
+			Armor_Durability = 8
+			Armor_Damage_Reduction = 1.0
+			Armor_Toughness = 0.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = []
+
+		[Armor_Sets.minecraft.brown_concrete_powder]
+			Enabled = true
+			Armor_Durability = 8
+			Armor_Damage_Reduction = 1.0
+			Armor_Toughness = 0.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = ["Falling"]
+
+		[Armor_Sets.minecraft.brown_glazed_terracotta]
+			Enabled = true
+			Armor_Durability = 8
+			Armor_Damage_Reduction = 1.0
+			Armor_Toughness = 0.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = []
+
+		[Armor_Sets.minecraft.brown_mushroom_block]
+			Enabled = true
+			Armor_Durability = 8
+			Armor_Damage_Reduction = 1.0
+			Armor_Toughness = 0.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = ["Regrowth"]
+
+		[Armor_Sets.minecraft.brown_stained_glass]
+			Enabled = true
+			Armor_Durability = 8
+			Armor_Damage_Reduction = 1.0
+			Armor_Toughness = 0.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = ["Invisibility"]
+
+		[Armor_Sets.minecraft.brown_terracotta]
+			Enabled = true
+			Armor_Durability = 8
+			Armor_Damage_Reduction = 1.0
+			Armor_Toughness = 0.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = []
+
+		[Armor_Sets.minecraft.brown_wool]
+			Enabled = true
+			Armor_Durability = 8
+			Armor_Damage_Reduction = 1.0
+			Armor_Toughness = 0.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = ["Soft Fall"]
+
+		[Armor_Sets.minecraft.bubble_coral_block]
+			Enabled = true
+			Armor_Durability = 8
+			Armor_Damage_Reduction = 1.0
+			Armor_Toughness = 0.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = []
+
+		[Armor_Sets.minecraft.cactus]
+			Enabled = true
+			Armor_Durability = 8
+			Armor_Damage_Reduction = 1.0
+			Armor_Toughness = 0.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = ["Regrowth", "Prickly"]
+
+		[Armor_Sets.minecraft.cartography_table]
+			Enabled = true
+			Armor_Durability = 8
+			Armor_Damage_Reduction = 1.0
+			Armor_Toughness = 0.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = []
+
+		[Armor_Sets.minecraft.carved_pumpkin]
+			Enabled = true
+			Armor_Durability = 8
+			Armor_Damage_Reduction = 1.0
+			Armor_Toughness = 0.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = ["Feeder", "Regrowth"]
+
+		[Armor_Sets.minecraft.chain_command_block]
+			Enabled = true
+			Armor_Durability = 0
+			Armor_Damage_Reduction = 69.12000274658203
+			Armor_Toughness = 20.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = ["Time Control (Stop)"]
+
+		[Armor_Sets.minecraft.chiseled_nether_bricks]
+			Enabled = true
+			Armor_Durability = 8
+			Armor_Damage_Reduction = 1.0
+			Armor_Toughness = 0.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = ["Immovable (0.25)", "Health Boost (4.0)"]
+
+		[Armor_Sets.minecraft.chiseled_polished_blackstone]
+			Enabled = true
+			Armor_Durability = 8
+			Armor_Damage_Reduction = 1.0
+			Armor_Toughness = 0.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = []
+
+		[Armor_Sets.minecraft.chiseled_quartz_block]
+			Enabled = true
+			Armor_Durability = 8
+			Armor_Damage_Reduction = 1.0
+			Armor_Toughness = 0.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = ["Powerful"]
+
+		[Armor_Sets.minecraft.chiseled_red_sandstone]
+			Enabled = true
+			Armor_Durability = 8
+			Armor_Damage_Reduction = 1.0
+			Armor_Toughness = 0.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = []
+
+		[Armor_Sets.minecraft.chiseled_sandstone]
+			Enabled = true
+			Armor_Durability = 8
+			Armor_Damage_Reduction = 1.0
+			Armor_Toughness = 0.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = []
+
+		[Armor_Sets.minecraft.chiseled_stone_bricks]
+			Enabled = true
+			Armor_Durability = 8
+			Armor_Damage_Reduction = 1.0
+			Armor_Toughness = 0.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = []
+
+		[Armor_Sets.minecraft.chorus_flower]
+			Enabled = true
+			Armor_Durability = 8
+			Armor_Damage_Reduction = 1.0
+			Armor_Toughness = 0.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = ["Regrowth"]
+
+		[Armor_Sets.minecraft.clay]
+			Enabled = true
+			Armor_Durability = 8
+			Armor_Damage_Reduction = 1.0
+			Armor_Toughness = 0.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = []
+
+		[Armor_Sets.minecraft.coal_block]
+			Enabled = true
+			Armor_Durability = 18
+			Armor_Damage_Reduction = 2.3400001525878906
+			Armor_Toughness = 0.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = []
+
+		[Armor_Sets.minecraft.coarse_dirt]
+			Enabled = true
+			Armor_Durability = 8
+			Armor_Damage_Reduction = 1.0
+			Armor_Toughness = 0.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = []
+
+		[Armor_Sets.minecraft.cobblestone]
+			Enabled = true
+			Armor_Durability = 8
+			Armor_Damage_Reduction = 1.0
+			Armor_Toughness = 0.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = []
+
+		[Armor_Sets.minecraft.command_block]
+			Enabled = true
+			Armor_Durability = 0
+			Armor_Damage_Reduction = 69.12000274658203
+			Armor_Toughness = 20.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = ["Time Control (Accelerate)"]
+
+		[Armor_Sets.minecraft.cracked_nether_bricks]
+			Enabled = true
+			Armor_Durability = 8
+			Armor_Damage_Reduction = 1.0
+			Armor_Toughness = 0.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = ["Immovable (0.25)", "Health Boost (4.0)"]
+
+		[Armor_Sets.minecraft.cracked_polished_blackstone_bricks]
+			Enabled = true
+			Armor_Durability = 8
+			Armor_Damage_Reduction = 1.0
+			Armor_Toughness = 0.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = []
+
+		[Armor_Sets.minecraft.cracked_stone_bricks]
+			Enabled = true
+			Armor_Durability = 8
+			Armor_Damage_Reduction = 1.0
+			Armor_Toughness = 0.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = []
+
+		[Armor_Sets.minecraft.crafting_table]
+			Enabled = true
+			Armor_Durability = 8
+			Armor_Damage_Reduction = 1.0
+			Armor_Toughness = 0.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = ["Crafter"]
+
+		[Armor_Sets.minecraft.crimson_hyphae]
+			Enabled = true
+			Armor_Durability = 8
+			Armor_Damage_Reduction = 1.0
+			Armor_Toughness = 0.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = []
+
+		[Armor_Sets.minecraft.crimson_nylium]
+			Enabled = true
+			Armor_Durability = 8
+			Armor_Damage_Reduction = 1.0
+			Armor_Toughness = 0.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = ["Fiery", "Regrowth"]
+
+		[Armor_Sets.minecraft.crimson_planks]
+			Enabled = true
+			Armor_Durability = 8
+			Armor_Damage_Reduction = 1.0
+			Armor_Toughness = 0.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = ["Regrowth"]
+
+		[Armor_Sets.minecraft.crimson_stem]
+			Enabled = true
+			Armor_Durability = 8
+			Armor_Damage_Reduction = 1.0
+			Armor_Toughness = 0.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = ["Regrowth"]
+
+		[Armor_Sets.minecraft.crying_obsidian]
+			Enabled = true
+			Armor_Durability = 26
+			Armor_Damage_Reduction = 3.3480002880096436
+			Armor_Toughness = 3.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = ["Illuminated (10)", "Immovable (0.75)", "Flame Resistant", "Health Boost (20.0)"]
+
+		[Armor_Sets.minecraft.cut_red_sandstone]
+			Enabled = true
+			Armor_Durability = 8
+			Armor_Damage_Reduction = 1.0
+			Armor_Toughness = 0.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = []
+
+		[Armor_Sets.minecraft.cut_sandstone]
+			Enabled = true
+			Armor_Durability = 8
+			Armor_Damage_Reduction = 1.0
+			Armor_Toughness = 0.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = []
+
+		[Armor_Sets.minecraft.cyan_concrete]
+			Enabled = true
+			Armor_Durability = 8
+			Armor_Damage_Reduction = 1.0
+			Armor_Toughness = 0.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = []
+
+		[Armor_Sets.minecraft.cyan_concrete_powder]
+			Enabled = true
+			Armor_Durability = 8
+			Armor_Damage_Reduction = 1.0
+			Armor_Toughness = 0.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = ["Falling"]
+
+		[Armor_Sets.minecraft.cyan_glazed_terracotta]
+			Enabled = true
+			Armor_Durability = 8
+			Armor_Damage_Reduction = 1.0
+			Armor_Toughness = 0.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = []
+
+		[Armor_Sets.minecraft.cyan_stained_glass]
+			Enabled = true
+			Armor_Durability = 8
+			Armor_Damage_Reduction = 1.0
+			Armor_Toughness = 0.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = ["Invisibility"]
+
+		[Armor_Sets.minecraft.cyan_terracotta]
+			Enabled = true
+			Armor_Durability = 8
+			Armor_Damage_Reduction = 1.0
+			Armor_Toughness = 0.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = []
+
+		[Armor_Sets.minecraft.cyan_wool]
+			Enabled = true
+			Armor_Durability = 8
+			Armor_Damage_Reduction = 1.0
+			Armor_Toughness = 0.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = ["Soft Fall"]
+
+		[Armor_Sets.minecraft.dark_oak_leaves]
+			Enabled = true
+			Armor_Durability = 8
+			Armor_Damage_Reduction = 1.0
+			Armor_Toughness = 0.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = ["Lightweight", "Regrowth"]
+
+		[Armor_Sets.minecraft.dark_oak_log]
+			Enabled = true
+			Armor_Durability = 8
+			Armor_Damage_Reduction = 1.0
+			Armor_Toughness = 0.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = ["Regrowth"]
+
+		[Armor_Sets.minecraft.dark_oak_planks]
+			Enabled = true
+			Armor_Durability = 8
+			Armor_Damage_Reduction = 1.0
+			Armor_Toughness = 0.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = ["Regrowth"]
+
+		[Armor_Sets.minecraft.dark_oak_wood]
+			Enabled = true
+			Armor_Durability = 8
+			Armor_Damage_Reduction = 1.0
+			Armor_Toughness = 0.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = ["Regrowth"]
+
+		[Armor_Sets.minecraft.dark_prismarine]
+			Enabled = true
+			Armor_Durability = 8
+			Armor_Damage_Reduction = 1.0
+			Armor_Toughness = 0.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = ["Diving Suit", "Falling"]
+
+		[Armor_Sets.minecraft.dead_brain_coral_block]
+			Enabled = true
+			Armor_Durability = 8
+			Armor_Damage_Reduction = 1.0
+			Armor_Toughness = 0.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = []
+
+		[Armor_Sets.minecraft.dead_bubble_coral_block]
+			Enabled = true
+			Armor_Durability = 8
+			Armor_Damage_Reduction = 1.0
+			Armor_Toughness = 0.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = []
+
+		[Armor_Sets.minecraft.dead_fire_coral_block]
+			Enabled = true
+			Armor_Durability = 8
+			Armor_Damage_Reduction = 1.0
+			Armor_Toughness = 0.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = ["Fiery", "Flame Resistant", "AutoSmelt"]
+
+		[Armor_Sets.minecraft.dead_horn_coral_block]
+			Enabled = true
+			Armor_Durability = 8
+			Armor_Damage_Reduction = 1.0
+			Armor_Toughness = 0.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = []
+
+		[Armor_Sets.minecraft.dead_tube_coral_block]
+			Enabled = true
+			Armor_Durability = 8
+			Armor_Damage_Reduction = 1.0
+			Armor_Toughness = 0.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = []
+
+		[Armor_Sets.minecraft.diorite]
+			Enabled = true
+			Armor_Durability = 8
+			Armor_Damage_Reduction = 1.0
+			Armor_Toughness = 0.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = []
+
+		[Armor_Sets.minecraft.dirt]
+			Enabled = true
+			Armor_Durability = 8
+			Armor_Damage_Reduction = 1.0
+			Armor_Toughness = 0.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = []
+
+		[Armor_Sets.minecraft.dispenser]
+			Enabled = true
+			Armor_Durability = 13
+			Armor_Damage_Reduction = 1.6380001306533813
+			Armor_Toughness = 0.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = ["Arrow Defence"]
+
+		[Armor_Sets.minecraft.dried_kelp_block]
+			Enabled = true
+			Armor_Durability = 8
+			Armor_Damage_Reduction = 1.0
+			Armor_Toughness = 0.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = []
+
+		[Armor_Sets.minecraft.dropper]
+			Enabled = true
+			Armor_Durability = 13
+			Armor_Damage_Reduction = 1.6380001306533813
+			Armor_Toughness = 0.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = []
+
+		[Armor_Sets.minecraft.emerald_block]
+			Enabled = true
+			Armor_Durability = 18
+			Armor_Damage_Reduction = 2.3400001525878906
+			Armor_Toughness = 0.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = ["Lucky"]
+
+		[Armor_Sets.minecraft.enchanting_table]
+			Enabled = true
+			Armor_Durability = 18
+			Armor_Damage_Reduction = 2.3400001525878906
+			Armor_Toughness = 3.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = ["Experience Giving"]
+
+		[Armor_Sets.minecraft.end_stone]
+			Enabled = true
+			Armor_Durability = 11
+			Armor_Damage_Reduction = 1.4040000438690186
+			Armor_Toughness = 0.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = ["Ender"]
+
+		[Armor_Sets.minecraft.end_stone_bricks]
+			Enabled = true
+			Armor_Durability = 11
+			Armor_Damage_Reduction = 1.4040000438690186
+			Armor_Toughness = 0.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = ["Ender", "Immovable (0.25)", "Health Boost (4.0)"]
+
+		[Armor_Sets.minecraft.ender_chest]
+			Enabled = true
+			Armor_Durability = 26
+			Armor_Damage_Reduction = 3.288600444793701
+			Armor_Toughness = 1.5
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = ["Ender Hoarder"]
+
+		[Armor_Sets.minecraft.fire_coral_block]
+			Enabled = true
+			Armor_Durability = 8
+			Armor_Damage_Reduction = 1.0
+			Armor_Toughness = 0.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = ["Fiery", "Flame Resistant", "AutoSmelt"]
+
+		[Armor_Sets.minecraft.fletching_table]
+			Enabled = true
+			Armor_Durability = 8
+			Armor_Damage_Reduction = 1.0
+			Armor_Toughness = 0.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = []
+
+		[Armor_Sets.minecraft.furnace]
+			Enabled = true
+			Armor_Durability = 13
+			Armor_Damage_Reduction = 1.6380001306533813
+			Armor_Toughness = 0.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = ["AutoSmelt"]
+
+		[Armor_Sets.minecraft.gilded_blackstone]
+			Enabled = true
+			Armor_Durability = 8
+			Armor_Damage_Reduction = 1.0
+			Armor_Toughness = 0.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = []
+
+		[Armor_Sets.minecraft.glass]
+			Enabled = true
+			Armor_Durability = 8
+			Armor_Damage_Reduction = 1.0
+			Armor_Toughness = 0.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = ["Invisibility"]
+
+		[Armor_Sets.minecraft.glowstone]
+			Enabled = true
+			Armor_Durability = 8
+			Armor_Damage_Reduction = 1.0
+			Armor_Toughness = 0.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = ["Illuminated (15)"]
+
+		[Armor_Sets.minecraft.granite]
+			Enabled = true
+			Armor_Durability = 8
+			Armor_Damage_Reduction = 1.0
+			Armor_Toughness = 0.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = []
+
+		[Armor_Sets.minecraft.grass_block]
+			Enabled = true
+			Armor_Durability = 8
+			Armor_Damage_Reduction = 1.0
+			Armor_Toughness = 0.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = ["Regrowth"]
+
+		[Armor_Sets.minecraft.gravel]
+			Enabled = true
+			Armor_Durability = 8
+			Armor_Damage_Reduction = 1.0
+			Armor_Toughness = 0.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = ["Falling"]
+
+		[Armor_Sets.minecraft.gray_concrete]
+			Enabled = true
+			Armor_Durability = 8
+			Armor_Damage_Reduction = 1.0
+			Armor_Toughness = 0.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = []
+
+		[Armor_Sets.minecraft.gray_concrete_powder]
+			Enabled = true
+			Armor_Durability = 8
+			Armor_Damage_Reduction = 1.0
+			Armor_Toughness = 0.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = ["Falling"]
+
+		[Armor_Sets.minecraft.gray_glazed_terracotta]
+			Enabled = true
+			Armor_Durability = 8
+			Armor_Damage_Reduction = 1.0
+			Armor_Toughness = 0.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = []
+
+		[Armor_Sets.minecraft.gray_stained_glass]
+			Enabled = true
+			Armor_Durability = 8
+			Armor_Damage_Reduction = 1.0
+			Armor_Toughness = 0.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = ["Invisibility"]
+
+		[Armor_Sets.minecraft.gray_terracotta]
+			Enabled = true
+			Armor_Durability = 8
+			Armor_Damage_Reduction = 1.0
+			Armor_Toughness = 0.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = []
+
+		[Armor_Sets.minecraft.gray_wool]
+			Enabled = true
+			Armor_Durability = 8
+			Armor_Damage_Reduction = 1.0
+			Armor_Toughness = 0.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = ["Soft Fall"]
+
+		[Armor_Sets.minecraft.green_concrete]
+			Enabled = true
+			Armor_Durability = 8
+			Armor_Damage_Reduction = 1.0
+			Armor_Toughness = 0.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = []
+
+		[Armor_Sets.minecraft.green_concrete_powder]
+			Enabled = true
+			Armor_Durability = 8
+			Armor_Damage_Reduction = 1.0
+			Armor_Toughness = 0.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = ["Falling"]
+
+		[Armor_Sets.minecraft.green_glazed_terracotta]
+			Enabled = true
+			Armor_Durability = 8
+			Armor_Damage_Reduction = 1.0
+			Armor_Toughness = 0.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = []
+
+		[Armor_Sets.minecraft.green_stained_glass]
+			Enabled = true
+			Armor_Durability = 8
+			Armor_Damage_Reduction = 1.0
+			Armor_Toughness = 0.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = ["Invisibility"]
+
+		[Armor_Sets.minecraft.green_terracotta]
+			Enabled = true
+			Armor_Durability = 8
+			Armor_Damage_Reduction = 1.0
+			Armor_Toughness = 0.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = []
+
+		[Armor_Sets.minecraft.green_wool]
+			Enabled = true
+			Armor_Durability = 8
+			Armor_Damage_Reduction = 1.0
+			Armor_Toughness = 0.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = ["Soft Fall"]
+
+		[Armor_Sets.minecraft.hay_block]
+			Enabled = true
+			Armor_Durability = 8
+			Armor_Damage_Reduction = 1.0
+			Armor_Toughness = 0.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = ["Soft Fall"]
+
+		[Armor_Sets.minecraft.honeycomb_block]
+			Enabled = true
+			Armor_Durability = 8
+			Armor_Damage_Reduction = 1.0
+			Armor_Toughness = 0.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = []
+
+		[Armor_Sets.minecraft.horn_coral_block]
+			Enabled = true
+			Armor_Durability = 8
+			Armor_Damage_Reduction = 1.0
+			Armor_Toughness = 0.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = []
+
+		[Armor_Sets.minecraft.ice]
+			Enabled = true
+			Armor_Durability = 8
+			Armor_Damage_Reduction = 1.0
+			Armor_Toughness = 0.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = ["Frosty", "Slippery"]
+
+		[Armor_Sets.minecraft.jack_o_lantern]
+			Enabled = true
+			Armor_Durability = 8
+			Armor_Damage_Reduction = 1.0
+			Armor_Toughness = 0.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = ["Illuminated (15)", "Regrowth"]
+
+		[Armor_Sets.minecraft.jungle_leaves]
+			Enabled = true
+			Armor_Durability = 8
+			Armor_Damage_Reduction = 1.0
+			Armor_Toughness = 0.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = ["Lightweight", "Regrowth"]
+
+		[Armor_Sets.minecraft.jungle_log]
+			Enabled = true
+			Armor_Durability = 8
+			Armor_Damage_Reduction = 1.0
+			Armor_Toughness = 0.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = ["Regrowth"]
+
+		[Armor_Sets.minecraft.jungle_planks]
+			Enabled = true
+			Armor_Durability = 8
+			Armor_Damage_Reduction = 1.0
+			Armor_Toughness = 0.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = ["Regrowth"]
+
+		[Armor_Sets.minecraft.jungle_wood]
+			Enabled = true
+			Armor_Durability = 8
+			Armor_Damage_Reduction = 1.0
+			Armor_Toughness = 0.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = ["Regrowth"]
+
+		[Armor_Sets.minecraft.lapis_block]
+			Enabled = true
+			Armor_Durability = 11
+			Armor_Damage_Reduction = 1.4040000438690186
+			Armor_Toughness = 0.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = ["Experience Giving"]
+
+		[Armor_Sets.minecraft.light_blue_concrete]
+			Enabled = true
+			Armor_Durability = 8
+			Armor_Damage_Reduction = 1.0
+			Armor_Toughness = 0.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = []
+
+		[Armor_Sets.minecraft.light_blue_concrete_powder]
+			Enabled = true
+			Armor_Durability = 8
+			Armor_Damage_Reduction = 1.0
+			Armor_Toughness = 0.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = ["Falling"]
+
+		[Armor_Sets.minecraft.light_blue_glazed_terracotta]
+			Enabled = true
+			Armor_Durability = 8
+			Armor_Damage_Reduction = 1.0
+			Armor_Toughness = 0.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = []
+
+		[Armor_Sets.minecraft.light_blue_stained_glass]
+			Enabled = true
+			Armor_Durability = 8
+			Armor_Damage_Reduction = 1.0
+			Armor_Toughness = 0.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = ["Invisibility"]
+
+		[Armor_Sets.minecraft.light_blue_terracotta]
+			Enabled = true
+			Armor_Durability = 8
+			Armor_Damage_Reduction = 1.0
+			Armor_Toughness = 0.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = []
+
+		[Armor_Sets.minecraft.light_blue_wool]
+			Enabled = true
+			Armor_Durability = 8
+			Armor_Damage_Reduction = 1.0
+			Armor_Toughness = 0.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = ["Soft Fall"]
+
+		[Armor_Sets.minecraft.light_gray_concrete]
+			Enabled = true
+			Armor_Durability = 8
+			Armor_Damage_Reduction = 1.0
+			Armor_Toughness = 0.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = []
+
+		[Armor_Sets.minecraft.light_gray_concrete_powder]
+			Enabled = true
+			Armor_Durability = 8
+			Armor_Damage_Reduction = 1.0
+			Armor_Toughness = 0.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = ["Falling"]
+
+		[Armor_Sets.minecraft.light_gray_glazed_terracotta]
+			Enabled = true
+			Armor_Durability = 8
+			Armor_Damage_Reduction = 1.0
+			Armor_Toughness = 0.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = []
+
+		[Armor_Sets.minecraft.light_gray_stained_glass]
+			Enabled = true
+			Armor_Durability = 8
+			Armor_Damage_Reduction = 1.0
+			Armor_Toughness = 0.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = ["Invisibility"]
+
+		[Armor_Sets.minecraft.light_gray_terracotta]
+			Enabled = true
+			Armor_Durability = 8
+			Armor_Damage_Reduction = 1.0
+			Armor_Toughness = 0.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = []
+
+		[Armor_Sets.minecraft.light_gray_wool]
+			Enabled = true
+			Armor_Durability = 8
+			Armor_Damage_Reduction = 1.0
+			Armor_Toughness = 0.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = ["Soft Fall"]
+
+		[Armor_Sets.minecraft.lime_concrete]
+			Enabled = true
+			Armor_Durability = 8
+			Armor_Damage_Reduction = 1.0
+			Armor_Toughness = 0.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = []
+
+		[Armor_Sets.minecraft.lime_concrete_powder]
+			Enabled = true
+			Armor_Durability = 8
+			Armor_Damage_Reduction = 1.0
+			Armor_Toughness = 0.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = ["Falling"]
+
+		[Armor_Sets.minecraft.lime_glazed_terracotta]
+			Enabled = true
+			Armor_Durability = 8
+			Armor_Damage_Reduction = 1.0
+			Armor_Toughness = 0.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = []
+
+		[Armor_Sets.minecraft.lime_stained_glass]
+			Enabled = true
+			Armor_Durability = 8
+			Armor_Damage_Reduction = 1.0
+			Armor_Toughness = 0.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = ["Invisibility"]
+
+		[Armor_Sets.minecraft.lime_terracotta]
+			Enabled = true
+			Armor_Durability = 8
+			Armor_Damage_Reduction = 1.0
+			Armor_Toughness = 0.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = []
+
+		[Armor_Sets.minecraft.lime_wool]
+			Enabled = true
+			Armor_Durability = 8
+			Armor_Damage_Reduction = 1.0
+			Armor_Toughness = 0.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = ["Soft Fall"]
+
+		[Armor_Sets.minecraft.lodestone]
+			Enabled = true
+			Armor_Durability = 13
+			Armor_Damage_Reduction = 1.6380001306533813
+			Armor_Toughness = 0.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = []
+
+		[Armor_Sets.minecraft.loom]
+			Enabled = true
+			Armor_Durability = 8
+			Armor_Damage_Reduction = 1.0
+			Armor_Toughness = 0.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = []
+
+		[Armor_Sets.minecraft.magenta_concrete]
+			Enabled = true
+			Armor_Durability = 8
+			Armor_Damage_Reduction = 1.0
+			Armor_Toughness = 0.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = []
+
+		[Armor_Sets.minecraft.magenta_concrete_powder]
+			Enabled = true
+			Armor_Durability = 8
+			Armor_Damage_Reduction = 1.0
+			Armor_Toughness = 0.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = ["Falling"]
+
+		[Armor_Sets.minecraft.magenta_glazed_terracotta]
+			Enabled = true
+			Armor_Durability = 8
+			Armor_Damage_Reduction = 1.0
+			Armor_Toughness = 0.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = []
+
+		[Armor_Sets.minecraft.magenta_stained_glass]
+			Enabled = true
+			Armor_Durability = 8
+			Armor_Damage_Reduction = 1.0
+			Armor_Toughness = 0.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = ["Invisibility"]
+
+		[Armor_Sets.minecraft.magenta_terracotta]
+			Enabled = true
+			Armor_Durability = 8
+			Armor_Damage_Reduction = 1.0
+			Armor_Toughness = 0.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = []
+
+		[Armor_Sets.minecraft.magenta_wool]
+			Enabled = true
+			Armor_Durability = 8
+			Armor_Damage_Reduction = 1.0
+			Armor_Toughness = 0.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = ["Soft Fall"]
+
+		[Armor_Sets.minecraft.magma_block]
+			Enabled = true
+			Armor_Durability = 8
+			Armor_Damage_Reduction = 1.0
+			Armor_Toughness = 0.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = ["Illuminated (3)", "Fiery", "Flame Resistant"]
+
+		[Armor_Sets.minecraft.melon]
+			Enabled = true
+			Armor_Durability = 8
+			Armor_Damage_Reduction = 1.0
+			Armor_Toughness = 0.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = ["Feeder", "Regrowth"]
+
+		[Armor_Sets.minecraft.mossy_cobblestone]
+			Enabled = true
+			Armor_Durability = 8
+			Armor_Damage_Reduction = 1.0
+			Armor_Toughness = 0.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = ["Regrowth"]
+
+		[Armor_Sets.minecraft.mossy_stone_bricks]
+			Enabled = true
+			Armor_Durability = 8
+			Armor_Damage_Reduction = 1.0
+			Armor_Toughness = 0.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = ["Regrowth"]
+
+		[Armor_Sets.minecraft.mushroom_stem]
+			Enabled = true
+			Armor_Durability = 8
+			Armor_Damage_Reduction = 1.0
+			Armor_Toughness = 0.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = ["Regrowth"]
+
+		[Armor_Sets.minecraft.mycelium]
+			Enabled = true
+			Armor_Durability = 8
+			Armor_Damage_Reduction = 1.0
+			Armor_Toughness = 0.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = ["Regrowth"]
+
+		[Armor_Sets.minecraft.nether_bricks]
+			Enabled = true
+			Armor_Durability = 8
+			Armor_Damage_Reduction = 1.0
+			Armor_Toughness = 0.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = ["Immovable (0.25)", "Health Boost (4.0)"]
+
+		[Armor_Sets.minecraft.nether_wart_block]
+			Enabled = true
+			Armor_Durability = 8
+			Armor_Damage_Reduction = 1.0
+			Armor_Toughness = 0.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = []
+
+		[Armor_Sets.minecraft.netherite_block]
+			Enabled = true
+			Armor_Durability = 26
+			Armor_Damage_Reduction = 3.3480002880096436
+			Armor_Toughness = 3.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = []
+
+		[Armor_Sets.minecraft.netherrack]
+			Enabled = true
+			Armor_Durability = 8
+			Armor_Damage_Reduction = 1.0
+			Armor_Toughness = 0.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = ["Fiery"]
+
+		[Armor_Sets.minecraft.note_block]
+			Enabled = true
+			Armor_Durability = 8
+			Armor_Damage_Reduction = 1.0
+			Armor_Toughness = 0.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = ["Musical"]
+
+		[Armor_Sets.minecraft.oak_leaves]
+			Enabled = true
+			Armor_Durability = 8
+			Armor_Damage_Reduction = 1.0
+			Armor_Toughness = 0.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = ["Lightweight", "Regrowth"]
+
+		[Armor_Sets.minecraft.oak_log]
+			Enabled = true
+			Armor_Durability = 8
+			Armor_Damage_Reduction = 1.0
+			Armor_Toughness = 0.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = ["Regrowth"]
+
+		[Armor_Sets.minecraft.oak_planks]
+			Enabled = true
+			Armor_Durability = 8
+			Armor_Damage_Reduction = 1.0
+			Armor_Toughness = 0.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = ["Regrowth"]
+
+		[Armor_Sets.minecraft.oak_wood]
+			Enabled = true
+			Armor_Durability = 8
+			Armor_Damage_Reduction = 1.0
+			Armor_Toughness = 0.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = ["Regrowth"]
+
+		[Armor_Sets.minecraft.observer]
+			Enabled = true
+			Armor_Durability = 11
+			Armor_Damage_Reduction = 1.4040000438690186
+			Armor_Toughness = 0.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = []
+
+		[Armor_Sets.minecraft.obsidian]
+			Enabled = true
+			Armor_Durability = 26
+			Armor_Damage_Reduction = 3.3480002880096436
+			Armor_Toughness = 3.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = ["Immovable (0.75)", "Flame Resistant", "Health Boost (20.0)"]
+
+		[Armor_Sets.minecraft.orange_concrete]
+			Enabled = true
+			Armor_Durability = 8
+			Armor_Damage_Reduction = 1.0
+			Armor_Toughness = 0.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = []
+
+		[Armor_Sets.minecraft.orange_concrete_powder]
+			Enabled = true
+			Armor_Durability = 8
+			Armor_Damage_Reduction = 1.0
+			Armor_Toughness = 0.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = ["Falling"]
+
+		[Armor_Sets.minecraft.orange_glazed_terracotta]
+			Enabled = true
+			Armor_Durability = 8
+			Armor_Damage_Reduction = 1.0
+			Armor_Toughness = 0.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = []
+
+		[Armor_Sets.minecraft.orange_stained_glass]
+			Enabled = true
+			Armor_Durability = 8
+			Armor_Damage_Reduction = 1.0
+			Armor_Toughness = 0.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = ["Invisibility"]
+
+		[Armor_Sets.minecraft.orange_terracotta]
+			Enabled = true
+			Armor_Durability = 8
+			Armor_Damage_Reduction = 1.0
+			Armor_Toughness = 0.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = []
+
+		[Armor_Sets.minecraft.orange_wool]
+			Enabled = true
+			Armor_Durability = 8
+			Armor_Damage_Reduction = 1.0
+			Armor_Toughness = 0.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = ["Soft Fall"]
+
+		[Armor_Sets.minecraft.packed_ice]
+			Enabled = true
+			Armor_Durability = 8
+			Armor_Damage_Reduction = 1.0
+			Armor_Toughness = 0.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = ["Frosty", "Slippery"]
+
+		[Armor_Sets.minecraft.pink_concrete]
+			Enabled = true
+			Armor_Durability = 8
+			Armor_Damage_Reduction = 1.0
+			Armor_Toughness = 0.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = []
+
+		[Armor_Sets.minecraft.pink_concrete_powder]
+			Enabled = true
+			Armor_Durability = 8
+			Armor_Damage_Reduction = 1.0
+			Armor_Toughness = 0.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = ["Falling"]
+
+		[Armor_Sets.minecraft.pink_glazed_terracotta]
+			Enabled = true
+			Armor_Durability = 8
+			Armor_Damage_Reduction = 1.0
+			Armor_Toughness = 0.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = []
+
+		[Armor_Sets.minecraft.pink_stained_glass]
+			Enabled = true
+			Armor_Durability = 8
+			Armor_Damage_Reduction = 1.0
+			Armor_Toughness = 0.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = ["Invisibility"]
+
+		[Armor_Sets.minecraft.pink_terracotta]
+			Enabled = true
+			Armor_Durability = 8
+			Armor_Damage_Reduction = 1.0
+			Armor_Toughness = 0.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = []
+
+		[Armor_Sets.minecraft.pink_wool]
+			Enabled = true
+			Armor_Durability = 8
+			Armor_Damage_Reduction = 1.0
+			Armor_Toughness = 0.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = ["Soft Fall"]
+
+		[Armor_Sets.minecraft.piston]
+			Enabled = true
+			Armor_Durability = 8
+			Armor_Damage_Reduction = 1.0
+			Armor_Toughness = 0.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = ["Pusher"]
+
+		[Armor_Sets.minecraft.podzol]
+			Enabled = true
+			Armor_Durability = 8
+			Armor_Damage_Reduction = 1.0
+			Armor_Toughness = 0.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = []
+
+		[Armor_Sets.minecraft.polished_andesite]
+			Enabled = true
+			Armor_Durability = 8
+			Armor_Damage_Reduction = 1.0
+			Armor_Toughness = 0.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = []
+
+		[Armor_Sets.minecraft.polished_basalt]
+			Enabled = true
+			Armor_Durability = 8
+			Armor_Damage_Reduction = 1.0
+			Armor_Toughness = 0.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = []
+
+		[Armor_Sets.minecraft.polished_blackstone]
+			Enabled = true
+			Armor_Durability = 8
+			Armor_Damage_Reduction = 1.0
+			Armor_Toughness = 0.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = []
+
+		[Armor_Sets.minecraft.polished_blackstone_bricks]
+			Enabled = true
+			Armor_Durability = 8
+			Armor_Damage_Reduction = 1.0
+			Armor_Toughness = 0.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = []
+
+		[Armor_Sets.minecraft.polished_diorite]
+			Enabled = true
+			Armor_Durability = 8
+			Armor_Damage_Reduction = 1.0
+			Armor_Toughness = 0.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = []
+
+		[Armor_Sets.minecraft.polished_granite]
+			Enabled = true
+			Armor_Durability = 8
+			Armor_Damage_Reduction = 1.0
+			Armor_Toughness = 0.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = []
+
+		[Armor_Sets.minecraft.prismarine]
+			Enabled = true
+			Armor_Durability = 8
+			Armor_Damage_Reduction = 1.0
+			Armor_Toughness = 0.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = ["Diving Suit", "Falling"]
+
+		[Armor_Sets.minecraft.prismarine_bricks]
+			Enabled = true
+			Armor_Durability = 8
+			Armor_Damage_Reduction = 1.0
+			Armor_Toughness = 0.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = ["Diving Suit", "Falling"]
+
+		[Armor_Sets.minecraft.pumpkin]
+			Enabled = true
+			Armor_Durability = 8
+			Armor_Damage_Reduction = 1.0
+			Armor_Toughness = 0.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = ["Feeder", "Regrowth"]
+
+		[Armor_Sets.minecraft.purple_concrete]
+			Enabled = true
+			Armor_Durability = 8
+			Armor_Damage_Reduction = 1.0
+			Armor_Toughness = 0.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = []
+
+		[Armor_Sets.minecraft.purple_concrete_powder]
+			Enabled = true
+			Armor_Durability = 8
+			Armor_Damage_Reduction = 1.0
+			Armor_Toughness = 0.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = ["Falling"]
+
+		[Armor_Sets.minecraft.purple_glazed_terracotta]
+			Enabled = true
+			Armor_Durability = 8
+			Armor_Damage_Reduction = 1.0
+			Armor_Toughness = 0.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = []
+
+		[Armor_Sets.minecraft.purple_stained_glass]
+			Enabled = true
+			Armor_Durability = 8
+			Armor_Damage_Reduction = 1.0
+			Armor_Toughness = 0.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = ["Invisibility"]
+
+		[Armor_Sets.minecraft.purple_terracotta]
+			Enabled = true
+			Armor_Durability = 8
+			Armor_Damage_Reduction = 1.0
+			Armor_Toughness = 0.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = []
+
+		[Armor_Sets.minecraft.purple_wool]
+			Enabled = true
+			Armor_Durability = 8
+			Armor_Damage_Reduction = 1.0
+			Armor_Toughness = 0.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = ["Soft Fall"]
+
+		[Armor_Sets.minecraft.purpur_block]
+			Enabled = true
+			Armor_Durability = 8
+			Armor_Damage_Reduction = 1.0
+			Armor_Toughness = 0.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = []
+
+		[Armor_Sets.minecraft.purpur_pillar]
+			Enabled = true
+			Armor_Durability = 8
+			Armor_Damage_Reduction = 1.0
+			Armor_Toughness = 0.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = []
+
+		[Armor_Sets.minecraft.quartz_block]
+			Enabled = true
+			Armor_Durability = 8
+			Armor_Damage_Reduction = 1.0
+			Armor_Toughness = 0.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = ["Powerful"]
+
+		[Armor_Sets.minecraft.quartz_bricks]
+			Enabled = true
+			Armor_Durability = 8
+			Armor_Damage_Reduction = 1.0
+			Armor_Toughness = 0.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = ["Powerful"]
+
+		[Armor_Sets.minecraft.quartz_pillar]
+			Enabled = true
+			Armor_Durability = 8
+			Armor_Damage_Reduction = 1.0
+			Armor_Toughness = 0.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = ["Powerful"]
+
+		[Armor_Sets.minecraft.red_concrete]
+			Enabled = true
+			Armor_Durability = 8
+			Armor_Damage_Reduction = 1.0
+			Armor_Toughness = 0.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = []
+
+		[Armor_Sets.minecraft.red_concrete_powder]
+			Enabled = true
+			Armor_Durability = 8
+			Armor_Damage_Reduction = 1.0
+			Armor_Toughness = 0.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = ["Falling"]
+
+		[Armor_Sets.minecraft.red_glazed_terracotta]
+			Enabled = true
+			Armor_Durability = 8
+			Armor_Damage_Reduction = 1.0
+			Armor_Toughness = 0.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = []
+
+		[Armor_Sets.minecraft.red_mushroom_block]
+			Enabled = true
+			Armor_Durability = 8
+			Armor_Damage_Reduction = 1.0
+			Armor_Toughness = 0.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = ["Regrowth"]
+
+		[Armor_Sets.minecraft.red_nether_bricks]
+			Enabled = true
+			Armor_Durability = 8
+			Armor_Damage_Reduction = 1.0
+			Armor_Toughness = 0.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = ["Immovable (0.25)", "Health Boost (4.0)"]
+
+		[Armor_Sets.minecraft.red_sand]
+			Enabled = true
+			Armor_Durability = 8
+			Armor_Damage_Reduction = 1.0
+			Armor_Toughness = 0.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = ["Falling"]
+
+		[Armor_Sets.minecraft.red_sandstone]
+			Enabled = true
+			Armor_Durability = 8
+			Armor_Damage_Reduction = 1.0
+			Armor_Toughness = 0.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = []
+
+		[Armor_Sets.minecraft.red_stained_glass]
+			Enabled = true
+			Armor_Durability = 8
+			Armor_Damage_Reduction = 1.0
+			Armor_Toughness = 0.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = ["Invisibility"]
+
+		[Armor_Sets.minecraft.red_terracotta]
+			Enabled = true
+			Armor_Durability = 8
+			Armor_Damage_Reduction = 1.0
+			Armor_Toughness = 0.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = []
+
+		[Armor_Sets.minecraft.red_wool]
+			Enabled = true
+			Armor_Durability = 8
+			Armor_Damage_Reduction = 1.0
+			Armor_Toughness = 0.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = ["Soft Fall"]
+
+		[Armor_Sets.minecraft.redstone_block]
+			Enabled = true
+			Armor_Durability = 18
+			Armor_Damage_Reduction = 2.3400001525878906
+			Armor_Toughness = 0.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = []
+
+		[Armor_Sets.minecraft.redstone_lamp]
+			Enabled = true
+			Armor_Durability = 8
+			Armor_Damage_Reduction = 1.0
+			Armor_Toughness = 0.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = ["Illuminated (15)"]
+
+		[Armor_Sets.minecraft.repeating_command_block]
+			Enabled = true
+			Armor_Durability = 0
+			Armor_Damage_Reduction = 69.12000274658203
+			Armor_Toughness = 20.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = ["Time Control (Rewind)"]
+
+		[Armor_Sets.minecraft.respawn_anchor]
+			Enabled = true
+			Armor_Durability = 26
+			Armor_Damage_Reduction = 3.3480002880096436
+			Armor_Toughness = 3.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = []
+
+		[Armor_Sets.minecraft.sand]
+			Enabled = true
+			Armor_Durability = 8
+			Armor_Damage_Reduction = 1.0
+			Armor_Toughness = 0.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = ["Falling"]
+
+		[Armor_Sets.minecraft.sandstone]
+			Enabled = true
+			Armor_Durability = 8
+			Armor_Damage_Reduction = 1.0
+			Armor_Toughness = 0.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = []
+
+		[Armor_Sets.minecraft.sea_lantern]
+			Enabled = true
+			Armor_Durability = 8
+			Armor_Damage_Reduction = 1.0
+			Armor_Toughness = 0.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = ["Illuminated (15)"]
+
+		[Armor_Sets.minecraft.shroomlight]
+			Enabled = true
+			Armor_Durability = 8
+			Armor_Damage_Reduction = 1.0
+			Armor_Toughness = 0.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = ["Illuminated (15)"]
+
+		[Armor_Sets.minecraft.slime_block]
+			Enabled = true
+			Armor_Durability = 8
+			Armor_Damage_Reduction = 1.0
+			Armor_Toughness = 0.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = ["Slimey"]
+
+		[Armor_Sets.minecraft.smithing_table]
+			Enabled = true
+			Armor_Durability = 8
+			Armor_Damage_Reduction = 1.0
+			Armor_Toughness = 0.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = []
+
+		[Armor_Sets.minecraft.smooth_quartz]
+			Enabled = true
+			Armor_Durability = 8
+			Armor_Damage_Reduction = 1.0
+			Armor_Toughness = 0.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = ["Powerful"]
+
+		[Armor_Sets.minecraft.smooth_red_sandstone]
+			Enabled = true
+			Armor_Durability = 8
+			Armor_Damage_Reduction = 1.0
+			Armor_Toughness = 0.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = []
+
+		[Armor_Sets.minecraft.smooth_sandstone]
+			Enabled = true
+			Armor_Durability = 8
+			Armor_Damage_Reduction = 1.0
+			Armor_Toughness = 0.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = []
+
+		[Armor_Sets.minecraft.smooth_stone]
+			Enabled = true
+			Armor_Durability = 8
+			Armor_Damage_Reduction = 1.0
+			Armor_Toughness = 0.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = []
+
+		[Armor_Sets.minecraft.snow_block]
+			Enabled = true
+			Armor_Durability = 8
+			Armor_Damage_Reduction = 1.0
+			Armor_Toughness = 0.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = ["Snowy", "Frosty"]
+
+		[Armor_Sets.minecraft.soul_sand]
+			Enabled = true
+			Armor_Durability = 8
+			Armor_Damage_Reduction = 1.0
+			Armor_Toughness = 0.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = ["Slow Motion"]
+
+		[Armor_Sets.minecraft.soul_soil]
+			Enabled = true
+			Armor_Durability = 8
+			Armor_Damage_Reduction = 1.0
+			Armor_Toughness = 0.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = ["Slow Motion"]
+
+		[Armor_Sets.minecraft.sponge]
+			Enabled = true
+			Armor_Durability = 8
+			Armor_Damage_Reduction = 1.0
+			Armor_Toughness = 0.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = ["Absorbent"]
+
+		[Armor_Sets.minecraft.spruce_leaves]
+			Enabled = true
+			Armor_Durability = 8
+			Armor_Damage_Reduction = 1.0
+			Armor_Toughness = 0.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = ["Lightweight", "Regrowth"]
+
+		[Armor_Sets.minecraft.spruce_log]
+			Enabled = true
+			Armor_Durability = 8
+			Armor_Damage_Reduction = 1.0
+			Armor_Toughness = 0.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = ["Regrowth"]
+
+		[Armor_Sets.minecraft.spruce_planks]
+			Enabled = true
+			Armor_Durability = 8
+			Armor_Damage_Reduction = 1.0
+			Armor_Toughness = 0.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = ["Regrowth"]
+
+		[Armor_Sets.minecraft.spruce_wood]
+			Enabled = true
+			Armor_Durability = 8
+			Armor_Damage_Reduction = 1.0
+			Armor_Toughness = 0.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = ["Regrowth"]
+
+		[Armor_Sets.minecraft.sticky_piston]
+			Enabled = true
+			Armor_Durability = 8
+			Armor_Damage_Reduction = 1.0
+			Armor_Toughness = 0.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = ["Puller"]
+
+		[Armor_Sets.minecraft.stone]
+			Enabled = true
+			Armor_Durability = 8
+			Armor_Damage_Reduction = 1.0
+			Armor_Toughness = 0.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = []
+
+		[Armor_Sets.minecraft.stone_bricks]
+			Enabled = true
+			Armor_Durability = 8
+			Armor_Damage_Reduction = 1.0
+			Armor_Toughness = 0.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = []
+
+		[Armor_Sets.minecraft.stripped_acacia_log]
+			Enabled = true
+			Armor_Durability = 8
+			Armor_Damage_Reduction = 1.0
+			Armor_Toughness = 0.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = ["Regrowth"]
+
+		[Armor_Sets.minecraft.stripped_acacia_wood]
+			Enabled = true
+			Armor_Durability = 8
+			Armor_Damage_Reduction = 1.0
+			Armor_Toughness = 0.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = ["Regrowth"]
+
+		[Armor_Sets.minecraft.stripped_birch_log]
+			Enabled = true
+			Armor_Durability = 8
+			Armor_Damage_Reduction = 1.0
+			Armor_Toughness = 0.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = ["Regrowth"]
+
+		[Armor_Sets.minecraft.stripped_birch_wood]
+			Enabled = true
+			Armor_Durability = 8
+			Armor_Damage_Reduction = 1.0
+			Armor_Toughness = 0.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = ["Regrowth"]
+
+		[Armor_Sets.minecraft.stripped_crimson_hyphae]
+			Enabled = true
+			Armor_Durability = 8
+			Armor_Damage_Reduction = 1.0
+			Armor_Toughness = 0.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = []
+
+		[Armor_Sets.minecraft.stripped_crimson_stem]
+			Enabled = true
+			Armor_Durability = 8
+			Armor_Damage_Reduction = 1.0
+			Armor_Toughness = 0.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = ["Regrowth"]
+
+		[Armor_Sets.minecraft.stripped_dark_oak_log]
+			Enabled = true
+			Armor_Durability = 8
+			Armor_Damage_Reduction = 1.0
+			Armor_Toughness = 0.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = ["Regrowth"]
+
+		[Armor_Sets.minecraft.stripped_dark_oak_wood]
+			Enabled = true
+			Armor_Durability = 8
+			Armor_Damage_Reduction = 1.0
+			Armor_Toughness = 0.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = ["Regrowth"]
+
+		[Armor_Sets.minecraft.stripped_jungle_log]
+			Enabled = true
+			Armor_Durability = 8
+			Armor_Damage_Reduction = 1.0
+			Armor_Toughness = 0.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = ["Regrowth"]
+
+		[Armor_Sets.minecraft.stripped_jungle_wood]
+			Enabled = true
+			Armor_Durability = 8
+			Armor_Damage_Reduction = 1.0
+			Armor_Toughness = 0.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = ["Regrowth"]
+
+		[Armor_Sets.minecraft.stripped_oak_log]
+			Enabled = true
+			Armor_Durability = 8
+			Armor_Damage_Reduction = 1.0
+			Armor_Toughness = 0.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = ["Regrowth"]
+
+		[Armor_Sets.minecraft.stripped_oak_wood]
+			Enabled = true
+			Armor_Durability = 8
+			Armor_Damage_Reduction = 1.0
+			Armor_Toughness = 0.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = ["Regrowth"]
+
+		[Armor_Sets.minecraft.stripped_spruce_log]
+			Enabled = true
+			Armor_Durability = 8
+			Armor_Damage_Reduction = 1.0
+			Armor_Toughness = 0.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = ["Regrowth"]
+
+		[Armor_Sets.minecraft.stripped_spruce_wood]
+			Enabled = true
+			Armor_Durability = 8
+			Armor_Damage_Reduction = 1.0
+			Armor_Toughness = 0.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = ["Regrowth"]
+
+		[Armor_Sets.minecraft.stripped_warped_hyphae]
+			Enabled = true
+			Armor_Durability = 8
+			Armor_Damage_Reduction = 1.0
+			Armor_Toughness = 0.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = []
+
+		[Armor_Sets.minecraft.stripped_warped_stem]
+			Enabled = true
+			Armor_Durability = 8
+			Armor_Damage_Reduction = 1.0
+			Armor_Toughness = 0.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = ["Regrowth"]
+
+		[Armor_Sets.minecraft.sugar_cane]
+			Enabled = true
+			Armor_Durability = 8
+			Armor_Damage_Reduction = 1.0
+			Armor_Toughness = 0.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = ["Regrowth", "Speedy"]
+
+		[Armor_Sets.minecraft.target]
+			Enabled = true
+			Armor_Durability = 8
+			Armor_Damage_Reduction = 1.0
+			Armor_Toughness = 0.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = []
+
+		[Armor_Sets.minecraft.terracotta]
+			Enabled = true
+			Armor_Durability = 8
+			Armor_Damage_Reduction = 1.0
+			Armor_Toughness = 0.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = []
+
+		[Armor_Sets.minecraft.tnt]
+			Enabled = true
+			Armor_Durability = 8
+			Armor_Damage_Reduction = 1.0
+			Armor_Toughness = 0.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = ["Explosive"]
+
+		[Armor_Sets.minecraft.tube_coral_block]
+			Enabled = true
+			Armor_Durability = 8
+			Armor_Damage_Reduction = 1.0
+			Armor_Toughness = 0.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = []
+
+		[Armor_Sets.minecraft.warped_hyphae]
+			Enabled = true
+			Armor_Durability = 8
+			Armor_Damage_Reduction = 1.0
+			Armor_Toughness = 0.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = []
+
+		[Armor_Sets.minecraft.warped_nylium]
+			Enabled = true
+			Armor_Durability = 8
+			Armor_Damage_Reduction = 1.0
+			Armor_Toughness = 0.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = ["Fiery", "Regrowth"]
+
+		[Armor_Sets.minecraft.warped_planks]
+			Enabled = true
+			Armor_Durability = 8
+			Armor_Damage_Reduction = 1.0
+			Armor_Toughness = 0.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = ["Regrowth"]
+
+		[Armor_Sets.minecraft.warped_stem]
+			Enabled = true
+			Armor_Durability = 8
+			Armor_Damage_Reduction = 1.0
+			Armor_Toughness = 0.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = ["Regrowth"]
+
+		[Armor_Sets.minecraft.warped_wart_block]
+			Enabled = true
+			Armor_Durability = 8
+			Armor_Damage_Reduction = 1.0
+			Armor_Toughness = 0.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = []
+
+		[Armor_Sets.minecraft.wet_sponge]
+			Enabled = true
+			Armor_Durability = 8
+			Armor_Damage_Reduction = 1.0
+			Armor_Toughness = 0.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = ["Absorbent"]
+
+		[Armor_Sets.minecraft.white_concrete]
+			Enabled = true
+			Armor_Durability = 8
+			Armor_Damage_Reduction = 1.0
+			Armor_Toughness = 0.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = []
+
+		[Armor_Sets.minecraft.white_concrete_powder]
+			Enabled = true
+			Armor_Durability = 8
+			Armor_Damage_Reduction = 1.0
+			Armor_Toughness = 0.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = ["Falling"]
+
+		[Armor_Sets.minecraft.white_glazed_terracotta]
+			Enabled = true
+			Armor_Durability = 8
+			Armor_Damage_Reduction = 1.0
+			Armor_Toughness = 0.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = []
+
+		[Armor_Sets.minecraft.white_stained_glass]
+			Enabled = true
+			Armor_Durability = 8
+			Armor_Damage_Reduction = 1.0
+			Armor_Toughness = 0.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = ["Invisibility"]
+
+		[Armor_Sets.minecraft.white_terracotta]
+			Enabled = true
+			Armor_Durability = 8
+			Armor_Damage_Reduction = 1.0
+			Armor_Toughness = 0.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = []
+
+		[Armor_Sets.minecraft.white_wool]
+			Enabled = true
+			Armor_Durability = 8
+			Armor_Damage_Reduction = 1.0
+			Armor_Toughness = 0.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = ["Soft Fall"]
+
+		[Armor_Sets.minecraft.yellow_concrete]
+			Enabled = true
+			Armor_Durability = 8
+			Armor_Damage_Reduction = 1.0
+			Armor_Toughness = 0.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = []
+
+		[Armor_Sets.minecraft.yellow_concrete_powder]
+			Enabled = true
+			Armor_Durability = 8
+			Armor_Damage_Reduction = 1.0
+			Armor_Toughness = 0.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = ["Falling"]
+
+		[Armor_Sets.minecraft.yellow_glazed_terracotta]
+			Enabled = true
+			Armor_Durability = 8
+			Armor_Damage_Reduction = 1.0
+			Armor_Toughness = 0.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = []
+
+		[Armor_Sets.minecraft.yellow_stained_glass]
+			Enabled = true
+			Armor_Durability = 8
+			Armor_Damage_Reduction = 1.0
+			Armor_Toughness = 0.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = ["Invisibility"]
+
+		[Armor_Sets.minecraft.yellow_terracotta]
+			Enabled = true
+			Armor_Durability = 8
+			Armor_Damage_Reduction = 1.0
+			Armor_Toughness = 0.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = []
+
+		[Armor_Sets.minecraft.yellow_wool]
+			Enabled = true
+			Armor_Durability = 8
+			Armor_Damage_Reduction = 1.0
+			Armor_Toughness = 0.0
+			Armor_Knockback_Resistance = 0
+			Armor_Enchantability = 12
+			Set_Effects = ["Soft Fall"]
+

@@ -1,7 +1,6 @@
 package twopiradians.blockArmor.common.item;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
@@ -53,6 +52,8 @@ import net.minecraft.util.registry.Registry;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.util.text.TextFormatting;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
 import twopiradians.blockArmor.common.BlockArmor;
 import twopiradians.blockArmor.common.command.CommandDev;
@@ -123,7 +124,6 @@ public class ArmorSet {
 	private boolean enabled;
 	/**Only changed on client*/
 	public boolean missingTextures; 
-	public boolean isTranslucent;
 	/**Array of block's textures sorted by EquipmentSlotType id*/
 	private TextureAtlasSprite[] sprites;
 	/**Array of TextureAtlasSprite's animation (or null if not animated) sorted by EquipmentSlotType id*/
@@ -164,7 +164,7 @@ public class ArmorSet {
 		float blastResistance = BlockUtils.getBlastResistance(block);
 		boolean requiresTool = BlockUtils.getRequiresTool(block);
 		boolean isSolid = BlockUtils.getIsSolid(block);
-		//BlockArmor.LOGGER.info(getItemStackDisplayName(stack, null).getString()+": hardness = "+hardness+", blastResistance = "+blastResistance+", requiresTool = "+requiresTool+", isSolid = "+isSolid); // TODO remove
+		//BlockArmor.LOGGER.info(getItemStackDisplayName(stack, null).getString()+": hardness = "+hardness+", blastResistance = "+blastResistance+", requiresTool = "+requiresTool+", isSolid = "+isSolid); 
 		this.armorDamageReduction = hardness >= 8 ? (hardness * 0.003f + 4.5f) : (hardness * 0.65f); 
 		if (requiresTool)
 			this.armorDamageReduction *= 1.2f;
@@ -182,7 +182,7 @@ public class ArmorSet {
 		CommandDev.addBlockName(this); 
 	}
 
-	/**Create material for this set based on block values*/
+	/**Create material for this set based on block values and update armor items with it (if they're created already)*/
 	public void createMaterial() {
 		int[] reductionAmounts = new int[] {(int) (armorDamageReduction), (int) (armorDamageReduction*2f), (int) (armorDamageReduction*2.5f), (int) (armorDamageReduction*1.45f)};
 		this.material = new BlockArmorMaterial(getItemStackDisplayName(stack, null)+" Material", 
@@ -190,7 +190,12 @@ public class ArmorSet {
 				armorKnockbackResistance, () -> {
 					return Ingredient.fromItems(new IItemProvider[]{this.item});
 				});
-		//BlockArmor.LOGGER.info(getItemStackDisplayName(stack, null).getString()+": blockHardness = "+armorDamageReduction+", toughness = "+armorToughness+", durability = "+armorDurability+", reductionAmounts = "+Arrays.toString(reductionAmounts)); // TODO remove
+		for (EquipmentSlotType slot : SLOTS) {
+			BlockArmorItem armor = this.getArmorForSlot(slot);
+			if (armor != null)
+				armor.setMaterial(material);
+		}
+		//BlockArmor.LOGGER.info(getItemStackDisplayName(stack, null).getString()+": blockHardness = "+armorDamageReduction+", toughness = "+armorToughness+", durability = "+armorDurability+", reductionAmounts = "+Arrays.toString(reductionAmounts)); 
 	}
 
 	/**Returns armor item for slot*/
@@ -265,6 +270,7 @@ public class ArmorSet {
 	}
 
 	/**Returns TextureAtlasSprite corresponding to given ItemModArmor*/
+	@OnlyIn(Dist.CLIENT)
 	public static TextureAtlasSprite getSprite(BlockArmorItem item) {		
 		if (item != null) {
 			if (item.set.sprites == null)
@@ -519,16 +525,16 @@ public class ArmorSet {
 			if (armor != null) {
 				//add to tab
 				if (isFromModdedBlock) {
-					if (BlockArmor.moddedTab == null)
-						BlockArmor.moddedTab = new BlockArmorCreativeTab("blockArmorModded");
-					BlockArmor.moddedTab.orderedStacks.add(new ItemStack(armor));
-					armor.group = BlockArmor.moddedTab;
+					if (BlockArmorCreativeTab.moddedTab == null)
+						BlockArmorCreativeTab.moddedTab = new BlockArmorCreativeTab("blockArmorModded");
+					BlockArmorCreativeTab.moddedTab.orderedStacks.add(new ItemStack(armor));
+					armor.group = BlockArmorCreativeTab.moddedTab;
 				}
 				else {
-					if (BlockArmor.vanillaTab == null)
-						BlockArmor.vanillaTab = new BlockArmorCreativeTab("blockArmorVanilla");
-					BlockArmor.vanillaTab.orderedStacks.add(new ItemStack(armor));
-					armor.group = BlockArmor.vanillaTab;
+					if (BlockArmorCreativeTab.vanillaTab == null)
+						BlockArmorCreativeTab.vanillaTab = new BlockArmorCreativeTab("blockArmorVanilla");
+					BlockArmorCreativeTab.vanillaTab.orderedStacks.add(new ItemStack(armor));
+					armor.group = BlockArmorCreativeTab.vanillaTab;
 				}
 			}
 		}
@@ -549,18 +555,18 @@ public class ArmorSet {
 			armor.group = null;
 
 			//remove from vanilla tab
-			if (BlockArmor.vanillaTab != null && BlockArmor.vanillaTab.orderedStacks != null)
-				for (ItemStack tabStack : BlockArmor.vanillaTab.orderedStacks)
+			if (BlockArmorCreativeTab.vanillaTab != null && BlockArmorCreativeTab.vanillaTab.orderedStacks != null)
+				for (ItemStack tabStack : BlockArmorCreativeTab.vanillaTab.orderedStacks)
 					if (tabStack.getItem() == armor) {
-						BlockArmor.vanillaTab.orderedStacks.remove(tabStack);
+						BlockArmorCreativeTab.vanillaTab.orderedStacks.remove(tabStack);
 						break;
 					}
 
 			//remove from modded tab
-			if (BlockArmor.moddedTab != null && BlockArmor.moddedTab.orderedStacks != null)
-				for (ItemStack tabStack : BlockArmor.moddedTab.orderedStacks)
+			if (BlockArmorCreativeTab.moddedTab != null && BlockArmorCreativeTab.moddedTab.orderedStacks != null)
+				for (ItemStack tabStack : BlockArmorCreativeTab.moddedTab.orderedStacks)
 					if (tabStack.getItem() == armor) {
-						BlockArmor.moddedTab.orderedStacks.remove(tabStack);
+						BlockArmorCreativeTab.moddedTab.orderedStacks.remove(tabStack);
 						break;
 					}
 		}
@@ -569,8 +575,8 @@ public class ArmorSet {
 	}
 
 	/**Initialize set's texture variable*/
+	@OnlyIn(Dist.CLIENT)
 	public Tuple<Integer, Boolean> initTextures() {
-		//System.out.println("init textures ("+this.item.getRegistryName()+") ====================================="); // TODO remove
 		boolean missingTextures = false;
 
 		if (missingSprite == null)
@@ -669,10 +675,6 @@ public class ArmorSet {
 				this.sprites[EquipmentSlotType.LEGS.getIndex()] == missingSprite || 
 				this.sprites[EquipmentSlotType.FEET.getIndex()] == missingSprite) 
 			missingTextures = true;
-
-		this.isTranslucent = state.getRenderType() != BlockRenderType.MODEL;// TODO (<- this doesn't work) this.block.getBlockLayer() != BlockRenderLayer.SOLID && this.block != Blocks.SUGAR_CANE;
-		if (this.isTranslucent)
-			System.out.println(this.block+" is translucent"); // TODO remove
 
 		return new Tuple(numTextures, missingTextures);
 	}

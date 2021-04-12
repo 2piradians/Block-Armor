@@ -2,16 +2,13 @@ package twopiradians.blockArmor.client.model;
 
 import java.awt.Color;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Optional;
 import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 import java.util.function.Function;
-import java.util.function.Predicate;
 
 import javax.annotation.Nullable;
 
@@ -23,14 +20,11 @@ import com.google.common.collect.Maps;
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonObject;
 import com.mojang.blaze3d.matrix.MatrixStack;
-import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.IVertexBuilder;
 import com.mojang.datafixers.util.Pair;
 
 import net.minecraft.block.BlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.Atlases;
-import net.minecraft.client.renderer.IRenderTypeBuffer;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.model.BakedQuad;
 import net.minecraft.client.renderer.model.BlockModel;
@@ -44,7 +38,6 @@ import net.minecraft.client.renderer.model.ModelResourceLocation;
 import net.minecraft.client.renderer.model.RenderMaterial;
 import net.minecraft.client.renderer.texture.AtlasTexture;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.client.renderer.tileentity.ItemStackTileEntityRenderer;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.inventory.EquipmentSlotType;
@@ -59,6 +52,8 @@ import net.minecraft.util.Unit;
 import net.minecraft.util.math.vector.Quaternion;
 import net.minecraft.util.math.vector.TransformationMatrix;
 import net.minecraft.util.math.vector.Vector3f;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.model.BlockModelConfiguration;
 import net.minecraftforge.client.model.IModelConfiguration;
 import net.minecraftforge.client.model.IModelLoader;
@@ -68,32 +63,13 @@ import net.minecraftforge.client.model.ModelTransformComposition;
 import net.minecraftforge.client.model.PerspectiveMapWrapper;
 import net.minecraftforge.client.model.SimpleModelTransform;
 import net.minecraftforge.client.model.geometry.IModelGeometry;
-import net.minecraftforge.client.model.geometry.IModelGeometryPart;
-import net.minecraftforge.resource.IResourceType;
-import net.minecraftforge.resource.VanillaResourceType;
 import twopiradians.blockArmor.client.ClientProxy;
 import twopiradians.blockArmor.common.BlockArmor;
 import twopiradians.blockArmor.common.item.ArmorSet;
 import twopiradians.blockArmor.common.item.BlockArmorItem;
 
-public final class ModelBlockArmorItem implements IModelGeometry<ModelBlockArmorItem> {
-
-	public static class ItemBlockArmorRenderer extends ItemStackTileEntityRenderer {
-		// TODO prob get rid of
-		public void func_239207_a_(ItemStack stack, TransformType transform, MatrixStack matrix, IRenderTypeBuffer buffer, int combinedLightIn, int combinedOverlayIn) {
-			IBakedModel model = Minecraft.getInstance().getItemRenderer().getItemModelWithOverrides(stack, null, null);
-			model = net.minecraftforge.client.ForgeHooksClient.handleCameraTransforms(matrix, model, transform, false);
-			RenderType rendertype = RenderType.getTripwire();//RenderTypeLookup.func_239219_a_(stack, false);
-			IVertexBuilder vertex = buffer.getBuffer(rendertype);//ItemRenderer.getBuffer(buffer, rendertype, true, stack.hasEffect());
-			//Minecraft.getInstance().getItemRenderer();
-			matrix.push();
-			RenderSystem.enableBlend();
-			RenderSystem.enableAlphaTest();
-			Minecraft.getInstance().getItemRenderer().renderModel(model, stack, combinedLightIn, combinedOverlayIn, matrix, vertex);
-			matrix.pop();
-		}
-
-	}
+@OnlyIn(Dist.CLIENT)
+public final class ModelBAItem implements IModelGeometry<ModelBAItem> {
 
 	public static final ModelResourceLocation LOCATION = new ModelResourceLocation(BlockArmor.MODID+":block_armor", "inventory");
 
@@ -103,101 +79,34 @@ public final class ModelBlockArmorItem implements IModelGeometry<ModelBlockArmor
 	private static final float NORTH_Z_FLUID = 7.498f / 16f;
 	private static final float SOUTH_Z_FLUID = 8.502f / 16f;
 
-	public ModelBlockArmorItem() {}
-
-	/*	@Override
-		public Collection<ResourceLocation> getDependencies() {
-			return ImmutableList.of();
-		}*/
-
 	@Override
 	public Collection getTextures(IModelConfiguration owner, Function modelGetter, Set missingTextureErrors) {
-		ImmutableSet.Builder<ResourceLocation> builder = ImmutableSet.builder();
-		//System.out.println("gettextures"); // TODO remove
-		return builder.build();
+		return ImmutableSet.builder().build();
 	}
 
 	/**Cannot assign quads here as BlockArmorItem quads rely on their block's quads to be baked first*/
 	@Override
 	public IBakedModel bake(IModelConfiguration owner, ModelBakery bakery, Function spriteGetter,
 			IModelTransform modelTransform, ItemOverrideList overrides, ResourceLocation modelLocation) {
-		//System.out.println("bake: "+BakedDynBlockArmorOverrideHandler.itemQuadsMap); // TODO remove
 		return new BakedDynBlockArmor();
 	}
 
-	@Override
-	public Collection<? extends IModelGeometryPart> getParts() {
-		System.out.println("getparts"); // TODO remove
-		return Collections.emptyList();
-	}
-
-	@Override
-	public Optional<? extends IModelGeometryPart> getPart(String name) {
-		System.out.println("getpart"); // TODO remove
-		return Optional.empty();
-	}
-
-	/*@Override
-	public IModelState getDefaultState() {
-		return TRSRTransformation.identity();
-	}
-
-	@Override
-	public ModelDynBlockArmor process(ImmutableMap<String, String> customData) {
-		return this;
-	}
-
-	@Override
-	public ModelDynBlockArmor retexture(ImmutableMap<String, String> textures) {
-		return this;
-	}*/
-
-	public enum LoaderDynBlockArmor implements IModelLoader<ModelBlockArmorItem> {
+	public enum LoaderDynBlockArmor implements IModelLoader<ModelBAItem> {
 		INSTANCE;
 
-		/*@Override
-		public boolean accepts(ResourceLocation modelLocation) {
-			return (modelLocation.getNamespace().equals(BlockArmor.MODID) && (modelLocation.getResourcePath().contains("helmet") 
-					|| modelLocation.getResourcePath().contains("chestplate") || modelLocation.getResourcePath().contains("leggings") ||
-					modelLocation.getResourcePath().contains("boots")));
-		}
+		@Override
+		public void onResourceManagerReload(IResourceManager resourceManager) {}
 
 		@Override
-		public IModel loadModel(ResourceLocation modelLocation)	{
-			return new ModelDynBlockArmor();
-		}*/ // TODO
-
-		@Override
-		public void onResourceManagerReload(IResourceManager resourceManager, Predicate<IResourceType> resourcePredicate) {
-			System.out.println("onResourceManagerReload1"); // TODO remove
-			if (resourcePredicate.test(getResourceType())) {
-				onResourceManagerReload(resourceManager);
-			}
-		}
-
-		@Override
-		public void onResourceManagerReload(IResourceManager resourceManager) {
-			System.out.println("onResourceManagerReload2 ================================================= "); // TODO remove
-		}
-
-		@Override
-		public ModelBlockArmorItem read(JsonDeserializationContext deserializationContext, JsonObject modelContents) {
-			System.out.println("read"); // TODO remove
-			return new ModelBlockArmorItem();
-		}
-
-		@Override
-		public IResourceType getResourceType() {
-			System.out.println("getResourceType"); // TODO remove
-			return VanillaResourceType.MODELS;
+		public ModelBAItem read(JsonDeserializationContext deserializationContext, JsonObject modelContents) {
+			return new ModelBAItem();
 		}
 
 		/**Called when resources are reloaded (not called during initial load)*/
 		@Override
 		public CompletableFuture<Void> reload(IFutureReloadListener.IStage stage, IResourceManager resourceManager, IProfiler preparationsProfiler, IProfiler reloadProfiler, Executor backgroundExecutor, Executor gameExecutor) {
-			System.out.println("modeldynblockarmor reload ======================================================"); // TODO remove
 			// problem with this is that ModelBakery is prepared async and doesn't have any hooks during reload that I know of
-			// so reload still doesn't find the models
+			// so reload still doesn't find the models (sometimes - seems to be race condition)
 			ClientProxy.mapUnbakedModels(); // need to do models in here because they're needed before onResourceManagerReload is called
 			ClientProxy.mapTextures();
 			return stage.markCompleteAwaitingOthers(Unit.INSTANCE).thenRunAsync(() -> {
@@ -216,14 +125,10 @@ public final class ModelBlockArmorItem implements IModelGeometry<ModelBlockArmor
 
 		public static final BakedDynBlockArmorOverrideHandler INSTANCE = new BakedDynBlockArmorOverrideHandler();
 
-		private BakedDynBlockArmorOverrideHandler()	{
-			super();
-		}
-
 		/**Creates inventory icons (via quads) for each Block Armor piece and adds to itemQuadsMap*/
 		@SuppressWarnings("deprecation")
 		public static int createInventoryIcons(ModelBakery bakery) {
-			ModelBlockArmorItem.BakedDynBlockArmorOverrideHandler.itemQuadsMap = Maps.newHashMap();
+			ModelBAItem.BakedDynBlockArmorOverrideHandler.itemQuadsMap = Maps.newHashMap();
 			int numIcons = 0;
 
 			ImmutableMap.Builder<TransformType, TransformationMatrix> builder2 = ImmutableMap.builder();
@@ -245,7 +150,6 @@ public final class ModelBlockArmorItem implements IModelGeometry<ModelBlockArmor
 					IModelTransform state = new SimpleModelTransform(transformMap);
 					TransformationMatrix transform = TransformationMatrix.identity();
 					state = new ModelTransformComposition(state, SimpleModelTransform.IDENTITY);
-					//VertexFormat format = DefaultVertexFormats.ITEM;
 					String armorType = "";
 					EquipmentSlotType slot = item.getEquipmentSlot();
 					if (slot == EquipmentSlotType.HEAD)
@@ -334,9 +238,9 @@ public final class ModelBlockArmorItem implements IModelGeometry<ModelBlockArmor
 		BASE, TEMPLATE, COVER;
 
 		/**Need to render cover transparent so it isn't culled*/
-		public RenderType getRenderType() {
-			if (this == COVER)
-				return RenderType.getTranslucent();
+		public RenderType getRenderType(ItemStack stack) {
+			if (this == COVER && !stack.hasEffect()) // don't do when enchanted or it renders square
+				return Atlases.getTranslucentCullBlockType();
 			else
 				return Atlases.getItemEntityTranslucentCullType();
 		}
@@ -388,10 +292,10 @@ public final class ModelBlockArmorItem implements IModelGeometry<ModelBlockArmor
 
 		/**Need to render cover layer transparent so it isn't culled*/
 		@Override
-		public List<Pair<IBakedModel, RenderType>> getLayerModels(ItemStack itemStack, boolean fabulous) {
+		public List<Pair<IBakedModel, RenderType>> getLayerModels(ItemStack stack, boolean fabulous) {
 			List<Pair<IBakedModel, RenderType>> ret = Lists.newArrayList();
 			for (Layer layer : Layer.values())
-				ret.add(Pair.of(this.layers.get(layer), layer.getRenderType()));
+				ret.add(Pair.of(this.layers.get(layer), layer.getRenderType(stack)));
 			return ret;
 		}
 

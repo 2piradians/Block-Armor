@@ -38,7 +38,7 @@ public class SetEffectRegrowth extends SetEffect {
 		
 		if (block instanceof IGrowable || block instanceof IPlantable || 
 				SetEffect.registryNameContains(block, new String[] {"moss", "plant", "mycelium", "mushroom", "flower",
-						"log", "wood", "stem", "plank"}))
+						"log", "wood", "stem", "plank", "grass"}))
 			return true;	
 		
 		Material material = BlockUtils.getMaterial(block);

@@ -7,8 +7,8 @@ import net.minecraft.network.PacketBuffer;
 import net.minecraftforge.fml.network.NetworkEvent;
 import twopiradians.blockArmor.client.key.KeyActivateSetEffect;
 
-public class CActivateSetEffectPacket 
-{
+public class CActivateSetEffectPacket {
+	
 	private boolean isKeyPressed;
 	private UUID player;
 
@@ -26,7 +26,7 @@ public class CActivateSetEffectPacket
 
 	public static CActivateSetEffectPacket decode(PacketBuffer buf) {
 		boolean isKeyPressed = buf.readBoolean();
-		UUID player = UUID.fromString(buf.readString());
+		UUID player = UUID.fromString(buf.readString(32767));
 		return new CActivateSetEffectPacket(isKeyPressed, player);
 	}
 

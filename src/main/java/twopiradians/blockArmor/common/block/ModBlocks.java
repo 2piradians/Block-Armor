@@ -15,7 +15,7 @@ import twopiradians.blockArmor.common.BlockArmor;
 
 public class ModBlocks 
 {
-	public static final Block MOVING_LIGHT_SOURCE = new BlockMovingLightSource();
+	public static final BlockMovingLightSource MOVING_LIGHT_SOURCE = new BlockMovingLightSource();
 
 	public static ArrayList<Block> allBlocks = new ArrayList<Block>();
 	

@@ -5,7 +5,6 @@ import java.lang.reflect.Field;
 import com.google.common.collect.Lists;
 
 import net.minecraft.block.AbstractBlock;
-import net.minecraft.block.AbstractBlock.Properties;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.util.math.BlockPos;
@@ -22,9 +21,9 @@ public class BlockUtils {
 	private static final Field REQUIRES_TOOL_FIELD;
 
 	static {
-		MATERIAL_FIELD = ObfuscationReflectionHelper.findField(AbstractBlock.Properties.class, "field_149764_J");
+		MATERIAL_FIELD = ObfuscationReflectionHelper.findField(AbstractBlock.Properties.class, "field_200953_a");
 		MATERIAL_FIELD.setAccessible(true);
-		IS_SOLID_FIELD = ObfuscationReflectionHelper.findField(AbstractBlock.Properties.class, "field_235707_k_");
+		IS_SOLID_FIELD = ObfuscationReflectionHelper.findField(AbstractBlock.Properties.class, "field_226895_m_");
 		IS_SOLID_FIELD.setAccessible(true);
 		REQUIRES_TOOL_FIELD = ObfuscationReflectionHelper.findField(AbstractBlock.Properties.class, "field_235806_h_");
 		REQUIRES_TOOL_FIELD.setAccessible(true);

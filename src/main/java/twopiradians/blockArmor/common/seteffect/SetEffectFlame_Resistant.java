@@ -20,7 +20,8 @@ public class SetEffectFlame_Resistant extends SetEffect {
 	/**Should block be given this set effect*/
 	@Override
 	protected boolean isValid(Block block) {		
-		if (SetEffect.registryNameContains(block, new String[] {"obsidian", "magma", "fire", "flame", "lava"}))
+		if (SetEffect.registryNameContains(block, new String[] {"obsidian", "magma", "fire", "flame", "lava"}) &&
+				!SetEffect.registryNameContains(block, new String[] {"coral"}))
 			return true;		
 		return false;
 	}

@@ -1,6 +1,7 @@
 package twopiradians.blockArmor.common.item;
 
 import java.util.List;
+import java.util.UUID;
 
 import javax.annotation.Nullable;
 
@@ -16,10 +17,12 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.ai.attributes.Attribute;
 import net.minecraft.entity.ai.attributes.AttributeModifier;
+import net.minecraft.entity.ai.attributes.Attributes;
 import net.minecraft.entity.item.ItemEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.EquipmentSlotType;
 import net.minecraft.item.ArmorItem;
+import net.minecraft.item.IArmorMaterial;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemStack;
@@ -33,30 +36,32 @@ import net.minecraft.world.World;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import twopiradians.blockArmor.client.ClientProxy;
-import twopiradians.blockArmor.client.model.ModelBlockArmor;
-import twopiradians.blockArmor.client.model.ModelBlockArmorItem;
-import twopiradians.blockArmor.common.BlockArmor;
+import twopiradians.blockArmor.client.model.ModelBAArmor;
 import twopiradians.blockArmor.common.command.CommandDev;
 import twopiradians.blockArmor.common.config.Config;
 import twopiradians.blockArmor.common.seteffect.SetEffect;
 
 public class BlockArmorItem extends ArmorItem {
+	/** Copied from ArmorItem bc private*/
+	private static final UUID[] ARMOR_MODIFIERS = new UUID[]{UUID.fromString("845DB27C-C624-495F-8C9F-6020A9A58B6B"), UUID.fromString("D8499B04-0E66-4726-AB29-64469D734E0D"), UUID.fromString("9F3D476D-C118-4544-8365-64846904B48E"), UUID.fromString("2AD3F246-FEE1-4E67-B886-69FD380BB150")};
 	/** The ArmorSet that this item belongs to */
 	public ArmorSet set;
-	/**Creative tab/group for this item (bc Item.group is final)*/
+	/** Creative tab/group for this item (bc Item.group is final)*/
 	@Nullable
 	public ItemGroup group;
-
+	/** Armor material (bc ArmorItem.material is final)*/
+	private IArmorMaterial material;
+	private HashMultimap<Attribute, AttributeModifier> attributes;
+	
 	public BlockArmorItem(BlockArmorMaterial material, EquipmentSlotType slot, ArmorSet set) {
-		super(material, slot, 
-				new Item.Properties()
-				.group(set.isFromModdedBlock ? BlockArmor.moddedTab : BlockArmor.vanillaTab)
-				.setISTER(() -> () -> new ModelBlockArmorItem.ItemBlockArmorRenderer()));
+		super(material, slot, new Item.Properties().group(ItemGroup.COMBAT)); // combat group for recipe book
 		this.set = set;
+		this.setMaterial(material);
 	}
 
 	/** Change armor texture based on block */
 	@Override
+	@OnlyIn(Dist.CLIENT)
 	public String getArmorTexture(ItemStack stack, Entity entity, EquipmentSlotType slot, String type) {
 		TextureAtlasSprite sprite = ArmorSet.getSprite(this);
 		String texture = sprite.getName() + ".png";
@@ -66,14 +71,14 @@ public class BlockArmorItem extends ArmorItem {
 	}
 
 	@Override
+	@OnlyIn(Dist.CLIENT)
 	public BipedModel getArmorModel(LivingEntity entity, ItemStack stack, EquipmentSlotType slot, BipedModel oldModel) {
 		TextureAtlasSprite sprite = ArmorSet.getSprite(this);
 		int width = sprite.getWidth();
 		int height = sprite.getHeight() * sprite.getFrameCount();
 		int currentFrame = ArmorSet.getCurrentAnimationFrame(this);
 		int nextFrame = ArmorSet.getNextAnimationFrame(this);
-		ModelBlockArmor model = (ModelBlockArmor) ClientProxy.getBlockArmorModel(entity, height, width, currentFrame, nextFrame, slot);
-		model.translucent = set.isTranslucent;
+		ModelBAArmor model = (ModelBAArmor) ClientProxy.getBlockArmorModel(entity, height, width, currentFrame, nextFrame, slot);
 		model.color = ArmorSet.getColor(this);
 		model.alpha = ArmorSet.getAlpha(this);
 		return model;
@@ -106,7 +111,7 @@ public class BlockArmorItem extends ArmorItem {
 	/** Handles the attributes when wearing an armor set */
 	@Override
 	public Multimap<Attribute, AttributeModifier> getAttributeModifiers(EquipmentSlotType slot, ItemStack stack) {
-		Multimap<Attribute, AttributeModifier> map = HashMultimap.create(super.getAttributeModifiers(slot, stack));
+		Multimap<Attribute, AttributeModifier> map = slot == this.slot ? this.attributes : HashMultimap.create();
 		if (slot != this.slot)
 			return map;
 
@@ -133,8 +138,6 @@ public class BlockArmorItem extends ArmorItem {
 	public void addInformation(ItemStack stack, @Nullable World worldIn, List<ITextComponent> tooltip, ITooltipFlag flagIn) {
 		if (stack.hasTag() && stack.getTag().contains("devSpawned"))
 			tooltip.add(new StringTextComponent(TextFormatting.DARK_PURPLE + "" + TextFormatting.BOLD + "Dev Spawned"));
-
-		tooltip.add(new StringTextComponent("Max Durability: "+this.getMaxDamage(stack)));// TODO remove
 
 		if (!set.setEffects.isEmpty() && set.setEffects.get(0).isEnabled()) {
 			// add header if shifting
@@ -208,6 +211,41 @@ public class BlockArmorItem extends ArmorItem {
 		for (SetEffect effect : set.setEffects)
 			if (ArmorSet.getWornSetEffects(player).contains(effect))
 				effect.onArmorTick(world, player, stack);
+	}
+
+	// ======================= CHANGE MATERIAL FROM CONFIG =======================
+
+	public void setMaterial(IArmorMaterial material) {
+		this.material = material;
+		// recreate attributes
+		this.attributes = HashMultimap.create();
+		UUID uuid = ARMOR_MODIFIERS[slot.getIndex()];
+		this.attributes.put(Attributes.ARMOR, new AttributeModifier(uuid, "Armor modifier", (double)this.getDamageReduceAmount(), AttributeModifier.Operation.ADDITION));
+		this.attributes.put(Attributes.ARMOR_TOUGHNESS, new AttributeModifier(uuid, "Armor toughness", (double)this.getToughness(), AttributeModifier.Operation.ADDITION));
+		if (this.material.getKnockbackResistance() > 0) 
+			this.attributes.put(Attributes.KNOCKBACK_RESISTANCE, new AttributeModifier(uuid, "Armor knockback resistance", (this.material.getKnockbackResistance())/10d * Config.globalKnockbackResistanceModifier, AttributeModifier.Operation.ADDITION));
+		// change max damage (bc method is final)
+		this.maxDamage = (int) (material.getDurability(slot) * Config.globalDurabilityModifier);
+	}
+
+	@Override
+	public IArmorMaterial getArmorMaterial() {
+		return this.material;
+	}
+
+	@Override
+	public int getDamageReduceAmount() {
+		return (int) (this.material.getDamageReductionAmount(slot) * Config.globalDamageReductionModifier);
+	}
+
+	@Override
+	public float getToughness() {
+		return (float) (this.material.getToughness() * Config.globalToughnessModifier);
+	}
+
+	@Override
+	public int getItemEnchantability() {
+		return (int) (this.material.getEnchantability() * Config.globalEnchantabilityModifier);
 	}
 
 }

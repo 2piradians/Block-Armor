@@ -26,13 +26,11 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.Tuple;
 import net.minecraft.world.World;
 import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.client.event.ClientPlayerNetworkEvent;
 import net.minecraftforge.client.event.ModelBakeEvent;
 import net.minecraftforge.client.event.ModelRegistryEvent;
 import net.minecraftforge.client.event.TextureStitchEvent;
 import net.minecraftforge.client.model.ModelLoader;
 import net.minecraftforge.client.model.ModelLoaderRegistry;
-import net.minecraftforge.event.AddReloadListenerEvent;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.LogicalSide;
@@ -40,13 +38,11 @@ import net.minecraftforge.fml.client.registry.ClientRegistry;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber.Bus;
 import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
-import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
-import net.minecraftforge.fml.event.lifecycle.FMLLoadCompleteEvent;
 import net.minecraftforge.resource.IResourceType;
 import net.minecraftforge.resource.ISelectiveResourceReloadListener;
 import twopiradians.blockArmor.client.key.KeyActivateSetEffect;
-import twopiradians.blockArmor.client.model.ModelBlockArmor;
-import twopiradians.blockArmor.client.model.ModelBlockArmorItem;
+import twopiradians.blockArmor.client.model.ModelBAArmor;
+import twopiradians.blockArmor.client.model.ModelBAItem;
 import twopiradians.blockArmor.common.BlockArmor;
 import twopiradians.blockArmor.common.CommonProxy;
 import twopiradians.blockArmor.common.block.ModBlocks;
@@ -57,26 +53,18 @@ import twopiradians.blockArmor.common.item.ModItems;
 @SuppressWarnings("deprecation")
 @Mod.EventBusSubscriber(Dist.CLIENT)
 public class ClientProxy {
-	
+
 	/**Map of models to their constructor fields - generated as needed*/
-	private static HashMap<String, ModelBlockArmor> modelMaps = Maps.newHashMap();
+	private static HashMap<String, ModelBAArmor> modelMaps = Maps.newHashMap();
 	public static ModelLoader modelLoader;
 
-	@Mod.EventBusSubscriber(bus = Bus.MOD)
+	@Mod.EventBusSubscriber(value = Dist.CLIENT, bus = Bus.MOD)
 	public static class RegistrationHandler {
-
-		@SubscribeEvent
-		public static void loadComplete(FMLLoadCompleteEvent event) {
-			System.out.println("load complete ================================================"); // TODO remove
-			//mapTextures(modelLoader); (item models not set up here for ArmorSet.init yet?)
-		}
 
 		/**Used to register block textures to override inventory textures and for inventory icons*/
 		@SubscribeEvent
 		public static void textureStitch(TextureStitchEvent.Pre event) {
 			if (event.getMap().getTextureLocation() == AtlasTexture.LOCATION_BLOCKS_TEXTURE) {
-				System.out.println("texture stitch pre "+event.getMap().getTextureLocation()+" ================================================"); // TODO remove
-
 				//textures for overriding
 				for (Block block : ArmorSet.TEXTURE_OVERRIDES)
 					for (EquipmentSlotType slot : ArmorSet.SLOTS)
@@ -102,28 +90,27 @@ public class ClientProxy {
 				event.addSprite(new ResourceLocation(BlockArmor.MODID, "items/icons/block_armor_boots2_template"));
 			}
 		}
+		
+		/**Map textures after the last textures (mob_effects) are stitched*/
+		@SubscribeEvent
+		public static void textureStitch(TextureStitchEvent.Post event) {
+			if (event.getMap().getTextureLocation().getPath().equals("textures/atlas/mob_effects.png")) 
+				mapTextures();
+		}
 
 		@SubscribeEvent
 		public static void onModelBake(ModelBakeEvent event) {
-			System.out.println("model bake ================================================"); // TODO remove
 			modelLoader = event.getModelLoader();
 			ModItems.registerRenders();
-			ModBlocks.registerRenders();	
+			ModBlocks.registerRenders();
 		}
 
 		@SubscribeEvent
 		public static void onModelRegister(ModelRegistryEvent event) {
-			System.out.println("model registry ================================================"); // TODO remove		
-			ModelLoaderRegistry.registerLoader(new ResourceLocation(BlockArmor.MODID, "item_loader"), ModelBlockArmorItem.LoaderDynBlockArmor.INSTANCE);
+			ModelLoaderRegistry.registerLoader(new ResourceLocation(BlockArmor.MODID, "item_loader"), ModelBAItem.LoaderDynBlockArmor.INSTANCE);
 			mapUnbakedModels();	
 		}
 
-	}
-	
-	@SubscribeEvent
-	public static void onLogin(ClientPlayerNetworkEvent.LoggedInEvent event) {
-		System.out.println("LoggedInEvent ================================================"); // TODO remove		
-		mapTextures();
 	}
 
 	/**Set world time*/
@@ -137,7 +124,6 @@ public class ClientProxy {
 	/**Map block armor items to use assets/blockarmor/models/item/block_armor.json instead of looking for their own jsons*/
 	public static void mapUnbakedModels() {
 		try {
-			System.out.println("mapUnbakedModels ================================================"); // TODO remove
 			// get unbaked models map
 			Field unbakedModelsField = ObfuscationReflectionHelper.findField(ModelBakery.class, "field_217849_F");
 			unbakedModelsField.setAccessible(true);
@@ -158,10 +144,6 @@ public class ClientProxy {
 		}
 	}
 
-	public static void onSetup(FMLClientSetupEvent event) {
-		event.enqueueWork(ClientProxy::setup);
-	}
-
 	public static void setup() {
 		// keybinding
 		KeyActivateSetEffect.ACTIVATE_SET_EFFECT = new KeyBinding("Activate Set Effect", 82, BlockArmor.MODNAME);
@@ -172,25 +154,18 @@ public class ClientProxy {
 			public void onResourceManagerReload(IResourceManager resourceManager,
 					Predicate<IResourceType> resourcePredicate) {
 				//Config.syncJEIIngredients();
-				System.out.println("reload ================================================"); // TODO remove
 			}
 		});
-	}
-
-	/**Set MC to map textures when resources reloaded*/
-	@SubscribeEvent
-	public static void addReloadListener(AddReloadListenerEvent event) {
-		System.out.println("AddReloadListenerEvent ================================================"); // TODO remove
 	}
 
 	/**Get model based on model's constructor parameters*/
 	public static Object getBlockArmorModel(LivingEntity entity, int height, int width, int currentFrame, int nextFrame, EquipmentSlotType slot) {
 		String key = height+""+width+""+currentFrame+""+nextFrame+""+slot.getName();
-		ModelBlockArmor model = modelMaps.get(key);
-		//if (model == null) {
-			model = new ModelBlockArmor(height, width, currentFrame, nextFrame, slot);
-		//	modelMaps.put(key, model);
-		//} // TODO
+		ModelBAArmor model = modelMaps.get(key);
+		if (model == null) {
+			model = new ModelBAArmor(height, width, currentFrame, nextFrame, slot);
+			modelMaps.put(key, model);
+		}
 		model.entity = entity;
 		return model;
 	}
@@ -211,7 +186,6 @@ public class ClientProxy {
 
 	/**Resets model and item quads and maps block textures (called when client joins world or resource pack loaded)*/
 	public static void mapTextures() {
-		System.out.println("map textures =========================================="); // TODO remove
 		// reset model and item quad maps
 		modelMaps = Maps.newHashMap();
 
@@ -242,7 +216,7 @@ public class ClientProxy {
 		BlockArmor.LOGGER.info("Found "+numTextures+" block textures for Block Armor");
 
 		//create inventory icons
-		int numIcons = ModelBlockArmorItem.BakedDynBlockArmorOverrideHandler.createInventoryIcons(ClientProxy.modelLoader);
+		int numIcons = ModelBAItem.BakedDynBlockArmorOverrideHandler.createInventoryIcons(ClientProxy.modelLoader);
 		BlockArmor.LOGGER.info("Created "+numIcons+" inventory icons for Block Armor");
 	}
 
