@@ -9,7 +9,6 @@ import java.util.function.Predicate;
 
 import com.google.common.collect.Maps;
 
-import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.model.BlockModel;
 import net.minecraft.client.renderer.model.IUnbakedModel;
@@ -49,6 +48,8 @@ import twopiradians.blockArmor.common.block.ModBlocks;
 import twopiradians.blockArmor.common.item.ArmorSet;
 import twopiradians.blockArmor.common.item.BlockArmorItem;
 import twopiradians.blockArmor.common.item.ModItems;
+import twopiradians.blockArmor.common.item.TextureOverrideInfo;
+import twopiradians.blockArmor.common.item.TextureOverrideInfo.Info;
 
 @SuppressWarnings("deprecation")
 @Mod.EventBusSubscriber(Dist.CLIENT)
@@ -57,6 +58,15 @@ public class ClientProxy {
 	/**Map of models to their constructor fields - generated as needed*/
 	private static HashMap<String, ModelBAArmor> modelMaps = Maps.newHashMap();
 	public static ModelLoader modelLoader;
+	private static final Field UNBAKED_MODELS_FIELD;
+	private static final Method LOAD_MODEL_METHOD;
+
+	static {
+		UNBAKED_MODELS_FIELD = ObfuscationReflectionHelper.findField(ModelBakery.class, "field_217849_F");
+		UNBAKED_MODELS_FIELD.setAccessible(true);
+		LOAD_MODEL_METHOD = ObfuscationReflectionHelper.findMethod(ModelBakery.class, "func_177594_c", ResourceLocation.class);
+		LOAD_MODEL_METHOD.setAccessible(true);
+	}
 
 	@Mod.EventBusSubscriber(value = Dist.CLIENT, bus = Bus.MOD)
 	public static class RegistrationHandler {
@@ -66,11 +76,9 @@ public class ClientProxy {
 		public static void textureStitch(TextureStitchEvent.Pre event) {
 			if (event.getMap().getTextureLocation() == AtlasTexture.LOCATION_BLOCKS_TEXTURE) {
 				//textures for overriding
-				for (Block block : ArmorSet.TEXTURE_OVERRIDES)
-					for (EquipmentSlotType slot : ArmorSet.SLOTS)
-						event.addSprite(new ResourceLocation(BlockArmor.MODID, "items/overrides/"+
-								block.getRegistryName().getPath().toLowerCase().replace(" ", "_")+"_"+slot.getName()));
-
+				for (TextureOverrideInfo override : ArmorSet.TEXTURE_OVERRIDES.values())
+					for (Info info : override.overrides.values())
+						event.addSprite(info.shortLoc);
 				//textures for inventory icons
 				event.addSprite(new ResourceLocation(BlockArmor.MODID, "items/icons/block_armor_helmet_base"));
 				event.addSprite(new ResourceLocation(BlockArmor.MODID, "items/icons/block_armor_helmet_cover"));
@@ -90,7 +98,7 @@ public class ClientProxy {
 				event.addSprite(new ResourceLocation(BlockArmor.MODID, "items/icons/block_armor_boots2_template"));
 			}
 		}
-		
+
 		/**Map textures after the last textures (mob_effects) are stitched*/
 		@SubscribeEvent
 		public static void textureStitch(TextureStitchEvent.Post event) {
@@ -108,7 +116,6 @@ public class ClientProxy {
 		@SubscribeEvent
 		public static void onModelRegister(ModelRegistryEvent event) {
 			ModelLoaderRegistry.registerLoader(new ResourceLocation(BlockArmor.MODID, "item_loader"), ModelBAItem.LoaderDynBlockArmor.INSTANCE);
-			mapUnbakedModels();	
 		}
 
 	}
@@ -121,23 +128,26 @@ public class ClientProxy {
 			CommonProxy.setWorldTime(world, time);
 	}
 
-	/**Map block armor items to use assets/blockarmor/models/item/block_armor.json instead of looking for their own jsons*/
+	/**Map block armor items to use assets/blockarmor/models/item/block_armor.json instead of looking for their own jsons
+	 * This gets called frequently when loading from BlockMovingLight#getStateContainer (hacky way to get into ModelBakery#processLoading)*/
 	public static void mapUnbakedModels() {
 		try {
 			// get unbaked models map
-			Field unbakedModelsField = ObfuscationReflectionHelper.findField(ModelBakery.class, "field_217849_F");
-			unbakedModelsField.setAccessible(true);
-			Map<ResourceLocation, IUnbakedModel> unbakedModels = (Map<ResourceLocation, IUnbakedModel>) unbakedModelsField.get(ModelLoader.instance());
-			// get block_armor.json unbaked model
-			Method loadModelMethod = ObfuscationReflectionHelper.findMethod(ModelBakery.class, "func_177594_c", ResourceLocation.class);
-			loadModelMethod.setAccessible(true);
-			BlockModel model = (BlockModel) loadModelMethod.invoke(ModelLoader.instance(), new ModelResourceLocation(new ResourceLocation(BlockArmor.MODID, "item/block_armor"), "inventory"));
-			// add unbaked model to map so armor items use block_armor.json instead of looking for their registry_name.json
-			for (ArmorSet set : ArmorSet.allSets)
-				for (EquipmentSlotType slot : ArmorSet.SLOTS) {
-					BlockArmorItem item = set.getArmorForSlot(slot);
-					unbakedModels.put(new ModelResourceLocation(item.getRegistryName(), "inventory"), model);
+			Map<ResourceLocation, IUnbakedModel> unbakedModels = (Map<ResourceLocation, IUnbakedModel>) UNBAKED_MODELS_FIELD.get(ModelLoader.instance());
+			if (!ArmorSet.allSets.isEmpty()) {
+				IUnbakedModel currentModel = unbakedModels.get(new ModelResourceLocation(ArmorSet.allSets.get(0).helmet.getRegistryName(), "inventory"));
+				// if current model is null or missing model, replace with block_armor.json model
+				if (currentModel == null || currentModel == ModelBakery.MODEL_MISSING) {
+					// get block_armor.json unbaked model
+					BlockModel model = (BlockModel) LOAD_MODEL_METHOD.invoke(ModelLoader.instance(), new ModelResourceLocation(new ResourceLocation(BlockArmor.MODID, "item/block_armor"), "inventory"));
+					// add unbaked model to map so armor items use block_armor.json instead of looking for their registry_name.json
+					for (ArmorSet set : ArmorSet.allSets)
+						for (EquipmentSlotType slot : ArmorSet.SLOTS) {
+							BlockArmorItem item = set.getArmorForSlot(slot);
+							unbakedModels.put(new ModelResourceLocation(item.getRegistryName(), "inventory"), model);
+						}
 				}
+			}
 		}
 		catch (Exception e) {
 			e.printStackTrace();
@@ -173,7 +183,7 @@ public class ClientProxy {
 	@SubscribeEvent
 	public static void clientTick(TickEvent.ClientTickEvent event) {
 		//manage all animated set's frames (ticks at same rate as TextureAtlasSprite's updateAnimation())
-		if (!Minecraft.getInstance().isGamePaused() && event.side == LogicalSide.CLIENT) 
+		if (event.side == LogicalSide.CLIENT) 
 			for (ArmorSet set : ArmorSet.allSets) 
 				for (int i=0; i<4; i++) { //through valid slots
 					if (set.animations != null && set.animations[i] != null) {//if animated

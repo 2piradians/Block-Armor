@@ -30,7 +30,7 @@ public class SetEffectMusical extends SetEffect {
 			double velZ = player.getPosZ() - player.chasingPosZ;
 			double motion = Math.sqrt(velX*velX + velZ*velZ);
 			if (player.isOnGround() && motion > 0.1d) {
-				this.setCooldown(player, (int) Math.min(8/(motion),100));
+				this.setCooldown(player, 10);
 				
 				((ServerWorld)world).spawnParticle(ParticleTypes.NOTE, 
 						player.getPosX(), player.getPosY()+1f, player.getPosZ(),1, 0.8f, 0.4f, 0.8f, world.rand.nextDouble());
@@ -44,7 +44,7 @@ public class SetEffectMusical extends SetEffect {
 	/**Should block be given this set effect*/
 	@Override
 	protected boolean isValid(Block block) {	
-		if (SetEffect.registryNameContains(block, new String[] {"music", "note", "sound"}))
+		if (SetEffect.registryNameContains(block, new String[] {"music", "note", "sound", "jukebox"}))
 			return true;		
 		return false;
 	}	

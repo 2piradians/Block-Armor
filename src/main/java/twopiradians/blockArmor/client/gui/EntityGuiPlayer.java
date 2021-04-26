@@ -1,4 +1,4 @@
-package twopiradians.blockArmor.client.gui.armorDisplay;
+package twopiradians.blockArmor.client.gui;
 
 import com.mojang.authlib.GameProfile;
 

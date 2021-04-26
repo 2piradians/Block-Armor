@@ -20,12 +20,13 @@ import net.minecraft.util.math.shapes.VoxelShape;
 import net.minecraft.util.math.shapes.VoxelShapes;
 import net.minecraft.world.IBlockReader;
 import net.minecraft.world.World;
+import twopiradians.blockArmor.client.ClientProxy;
 import twopiradians.blockArmor.common.tileentity.TileEntityMovingLightSource;
 
 /**Used for armor sets that produce light*/
 @SuppressWarnings("deprecation")
 public class BlockMovingLightSource extends Block implements ITileEntityProvider {
-	
+
 	public static final Property<Integer> LIGHT_LEVEL = IntegerProperty.create("light_level", 1, 15);
 
 	public BlockMovingLightSource() {
@@ -61,7 +62,7 @@ public class BlockMovingLightSource extends Block implements ITileEntityProvider
 	public TileEntity createTileEntity(BlockState state, IBlockReader world) {
 		return new TileEntityMovingLightSource(state.get(LIGHT_LEVEL).intValue());
 	}
-	
+
 	@Override
 	public void onBlockPlacedBy(World world, BlockPos pos, BlockState state, LivingEntity entity, ItemStack stack) {
 		world.getTileEntity(pos);
@@ -70,6 +71,12 @@ public class BlockMovingLightSource extends Block implements ITileEntityProvider
 	@Override
 	public TileEntity createNewTileEntity(IBlockReader worldIn) {
 		return new TileEntityMovingLightSource(0);
+	}
+
+	@Override
+	public StateContainer<Block, BlockState> getStateContainer() {
+		ClientProxy.mapUnbakedModels(); // hacky way to map models in ModelBakery#processLoading
+		return super.getStateContainer();
 	}
 
 }

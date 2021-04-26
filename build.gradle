@@ -12,7 +12,7 @@ apply plugin: 'net.minecraftforge.gradle'
 apply plugin: 'eclipse'
 apply plugin: 'maven-publish'
 
-version = "1.16.5-2.5"
+version = "1.16.5-2.5.1"
 group= "twopiradians.blockArmor" // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 archivesBaseName = "BlockArmor"
 
@@ -74,7 +74,7 @@ minecraft {
             // Recommended logging level for the console
             // You can set various levels here.
             // Please read: https://stackoverflow.com/questions/2031163/when-to-use-the-different-log-levels
-            property 'forge.logging.console.level', 'debug'
+            property 'forge.logging.console.level', 'info'
 
             mods {
                 examplemod {
@@ -132,11 +132,22 @@ dependencies {
 
     // These dependencies get remapped to your current MCP mappings
     // deobf 'com.mod-buildcraft:buildcraft:6.0.8:dev'
+    
+    // include everything in /jar (but this still gives "method/field not found" errors...
+     //compile fileTree (include: ['*.jar'], dir: 'libs')
+     
+     // JEI
+         //compileOnly fg.deobf("mezz.jei:jei-1.16.5:7.6.0.58:api")
+    runtimeOnly fg.deobf("mezz.jei:jei-1.16.5:7.6.4.87")
 
     // For more info...
     // http://www.gradle.org/docs/current/userguide/artifact_dependencies_tutorial.html
     // http://www.gradle.org/docs/current/userguide/dependency_management.html
 
+}
+
+repositories {
+   flatDir { dir 'libs' }
 }
 
 // Example for how to get properties into the manifest for reading by the runtime..

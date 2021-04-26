@@ -13,6 +13,7 @@ import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.enchantment.Enchantments;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.item.ItemEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.inventory.Inventory;
 import net.minecraft.item.ItemStack;
@@ -29,18 +30,23 @@ import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraft.world.World;
+import net.minecraft.world.server.ServerWorld;
 import net.minecraftforge.common.loot.GlobalLootModifierSerializer;
 import net.minecraftforge.common.loot.LootModifier;
+import net.minecraftforge.event.entity.living.LivingDropsEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.items.ItemHandlerHelper;
 import twopiradians.blockArmor.common.BlockArmor;
 import twopiradians.blockArmor.common.item.ArmorSet;
 
+@Mod.EventBusSubscriber
 public class SetEffectAutoSmelt extends SetEffect {
 
 	protected SetEffectAutoSmelt() {
 		super();
 		this.color = TextFormatting.DARK_RED;
-		this.description = "Smelts harvested blocks";
+		this.description = "Smelts harvested blocks and mob drops";
 		this.usesButton = true;
 	}
 
@@ -67,6 +73,54 @@ public class SetEffectAutoSmelt extends SetEffect {
 		return false;
 	}
 
+	/**Smelt mob drops*/
+	@SubscribeEvent
+	public static void smeltMobDrops(LivingDropsEvent event) { 
+		if (event.getSource() != null && event.getEntity() != null && event.getEntity().world instanceof ServerWorld &&
+				event.getSource().getTrueSource() instanceof LivingEntity &&
+				ArmorSet.hasSetEffect((LivingEntity) event.getSource().getTrueSource(), SetEffect.AUTOSMELT) &&
+				!(event.getEntity() instanceof PlayerEntity)) { // don't work on players to prevent abuse
+			// variables
+			ServerWorld world = (ServerWorld) event.getEntity().world;
+			boolean smelted = false;
+			
+			// check if disabled
+			ItemStack stack = ArmorSet.getFirstSetItem((LivingEntity) event.getSource().getTrueSource(), SetEffect.AUTOSMELT);
+			if (!stack.hasTag() || stack.getTag().getBoolean("deactivated"))
+				return;
+
+			// try smelting items
+			for (ItemEntity item : event.getDrops()) {
+				ItemStack newStack = smelt(item.getItem(), world);
+				if (newStack != null) {
+					smelted = true;
+					item.setItem(newStack);
+				}
+			}
+
+			// effects if smelted
+			if (smelted) {
+				Vector3d pos = event.getEntity().getPositionVec();
+				world.spawnParticle(ParticleTypes.SMOKE, 
+						pos.getX()+0.5f, pos.getY()+0.5f,pos.getZ()+0.5f, 
+						10, 0.3f, 0.3f, 0.3f, 0);
+				world.playSound(null, event.getEntity().getPosition(), 
+						SoundEvents.ENTITY_BLAZE_SHOOT, SoundCategory.PLAYERS, 0.3f, world.rand.nextFloat()+0.7f);			
+				SetEffect.AUTOSMELT.damageArmor((LivingEntity) event.getSource().getTrueSource(), 1, false);
+			}
+		}
+	}
+
+	/**Returns smelted form of item or null if it can't be smelted*/
+	@Nullable
+	private static ItemStack smelt(ItemStack stack, World world) {
+		return world.getRecipeManager().getRecipe(IRecipeType.SMELTING, new Inventory(stack), world)
+				.map(FurnaceRecipe::getRecipeOutput)
+				.filter(itemStack -> !itemStack.isEmpty())
+				.map(itemStack -> ItemHandlerHelper.copyStackWithSize(itemStack, stack.getCount() * itemStack.getCount()))
+				.orElse(null);
+	}
+
 	public static class SetEffectAutoSmeltModifier extends LootModifier {
 
 		protected SetEffectAutoSmeltModifier(ILootCondition[] conditionsIn) {
@@ -86,14 +140,16 @@ public class SetEffectAutoSmelt extends SetEffect {
 
 				boolean smelted = false;
 
+				// smelt drops
 				ArrayList<ItemStack> newLoot = new ArrayList<ItemStack>();
 				for (ItemStack oldStack : generatedLoot) {
-					ItemStack newStack = smelt(oldStack, context);
+					ItemStack newStack = smelt(oldStack, context.getWorld());
 					if (newStack != null)
 						smelted = true;
 					newLoot.add(newStack);
 				}
 
+				// effects if smelted
 				if (smelted) {
 					Vector3d pos = context.get(LootParameters.ORIGIN);
 					context.getWorld().spawnParticle(ParticleTypes.SMOKE, 
@@ -106,16 +162,6 @@ public class SetEffectAutoSmelt extends SetEffect {
 				}
 			}
 			return generatedLoot;
-		}
-
-		/**Returns smelted form of item or null if it can't be smelted*/
-		@Nullable
-		private static ItemStack smelt(ItemStack stack, LootContext context) {
-			return context.getWorld().getRecipeManager().getRecipe(IRecipeType.SMELTING, new Inventory(stack), context.getWorld())
-					.map(FurnaceRecipe::getRecipeOutput)
-					.filter(itemStack -> !itemStack.isEmpty())
-					.map(itemStack -> ItemHandlerHelper.copyStackWithSize(itemStack, stack.getCount() * itemStack.getCount()))
-					.orElse(null);
 		}
 
 		public static class Serializer extends GlobalLootModifierSerializer<SetEffectAutoSmeltModifier> {
@@ -133,5 +179,5 @@ public class SetEffectAutoSmelt extends SetEffect {
 		}
 
 	}
-	
+
 }

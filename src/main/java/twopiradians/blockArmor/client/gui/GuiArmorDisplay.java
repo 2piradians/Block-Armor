@@ -1,4 +1,4 @@
-package twopiradians.blockArmor.client.gui.armorDisplay;
+package twopiradians.blockArmor.client.gui;
 
 import java.util.ArrayList;
 import java.util.Comparator;

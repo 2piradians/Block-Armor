@@ -25,6 +25,9 @@ import twopiradians.blockArmor.common.seteffect.SetEffect;
 @Mod.EventBusSubscriber(modid = BlockArmor.MODID, bus = EventBusSubscriber.Bus.MOD)
 public class Config {
 
+	/**Change this to have {Set Effects} reset to default values*/
+	private static final double CONFIG_VERSION = 1.1D;
+
 	/** How many pieces of armor must be worn to activate set effects */
 	public static int piecesForSet;
 	/** Should items from disabled sets be registered */
@@ -40,7 +43,7 @@ public class Config {
 
 	public static ForgeConfigSpec SERVER_SPEC;
 	public static Server SERVER;
-	
+
 	/**Init config - must be called after ArmorSet.setup()*/
 	public static ForgeConfigSpec init() {
 		final Pair<Server, ForgeConfigSpec> specPair = new ForgeConfigSpec.Builder().configure(Server::new);
@@ -70,19 +73,22 @@ public class Config {
 		private static DoubleValue globalDamageReductionModifier;
 		private static DoubleValue globalKnockbackResistanceModifier;
 		private static DoubleValue globalDurabilityModifier;
+		private static ConfigValue<Double> configVersion;
 
 		private Server(ForgeConfigSpec.Builder builder) {
+			// config version
+			configVersion = builder.define("Config version - DO NOT CHANGE", CONFIG_VERSION);
 			// general
 			builder.comment("General settings");
 			builder.push("General");
 			//Armor pieces required to activate set effect
-			builder.comment("Specifies how many armor pieces must be worn for a set's effect(s) to work.");
-			Server.piecesForSet = builder.defineInRange("Armor pieces required for Set Effects", 4, 1, 4);
+			builder.comment("Specifies how many armor pieces must be worn for a set's effects to work.");
+			Server.piecesForSet = builder.defineInRange("Armor pieces required for Set Effects", 2, 1, 4);
 			//Should set effects use durability
 			builder.comment("Should Set Effects use durability of worn armor to work");
 			Server.effectsUseDurability = builder.define("Set Effects use durability", false);
 			builder.pop();
-			
+
 			// armor stats
 			builder.comment("Settings that affect armor stats for all sets");
 			builder.push("Armor Stats");
@@ -107,7 +113,7 @@ public class Config {
 					ArmorSetOptions options = new ArmorSetOptions();
 					// they go in alphabetically here, but are not alphabetical in config for some reason..
 					builder.push(set.registryName);
-					// Enabled
+					// enabled
 					options.enabled = builder.define("Enabled", true);
 					// armor values
 					options.armorDurability = builder.define("Armor_Durability", set.armorDurability);
@@ -116,7 +122,7 @@ public class Config {
 					options.armorKnockbackResistance = builder.define("Armor_Knockback_Resistance", set.armorKnockbackResistance);
 					options.armorEnchantability = builder.define("Armor_Enchantability", set.armorEnchantability);
 					// Set Effects
-					options.setEffects = builder.defineList("Set_Effects", set.setEffects.stream().map(SetEffect::writeToString).collect(Collectors.toList()), 
+					options.setEffects = builder.defineList("Set_Effects", set.defaultSetEffects.stream().map(SetEffect::writeToString).collect(Collectors.toList()), 
 							(effect) -> SetEffect.getEffectFromString((String) effect) != null);
 					builder.pop();
 					Server.armorSetOptions.put(set, options);
@@ -130,6 +136,7 @@ public class Config {
 
 	/**Read values from config*/
 	public static void sync() {
+		boolean oldVersion = Server.configVersion.get() != CONFIG_VERSION;
 		// pieces for set
 		Config.piecesForSet = Server.piecesForSet.get();
 		// effects use durability
@@ -159,6 +166,9 @@ public class Config {
 			set.armorKnockbackResistance = options.armorKnockbackResistance.get();
 			set.createMaterial();
 			// Set Effects
+			// change set effects to default if old config version
+			if (oldVersion)
+				options.setEffects.set(set.defaultSetEffects.stream().map(SetEffect::writeToString).collect(Collectors.toList()));
 			set.setEffects.clear();
 			for (String str : options.setEffects.get()) {
 				SetEffect effect = SetEffect.getEffectFromString(str);
@@ -168,6 +178,9 @@ public class Config {
 					BlockArmor.LOGGER.warn("Invalid set effect in config for "+set.registryName+": "+str);
 			}
 		}
+		// update config version
+		if (oldVersion) 
+			Server.configVersion.set(CONFIG_VERSION);
 	}
 
 	@SubscribeEvent

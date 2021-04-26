@@ -6,8 +6,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Random;
 import java.util.Set;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.Executor;
 import java.util.function.Function;
 
 import javax.annotation.Nullable;
@@ -43,12 +41,9 @@ import net.minecraft.entity.LivingEntity;
 import net.minecraft.inventory.EquipmentSlotType;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.profiler.IProfiler;
-import net.minecraft.resources.IFutureReloadListener;
 import net.minecraft.resources.IResourceManager;
 import net.minecraft.util.Direction;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.Unit;
 import net.minecraft.util.math.vector.Quaternion;
 import net.minecraft.util.math.vector.TransformationMatrix;
 import net.minecraft.util.math.vector.Vector3f;
@@ -95,28 +90,15 @@ public final class ModelBAItem implements IModelGeometry<ModelBAItem> {
 		INSTANCE;
 
 		@Override
-		public void onResourceManagerReload(IResourceManager resourceManager) {}
+		public void onResourceManagerReload(IResourceManager resourceManager) {
+			ClientProxy.mapTextures();
+		}
 
 		@Override
 		public ModelBAItem read(JsonDeserializationContext deserializationContext, JsonObject modelContents) {
 			return new ModelBAItem();
 		}
 
-		/**Called when resources are reloaded (not called during initial load)*/
-		@Override
-		public CompletableFuture<Void> reload(IFutureReloadListener.IStage stage, IResourceManager resourceManager, IProfiler preparationsProfiler, IProfiler reloadProfiler, Executor backgroundExecutor, Executor gameExecutor) {
-			// problem with this is that ModelBakery is prepared async and doesn't have any hooks during reload that I know of
-			// so reload still doesn't find the models (sometimes - seems to be race condition)
-			ClientProxy.mapUnbakedModels(); // need to do models in here because they're needed before onResourceManagerReload is called
-			ClientProxy.mapTextures();
-			return stage.markCompleteAwaitingOthers(Unit.INSTANCE).thenRunAsync(() -> {
-				reloadProfiler.startTick();
-				reloadProfiler.startSection("listener");
-				this.onResourceManagerReload(resourceManager);
-				reloadProfiler.endSection();
-				reloadProfiler.endTick();
-			}, gameExecutor);
-		}
 	}
 
 	public static final class BakedDynBlockArmorOverrideHandler extends ItemOverrideList {

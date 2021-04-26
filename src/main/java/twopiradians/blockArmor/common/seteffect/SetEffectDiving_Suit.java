@@ -16,8 +16,9 @@ public class SetEffectDiving_Suit extends SetEffect {
 	protected SetEffectDiving_Suit() {
 		super();
 		this.color = TextFormatting.DARK_AQUA;
-		this.description = "Provides Depth Strider, Respiration, and Night Vision in water";
+		this.description = "Provides Depth Strider, Aqua Affinity, Respiration, and Night Vision in water";
 		this.potionEffects.add(new EffectInstance(Effects.NIGHT_VISION, 210, 0, true, false));
+		this.enchantments.add(new EnchantmentData(Enchantments.AQUA_AFFINITY, (short) 3, EquipmentSlotType.HEAD));
 		this.enchantments.add(new EnchantmentData(Enchantments.RESPIRATION, (short) 3, EquipmentSlotType.HEAD));
 		this.enchantments.add(new EnchantmentData(Enchantments.DEPTH_STRIDER, (short) 3, EquipmentSlotType.FEET));
 	}
@@ -32,7 +33,7 @@ public class SetEffectDiving_Suit extends SetEffect {
 	/**Should block be given this set effect*/
 	@Override
 	protected boolean isValid(Block block) {		
-		if (SetEffect.registryNameContains(block, new String[] {"water", "prismarine"}))
+		if (SetEffect.registryNameContains(block, new String[] {"water", "prismarine", "sea", "coral", "kelp"}))
 			return true;		
 		return false;
 	}

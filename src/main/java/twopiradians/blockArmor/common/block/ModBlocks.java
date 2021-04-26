@@ -18,7 +18,7 @@ public class ModBlocks
 	public static final BlockMovingLightSource MOVING_LIGHT_SOURCE = new BlockMovingLightSource();
 
 	public static ArrayList<Block> allBlocks = new ArrayList<Block>();
-	
+
 	@Mod.EventBusSubscriber(bus = Bus.MOD)
 	public static class RegistrationHandler {
 
@@ -32,9 +32,9 @@ public class ModBlocks
 			block.setRegistryName(BlockArmor.MODID, blockName);
 			registry.register(block);
 		}
-		
+
 	}
-	
+
 	@SuppressWarnings("deprecation")
 	public static void registerRenders() {
 		for (Block block : allBlocks)

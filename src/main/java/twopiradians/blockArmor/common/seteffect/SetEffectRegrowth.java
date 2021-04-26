@@ -38,13 +38,13 @@ public class SetEffectRegrowth extends SetEffect {
 		
 		if (block instanceof IGrowable || block instanceof IPlantable || 
 				SetEffect.registryNameContains(block, new String[] {"moss", "plant", "mycelium", "mushroom", "flower",
-						"log", "wood", "stem", "plank", "grass"}))
+						"log", "wood", "stem", "plank", "grass", "nether_wart"}))
 			return true;	
 		
 		Material material = BlockUtils.getMaterial(block);
 		if (Lists.newArrayList(Material.BAMBOO, Material.BAMBOO_SAPLING, Material.CACTUS, Material.CORAL,
 				Material.GOURD, Material.LEAVES, Material.PLANTS, Material.OCEAN_PLANT, Material.NETHER_PLANTS,
-				Material.OCEAN_PLANT, Material.SEA_GRASS, Material.TALL_PLANTS)
+				Material.OCEAN_PLANT, Material.SEA_GRASS, Material.TALL_PLANTS, Material.NETHER_WOOD)
 				.contains(material))
 			return true;
 		

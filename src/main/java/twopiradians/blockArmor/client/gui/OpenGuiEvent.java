@@ -1,4 +1,4 @@
-package twopiradians.blockArmor.client.gui.armorDisplay;
+package twopiradians.blockArmor.client.gui;
 
 import net.minecraft.client.Minecraft;
 import net.minecraftforge.client.event.ClientChatReceivedEvent;

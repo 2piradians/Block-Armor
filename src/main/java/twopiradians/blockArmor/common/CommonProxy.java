@@ -9,10 +9,8 @@ import javax.annotation.Nonnull;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 
-import net.minecraft.block.Block;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.inventory.EquipmentSlotType;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.IRecipe;
 import net.minecraft.item.crafting.IRecipeType;
@@ -26,7 +24,6 @@ import net.minecraft.world.server.ServerWorld;
 import net.minecraftforge.common.loot.GlobalLootModifierSerializer;
 import net.minecraftforge.event.RegisterCommandsEvent;
 import net.minecraftforge.event.RegistryEvent;
-import net.minecraftforge.event.RegistryEvent.MissingMappings.Mapping;
 import net.minecraftforge.event.entity.player.PlayerEvent.PlayerLoggedInEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -42,6 +39,7 @@ import twopiradians.blockArmor.common.seteffect.SetEffectAutoSmelt.SetEffectAuto
 import twopiradians.blockArmor.common.seteffect.SetEffectLucky.SetEffectLuckyModifier;
 import twopiradians.blockArmor.packet.CActivateSetEffectPacket;
 import twopiradians.blockArmor.packet.SDevColorsPacket;
+import twopiradians.blockArmor.packet.SSyncCooldownsPacket;
 
 @Mod.EventBusSubscriber
 public class CommonProxy {
@@ -54,18 +52,6 @@ public class CommonProxy {
 			event.getRegistry().register(new SetEffectAutoSmeltModifier.Serializer().setRegistryName(new ResourceLocation(BlockArmor.MODID,"set_effect_autosmelt")));
 			event.getRegistry().register(new SetEffectLuckyModifier.Serializer().setRegistryName(new ResourceLocation(BlockArmor.MODID,"set_effect_lucky")));
 		}
-		
-		@SubscribeEvent
-		public static void missingItemMappings(final RegistryEvent.MissingMappings<Item> event) {
-			for (Mapping<Item> mapping : event.getMappings(BlockArmor.MODID))
-				mapping.ignore();
-		}
-
-		@SubscribeEvent
-		public static void missingBlockMappings(final RegistryEvent.MissingMappings<Block> event) {
-			for (Mapping<Block> mapping : event.getMappings(BlockArmor.MODID))
-				mapping.ignore();
-		}
 
 	}
 
@@ -73,10 +59,11 @@ public class CommonProxy {
 		registerPackets();
 	}
 	
-	private static void registerPackets() { // Dist is where the packet goes TO
+	private static void registerPackets() {
 		int id = 0;
 		BlockArmor.NETWORK.registerMessage(id++, SDevColorsPacket.class, SDevColorsPacket::encode, SDevColorsPacket::decode, SDevColorsPacket.Handler::handle, Optional.of(NetworkDirection.PLAY_TO_CLIENT));
 		BlockArmor.NETWORK.registerMessage(id++, CActivateSetEffectPacket.class, CActivateSetEffectPacket::encode, CActivateSetEffectPacket::decode, CActivateSetEffectPacket.Handler::handle, Optional.of(NetworkDirection.PLAY_TO_SERVER));
+		BlockArmor.NETWORK.registerMessage(id++, SSyncCooldownsPacket.class, SSyncCooldownsPacket::encode, SSyncCooldownsPacket::decode, SSyncCooldownsPacket.Handler::handle, Optional.of(NetworkDirection.PLAY_TO_CLIENT));
 	}
 	
 	@SubscribeEvent

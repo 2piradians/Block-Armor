@@ -26,9 +26,10 @@ public class ModItems {
 	@Mod.EventBusSubscriber(modid = BlockArmor.MODID, bus = Bus.MOD)
 	public static class RegistrationHandler {
 
+		// maybe post-pone creating items until later for Quark?
 		@SubscribeEvent(priority=EventPriority.LOWEST)
 		public static void registerItems(final RegistryEvent.Register<Item> event) {						
-			ArmorSet.setup();
+			ArmorSet.setup(event.getRegistry().getValues()); 
 			SetEffect.setup();
 			// load config
 			ModLoadingContext.get().registerConfig(ModConfig.Type.SERVER, Config.init());

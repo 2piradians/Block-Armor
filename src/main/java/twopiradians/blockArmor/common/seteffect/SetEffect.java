@@ -2,6 +2,7 @@ package twopiradians.blockArmor.common.seteffect;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.UUID;
 
@@ -20,6 +21,7 @@ import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.ai.attributes.Attribute;
 import net.minecraft.entity.ai.attributes.AttributeModifier;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.inventory.EquipmentSlotType;
 import net.minecraft.inventory.EquipmentSlotType.Group;
 import net.minecraft.item.ItemStack;
@@ -36,14 +38,17 @@ import net.minecraft.world.World;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.event.entity.living.LivingEquipmentChangeEvent;
+import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
-import twopiradians.blockArmor.client.gui.armorDisplay.EntityGuiPlayer;
+import net.minecraftforge.fml.network.PacketDistributor;
+import twopiradians.blockArmor.client.gui.EntityGuiPlayer;
 import twopiradians.blockArmor.client.key.KeyActivateSetEffect;
 import twopiradians.blockArmor.common.BlockArmor;
 import twopiradians.blockArmor.common.config.Config;
 import twopiradians.blockArmor.common.item.ArmorSet;
 import twopiradians.blockArmor.common.item.BlockArmorItem;
+import twopiradians.blockArmor.packet.SSyncCooldownsPacket;
 
 @Mod.EventBusSubscriber
 public class SetEffect {
@@ -56,7 +61,7 @@ public class SetEffect {
 	protected static final UUID LUCK_UUID = UUID.fromString("537fd0e2-78ef-4dd3-affb-959ff059b1bd");
 
 	public static HashMap<String, SetEffect> nameToSetEffectMap = Maps.newHashMap();
-	
+
 	/**List of all set effects*/
 	public static final ArrayList<SetEffect> SET_EFFECTS = Lists.newArrayList();
 
@@ -74,6 +79,7 @@ public class SetEffect {
 	public static final SetEffectPuller PULLER = new SetEffectPuller();
 	public static final SetEffectArrow_Defence ARROW_DEFENCE = new SetEffectArrow_Defence();
 	public static final SetEffectBonemealer BONEMEALER = new SetEffectBonemealer();
+	public static final SetEffectSleepy SLEEPY = new SetEffectSleepy();
 	//effects that don't use the button
 	public static final SetEffectMusical MUSICAL = new SetEffectMusical();
 	public static final SetEffectSlow_Motion SLOW_MOTION = new SetEffectSlow_Motion();
@@ -97,6 +103,10 @@ public class SetEffect {
 	public static final SetEffectSlippery SLIPPERY = new SetEffectSlippery();
 	public static final SetEffectFalling FALLING = new SetEffectFalling();
 	public static final SetEffectPowerful POWERFUL = new SetEffectPowerful();
+	public static final SetEffectRocky ROCKY = new SetEffectRocky();
+	public static final SetEffectRespawn RESPAWN = new SetEffectRespawn();
+	public static final SetEffectUndying UNDYING = new SetEffectUndying();
+	public static final SetEffectHoarder HOARDER = new SetEffectHoarder();
 
 	/**Does set effect require button to activate*/
 	protected boolean usesButton;
@@ -140,6 +150,7 @@ public class SetEffect {
 						hasEffectWithButton = true;
 					set.setEffects.add(effect.create(set.block));
 				}
+			set.defaultSetEffects = new ArrayList(set.setEffects);
 		}
 	}
 
@@ -215,7 +226,7 @@ public class SetEffect {
 				highestDur.shrink(1);
 			}
 			else if (highestDur != null)
-				highestDur.damageItem(1, entity, (e) -> {});
+				highestDur.damageItem(1, entity, (e) -> {}); // TODO on broken
 		}
 	}
 
@@ -228,6 +239,13 @@ public class SetEffect {
 						((BlockArmorItem)stack.getItem()).set.setEffects.contains(this))
 					player.getCooldownTracker().setCooldown(stack.getItem(), ticks);
 			}
+	}
+
+	/**Send cooldowns to client bc it forgets about them when changing dimensions*/
+	@SubscribeEvent
+	public static void onDimensionChange(PlayerEvent.PlayerChangedDimensionEvent event) {
+		if (event.getPlayer() instanceof ServerPlayerEntity)
+			BlockArmor.NETWORK.send(PacketDistributor.PLAYER.with(()->(ServerPlayerEntity) event.getPlayer()), new SSyncCooldownsPacket(event.getPlayer()));
 	}
 
 	/**Only called when player wearing full, enabled set*/
@@ -282,10 +300,12 @@ public class SetEffect {
 		}
 	}
 
-	/**Update stack nbt to show full set for getAttributeModifiers*/
+	/**Update stack nbt to show full set for getAttributeModifiers
+	 * Sometimes doesn't update items that are removed because 
+	 * the event.to, event.from, and event.slot aren't always accurate*/
 	@SubscribeEvent
 	public static void onEquipmentChange(LivingEquipmentChangeEvent event) {
-		ArrayList<SetEffect> effects = ArmorSet.getWornSetEffects(event.getEntityLiving());
+		HashSet<SetEffect> effects = ArmorSet.getWornSetEffects(event.getEntityLiving());
 		for (EquipmentSlotType slot : EquipmentSlotType.values())
 			if (slot.getSlotType() == Group.ARMOR) {
 				ItemStack stack = event.getEntityLiving().getItemStackFromSlot(slot);
@@ -294,7 +314,7 @@ public class SetEffect {
 				if (stack != null && stack.getItem() instanceof BlockArmorItem) {
 					if (!stack.hasTag())
 						stack.setTag(new CompoundNBT());
-					
+
 					if (effects.containsAll(((BlockArmorItem)stack.getItem()).set.setEffects))
 						stack.getTag().putBoolean("wearingFullSet", true);
 					else
@@ -310,10 +330,11 @@ public class SetEffect {
 		if (!stack.hasTag())
 			stack.setTag(new CompoundNBT());
 
-		if (stack.getTag().getBoolean("wearingFullSet")) //FIXME removing piece will reset attributes (not sure how to fix)
+		if (stack.getTag().getBoolean("wearingFullSet")) {//FIXME removing piece will reset attributes (not sure how to fix)
 			for (Attribute attribute : this.attributes.keySet())
 				map.put(attribute, this.attributes.get(attribute));
-		
+		}
+
 		return map;
 	}
 
@@ -344,9 +365,17 @@ public class SetEffect {
 		return this.name;
 	}
 
+	/**Override so instances of classes are the same as SetEffect.INSTANCE*/
 	@Override
 	public boolean equals(Object obj) {
-		return obj.getClass() == this.getClass() && this.description.equals(((SetEffect)obj).description);
+		//System.out.println("comparing: "+this.toString()+" & "+obj.toString()+" = "+(obj.getClass() == this.getClass())); // TODO remove
+		return obj.getClass() == this.getClass()/* && this.description.equals(((SetEffect)obj).description)*/; // removed 4/23/21 for playerSetEffects in ArmorSet
+	}
+	
+	/**Override so instances of classes are the same as SetEffect.INSTANCE*/
+	@Override
+	public int hashCode() {
+		return this.getClass().hashCode();
 	}
 
 	/**Write this effect to string for config (variables need to be included)*/
@@ -388,4 +417,11 @@ public class SetEffect {
 			this.slot = slot;
 		}
 	}
+	
+	/**Called when full set is first equipped*/
+	public void onStart(PlayerEntity player) {}
+
+	/**Called when full set is unequipped or player logged out*/
+	public void onStop(PlayerEntity player) {}
+	
 }

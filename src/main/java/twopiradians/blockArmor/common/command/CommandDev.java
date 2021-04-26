@@ -44,7 +44,7 @@ public class CommandDev  {
 	}};
 	public static HashMap<UUID, Float[]> devColors = Maps.newHashMap();			
 	private static final SuggestionProvider<CommandSource> SETS_SUGGESTION = SuggestionProviders.register(new ResourceLocation(BlockArmor.MODID, "armor_sets"), (context, builder) -> { 
-		return ISuggestionProvider.suggestIterable(setMap.keySet().stream().map((str) -> new ResourceLocation(BlockArmor.MODID, str)).collect(Collectors.toList()), builder);  
+		return ISuggestionProvider.suggestIterable(setMap.keySet().stream().map((str) -> new ResourceLocation(str)).collect(Collectors.toList()), builder);  
 	});
 
 	/** Add block to list of all block names for created Armor Sets */

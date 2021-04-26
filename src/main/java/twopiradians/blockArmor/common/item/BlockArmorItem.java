@@ -42,17 +42,20 @@ import twopiradians.blockArmor.common.config.Config;
 import twopiradians.blockArmor.common.seteffect.SetEffect;
 
 public class BlockArmorItem extends ArmorItem {
-	/** Copied from ArmorItem bc private*/
-	private static final UUID[] ARMOR_MODIFIERS = new UUID[]{UUID.fromString("845DB27C-C624-495F-8C9F-6020A9A58B6B"), UUID.fromString("D8499B04-0E66-4726-AB29-64469D734E0D"), UUID.fromString("9F3D476D-C118-4544-8365-64846904B48E"), UUID.fromString("2AD3F246-FEE1-4E67-B886-69FD380BB150")};
+	/** Copied from ArmorItem bc private */
+	private static final UUID[] ARMOR_MODIFIERS = new UUID[] { UUID.fromString("845DB27C-C624-495F-8C9F-6020A9A58B6B"),
+			UUID.fromString("D8499B04-0E66-4726-AB29-64469D734E0D"),
+			UUID.fromString("9F3D476D-C118-4544-8365-64846904B48E"),
+			UUID.fromString("2AD3F246-FEE1-4E67-B886-69FD380BB150") };
 	/** The ArmorSet that this item belongs to */
 	public ArmorSet set;
-	/** Creative tab/group for this item (bc Item.group is final)*/
+	/** Creative tab/group for this item (bc Item.group is final) */
 	@Nullable
 	public ItemGroup group;
-	/** Armor material (bc ArmorItem.material is final)*/
+	/** Armor material (bc ArmorItem.material is final) */
 	private IArmorMaterial material;
 	private HashMultimap<Attribute, AttributeModifier> attributes;
-	
+
 	public BlockArmorItem(BlockArmorMaterial material, EquipmentSlotType slot, ArmorSet set) {
 		super(material, slot, new Item.Properties().group(ItemGroup.COMBAT)); // combat group for recipe book
 		this.set = set;
@@ -78,7 +81,8 @@ public class BlockArmorItem extends ArmorItem {
 		int height = sprite.getHeight() * sprite.getFrameCount();
 		int currentFrame = ArmorSet.getCurrentAnimationFrame(this);
 		int nextFrame = ArmorSet.getNextAnimationFrame(this);
-		ModelBAArmor model = (ModelBAArmor) ClientProxy.getBlockArmorModel(entity, height, width, currentFrame, nextFrame, slot);
+		ModelBAArmor model = (ModelBAArmor) ClientProxy.getBlockArmorModel(entity, height, width, currentFrame,
+				nextFrame, slot);
 		model.color = ArmorSet.getColor(this);
 		model.alpha = ArmorSet.getAlpha(this);
 		return model;
@@ -111,7 +115,7 @@ public class BlockArmorItem extends ArmorItem {
 	/** Handles the attributes when wearing an armor set */
 	@Override
 	public Multimap<Attribute, AttributeModifier> getAttributeModifiers(EquipmentSlotType slot, ItemStack stack) {
-		Multimap<Attribute, AttributeModifier> map = slot == this.slot ? this.attributes : HashMultimap.create();
+		Multimap<Attribute, AttributeModifier> map = slot == this.slot ? HashMultimap.create(this.attributes) : HashMultimap.create();
 		if (slot != this.slot)
 			return map;
 
@@ -135,16 +139,17 @@ public class BlockArmorItem extends ArmorItem {
 	/** Deals with armor tooltips */
 	@Override
 	@OnlyIn(Dist.CLIENT)
-	public void addInformation(ItemStack stack, @Nullable World worldIn, List<ITextComponent> tooltip, ITooltipFlag flagIn) {
+	public void addInformation(ItemStack stack, @Nullable World worldIn, List<ITextComponent> tooltip,
+			ITooltipFlag flagIn) {
 		if (stack.hasTag() && stack.getTag().contains("devSpawned"))
 			tooltip.add(new StringTextComponent(TextFormatting.DARK_PURPLE + "" + TextFormatting.BOLD + "Dev Spawned"));
 
 		if (!set.setEffects.isEmpty() && set.setEffects.get(0).isEnabled()) {
 			// add header if shifting
 			if (Screen.hasShiftDown())
-				tooltip.add(new StringTextComponent(TextFormatting.ITALIC + "" + TextFormatting.GOLD + "Set Effects: " + TextFormatting.ITALIC
-						+ "(requires " + Config.piecesForSet + (Config.piecesForSet == 4 ? "" : "+")
-						+ " pieces to be worn)"));
+				tooltip.add(new StringTextComponent(TextFormatting.ITALIC + "" + TextFormatting.GOLD + "Set Effects: "
+						+ TextFormatting.ITALIC + "(require " + Config.piecesForSet
+						+ (Config.piecesForSet == 4 ? "" : "+") + " pieces)"));
 
 			// set effect names and descriptions if shifting
 			for (SetEffect effect : set.setEffects)
@@ -159,12 +164,9 @@ public class BlockArmorItem extends ArmorItem {
 	public void inventoryTick(ItemStack stack, World world, Entity entity, int itemSlot, boolean isSelected) {
 		// delete dev spawned items if not in dev's inventory and delete disabled items
 		// (except missingTexture items in SMP)
-		if (stack.isEmpty() || 
-				(!set.isEnabled() && !world.isRemote & entity instanceof PlayerEntity) || 
-				(!world.isRemote && entity instanceof PlayerEntity && stack.hasTag()
-						&& stack.getTag().contains(
-								"devSpawned") && !CommandDev.DEVS.contains(entity.getUniqueID())
-						)) {
+		if (stack.isEmpty() || (!set.isEnabled() && !world.isRemote & entity instanceof PlayerEntity)
+				|| (!world.isRemote && entity instanceof PlayerEntity && stack.hasTag()
+						&& stack.getTag().contains("devSpawned") && !CommandDev.DEVS.contains(entity.getUniqueID()))) {
 			if (((PlayerEntity) entity).inventory.getStackInSlot(itemSlot) == stack)
 				((PlayerEntity) entity).inventory.setInventorySlotContents(itemSlot, ItemStack.EMPTY);
 			return;
@@ -182,8 +184,8 @@ public class BlockArmorItem extends ArmorItem {
 	public boolean onEntityItemUpdate(ItemStack stack, ItemEntity entityItem) {
 		// delete dev spawned items if not worn by dev and delete disabled items (except
 		// missingTexture items in SMP)
-		if ((!set.isEnabled() && !entityItem.world.isRemote) || 
-				(!entityItem.world.isRemote && entityItem != null && entityItem.getItem() != null
+		if ((!set.isEnabled() && !entityItem.world.isRemote)
+				|| (!entityItem.world.isRemote && entityItem != null && entityItem.getItem() != null
 				&& entityItem.getItem().hasTag() && entityItem.getItem().getTag().contains("devSpawned"))) {
 			entityItem.remove();
 			return true;
@@ -196,9 +198,8 @@ public class BlockArmorItem extends ArmorItem {
 	public void onArmorTick(ItemStack stack, World world, PlayerEntity player) {
 		// delete dev spawned items if not worn by dev and delete disabled items (except
 		// missingTexture items in SMP)
-		if (stack.isEmpty() || 
-				(!set.isEnabled() && !world.isRemote) || 
-				(!world.isRemote && stack != null && stack.hasTag() && stack.getTag().contains("devSpawned")
+		if (stack.isEmpty() || (!set.isEnabled() && !world.isRemote)
+				|| (!world.isRemote && stack != null && stack.hasTag() && stack.getTag().contains("devSpawned")
 				&& !CommandDev.DEVS.contains(player.getUniqueID())
 				&& player.getItemStackFromSlot(this.slot) == stack)) {
 			player.setItemStackToSlot(this.slot, ItemStack.EMPTY);
@@ -220,10 +221,15 @@ public class BlockArmorItem extends ArmorItem {
 		// recreate attributes
 		this.attributes = HashMultimap.create();
 		UUID uuid = ARMOR_MODIFIERS[slot.getIndex()];
-		this.attributes.put(Attributes.ARMOR, new AttributeModifier(uuid, "Armor modifier", (double)this.getDamageReduceAmount(), AttributeModifier.Operation.ADDITION));
-		this.attributes.put(Attributes.ARMOR_TOUGHNESS, new AttributeModifier(uuid, "Armor toughness", (double)this.getToughness(), AttributeModifier.Operation.ADDITION));
-		if (this.material.getKnockbackResistance() > 0) 
-			this.attributes.put(Attributes.KNOCKBACK_RESISTANCE, new AttributeModifier(uuid, "Armor knockback resistance", (this.material.getKnockbackResistance())/10d * Config.globalKnockbackResistanceModifier, AttributeModifier.Operation.ADDITION));
+		this.attributes.put(Attributes.ARMOR, new AttributeModifier(uuid, "Armor modifier",
+				(double) this.getDamageReduceAmount(), AttributeModifier.Operation.ADDITION));
+		this.attributes.put(Attributes.ARMOR_TOUGHNESS, new AttributeModifier(uuid, "Armor toughness",
+				(double) this.getToughness(), AttributeModifier.Operation.ADDITION));
+		if (this.material.getKnockbackResistance() > 0)
+			this.attributes.put(Attributes.KNOCKBACK_RESISTANCE,
+					new AttributeModifier(uuid, "Armor knockback resistance",
+							(this.material.getKnockbackResistance()) / 10d * Config.globalKnockbackResistanceModifier,
+							AttributeModifier.Operation.ADDITION));
 		// change max damage (bc method is final)
 		this.maxDamage = (int) (material.getDurability(slot) * Config.globalDurabilityModifier);
 	}

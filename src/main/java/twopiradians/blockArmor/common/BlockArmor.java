@@ -17,14 +17,38 @@ import twopiradians.blockArmor.client.key.KeyActivateSetEffect;
 @Mod(value = BlockArmor.MODID)
 @Mod.EventBusSubscriber(bus = Bus.MOD)
 public class BlockArmor {
-
-	// f3+t breaking textures (seems to be race-condition)
 	
+	// TEST on server (mainly new set effect caching)
+		
 	/**Changelog
-	 *  Rebalanced armor stats
-	 *  Revamped config to allow more customization like changing armor stats and set effects
-	 *  Added sound effects to Time Control set effect
-	 *  Health Boost set effect will restore your boosted health on login / after respawning*/
+	 * Added Vanilla armor sets:
+	 *  All Beds
+	 * 	All Shulker Boxes
+	 *  Chest
+	 *  Composter
+	 *  Blast Furnace
+	 *  Smoker
+	 *  Bee Nest
+	 *  BeeHive
+	 *  Barrel
+	 *  Honey Block
+	 *  Jukebox
+	 * Added Set Effects:
+	 * 	Rocky: Sink like a rock underwater
+	 *  Sleepy: Sleep anywhere instantly
+	 *  Hoarder: TODO
+	 *  Undying: Saves you from death
+	 *  Respawn: Teleports you to your respawn point before death
+	 * Changed Set Effects:
+	 *  Auto Smelt: now works with mob drops as well
+	 * 	Diving Suit: added Aqua Affinity
+	 *  Ender: TODO
+	 *  Tweaked which armors get set effects (may need to delete your config to update)
+	 * Fixes:
+	 *  Fixed the issue with inventory icons sometimes missing textures
+	 *  Fixed Cactus armor texture
+	 *  Fixed Enchanting Table armor texture
+	 */
 
 	public static final String MODNAME = "Block Armor"; 
 	public static final String MODID = "blockarmor";

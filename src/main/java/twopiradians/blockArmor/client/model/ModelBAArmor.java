@@ -261,11 +261,14 @@ public class ModelBAArmor<T extends LivingEntity> extends BipedModel<T> {
 		ItemStack stack = entity.getItemStackFromSlot(slot);
 
 		//don't render enchant if only enchant is from set effect
-		boolean renderEnchant = stack != null && stack.isEnchanted();
-		if (stack != null && stack.getItem() instanceof BlockArmorItem && stack.hasTag()) {
+		boolean renderEnchant = false;
+		if (stack != null && stack.isEnchanted() && stack.getItem() instanceof BlockArmorItem) {
 			ListNBT enchantNbt = stack.getTag().getList("ench", 10);
-			if (enchantNbt.size() == 1 && enchantNbt.getCompound(0).getBoolean(BlockArmor.MODID+" enchant"))
-				renderEnchant = false;
+			for (int i=0; i<enchantNbt.size(); ++i)
+				if (!enchantNbt.getCompound(i).getBoolean(BlockArmor.MODID+" enchant")) {
+					renderEnchant = true;
+					break;
+				}
 		}
 
 		// use different vertex builder to allow translucency

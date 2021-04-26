@@ -68,7 +68,7 @@ public class SetEffectTime_Control extends SetEffect {
 		}
 	}
 
-	private void setWorldTime(World world, long time) {
+	public void setWorldTime(World world, long time) {
 		DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> {ClientProxy.setWorldTime(world, time);});
 		DistExecutor.unsafeRunWhenOn(Dist.DEDICATED_SERVER, () -> () -> {CommonProxy.setWorldTime(world, time);});
 	}

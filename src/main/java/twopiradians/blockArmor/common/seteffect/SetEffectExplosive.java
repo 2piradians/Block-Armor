@@ -17,16 +17,22 @@ public class SetEffectExplosive extends SetEffect {
 		this.description = "Explodes and uses some durability";
 		this.usesButton = true;
 	}
-	
+
 	/**Only called when player wearing full, enabled set*/
 	public void onArmorTick(World world, PlayerEntity player, ItemStack stack) {
 		super.onArmorTick(world, player, stack);
 
 		if (!world.isRemote && ArmorSet.getFirstSetItem(player, this) == stack &&
-				BlockArmor.key.isKeyDown(player) && !player.getCooldownTracker().hasCooldown(stack.getItem()) && player.isAllowEdit()) {
-			this.setCooldown(player, 20);
+				BlockArmor.key.isKeyDown(player) && !player.getCooldownTracker().hasCooldown(stack.getItem())) 
+			SetEffectExplosive.tryExplode(this, world, player);
+	}
+
+	/**Create explosion around the player*/
+	protected static void tryExplode(SetEffect effect, World world, PlayerEntity player) {
+		if (!world.isRemote && player.isAllowEdit()) {
+			effect.setCooldown(player, 20);
 			world.createExplosion(player, player.getPosX(), player.getPosY()+0.5d, player.getPosZ(), 6f, false, Explosion.Mode.BREAK);
-			this.damageArmor(player, 10, true);
+			effect.damageArmor(player, 10, true);
 		}
 	}
 

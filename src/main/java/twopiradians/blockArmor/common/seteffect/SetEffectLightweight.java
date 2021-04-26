@@ -43,8 +43,8 @@ public class SetEffectLightweight extends SetEffect
 		if (!player.isSneaking() && ArmorSet.getFirstSetItem(player, this) == stack && player.getMotion().getY() < 0 && !player.isOnGround() &&
 				world.isAirBlock(player.getPosition().down(2))) {
 
-			if (world.isRemote && player.fallDistance > 1) {
-				player.addVelocity(0, 0.07D, 0);
+			if (world.isRemote && player.fallDistance > 1 && player.getMotion().getY() < -0.3d) {
+				player.addVelocity(0, 0.076D, 0);
 				if (player.fallDistance > 5) {			
 					double driftX = world.rand.nextDouble()-0.5d;
 					double driftZ = world.rand.nextDouble()-0.5d;
