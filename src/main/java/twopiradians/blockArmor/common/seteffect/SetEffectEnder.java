@@ -11,7 +11,6 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.play.server.SPlaySoundPacket;
-import net.minecraft.particles.ParticleTypes;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.SoundEvents;
 import net.minecraft.util.math.BlockPos;
@@ -21,7 +20,6 @@ import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
-import net.minecraft.world.server.ServerWorld;
 import twopiradians.blockArmor.common.BlockArmor;
 import twopiradians.blockArmor.common.item.ArmorSet;
 
@@ -50,15 +48,13 @@ public class SetEffectEnder extends SetEffect {
 			int distance = 30;
 			int maxYOffset = 3;
 
-			boolean foundPos = false; // TODO remove
-
 			HashSet<BlockPos> checkedPositions = Sets.newHashSet();
 			// small -> big yaw offset
 			for (float yawOffset = 0; yawOffset <= maxYawOffset; yawOffset += yawIncrement)
 				// spin roll around (only check once for yawOffset = 0)
 				for (float roll = 0; roll <= 2*Math.PI; roll += (yawOffset == 0 ? 999 : rollIncrement)) {
 					RayTraceResult result = this.pick(player, distance, yawOffset, roll);
-					//((ServerWorld)world).spawnParticle(ParticleTypes.BARRIER, result.getHitVec().getX(), result.getHitVec().getY(), result.getHitVec().getZ(), 1, 0, 0, 0, 1); // TODO remove
+					//((ServerWorld)world).spawnParticle(ParticleTypes.BARRIER, result.getHitVec().getX(), result.getHitVec().getY(), result.getHitVec().getZ(), 1, 0, 0, 0, 1); 
 					if (result.getType() == RayTraceResult.Type.BLOCK) {
 						LinkedHashSet<BlockPos> positions = Sets.newLinkedHashSet();
 						// prioritize closest position and position up 1
@@ -70,34 +66,24 @@ public class SetEffectEnder extends SetEffect {
 							for (int y = -radius; y <= radius; ++y)
 								for (int z = -radius; z <= radius; ++z) {
 									BlockPos pos = new BlockPos(result.getHitVec().getX()+x, result.getHitVec().getY()+y, result.getHitVec().getZ()+z);
-									if (!checkedPositions.contains(pos)) {
-										positions.add(pos);
-										//((ServerWorld)world).spawnParticle(ParticleTypes.BARRIER, pos.getX()+0.5f, pos.getY()+0.5d, pos.getZ()+0.5d, 1, 0, 0, 0, 1); // TODO remove
-									}
+									positions.add(pos);
 								}
 						// check each position to see if it can be tp'd to
 						for (BlockPos pos : positions) {
-							((ServerWorld)world).spawnParticle(ParticleTypes.BARRIER, pos.getX()+0.5d, pos.getY()+0.5d, pos.getZ()+0.5d, 1, 0, 0, 0, 1); // TODO remove
+							//((ServerWorld)world).spawnParticle(ParticleTypes.BARRIER, pos.getX()+0.5d, pos.getY()+0.5d, pos.getZ()+0.5d, 1, 0, 0, 0, 1);
 							checkedPositions.add(pos);
-							Vector3d beforePos = player.getPositionVec(); // TODO remove
-							if (!foundPos && attemptTeleport(player, pos.getX()+0.5d, pos.getY(), pos.getZ()+0.5d, maxYOffset)) {
-								foundPos = true;
-								player.setPositionAndUpdate(beforePos.x, beforePos.y, beforePos.z); // TODO remove
-								((ServerWorld)world).spawnParticle(ParticleTypes.HAPPY_VILLAGER, pos.getX()+0.5d, pos.getY()+0.5d, pos.getZ()+0.5d, 10, 0, 0, 0, 0); // TODO remove
+							if (attemptTeleport(player, pos.getX()+0.5d, pos.getY(), pos.getZ()+0.5d, maxYOffset)) {
+								//((ServerWorld)world).spawnParticle(ParticleTypes.HAPPY_VILLAGER, pos.getX()+0.5d, pos.getY()+0.5d, pos.getZ()+0.5d, 10, 0, 0, 0, 0); 
 
 								if (player.isPassenger())
 									player.stopRiding();
 								world.playSound((PlayerEntity)null, player.getPosX(), player.getPosY(), player.getPosZ(), SoundEvents.ITEM_CHORUS_FRUIT_TELEPORT, SoundCategory.PLAYERS, 1.0F, 1.0F);
 								world.playSound((PlayerEntity)null, pos.getX(), pos.getY(), pos.getZ(), SoundEvents.ITEM_CHORUS_FRUIT_TELEPORT, SoundCategory.PLAYERS, 1.0F, 1.0F);
 								player.playSound(SoundEvents.ITEM_CHORUS_FRUIT_TELEPORT, 1.0F, 1.0F);
-								/*for (int j = 0; j < 64; ++j) {
-									((ServerWorld)world).spawnParticle(ParticleTypes.PORTAL, player.getPosX()+2*world.rand.nextDouble(), player.getPosY()+world.rand.nextDouble()+1, player.getPosZ()+2*world.rand.nextDouble(), 1, 0, 0, 0, 1);
-									((ServerWorld)world).spawnParticle(ParticleTypes.PORTAL, player.getPosX()+2*world.rand.nextDouble(), player.getPosY()+world.rand.nextDouble()+1.0D, player.getPosZ()+2*world.rand.nextDouble(), 1, 0, 0, 0, 1);
-								}*/ // TODO
 								player.fallDistance = 0;
 								this.setCooldown(player, 30);
 								this.damageArmor(player, 2, false);
-								//return;// TODO
+								return;
 							}
 						}
 					}
@@ -153,7 +139,7 @@ public class SetEffectEnder extends SetEffect {
 		}
 	}
 
-	/**Edited from Entity#pick - could use some improvement (forms oval instead of circle farther up/down)*/ // TEST fluids
+	/**Edited from Entity#pick - could use some improvement (forms oval instead of circle farther up/down)*/ 
 	public RayTraceResult pick(PlayerEntity player, double distance, float yawOffset, float roll) {
 		Vector3d start = player.getEyePosition(0);
 		Vector3d look = this.getVectorForRotation(player.rotationPitch+MathHelper.sin(roll)*yawOffset, player.rotationYawHead+MathHelper.cos(roll)*yawOffset);		

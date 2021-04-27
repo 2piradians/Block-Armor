@@ -40,6 +40,7 @@ public class BlockArmor {
 	 * Changed Set Effects:
 	 *  Auto Smelt: now works with mob drops as well
 	 * 	Diving Suit: added Aqua Affinity
+	 *  Ender: teleport should be much more accurate and works for shorter distances as well
 	 *  Tweaked which armors get set effects (may need to delete your config to update)
 	 * Fixes:
 	 *  Fixed the issue with inventory icons sometimes missing textures
