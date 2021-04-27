@@ -211,6 +211,7 @@ public final class ModelBAItem implements IModelGeometry<ModelBAItem> {
 					itemQuadsMap.get(stack.getItem()) != null) {
 				for (Layer layer : Layer.values())
 					((BakedDynBlockArmor)originalModel).layers.get(layer).quads = itemQuadsMap.get(stack.getItem()).get(layer);
+				((BakedDynBlockArmor)originalModel).particles = ArmorSet.getSprite((BlockArmorItem) stack.getItem());
 			}
 			return originalModel;
 		}
@@ -235,6 +236,7 @@ public final class ModelBAItem implements IModelGeometry<ModelBAItem> {
 		private HashMap<Layer, BakedDynBlockArmor> layers = Maps.newHashMap();
 		private final ImmutableMap<TransformType, TransformationMatrix> transforms;
 		private ImmutableList<BakedQuad> quads = ImmutableList.of();
+		private TextureAtlasSprite particles;
 
 		public BakedDynBlockArmor() {
 			this(null);
@@ -286,7 +288,7 @@ public final class ModelBAItem implements IModelGeometry<ModelBAItem> {
 		public boolean isAmbientOcclusion() { return true;  }
 		public boolean isGui3d() { return false; }
 		public boolean isBuiltInRenderer() { return false; }
-		public TextureAtlasSprite getParticleTexture() { return null; }
+		public TextureAtlasSprite getParticleTexture() { return particles; } 
 		public ItemCameraTransforms getItemCameraTransforms() { return ItemCameraTransforms.DEFAULT; }
 	}
 

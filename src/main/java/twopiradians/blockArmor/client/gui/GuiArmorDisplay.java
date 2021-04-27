@@ -55,9 +55,9 @@ public class GuiArmorDisplay extends Screen {
 	 * 4 = set effect itemstacks
 	 * 5 = 3 & 4
 	 */
-	private static final int GUI_MODE = 5; // do modes 3, 4, and 5 in gui size 2
+	private static final int GUI_MODE = 4; // do modes 3, 4, and 5 in gui size 2
 	/**Pages of items (each page displays 20)*/
-	private static final int GUI_PAGE = 1;
+	private static final int GUI_PAGE = 2;
 
 	private final ResourceLocation backgroundBlue = new ResourceLocation(BlockArmor.MODID+":textures/gui/blue.jpg");
 	private final ResourceLocation backgroundWhite = new ResourceLocation(BlockArmor.MODID+":textures/gui/white.png");
@@ -162,13 +162,20 @@ public class GuiArmorDisplay extends Screen {
 					tooltip.add(tooltips.keySet().toArray(new StringTextComponent[0])[i].getString());
 					int numStacks = tooltips.get(tooltips.keySet().toArray(new StringTextComponent[0])[i]).size();
 					if (tooltip.get(0).contains("Regrowth")) 
-						tooltip.set(0, "                                  "+tooltip.get(0)+"                                  ");
+						tooltip.set(0, "                                          "+tooltip.get(0)+"                                          ");
 					else if (tooltip.get(0).contains("Invisibility")) 
 						tooltip.set(0, "                                 "+tooltip.get(0)+"                                 ");
 					else if (tooltip.get(0).contains("Soft Fall")) 
 						tooltip.set(0, "                         "+tooltip.get(0)+"                         ");
 					else if (tooltip.get(0).contains("Falling"))
+						tooltip.set(0, "                                              "+tooltip.get(0)+"                                              ");
+					else if (tooltip.get(0).contains("Hoarder") && !tooltip.get(0).contains("Ender")) 
 						tooltip.set(0, "                         "+tooltip.get(0)+"                         ");
+					else if (tooltip.get(0).contains("Rocky"))
+						tooltip.set(0, "                                                            "+tooltip.get(0)+"                                                            ");
+					else if (tooltip.get(0).contains("Sleepy"))
+						tooltip.set(0, "                        "+tooltip.get(0)+"                        ");
+			
 					tooltip.add("");
 					tooltip.add("");
 					tooltip.add("");

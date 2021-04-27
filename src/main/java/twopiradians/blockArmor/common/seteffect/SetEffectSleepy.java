@@ -35,11 +35,13 @@ public class SetEffectSleepy extends SetEffect {
 			else if (player.world.isNightTime() && world instanceof ServerWorld) {
 				long l = world.getDayTime() + 24000L;
 				SetEffect.TIME_CONTROL.setWorldTime(world, net.minecraftforge.event.ForgeEventFactory.onSleepFinished((ServerWorld) world, l - l % 24000L, world.getDayTime()));
+				if (player instanceof ServerPlayerEntity) 
+					((ServerPlayerEntity)player).connection.sendPacket(new SPlaySoundPacket(SoundEvents.BLOCK_NOTE_BLOCK_CHIME.getRegistryName(), SoundCategory.PLAYERS, player.getPositionVec(), 0.5F, 1.4f));	
 				this.setCooldown(player, 100);
 			}
 			// not night time
-			else if (player instanceof ServerPlayerEntity) { // TODO play this sound only to the player
-				((ServerPlayerEntity)player).connection.sendPacket(new SPlaySoundPacket(SoundEvents.BLOCK_NOTE_BLOCK_BASS.getName(), SoundCategory.PLAYERS, player.getPositionVec(), 1.0F, world.rand.nextFloat() + 0.5F));
+			else if (player instanceof ServerPlayerEntity) {
+				((ServerPlayerEntity)player).connection.sendPacket(new SPlaySoundPacket(SoundEvents.BLOCK_NOTE_BLOCK_BASS.getRegistryName(), SoundCategory.PLAYERS, player.getPositionVec(), 1.0F, world.rand.nextFloat() + 0.5F));
 				this.setCooldown(player, 10);
 			}
 		}
@@ -48,7 +50,8 @@ public class SetEffectSleepy extends SetEffect {
 	/**Should block be given this set effect*/
 	@Override
 	protected boolean isValid(Block block) {		
-		if (SetEffect.registryNameContains(block, new String[] {"bed", "sleep", "hammock"}))
+		if (SetEffect.registryNameContains(block, new String[] {"bed", "sleep", "hammock"}) &&
+				!SetEffect.registryNameContains(block, new String[] {"bedrock"}))
 			return true;		
 		return false;
 	}

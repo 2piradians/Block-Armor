@@ -67,7 +67,7 @@ public class SetEffectAutoSmelt extends SetEffect {
 	/**Should block be given this set effect*/
 	@Override
 	protected boolean isValid(Block block) {		
-		if (SetEffect.registryNameContains(block, new String[] {"furnace", "fire", "flame", "smelt"}) &&
+		if (SetEffect.registryNameContains(block, new String[] {"furnace", "fire", "flame", "smelt", "smoker", "coal"}) &&
 				!SetEffect.registryNameContains(block, new String[] {"coral"}))
 			return true;		
 		return false;

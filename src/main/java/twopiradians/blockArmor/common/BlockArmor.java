@@ -17,9 +17,7 @@ import twopiradians.blockArmor.client.key.KeyActivateSetEffect;
 @Mod(value = BlockArmor.MODID)
 @Mod.EventBusSubscriber(bus = Bus.MOD)
 public class BlockArmor {
-	
-	// TEST on server (mainly new set effect caching)
-		
+			
 	/**Changelog
 	 * Added Vanilla armor sets:
 	 *  All Beds
@@ -36,16 +34,16 @@ public class BlockArmor {
 	 * Added Set Effects:
 	 * 	Rocky: Sink like a rock underwater
 	 *  Sleepy: Sleep anywhere instantly
-	 *  Hoarder: TODO
+	 *  Hoarder: Provides storage wherever you go
 	 *  Undying: Saves you from death
 	 *  Respawn: Teleports you to your respawn point before death
 	 * Changed Set Effects:
 	 *  Auto Smelt: now works with mob drops as well
 	 * 	Diving Suit: added Aqua Affinity
-	 *  Ender: TODO
 	 *  Tweaked which armors get set effects (may need to delete your config to update)
 	 * Fixes:
 	 *  Fixed the issue with inventory icons sometimes missing textures
+	 *  Fixed a crash when block armor breaks
 	 *  Fixed Cactus armor texture
 	 *  Fixed Enchanting Table armor texture
 	 */

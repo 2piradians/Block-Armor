@@ -226,7 +226,7 @@ public class SetEffect {
 				highestDur.shrink(1);
 			}
 			else if (highestDur != null)
-				highestDur.damageItem(1, entity, (e) -> {}); // TODO on broken
+				highestDur.damageItem(1, entity, (e) -> {}); 
 		}
 	}
 
@@ -368,7 +368,6 @@ public class SetEffect {
 	/**Override so instances of classes are the same as SetEffect.INSTANCE*/
 	@Override
 	public boolean equals(Object obj) {
-		//System.out.println("comparing: "+this.toString()+" & "+obj.toString()+" = "+(obj.getClass() == this.getClass())); // TODO remove
 		return obj.getClass() == this.getClass()/* && this.description.equals(((SetEffect)obj).description)*/; // removed 4/23/21 for playerSetEffects in ArmorSet
 	}
 	

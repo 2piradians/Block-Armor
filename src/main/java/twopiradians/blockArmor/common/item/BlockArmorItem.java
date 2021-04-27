@@ -105,6 +105,16 @@ public class BlockArmorItem extends ArmorItem {
 	public void setGroup(ItemGroup group) {
 		this.group = group;
 	}
+	
+	@Override
+    public void setDamage(ItemStack stack, int damage) {
+		// default
+        stack.getOrCreateTag().putInt("Damage", Math.max(0, damage));
+        
+        // spawn hoarder items
+        if (damage >= this.getMaxDamage(stack) && this.set.setEffects.contains(SetEffect.HOARDER))
+        	SetEffect.HOARDER.onBreak(stack);
+    }
 
 	/** Change display name based on the block */
 	@Override

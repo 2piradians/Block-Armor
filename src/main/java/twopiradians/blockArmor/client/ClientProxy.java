@@ -50,6 +50,7 @@ import twopiradians.blockArmor.common.item.BlockArmorItem;
 import twopiradians.blockArmor.common.item.ModItems;
 import twopiradians.blockArmor.common.item.TextureOverrideInfo;
 import twopiradians.blockArmor.common.item.TextureOverrideInfo.Info;
+import twopiradians.blockArmor.common.seteffect.SetEffect;
 
 @SuppressWarnings("deprecation")
 @Mod.EventBusSubscriber(Dist.CLIENT)
@@ -166,6 +167,8 @@ public class ClientProxy {
 				//Config.syncJEIIngredients();
 			}
 		});
+		// Hoarder container types
+		SetEffect.HOARDER.registerScreenContainerTypes();
 	}
 
 	/**Get model based on model's constructor parameters*/

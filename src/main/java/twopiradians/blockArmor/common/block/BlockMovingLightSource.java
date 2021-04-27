@@ -20,6 +20,8 @@ import net.minecraft.util.math.shapes.VoxelShape;
 import net.minecraft.util.math.shapes.VoxelShapes;
 import net.minecraft.world.IBlockReader;
 import net.minecraft.world.World;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.fml.DistExecutor;
 import twopiradians.blockArmor.client.ClientProxy;
 import twopiradians.blockArmor.common.tileentity.TileEntityMovingLightSource;
 
@@ -75,7 +77,7 @@ public class BlockMovingLightSource extends Block implements ITileEntityProvider
 
 	@Override
 	public StateContainer<Block, BlockState> getStateContainer() {
-		ClientProxy.mapUnbakedModels(); // hacky way to map models in ModelBakery#processLoading
+		DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> {ClientProxy.mapUnbakedModels();}); // hacky way to map models in ModelBakery#processLoading
 		return super.getStateContainer();
 	}
 
