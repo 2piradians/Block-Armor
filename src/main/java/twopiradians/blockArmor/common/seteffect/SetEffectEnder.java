@@ -171,7 +171,7 @@ public class SetEffectEnder extends SetEffect {
 	/**Should block be given this set effect*/
 	@Override
 	protected boolean isValid(Block block) {		
-		if (SetEffect.registryNameContains(block, new String[] {"end_stone", "end_bricks", "ender", "EndStone", "chorus", "purpur"}))
+		if (SetEffect.registryNameContains(block, new String[] {"end_stone", "end_bricks", "ender", "EndStone", "chorus", "purpur", "teleport"}))
 			return true;
 		return false;
 	}

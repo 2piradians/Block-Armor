@@ -135,7 +135,7 @@ public class ClientProxy {
 		try {
 			// get unbaked models map
 			Map<ResourceLocation, IUnbakedModel> unbakedModels = (Map<ResourceLocation, IUnbakedModel>) UNBAKED_MODELS_FIELD.get(ModelLoader.instance());
-			if (!ArmorSet.allSets.isEmpty()) {
+			if (!ArmorSet.allSets.isEmpty() && ArmorSet.allSets.get(0).helmet != null) {
 				IUnbakedModel currentModel = unbakedModels.get(new ModelResourceLocation(ArmorSet.allSets.get(0).helmet.getRegistryName(), "inventory"));
 				// if current model is null or missing model, replace with block_armor.json model
 				if (currentModel == null || currentModel == ModelBakery.MODEL_MISSING) {

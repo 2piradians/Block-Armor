@@ -12,7 +12,7 @@ apply plugin: 'net.minecraftforge.gradle'
 apply plugin: 'eclipse'
 apply plugin: 'maven-publish'
 
-version = "1.16.5-2.6"
+version = "1.16.5-2.6.1"
 group= "twopiradians.blockArmor" // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 archivesBaseName = "BlockArmor"
 
@@ -137,9 +137,8 @@ dependencies {
      //compile fileTree (include: ['*.jar'], dir: 'libs')
      
      // JEI
-         //compileOnly fg.deobf("mezz.jei:jei-1.16.5:7.6.0.58:api")
     runtimeOnly fg.deobf("mezz.jei:jei-1.16.5:7.6.4.87")
-
+    
     // For more info...
     // http://www.gradle.org/docs/current/userguide/artifact_dependencies_tutorial.html
     // http://www.gradle.org/docs/current/userguide/dependency_management.html

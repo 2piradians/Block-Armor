@@ -119,7 +119,7 @@ public class BlockArmorItem extends ArmorItem {
 	/** Change display name based on the block */
 	@Override
 	public ITextComponent getDisplayName(ItemStack stack) {
-		return ArmorSet.getItemStackDisplayName(stack, this.getEquipmentSlot());
+		return ArmorSet.getItemStackDisplayName(stack.getItem(), this.getEquipmentSlot());
 	}
 
 	/** Handles the attributes when wearing an armor set */

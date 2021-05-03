@@ -105,7 +105,7 @@ public class GuiArmorDisplay extends Screen {
 								!set.registryName.contains("dark_oak"))) {
 							ITextComponent tooltip = effect.addInformation(new ItemStack(set.helmet), true, guiPlayer, Lists.newArrayList(), TooltipFlags.NORMAL).get(0);
 							ArrayList<ItemStack> stacks = new ArrayList<ItemStack>(); 
-							stacks.add(0, set.stack);
+							stacks.add(0, set.getStack());
 							if (tooltips.containsKey(tooltip)) 
 								stacks.addAll(0, tooltips.get(tooltip));
 							tooltips.put((StringTextComponent) tooltip, stacks);

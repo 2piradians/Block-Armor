@@ -46,7 +46,8 @@ public class SetEffectSlow_Motion extends SetEffect
 	@Override
 	protected boolean isValid(Block block) {	
 		if (block instanceof SoulSandBlock || 
-				block == Blocks.SOUL_SOIL)
+				block == Blocks.SOUL_SOIL ||
+				SetEffect.registryNameContains(block, new String[] {"soul_soil", "soul_sand"}))
 			return true;	
 		return false;
 	}	

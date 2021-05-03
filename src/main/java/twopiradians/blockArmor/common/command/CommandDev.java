@@ -52,7 +52,7 @@ public class CommandDev  {
 		if (!setMap.containsKey(set)) {
 			String name = "";
 			try {
-				name = ArmorSet.getItemStackRegistryName(set.stack);
+				name = ArmorSet.getItemRegistryName(set.item);
 				name = name.replace(" ", "_");
 				name = TextFormatting.getTextWithoutFormattingCodes(name);
 				name = name.toLowerCase();

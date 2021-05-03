@@ -26,7 +26,7 @@ public class SetEffectRocky extends SetEffect {
 
 	protected SetEffectRocky() {
 		super();
-		this.color = TextFormatting.DARK_GRAY;
+		this.color = TextFormatting.GRAY;
 		this.description = "Sink like a rock underwater";
 	}
 

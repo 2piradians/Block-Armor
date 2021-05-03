@@ -56,6 +56,7 @@ import net.minecraft.util.math.shapes.VoxelShapes;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.util.text.TextFormatting;
+import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.event.TickEvent;
@@ -351,7 +352,8 @@ public class ArmorSet {
 	public static HashMap<String, TreeSet<ArmorSet>> modidToSetMap = Maps.newHashMap();
 
 	/**Used to get textures, set recipe, and as repair material*/
-	public ItemStack stack;
+	@Nullable
+	private ItemStack stack;
 	public Item item;
 	public Block block;
 	public BlockArmorMaterial material;      
@@ -390,11 +392,10 @@ public class ArmorSet {
 	/**Map of player UUID to their worn set effects*/
 	private static HashMap<UUID, HashSet<SetEffect>> playerSetEffectsServer = Maps.newHashMap();
 
-	public ArmorSet(ItemStack stack) {
-		this.stack = stack;
-		this.item = stack.getItem();
+	public ArmorSet(Item item) {
+		this.item = item.getItem();
 		this.block = ((BlockItem) item).getBlock();
-		this.registryName = ArmorSet.getItemStackRegistryName(this.stack);
+		this.registryName = ArmorSet.getItemRegistryName(this.item);
 		try {
 			ResourceLocation loc = this.item.getRegistryName();
 			this.modid = loc.getNamespace().toLowerCase();
@@ -434,7 +435,7 @@ public class ArmorSet {
 	/**Create material for this set based on block values and update armor items with it (if they're created already)*/
 	public void createMaterial() {
 		int[] reductionAmounts = new int[] {(int) (armorDamageReduction), (int) (armorDamageReduction*2f), (int) (armorDamageReduction*2.5f), (int) (armorDamageReduction*1.45f)};
-		this.material = new BlockArmorMaterial(getItemStackDisplayName(stack, null)+" Material", 
+		this.material = new BlockArmorMaterial(getItemStackDisplayName(this.item, null)+" Material", 
 				armorDurability, reductionAmounts, armorEnchantability, SoundEvents.ITEM_ARMOR_EQUIP_GENERIC, armorToughness,
 				armorKnockbackResistance, () -> {
 					return Ingredient.fromItems(new IItemProvider[]{this.item});
@@ -445,6 +446,12 @@ public class ArmorSet {
 				armor.setMaterial(material);
 		}
 		//BlockArmor.LOGGER.info(getItemStackDisplayName(stack, null).getString()+": blockHardness = "+armorDamageReduction+", toughness = "+armorToughness+", durability = "+armorDurability+", reductionAmounts = "+Arrays.toString(reductionAmounts)); 
+	}
+
+	public ItemStack getStack() {
+		if (this.stack == null) 
+			this.stack = new ItemStack(this.block);
+		return this.stack;
 	}
 
 	/**Returns armor item for slot*/
@@ -465,25 +472,28 @@ public class ArmorSet {
 
 	/**Creates ArmorSets for each valid registered item and puts them in allSets
 	 * Have to use these items instead of looking through block registry or else
-	 * creative tabs will have all modded blocks as air for some reason... (from using new ItemStack(block))*/
-	public static void setup(Collection<Item> items) {
+	 * creative tabs will have all modded blocks as air for some reason... (from using new ItemStack(block))
+	 * 
+	 * Do not create ItemStacks yet because it may cause some mod incompatabilities with ItemStacks
+	 * created before registry events are finished*/
+	public static void setup(Collection<Item> itemsIn) {
 		//create list of all ItemStacks with different display names and list of the display names
 		ArrayList<String> displayNames = new ArrayList<String>();
-		ArrayList<ItemStack> stacks = new ArrayList<ItemStack>();
-		for (Item item : items) {
+		ArrayList<Item> items = new ArrayList<Item>();
+		for (Item item : itemsIn) {
 			try { 
 				if (item instanceof BlockItem) {
 					Block block = ((BlockItem)item).getBlock();
-					ItemStack stack = new ItemStack(block);
 					boolean manuallyAdded = false;
 					for (Block manualBlock : MANUALLY_ADDED_SETS)
 						if (block == manualBlock)
 							manuallyAdded = true;
 
-					if (manuallyAdded || (stack.getItem() != null && !stack.getDisplayName().getString().isEmpty() && 
-							!displayNames.contains(stack.getDisplayName()))) {
-						stacks.add(stack);
-						displayNames.add(stack.getDisplayName().getString());
+					String displayName = getNormalDisplayName(item);
+					if (manuallyAdded || (!displayName.isEmpty() && 
+							!displayNames.contains(displayName))) {
+						items.add(item);
+						displayNames.add(displayName);
 					}
 				}
 			} catch (Exception e) {continue;}
@@ -496,12 +506,12 @@ public class ArmorSet {
 		allSets = new ArrayList<ArmorSet>();
 		nameToSetMap = Maps.newHashMap();
 		modidToSetMap = Maps.newHashMap();
-		for (ItemStack stack : stacks) {
-			if (isValid(stack) && ArmorSet.getSet(stack.getItem()) == null) {
-				String registryName = getItemStackRegistryName(stack);
+		for (Item item : items) {
+			if (isValid(item) && ArmorSet.getSet(item) == null) {
+				String registryName = getItemRegistryName(item);
 				if (!registryNames.contains(registryName) && !registryName.isEmpty()) {
 					try {
-						ArmorSet set = new ArmorSet(stack);
+						ArmorSet set = new ArmorSet(item);
 						allSets.add(set);
 						nameToSetMap.put(set.registryName, set);
 						TreeSet<ArmorSet> list = modidToSetMap.containsKey(set.modid) ? modidToSetMap.get(set.modid) : Sets.newTreeSet(new Comparator<ArmorSet>() {
@@ -520,6 +530,14 @@ public class ArmorSet {
 				}
 			}
 		}
+	}
+
+	/**Get this item's display name (same way ItemStack would get it normally)*/
+	private static String getNormalDisplayName(Item item) {
+		if (item instanceof BlockArmorItem)
+			item = ((BlockArmorItem)item).set.item;
+
+		return new TranslationTextComponent(item.getTranslationKey()).getString();
 	}
 
 	/**Returns TextureAtlasSprite corresponding to given ItemModArmor*/
@@ -578,9 +596,9 @@ public class ArmorSet {
 	}
 
 	/**Used to uniformly create registry name*/
-	public static String getItemStackRegistryName(ItemStack stack) {
+	public static String getItemRegistryName(Item item) {
 		try {
-			String registryName = stack.getItem().getRegistryName().getPath().toLowerCase().replace(" ", "_");
+			String registryName = item.getRegistryName().getPath().toLowerCase().replace(" ", "_");
 			return registryName;
 		} 
 		catch (Exception e) {
@@ -589,15 +607,8 @@ public class ArmorSet {
 	}
 
 	/**Change display name based on the block*/
-	public static ITextComponent getItemStackDisplayName(ItemStack stack, EquipmentSlotType slot)	{
-		String name;
-		if (stack != null && stack.getItem() instanceof BlockArmorItem) {
-			name = ((BlockArmorItem) stack.getItem()).set.stack.getDisplayName().getString();
-		}
-		else if (stack != null && stack.getItem() != null)
-			name = stack.getDisplayName().getString();
-		else
-			name = "";
+	public static ITextComponent getItemStackDisplayName(Item item, EquipmentSlotType slot)	{
+		String name = getNormalDisplayName(item);
 
 		//manually set display names
 		name = name.replace("Block of ", "") 
@@ -682,31 +693,40 @@ public class ArmorSet {
 	}
 
 	/**Should an armor set be made from this item*/
-	private static boolean isValid(ItemStack stack) {
+	private static boolean isValid(Item itemIn) {
 		try {			
 			// not BlockItem
-			if (stack == null || !(stack.getItem() instanceof BlockItem))
+			if (itemIn == null || !(itemIn instanceof BlockItem))
 				return false;
-			BlockItem item = (BlockItem) stack.getItem();
+			BlockItem item = (BlockItem) itemIn;
 			Block block = item.getBlock();
 			// manually added blocks (only vanilla cuz we're overriding the textures)
 			if ((block instanceof ShulkerBoxBlock ||
 					block instanceof BedBlock) && 
-					block.getRegistryName().getNamespace().equals("minecraft"))
+					block.getRegistryName().getNamespace().equals("minecraft")) {
+				//BlockArmor.LOGGER.debug("Valid "+itemIn.toString()+": manual");
 				return true;
+			}
 			for (Block manualBlock : MANUALLY_ADDED_SETS)
-				if (stack != null && (item == manualBlock.asItem()))
+				if (item != null && (item == manualBlock.asItem())) {
+					//BlockArmor.LOGGER.debug("Valid "+itemIn.toString()+": manual"); 
 					return true;
+				}
+			String displayName = getNormalDisplayName(itemIn);
+			String registryName = item.getRegistryName().getPath();
+			String modid = item.getRegistryName().getNamespace();
 			// bad modded item, ore/ingot, or unnamed
-			if (item.getRegistryName().getNamespace().contains("one_point_twelve_concrete") ||
-					item.getRegistryName().getNamespace().contains("railcraft") ||
-					item.getRegistryName().getNamespace().contains("ore") || 
-					item.getRegistryName().getNamespace().contains("ingot") || 
-					stack.getDisplayName().getString().contains(".name") || 
-					stack.getDisplayName().getString().contains("Ore") ||
-					stack.getDisplayName().getString().contains("%") || 
-					stack.getDisplayName().getString().contains("Ingot"))
+			if (modid.contains("one_point_twelve_concrete") ||
+					modid.contains("railcraft") ||
+					registryName.contains("ore") || 
+					registryName.contains("ingot") || 
+					displayName.contains(".name") || 
+					displayName.contains("Ore") ||
+					displayName.contains("%") || 
+					displayName.contains("Ingot")) {
+				//BlockArmor.LOGGER.debug("Invalid "+itemIn.toString()+": display name = "+displayName+", registryName = "+registryName+", modid = "+modid);
 				return false;
+			}
 			// bad blocks
 			if (block instanceof FlowingFluidBlock || 
 					block instanceof ContainerBlock || 
@@ -723,10 +743,12 @@ public class ArmorSet {
 					block == Blocks.DIAMOND_BLOCK ||
 					block == Blocks.AIR ||
 					block == Blocks.SNOW ||
-					block == Blocks.NETHERITE_BLOCK)
+					block == Blocks.NETHERITE_BLOCK) {
+				//BlockArmor.LOGGER.debug("Invalid "+itemIn.toString()+": block = "+block.toString()); 
 				return false;
+			}
 			// bad modded items
-			String registryName = block.getRegistryName().toString();
+			registryName = block.getRegistryName().toString();
 			if (registryName.equalsIgnoreCase("evilcraft:darkBlock") || 
 					registryName.equalsIgnoreCase("evilcraft:obscuredGlass") ||
 					registryName.equalsIgnoreCase("evilcraft:hardenedBlood") ||
@@ -741,16 +763,24 @@ public class ArmorSet {
 					registryName.equalsIgnoreCase("agriculturalrevolution:rustedresearch") ||
 					registryName.equalsIgnoreCase("agriculturalrevolution:rustedpipe") ||
 					registryName.equalsIgnoreCase("agriculturalrevolution:rustedironscaff") ||
-					registryName.equalsIgnoreCase("tconstruct:clear_glass"))
+					registryName.equalsIgnoreCase("tconstruct:clear_glass")) {
+				//BlockArmor.LOGGER.debug("Invalid "+itemIn.toString()+": registryName = "+registryName); 
 				return false;
+			}
 
 			//Check if full block
-			if (block.getDefaultState().getCollisionShape(null, BlockPos.ZERO, ISelectionContext.dummy()) != VoxelShapes.fullCube())
+			if (block.getDefaultState().getCollisionShape(null, BlockPos.ZERO, ISelectionContext.dummy()) != VoxelShapes.fullCube()) {
+				//BlockArmor.LOGGER.debug("Invalid "+itemIn.toString()+": not full block");
 				return false;
+			}
 
+			//BlockArmor.LOGGER.debug("Valid "+itemIn.toString()+": display name = "+displayName+", registryName = "+registryName+", modid = "+modid);
 			return true;
 		}
-		catch (Exception e) { return false; }
+		catch (Exception e) { 
+			//BlockArmor.LOGGER.debug("Invalid "+itemIn.toString()+": error = "+e.toString()); 
+			return false; 
+		}
 	}
 
 	public boolean isEnabled() {
@@ -853,7 +883,7 @@ public class ArmorSet {
 			for (BakedQuad quad : list) {
 				TextureAtlasSprite sprite = quad.getSprite();
 				AnimationMetadataSection animation = (AnimationMetadataSection) (sprite.getFrameCount() > 1 ? ObfuscationReflectionHelper.getPrivateValue(TextureAtlasSprite.class, sprite, "field_110982_k") : null); //animationMetadata
-				int color = quad.hasTintIndex() ? Minecraft.getInstance().getItemColors().getColor(this.stack, quad.getTintIndex()) : -1;
+				int color = quad.hasTintIndex() ? Minecraft.getInstance().getItemColors().getColor(this.getStack(), quad.getTintIndex()) : -1;
 
 				if (sprite.getName().toString().contains("overlay")) //overlays not supported by forge so we can't account for them
 					continue;
@@ -906,7 +936,7 @@ public class ArmorSet {
 					this.animations[slot.getIndex()] = null;
 					//BlockArmor.LOGGER.info("Override texture for "+this.stack.getDisplayName().getString()+" "+slot.getName()+" found at: "+longLoc);
 				} catch (Exception e) {
-					BlockArmor.LOGGER.error("Override texture for "+this.stack.getDisplayName().getString()+" "+slot.getName()+" NOT found at: "+longLoc); 
+					BlockArmor.LOGGER.error("Override texture for "+this.getStack().getDisplayName().getString()+" "+slot.getName()+" NOT found at: "+longLoc); 
 				}
 			}
 

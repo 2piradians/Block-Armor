@@ -84,22 +84,22 @@ public class CommonProxy {
 			for (ArmorSet set : ArmorSet.allSets) {
 				if (set.isEnabled()) {
 					NonNullList<Ingredient> helmetRecipe = NonNullList.from(Ingredient.EMPTY,
-							Ingredient.fromStacks(set.stack), Ingredient.fromStacks(set.stack), Ingredient.fromStacks(set.stack),
-							Ingredient.fromStacks(set.stack), Ingredient.EMPTY, Ingredient.fromStacks(set.stack));
+							Ingredient.fromStacks(set.getStack()), Ingredient.fromStacks(set.getStack()), Ingredient.fromStacks(set.getStack()),
+							Ingredient.fromStacks(set.getStack()), Ingredient.EMPTY, Ingredient.fromStacks(set.getStack()));
 
 					NonNullList<Ingredient> armorRecipe = NonNullList.from(Ingredient.EMPTY,
-							Ingredient.fromStacks(set.stack), Ingredient.EMPTY, Ingredient.fromStacks(set.stack),
-							Ingredient.fromStacks(set.stack), Ingredient.fromStacks(set.stack), Ingredient.fromStacks(set.stack),
-							Ingredient.fromStacks(set.stack), Ingredient.fromStacks(set.stack), Ingredient.fromStacks(set.stack));
+							Ingredient.fromStacks(set.getStack()), Ingredient.EMPTY, Ingredient.fromStacks(set.getStack()),
+							Ingredient.fromStacks(set.getStack()), Ingredient.fromStacks(set.getStack()), Ingredient.fromStacks(set.getStack()),
+							Ingredient.fromStacks(set.getStack()), Ingredient.fromStacks(set.getStack()), Ingredient.fromStacks(set.getStack()));
 
 					NonNullList<Ingredient> legsRecipe = NonNullList.from(Ingredient.EMPTY,
-							Ingredient.fromStacks(set.stack), Ingredient.fromStacks(set.stack), Ingredient.fromStacks(set.stack),
-							Ingredient.fromStacks(set.stack), Ingredient.EMPTY, Ingredient.fromStacks(set.stack),
-							Ingredient.fromStacks(set.stack), Ingredient.EMPTY, Ingredient.fromStacks(set.stack));
+							Ingredient.fromStacks(set.getStack()), Ingredient.fromStacks(set.getStack()), Ingredient.fromStacks(set.getStack()),
+							Ingredient.fromStacks(set.getStack()), Ingredient.EMPTY, Ingredient.fromStacks(set.getStack()),
+							Ingredient.fromStacks(set.getStack()), Ingredient.EMPTY, Ingredient.fromStacks(set.getStack()));
 
 					NonNullList<Ingredient> bootsRecipe = NonNullList.from(Ingredient.EMPTY,
-							Ingredient.fromStacks(set.stack), Ingredient.EMPTY, Ingredient.fromStacks(set.stack),
-							Ingredient.fromStacks(set.stack), Ingredient.EMPTY, Ingredient.fromStacks(set.stack));
+							Ingredient.fromStacks(set.getStack()), Ingredient.EMPTY, Ingredient.fromStacks(set.getStack()),
+							Ingredient.fromStacks(set.getStack()), Ingredient.EMPTY, Ingredient.fromStacks(set.getStack()));
 
 					Map<ResourceLocation, IRecipe<?>> map = Maps.newHashMap(recipes.get(IRecipeType.CRAFTING));
 					map.put(set.helmet.getRegistryName(),

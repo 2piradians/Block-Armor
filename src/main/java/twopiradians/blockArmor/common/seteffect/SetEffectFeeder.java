@@ -14,7 +14,7 @@ public class SetEffectFeeder extends SetEffect {
 	protected SetEffectFeeder() {
 		super();
 		this.color = TextFormatting.RED;
-		this.description = "Automatically feeds the wearer";
+		this.description = "Automatically feeds you";
 	}
 
 	/**Only called when player wearing full, enabled set*/
