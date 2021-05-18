@@ -14,7 +14,7 @@ public class SetEffectExplosive extends SetEffect {
 	protected SetEffectExplosive() {
 		super();
 		this.color = TextFormatting.RED;
-		this.description = "Explodes and uses some durability";
+		this.description = "Creates an explosion around you";
 		this.usesButton = true;
 	}
 

@@ -32,7 +32,7 @@ public class BlockMovingLightSource extends Block implements ITileEntityProvider
 	public static final Property<Integer> LIGHT_LEVEL = IntegerProperty.create("light_level", 1, 15);
 
 	public BlockMovingLightSource() {
-		super(AbstractBlock.Properties.create(Material.AIR));
+		super(AbstractBlock.Properties.create(Material.AIR).setLightLevel((state) -> state.get(LIGHT_LEVEL).intValue()));
 	}
 
 	@Override
@@ -72,7 +72,7 @@ public class BlockMovingLightSource extends Block implements ITileEntityProvider
 
 	@Override
 	public TileEntity createNewTileEntity(IBlockReader worldIn) {
-		return new TileEntityMovingLightSource(0);
+		return new TileEntityMovingLightSource(15);
 	}
 
 	@Override
@@ -80,5 +80,10 @@ public class BlockMovingLightSource extends Block implements ITileEntityProvider
 		DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> {ClientProxy.mapUnbakedModels();}); // hacky way to map models in ModelBakery#processLoading
 		return super.getStateContainer();
 	}
+	
+	@Override
+	public boolean isAir(BlockState state, IBlockReader world, BlockPos pos) {
+        return false;
+    }
 
 }

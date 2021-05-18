@@ -27,7 +27,7 @@ public class SetEffectRocky extends SetEffect {
 	protected SetEffectRocky() {
 		super();
 		this.color = TextFormatting.GRAY;
-		this.description = "Sink like a rock underwater";
+		this.description = "Sinks like a rock underwater";
 	}
 
 	/**Only called when player wearing full, enabled set*/

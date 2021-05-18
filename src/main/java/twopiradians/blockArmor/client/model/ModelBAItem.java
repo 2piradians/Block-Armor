@@ -223,10 +223,12 @@ public final class ModelBAItem implements IModelGeometry<ModelBAItem> {
 
 		/**Need to render cover transparent so it isn't culled*/
 		public RenderType getRenderType(ItemStack stack) {
-			if (this == COVER && !stack.hasEffect()) // don't do when enchanted or it renders square
+			if (this == COVER) 
 				return Atlases.getTranslucentCullBlockType();
+			else if (Minecraft.isFabulousGraphicsEnabled())
+				return Atlases.getCutoutBlockType(); // not translucent, but best we can do in Fabulous graphics?
 			else
-				return Atlases.getItemEntityTranslucentCullType();
+				return Atlases.getItemEntityTranslucentCullType(); // renders invisible in Fabulous graphics
 		}
 	}
 

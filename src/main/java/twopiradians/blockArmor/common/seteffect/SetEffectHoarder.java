@@ -12,8 +12,6 @@ import net.minecraft.block.BarrelBlock;
 import net.minecraft.block.Block;
 import net.minecraft.block.ChestBlock;
 import net.minecraft.block.ShulkerBoxBlock;
-import net.minecraft.client.gui.ScreenManager;
-import net.minecraft.client.gui.screen.inventory.ChestScreen;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
@@ -57,12 +55,12 @@ import twopiradians.blockArmor.common.item.BlockArmorItem;
 
 public class SetEffectHoarder extends SetEffect {
 
-	private static ContainerType<HoarderContainer> containerType_9x1;
-	private static ContainerType<HoarderContainer> containerType_9x2;
-	private static ContainerType<HoarderContainer> containerType_9x3;
-	private static ContainerType<HoarderContainer> containerType_9x4;
-	private static ContainerType<HoarderContainer> containerType_9x5;
-	private static ContainerType<HoarderContainer> containerType_9x6;
+	public static ContainerType<HoarderContainer> containerType_9x1;
+	public static ContainerType<HoarderContainer> containerType_9x2;
+	public static ContainerType<HoarderContainer> containerType_9x3;
+	public static ContainerType<HoarderContainer> containerType_9x4;
+	public static ContainerType<HoarderContainer> containerType_9x5;
+	public static ContainerType<HoarderContainer> containerType_9x6;
 
 	private static final HashMap<EquipmentSlotType, Integer> SLOT_TO_SIZE;
 
@@ -350,15 +348,6 @@ public class SetEffectHoarder extends SetEffect {
 			event.getRegistry().register(containerType_9x6);
 		}
 
-	}
-
-	public void registerScreenContainerTypes() {
-		ScreenManager.registerFactory(containerType_9x1, ChestScreen::new);
-		ScreenManager.registerFactory(containerType_9x2, ChestScreen::new);
-		ScreenManager.registerFactory(containerType_9x3, ChestScreen::new);
-		ScreenManager.registerFactory(containerType_9x4, ChestScreen::new);
-		ScreenManager.registerFactory(containerType_9x5, ChestScreen::new);
-		ScreenManager.registerFactory(containerType_9x6, ChestScreen::new);
 	}
 
 }

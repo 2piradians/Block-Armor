@@ -15,7 +15,6 @@ import com.google.common.collect.Multimap;
 import net.minecraft.block.Block;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.enchantment.Enchantment;
-import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.ai.attributes.Attribute;
@@ -28,9 +27,10 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.ListNBT;
 import net.minecraft.potion.EffectInstance;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.SoundEvents;
-import net.minecraft.util.registry.Registry;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.util.text.TextFormatting;
@@ -67,7 +67,6 @@ public class SetEffect {
 
 	//effects that use the button
 	public static final SetEffectCrafter CRAFTER = new SetEffectCrafter();
-	//public static final SetEffect CRAFTER = new SetEffectDJ();
 	public static final SetEffectEnder_Hoarder ENDER_HOARDER = new SetEffectEnder_Hoarder();
 	public static final SetEffectIlluminated ILLUMINATED = new SetEffectIlluminated(0);
 	public static final SetEffectSnowy SNOWY = new SetEffectSnowy();
@@ -257,8 +256,25 @@ public class SetEffect {
 					player.addPotionEffect(new EffectInstance(potionEffect));
 		}
 	}
+	
+	public static int getEnchantmentLevel(ResourceLocation loc, ItemStack stack) {
+	      if (stack.isEmpty()) {
+	         return 0;
+	      } else {
+	         ListNBT listnbt = stack.getEnchantmentTagList();
 
-	@SuppressWarnings("deprecation")
+	         for(int i = 0; i < listnbt.size(); ++i) {
+	            CompoundNBT compoundnbt = listnbt.getCompound(i);
+	            ResourceLocation resourcelocation1 = ResourceLocation.tryCreate(compoundnbt.getString("id"));
+	            if (resourcelocation1 != null && resourcelocation1.equals(loc)) {
+	               return MathHelper.clamp(compoundnbt.getInt("lvl"), 0, 255);
+	            }
+	         }
+
+	         return 0;
+	      }
+	   }
+
 	public void onUpdate(ItemStack stack, World world, Entity entity, int slot, boolean isSelected) {
 		if (!world.isRemote) {
 			//do enchantments
@@ -268,7 +284,7 @@ public class SetEffect {
 					if (((BlockArmorItem)stack.getItem()).getEquipmentSlot() != enchant.slot)
 						continue;
 					//see if it has enchant already
-					boolean hasEnchant = EnchantmentHelper.getEnchantmentLevel(enchant.ench, stack) >= enchant.level;
+					boolean hasEnchant = getEnchantmentLevel(enchant.loc, stack) >= enchant.level;
 
 					//should remove enchantment
 					if (hasEnchant && (!(entity instanceof LivingEntity) || 
@@ -285,7 +301,7 @@ public class SetEffect {
 							((LivingEntity) entity).getItemStackFromSlot(((BlockArmorItem)stack.getItem()).getEquipmentSlot()) == stack &&
 							ArmorSet.getWornSetEffects((LivingEntity) entity).contains(this) && this.isEnabled()) {
 						CompoundNBT nbt = new CompoundNBT();
-						nbt.putString("id", Registry.ENCHANTMENT.getKey(enchant.ench).toString());
+						nbt.putString("id", enchant.loc.toString());
 						nbt.putShort("lvl", enchant.level);
 						nbt.putBoolean(BlockArmor.MODID+" enchant", true);
 						enchantNbt.add(nbt);
@@ -293,9 +309,9 @@ public class SetEffect {
 					}
 				}
 				if (enchantNbt.isEmpty())
-					stack.getTag().remove("ench");
+					stack.getTag().remove("Enchantments");
 				else
-					stack.getTag().put("ench", enchantNbt);
+					stack.getTag().put("Enchantments", enchantNbt);
 			}
 		}
 	}
@@ -370,7 +386,7 @@ public class SetEffect {
 	public boolean equals(Object obj) {
 		return obj.getClass() == this.getClass()/* && this.description.equals(((SetEffect)obj).description)*/; // removed 4/23/21 for playerSetEffects in ArmorSet
 	}
-	
+
 	/**Override so instances of classes are the same as SetEffect.INSTANCE*/
 	@Override
 	public int hashCode() {
@@ -409,18 +425,20 @@ public class SetEffect {
 		public Enchantment ench;
 		public Short level;
 		public EquipmentSlotType slot;
+		public ResourceLocation loc;
 
 		public EnchantmentData(Enchantment ench, Short level, EquipmentSlotType slot) {
 			this.ench = ench;
+			this.loc = ench.getRegistryName();
 			this.level = level;
 			this.slot = slot;
 		}
 	}
-	
+
 	/**Called when full set is first equipped*/
 	public void onStart(PlayerEntity player) {}
 
 	/**Called when full set is unequipped or player logged out*/
 	public void onStop(PlayerEntity player) {}
-	
+
 }

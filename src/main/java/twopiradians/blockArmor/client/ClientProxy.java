@@ -10,6 +10,8 @@ import java.util.function.Predicate;
 import com.google.common.collect.Maps;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.ScreenManager;
+import net.minecraft.client.gui.screen.inventory.ChestScreen;
 import net.minecraft.client.renderer.model.BlockModel;
 import net.minecraft.client.renderer.model.IUnbakedModel;
 import net.minecraft.client.renderer.model.ModelBakery;
@@ -25,6 +27,7 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.Tuple;
 import net.minecraft.world.World;
 import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.event.ModelBakeEvent;
 import net.minecraftforge.client.event.ModelRegistryEvent;
 import net.minecraftforge.client.event.TextureStitchEvent;
@@ -50,7 +53,7 @@ import twopiradians.blockArmor.common.item.BlockArmorItem;
 import twopiradians.blockArmor.common.item.ModItems;
 import twopiradians.blockArmor.common.item.TextureOverrideInfo;
 import twopiradians.blockArmor.common.item.TextureOverrideInfo.Info;
-import twopiradians.blockArmor.common.seteffect.SetEffect;
+import twopiradians.blockArmor.common.seteffect.SetEffectHoarder;
 
 @SuppressWarnings("deprecation")
 @Mod.EventBusSubscriber(Dist.CLIENT)
@@ -168,7 +171,17 @@ public class ClientProxy {
 			}
 		});
 		// Hoarder container types
-		SetEffect.HOARDER.registerScreenContainerTypes();
+		registerScreenContainerTypes();
+	}
+	
+	@OnlyIn(Dist.CLIENT)
+	public static void registerScreenContainerTypes() {
+		ScreenManager.registerFactory(SetEffectHoarder.containerType_9x1, ChestScreen::new);
+		ScreenManager.registerFactory(SetEffectHoarder.containerType_9x2, ChestScreen::new);
+		ScreenManager.registerFactory(SetEffectHoarder.containerType_9x3, ChestScreen::new);
+		ScreenManager.registerFactory(SetEffectHoarder.containerType_9x4, ChestScreen::new);
+		ScreenManager.registerFactory(SetEffectHoarder.containerType_9x5, ChestScreen::new);
+		ScreenManager.registerFactory(SetEffectHoarder.containerType_9x6, ChestScreen::new);
 	}
 
 	/**Get model based on model's constructor parameters*/

@@ -18,7 +18,7 @@ public class SetEffectSleepy extends SetEffect {
 	protected SetEffectSleepy() {
 		super();
 		this.color = TextFormatting.WHITE;
-		this.description = "Sleep anywhere instantly";
+		this.description = "Allows you to sleep anywhere instantly";
 		this.usesButton = true;
 	}
 

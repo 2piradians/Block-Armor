@@ -19,7 +19,10 @@ import twopiradians.blockArmor.client.key.KeyActivateSetEffect;
 public class BlockArmor {
 			
 	/**Changelog
-	 * Fixed compatibility issues with some mods (like Mekanism and Quark)
+	 * Fixed a compatability issue with Apotheosis
+	 * Fixed rendering issues with the Fabulous graphics setting
+	 * Fixed a crash on servers
+	 * Fixed the Illuminated set effect not working sometimes
 	 */
 
 	public static final String MODNAME = "Block Armor"; 

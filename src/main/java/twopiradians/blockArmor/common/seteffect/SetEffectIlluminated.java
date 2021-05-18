@@ -32,6 +32,7 @@ public class SetEffectIlluminated extends SetEffect {
 	public void onArmorTick(World world, PlayerEntity player, ItemStack stack) {
 		super.onArmorTick(world, player, stack);
 
+		// enable/disable
 		if (ArmorSet.getFirstSetItem(player, this) == stack &&
 				!world.isRemote && BlockArmor.key.isKeyDown(player) && !player.getCooldownTracker().hasCooldown(stack.getItem())) {
 			boolean deactivated = !stack.getTag().getBoolean("deactivated");

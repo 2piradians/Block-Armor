@@ -19,7 +19,7 @@ public class SetEffectLightweight extends SetEffect
 	protected SetEffectLightweight() {
 		super();
 		this.color = TextFormatting.GREEN;
-		this.description = "Fall slowly, like a leaf in the wind";
+		this.description = "Falls slowly, like a leaf in the wind";
 	}
 
 	/**Reduce fall distance for less damage*/

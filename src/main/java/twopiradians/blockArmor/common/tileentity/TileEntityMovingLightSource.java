@@ -22,7 +22,7 @@ public class TileEntityMovingLightSource extends TileEntity implements ITickable
 	private SetEffect effect;
 
 	public TileEntityMovingLightSource() {
-		this(0);
+		this(15);
 	}
 
 	public TileEntityMovingLightSource(int lightLevel) {
@@ -39,7 +39,7 @@ public class TileEntityMovingLightSource extends TileEntity implements ITickable
 			ItemStack stack = ArmorSet.getFirstSetItem(player, effect);
 			if ((player == null || stack == null || (stack.hasTag() && stack.getTag().getBoolean("deactivated"))) &&
 					world.getBlockState(getPos()).getBlock() instanceof BlockMovingLightSource) {
-				if (--despawnTimer <= 0)
+				if (--despawnTimer <= 0) 
 					world.removeBlock(getPos(), false);
 			}
 			else

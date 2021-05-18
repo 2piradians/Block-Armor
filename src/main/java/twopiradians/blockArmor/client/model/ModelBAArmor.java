@@ -10,7 +10,6 @@ import com.mojang.blaze3d.vertex.IVertexBuilder;
 
 import it.unimi.dsi.fastutil.objects.ObjectList;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.ItemRenderer;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.model.BipedModel;
 import net.minecraft.client.renderer.model.ModelRenderer;
@@ -263,7 +262,7 @@ public class ModelBAArmor<T extends LivingEntity> extends BipedModel<T> {
 		//don't render enchant if only enchant is from set effect
 		boolean renderEnchant = false;
 		if (stack != null && stack.isEnchanted() && stack.getItem() instanceof BlockArmorItem) {
-			ListNBT enchantNbt = stack.getTag().getList("ench", 10);
+			ListNBT enchantNbt = stack.getEnchantmentTagList();
 			for (int i=0; i<enchantNbt.size(); ++i)
 				if (!enchantNbt.getCompound(i).getBoolean(BlockArmor.MODID+" enchant")) {
 					renderEnchant = true;
@@ -285,7 +284,7 @@ public class ModelBAArmor<T extends LivingEntity> extends BipedModel<T> {
 			this.actualRender(matrix, vertex, false, lightMapUV, overlayUV, ageInTicks, netHeadYaw, headPitch, scale);	
 			// if enchanted - use entity glint vertex on top
 			if (renderEnchant) {
-				vertex = ItemRenderer.getArmorVertexBuilder(Minecraft.getInstance().getRenderTypeBuffers().getBufferSource(), RenderType.getEntityGlint(), false, true);
+				vertex = Minecraft.getInstance().getRenderTypeBuffers().getBufferSource().getBuffer(RenderType.getEntityGlintDirect());
 				this.actualRender(matrix, vertex, false, lightMapUV, overlayUV, ageInTicks, netHeadYaw, headPitch, scale);
 			}
 		}
