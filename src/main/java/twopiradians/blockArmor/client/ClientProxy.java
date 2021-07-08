@@ -173,7 +173,7 @@ public class ClientProxy {
 		// Hoarder container types
 		registerScreenContainerTypes();
 	}
-	
+
 	@OnlyIn(Dist.CLIENT)
 	public static void registerScreenContainerTypes() {
 		ScreenManager.registerFactory(SetEffectHoarder.containerType_9x1, ChestScreen::new);

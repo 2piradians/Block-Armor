@@ -25,6 +25,7 @@ import net.minecraft.inventory.container.Container;
 import net.minecraft.inventory.container.ContainerType;
 import net.minecraft.inventory.container.INamedContainerProvider;
 import net.minecraft.inventory.container.Slot;
+import net.minecraft.item.BlockItem;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.ListNBT;
@@ -45,6 +46,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.common.extensions.IForgeContainerType;
 import net.minecraftforge.common.util.Constants.NBT;
 import net.minecraftforge.event.RegistryEvent;
+import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber.Bus;
@@ -53,7 +55,11 @@ import twopiradians.blockArmor.common.BlockArmor;
 import twopiradians.blockArmor.common.item.ArmorSet;
 import twopiradians.blockArmor.common.item.BlockArmorItem;
 
+@Mod.EventBusSubscriber
 public class SetEffectHoarder extends SetEffect {
+
+	/**Map of Hoarder item to items it stores so nbt only has to update once per tick*/
+	private static HashMap<ItemStack, ItemStack[]> dirtyItems = Maps.newHashMap();
 
 	public static ContainerType<HoarderContainer> containerType_9x1;
 	public static ContainerType<HoarderContainer> containerType_9x2;
@@ -93,7 +99,6 @@ public class SetEffectHoarder extends SetEffect {
 			this.damageArmor(player, 1, false); 
 			this.setCooldown(player, 20);
 		}
-
 	}
 
 	/** Should block be given this set effect */
@@ -130,6 +135,17 @@ public class SetEffectHoarder extends SetEffect {
 		}
 
 		return tooltip;
+	}
+
+	@SubscribeEvent
+	public static void onTick(TickEvent.ServerTickEvent event) {
+		if (!dirtyItems.isEmpty()) {
+			for (ItemStack armor : dirtyItems.keySet()) {
+				ItemStack[] items = dirtyItems.get(armor);
+				setStoredItems(armor, items);
+			}
+			dirtyItems.clear();
+		}
 	}
 
 	/**Get open/close sound event based on this block*/
@@ -207,8 +223,8 @@ public class SetEffectHoarder extends SetEffect {
 		int index = 0;
 		for (ItemStack wornItem : ArmorSet.getAllSetItems(player, SetEffect.HOARDER)) {
 			int size = SLOT_TO_SIZE.get(((BlockArmorItem)wornItem.getItem()).getEquipmentSlot());
-			if (index + size <= stacks.length)
-				setStoredItems(wornItem, Arrays.copyOfRange(stacks, index, index+size));
+			if (index + size <= stacks.length) 
+				dirtyItems.put(wornItem, Arrays.copyOfRange(stacks, index, index+size));
 			index += size;
 		}
 	}
@@ -231,9 +247,12 @@ public class SetEffectHoarder extends SetEffect {
 	public static void setStoredItems(ItemStack wornItem, ItemStack[] stacks) {
 		if (wornItem != null) {
 			CompoundNBT nbt = wornItem.hasTag() ? wornItem.getTag() : new CompoundNBT();
-			ListNBT list = nbt.getList(BlockArmor.MODID+":hoarderItems", NBT.TAG_COMPOUND);
+			ListNBT list = new ListNBT();
 			for (int i=0; i<stacks.length; ++i)
-				list.add(i, stacks[i].write(new CompoundNBT()));
+				if (stacks[i].isEmpty())
+					list.add(i, new CompoundNBT());
+				else
+					list.add(i, stacks[i].write(new CompoundNBT()));
 			nbt.put(BlockArmor.MODID+":hoarderItems", list);
 			wornItem.setTag(nbt);
 		}
@@ -316,10 +335,11 @@ public class SetEffectHoarder extends SetEffect {
 			super(inventoryIn, slotIndexIn, xPosition, yPosition);
 		}
 
-		/**Prevent putting in Hoarder items*/
+		/**Prevent putting in Hoarder items and shulker boxes*/
 		public boolean isItemValid(ItemStack stack) {
 			return !(stack.getItem() instanceof BlockArmorItem && 
-					((BlockArmorItem)stack.getItem()).set.setEffects.contains(SetEffect.HOARDER));
+					((BlockArmorItem)stack.getItem()).set.setEffects.contains(SetEffect.HOARDER)) &&
+					!(stack.getItem() instanceof BlockItem && ((BlockItem)stack.getItem()).getBlock() instanceof ShulkerBoxBlock);
 		}
 	}	
 

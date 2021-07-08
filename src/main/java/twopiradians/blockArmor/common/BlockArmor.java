@@ -19,10 +19,10 @@ import twopiradians.blockArmor.client.key.KeyActivateSetEffect;
 public class BlockArmor {
 			
 	/**Changelog
-	 * Fixed a compatability issue with Apotheosis
-	 * Fixed rendering issues with the Fabulous graphics setting
-	 * Fixed a crash on servers
-	 * Fixed the Illuminated set effect not working sometimes
+	 * 
+	 * 
+	 * FIXME more reports of chests being empty - desert temple chests (tested in SP and not able to reproduce)
+	 * FIXME can't join server with MineColonies bc of "Exception: io.nettyhandler.codec.DecoderException: java.io.IOException: Payload may not be larger than 1048576 bytes"
 	 */
 
 	public static final String MODNAME = "Block Armor"; 

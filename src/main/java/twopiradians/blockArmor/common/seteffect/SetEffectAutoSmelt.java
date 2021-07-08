@@ -9,6 +9,7 @@ import javax.annotation.Nullable;
 import com.google.gson.JsonObject;
 
 import net.minecraft.block.Block;
+import net.minecraft.block.BlockState;
 import net.minecraft.enchantment.EnchantmentHelper;
 import net.minecraft.enchantment.Enchantments;
 import net.minecraft.entity.Entity;
@@ -83,7 +84,7 @@ public class SetEffectAutoSmelt extends SetEffect {
 			// variables
 			ServerWorld world = (ServerWorld) event.getEntity().world;
 			boolean smelted = false;
-			
+
 			// check if disabled
 			ItemStack stack = ArmorSet.getFirstSetItem((LivingEntity) event.getSource().getTrueSource(), SetEffect.AUTOSMELT);
 			if (!stack.hasTag() || stack.getTag().getBoolean("deactivated"))
@@ -133,8 +134,11 @@ public class SetEffectAutoSmelt extends SetEffect {
 			if (entityIn instanceof LivingEntity && ArmorSet.hasSetEffect((LivingEntity) entityIn, SetEffect.AUTOSMELT)) {
 				LivingEntity entity = (LivingEntity) entityIn;
 				ItemStack stack = ArmorSet.getFirstSetItem(entity, SetEffect.AUTOSMELT);
+				BlockState state = context.get(LootParameters.BLOCK_STATE);
+				ItemStack tool = context.get(LootParameters.TOOL);
+
 				if (entity.world.isRemote || 
-						EnchantmentHelper.getEnchantments(context.get(LootParameters.TOOL)).containsKey(Enchantments.SILK_TOUCH) || 
+						(tool != null && EnchantmentHelper.getEnchantments(tool).containsKey(Enchantments.SILK_TOUCH)) || 
 						!stack.hasTag() || stack.getTag().getBoolean("deactivated"))
 					return generatedLoot;
 
@@ -144,6 +148,15 @@ public class SetEffectAutoSmelt extends SetEffect {
 				ArrayList<ItemStack> newLoot = new ArrayList<ItemStack>();
 				for (ItemStack oldStack : generatedLoot) {
 					ItemStack newStack = smelt(oldStack, context.getWorld());
+					if (newStack != null) {
+						smelted = true;
+						newLoot.add(newStack);
+					}
+				}
+
+				// smelt block
+				if (!smelted && state != null) {
+					ItemStack newStack = smelt(new ItemStack(state.getBlock()), context.getWorld());
 					if (newStack != null)
 						smelted = true;
 					newLoot.add(newStack);

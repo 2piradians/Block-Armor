@@ -13,7 +13,7 @@ import twopiradians.blockArmor.common.command.CommandDev;
 public class SDevColorsPacket
 {
 	public SDevColorsPacket() {}
-	
+
 	public static void encode(SDevColorsPacket packet, PacketBuffer buf) {
 		ArrayList<UUID> keys = new ArrayList<UUID>(CommandDev.devColors.keySet());
 		int count = keys.size();
@@ -26,7 +26,7 @@ public class SDevColorsPacket
 		}
 	}
 
-	public static SDevColorsPacket decode(PacketBuffer buf) {
+	public static SDevColorsPacket decode(PacketBuffer buf) {		
 		CommandDev.devColors = Maps.newHashMap();
 		int count = buf.readInt();
 		for (int i=0; i<count; i++) {
