@@ -7,11 +7,14 @@ import com.google.gson.JsonObject;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.OreBlock;
+import net.minecraft.enchantment.EnchantmentHelper;
+import net.minecraft.enchantment.Enchantments;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.ai.attributes.AttributeModifier;
 import net.minecraft.entity.ai.attributes.Attributes;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.loot.LootContext;
 import net.minecraft.loot.LootParameters;
@@ -63,7 +66,7 @@ public class SetEffectLucky extends SetEffect {
 			return true;		
 		return false;
 	}
-	
+
 	/**Spawn particles and make sound*/
 	private void doParticlesAndSound(World world, BlockPos pos, LivingEntity player, float amplifier) {
 		if (world instanceof ServerWorld) {
@@ -90,7 +93,15 @@ public class SetEffectLucky extends SetEffect {
 				LivingEntity entity = (LivingEntity) entityIn;
 				Vector3d pos = context.get(LootParameters.ORIGIN);
 				BlockState state = context.get(LootParameters.BLOCK_STATE);
-				if (pos != null && state != null && state.getBlock() instanceof OreBlock) {
+				ItemStack tool = context.get(LootParameters.TOOL);
+				// make sure this doesn't drop the same block (i.e. Iron Ore)
+				Item item = state != null ? state.getBlock().asItem() : null;
+				if (item != null)
+					for (ItemStack stack : generatedLoot)
+						if (stack != null && stack.getItem() == item)
+							return generatedLoot;
+				if (pos != null && state != null && state.getBlock() instanceof OreBlock && 
+						(tool == null || EnchantmentHelper.getEnchantmentLevel(Enchantments.SILK_TOUCH, tool) <= 0)) {
 					int beforeCount = 0;
 					int afterCount = 0;
 					for (ItemStack stack : generatedLoot) {

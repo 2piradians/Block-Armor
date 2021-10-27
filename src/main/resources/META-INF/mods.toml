@@ -17,7 +17,7 @@ issueTrackerURL="https://github.com/2piradians/Block-Armor/issues" #optional
 # The modid of the mod
 modId="blockarmor" #mandatory
 # The version number of the mod - there's a few well known ${} variables useable here or just hardcode it
-version="2.6.3" #mandatory
+version="2.6.4" #mandatory
  # A display name for the mod
 displayName="Block Armor" #mandatory
 # A URL to query for updates for this mod. See the JSON update specification <here>

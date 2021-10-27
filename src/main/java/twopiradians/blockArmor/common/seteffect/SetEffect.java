@@ -257,18 +257,18 @@ public class SetEffect {
 		}
 	}
 	
+	/**Modified from EnchantmentHelper#getEnchantmentLevel to use loc instead of enchantId*/
 	public static int getEnchantmentLevel(ResourceLocation loc, ItemStack stack) {
-	      if (stack.isEmpty()) {
+	      if (stack.isEmpty())
 	         return 0;
-	      } else {
+	      else {
 	         ListNBT listnbt = stack.getEnchantmentTagList();
 
-	         for(int i = 0; i < listnbt.size(); ++i) {
+	         for (int i = 0; i < listnbt.size(); ++i) {
 	            CompoundNBT compoundnbt = listnbt.getCompound(i);
 	            ResourceLocation resourcelocation1 = ResourceLocation.tryCreate(compoundnbt.getString("id"));
-	            if (resourcelocation1 != null && resourcelocation1.equals(loc)) {
+	            if (resourcelocation1 != null && resourcelocation1.equals(loc)) 
 	               return MathHelper.clamp(compoundnbt.getInt("lvl"), 0, 255);
-	            }
 	         }
 
 	         return 0;
@@ -295,7 +295,6 @@ public class SetEffect {
 								enchantNbt.remove(i);
 						stack.setTagInfo("Enchantments", enchantNbt);
 					}
-
 					//should add enchantment
 					else if (!hasEnchant && 
 							((LivingEntity) entity).getItemStackFromSlot(((BlockArmorItem)stack.getItem()).getEquipmentSlot()) == stack &&
@@ -304,7 +303,7 @@ public class SetEffect {
 						nbt.putString("id", enchant.loc.toString());
 						nbt.putShort("lvl", enchant.level);
 						nbt.putBoolean(BlockArmor.MODID+" enchant", true);
-						enchantNbt.add(nbt);
+						enchantNbt.add(0, nbt);
 						stack.setTagInfo("Enchantments", enchantNbt);
 					}
 				}

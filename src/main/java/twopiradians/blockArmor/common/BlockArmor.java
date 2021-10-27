@@ -19,7 +19,8 @@ import twopiradians.blockArmor.client.key.KeyActivateSetEffect;
 public class BlockArmor {
 			
 	/**Changelog
-	 * 
+	 * Fixed set effects with enchantments duplicating enchantments under certain conditions
+	 * Fixed a duping issue with the Lucky set effect
 	 * 
 	 * FIXME more reports of chests being empty - desert temple chests (tested in SP and not able to reproduce)
 	 * FIXME can't join server with MineColonies bc of "Exception: io.nettyhandler.codec.DecoderException: java.io.IOException: Payload may not be larger than 1048576 bytes"
