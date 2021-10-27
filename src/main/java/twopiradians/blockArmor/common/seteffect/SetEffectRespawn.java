@@ -1,17 +1,17 @@
 package twopiradians.blockArmor.common.seteffect;
 
-import net.minecraft.block.Block;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.network.play.server.SPlaySoundEffectPacket;
-import net.minecraft.network.play.server.SRespawnPacket;
-import net.minecraft.network.play.server.SSetExperiencePacket;
-import net.minecraft.network.play.server.SWorldSpawnChangedPacket;
-import net.minecraft.util.SoundCategory;
-import net.minecraft.util.SoundEvents;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.text.TextFormatting;
-import net.minecraft.world.biome.BiomeManager;
-import net.minecraft.world.server.ServerWorld;
+import net.minecraft.ChatFormatting;
+import net.minecraft.core.BlockPos;
+import net.minecraft.network.protocol.game.ClientboundRespawnPacket;
+import net.minecraft.network.protocol.game.ClientboundSetDefaultSpawnPositionPacket;
+import net.minecraft.network.protocol.game.ClientboundSetExperiencePacket;
+import net.minecraft.network.protocol.game.ClientboundSoundPacket;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.level.biome.BiomeManager;
+import net.minecraft.world.level.block.Block;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -22,47 +22,46 @@ public class SetEffectRespawn extends SetEffect {
 
 	protected SetEffectRespawn() {
 		super();
-		this.color = TextFormatting.DARK_PURPLE;
-		this.description = "Teleports you to your respawn point before death";
+		this.color = ChatFormatting.DARK_PURPLE;
 	}
 
 	/**Teleport player instead of them dying*/
 	@SubscribeEvent
 	public static void onEvent(LivingDeathEvent event) {
 		try {
-			if (event.getEntityLiving() instanceof ServerPlayerEntity) {
-				ServerPlayerEntity player = (ServerPlayerEntity) event.getEntityLiving();
-				if (!player.world.isRemote && 
+			if (event.getEntityLiving() instanceof ServerPlayer) {
+				ServerPlayer player = (ServerPlayer) event.getEntityLiving();
+				if (!player.level.isClientSide && 
 						ArmorSet.hasSetEffect(player, SetEffect.RESPAWN) && 
-						!player.getCooldownTracker().hasCooldown(ArmorSet.getFirstSetItem(player, SetEffect.RESPAWN).getItem())) {
+						!player.getCooldowns().isOnCooldown(ArmorSet.getFirstSetItem(player, SetEffect.RESPAWN).getItem())) {
 					// set health to 1 and clear effects
 					player.setHealth(1);
-					player.clearActivePotions();
-					player.world.setEntityState(player, (byte)3);
-					player.extinguish();
-					player.getCombatTracker().reset();
+					player.removeAllEffects();
+					player.level.broadcastEntityEvent(player, (byte)3);
+					player.clearFire();
+					player.getCombatTracker().recheckStatus();
 					// set player's position and dimension to spawn point
-					ServerWorld respawnWorld = player.server.getWorld(player.func_241141_L_());
+					ServerLevel respawnWorld = player.server.getLevel(player.getRespawnDimension());
 					if (respawnWorld == null)
-						respawnWorld = player.server.func_241755_D_();
-					BlockPos respawnPos = player.func_241140_K_();
+						respawnWorld = player.server.overworld();
+					BlockPos respawnPos = player.getRespawnPosition();
 					if (respawnPos == null)
-						respawnWorld.getSpawnPoint();
-					if (respawnWorld != player.world) {
-						player.setPortal(player.getPosition());
+						respawnWorld.getSharedSpawnPos();
+					if (respawnWorld != player.level) {
+						player.handleInsidePortal(player.blockPosition());
 						player.changeDimension(respawnWorld);
 					}
-					player.setLocationAndAngles(respawnPos.getX(), respawnPos.getY(), respawnPos.getZ(), 0, 0);
-					player.func_242111_a(respawnWorld.getDimensionKey(), respawnPos, player.func_242109_L(), player.func_241142_M_(), false);
-					player.connection.sendPacket(new SRespawnPacket(player.world.getDimensionType(), player.world.getDimensionKey(), BiomeManager.getHashedSeed(player.getServerWorld().getSeed()), player.interactionManager.getGameType(), player.interactionManager.func_241815_c_(), player.getServerWorld().isDebug(), player.getServerWorld().isFlatWorld(), true));
-					player.connection.setPlayerLocation(player.getPosX(), player.getPosY(), player.getPosZ(), player.rotationYaw, player.rotationPitch);
-					player.connection.sendPacket(new SWorldSpawnChangedPacket(respawnWorld.getSpawnPoint(), respawnWorld.getSpawnAngle()));
-					player.connection.sendPacket(new SSetExperiencePacket(player.experience, player.experienceTotal, player.experienceLevel));
-					player.sendContainerToPlayer(player.openContainer);
+					player.moveTo(respawnPos.getX(), respawnPos.getY(), respawnPos.getZ(), 0, 0);
+					player.setRespawnPosition(respawnWorld.dimension(), respawnPos, player.getRespawnAngle(), player.isRespawnForced(), false);
+					player.connection.send(new ClientboundRespawnPacket(player.level.dimensionType(), player.level.dimension(), BiomeManager.obfuscateSeed(player.getLevel().getSeed()), player.gameMode.getGameModeForPlayer(), player.gameMode.getPreviousGameModeForPlayer(), player.getLevel().isDebug(), player.getLevel().isFlat(), true));
+					player.connection.teleport(player.getX(), player.getY(), player.getZ(), player.getYRot(), player.getXRot());
+					player.connection.send(new ClientboundSetDefaultSpawnPositionPacket(respawnWorld.getSharedSpawnPos(), respawnWorld.getSharedSpawnAngle()));
+					player.connection.send(new ClientboundSetExperiencePacket(player.experienceProgress, player.totalExperience, player.experienceLevel));
+					player.initMenu(player.containerMenu); 
 					// cooldown, damage, sound
 					SetEffect.RESPAWN.setCooldown(player, 6000);
 					SetEffect.RESPAWN.damageArmor(player, 100, true);
-					player.connection.sendPacket(new SPlaySoundEffectPacket(SoundEvents.BLOCK_RESPAWN_ANCHOR_DEPLETE, SoundCategory.BLOCKS, (double)player.getPosX(), (double)player.getPosY(), (double)player.getPosZ(), 1.0F, 1.0F));
+					player.connection.send(new ClientboundSoundPacket(SoundEvents.RESPAWN_ANCHOR_DEPLETE, SoundSource.BLOCKS, (double)player.getX(), (double)player.getY(), (double)player.getZ(), 1.0F, 1.0F));
 					// cancel event so player doesn't die
 					event.setCanceled(true);
 				}

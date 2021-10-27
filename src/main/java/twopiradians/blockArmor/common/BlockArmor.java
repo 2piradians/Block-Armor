@@ -3,14 +3,14 @@ package twopiradians.blockArmor.common;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber.Bus;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
-import net.minecraftforge.fml.network.NetworkRegistry;
-import net.minecraftforge.fml.network.simple.SimpleChannel;
+import net.minecraftforge.fmllegacy.network.NetworkRegistry;
+import net.minecraftforge.fmllegacy.network.simple.SimpleChannel;
 import twopiradians.blockArmor.client.ClientProxy;
 import twopiradians.blockArmor.client.key.KeyActivateSetEffect;
 
@@ -19,11 +19,13 @@ import twopiradians.blockArmor.client.key.KeyActivateSetEffect;
 public class BlockArmor {
 			
 	/**Changelog
+	 * Ported to Minecraft v1.17.1
+	 * Added lang support for armor item names and set effects
 	 * Fixed set effects with enchantments duplicating enchantments under certain conditions
 	 * Fixed a duping issue with the Lucky set effect
 	 * 
-	 * FIXME more reports of chests being empty - desert temple chests (tested in SP and not able to reproduce)
-	 * FIXME can't join server with MineColonies bc of "Exception: io.nettyhandler.codec.DecoderException: java.io.IOException: Payload may not be larger than 1048576 bytes"
+	 * FIXME (1.16.5) more reports of chests being empty - desert temple chests (tested in SP and not able to reproduce)
+	 * FIXME (1.16.5) can't join server with MineColonies bc of "Exception: io.nettyhandler.codec.DecoderException: java.io.IOException: Payload may not be larger than 1048576 bytes"
 	 */
 
 	public static final String MODNAME = "Block Armor"; 

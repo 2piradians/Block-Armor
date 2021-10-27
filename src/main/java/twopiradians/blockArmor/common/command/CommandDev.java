@@ -12,20 +12,20 @@ import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.suggestion.SuggestionProvider;
 
-import net.minecraft.command.CommandSource;
-import net.minecraft.command.Commands;
-import net.minecraft.command.ISuggestionProvider;
-import net.minecraft.command.arguments.ResourceLocationArgument;
-import net.minecraft.command.arguments.SuggestionProviders;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.inventory.EquipmentSlotType;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.text.TextFormatting;
-import net.minecraft.util.text.TranslationTextComponent;
-import net.minecraftforge.fml.network.PacketDistributor;
+import net.minecraft.ChatFormatting;
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.commands.Commands;
+import net.minecraft.commands.SharedSuggestionProvider;
+import net.minecraft.commands.arguments.ResourceLocationArgument;
+import net.minecraft.commands.synchronization.SuggestionProviders;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraftforge.fmllegacy.network.PacketDistributor;
 import twopiradians.blockArmor.common.BlockArmor;
 import twopiradians.blockArmor.common.item.ArmorSet;
 import twopiradians.blockArmor.common.item.BlockArmorItem;
@@ -43,8 +43,8 @@ public class CommandDev  {
 		add(UUID.fromString("93d28330-e1e2-447b-b552-00cb13e9afbd")); //2piradians
 	}};
 	public static HashMap<UUID, Float[]> devColors = Maps.newHashMap();			
-	private static final SuggestionProvider<CommandSource> SETS_SUGGESTION = SuggestionProviders.register(new ResourceLocation(BlockArmor.MODID, "armor_sets"), (context, builder) -> { 
-		return ISuggestionProvider.suggestIterable(setMap.keySet().stream().map((str) -> new ResourceLocation(str)).collect(Collectors.toList()), builder);  
+	private static final SuggestionProvider<CommandSourceStack> SETS_SUGGESTION = SuggestionProviders.register(new ResourceLocation(BlockArmor.MODID, "armor_sets"), (context, builder) -> { 
+		return SharedSuggestionProvider.suggestResource(setMap.keySet().stream().map((str) -> new ResourceLocation(str)).collect(Collectors.toList()), builder);  
 	});
 
 	/** Add block to list of all block names for created Armor Sets */
@@ -54,7 +54,7 @@ public class CommandDev  {
 			try {
 				name = ArmorSet.getItemRegistryName(set.item);
 				name = name.replace(" ", "_");
-				name = TextFormatting.getTextWithoutFormattingCodes(name);
+				name = ChatFormatting.stripFormatting(name);
 				name = name.toLowerCase();
 			}
 			catch (Exception e) {}
@@ -64,16 +64,16 @@ public class CommandDev  {
 		}
 	}
 
-	public static void register(CommandDispatcher<CommandSource> dispatcher) {
+	public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
 		dispatcher.register(Commands.literal("dev")
 				.requires((source) -> {
-					if (source.getEntity() instanceof PlayerEntity)
-						return DEVS.contains(((PlayerEntity) source.getEntity()).getUniqueID());
+					if (source.getEntity() instanceof Player)
+						return DEVS.contains(((Player) source.getEntity()).getUUID());
 					return false;
 				})
 				// /dev armor <set>
 				.then(Commands.literal("armor")
-						.then(Commands.argument("set", ResourceLocationArgument.resourceLocation())
+						.then(Commands.argument("set", ResourceLocationArgument.id())
 								.suggests(SETS_SUGGESTION)
 								.executes((context) -> {
 									return setArmorSet(context.getSource(), context);
@@ -89,43 +89,43 @@ public class CommandDev  {
 	}
 
 	/**Color's player's block armor*/
-	public static int setArmorColor(CommandSource source, CommandContext<CommandSource> context) throws CommandSyntaxException {
-		ServerPlayerEntity player = source.asPlayer();
+	public static int setArmorColor(CommandSourceStack source, CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
+		ServerPlayer player = source.getPlayerOrException();
 		float red = FloatArgumentType.getFloat(context, "red");
 		float green = FloatArgumentType.getFloat(context, "green");
 		float blue = FloatArgumentType.getFloat(context, "blue");
 		// remove color
 		if (red == -1 && green == -1 && blue == -1)
-			devColors.remove(player.getUniqueID());
+			devColors.remove(player.getUUID());
 		// rainbow
 		else if (red == 0 && green == 0 && blue == 0)
-			devColors.put(player.getUniqueID(), new Float[] {0f, 0f, 0f});
+			devColors.put(player.getUUID(), new Float[] {0f, 0f, 0f});
 		// needs to be inverted for some reason..
 		else
-			devColors.put(player.getUniqueID(), new Float[] {1-red, 1-green, 1-blue});
+			devColors.put(player.getUUID(), new Float[] {1-red, 1-green, 1-blue});
 		BlockArmor.NETWORK.send(PacketDistributor.ALL.noArg(), new SDevColorsPacket());
 		return 1;
 	}
 
 	/**Sets player's armor to armor set*/
-	public static int setArmorSet(CommandSource source, CommandContext<CommandSource> context) throws CommandSyntaxException {
-		ServerPlayerEntity player = source.asPlayer();
-		ResourceLocation loc = ResourceLocationArgument.getResourceLocation(context, "set");
+	public static int setArmorSet(CommandSourceStack source, CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
+		ServerPlayer player = source.getPlayerOrException();
+		ResourceLocation loc = ResourceLocationArgument.getId(context, "set");
 		ArmorSet set = setMap.get(loc.getPath().toLowerCase());
 		if (set != null) { //replace empty armor slots or slots with BlockArmorItem with new set's armor
-			for (EquipmentSlotType slot : ArmorSet.SLOTS) {
-				ItemStack stack = player.getItemStackFromSlot(slot);
+			for (EquipmentSlot slot : ArmorSet.SLOTS) {
+				ItemStack stack = player.getItemBySlot(slot);
 				ItemStack newStack = new ItemStack(set.getArmorForSlot(slot));
-				CompoundNBT nbt = new CompoundNBT();
+				CompoundTag nbt = new CompoundTag();
 				nbt.putBoolean("devSpawned", true);
 				newStack.setTag(nbt);
-				if (stack == null || stack.isEmpty() || stack.getItem() instanceof BlockArmorItem)
-					player.setItemStackToSlot(slot, newStack);
+				if (stack == null || stack.isEmpty() || stack.getItem() instanceof BlockArmorItem) 
+					player.setItemSlot(slot, newStack);
 			}
-			player.sendMessage(new TranslationTextComponent(TextFormatting.GREEN+"Spawned set for "+loc.getPath()), UUID.randomUUID());
+			player.sendMessage(new TranslatableComponent(ChatFormatting.GREEN+"Spawned set for "+loc.getPath()), UUID.randomUUID());
 		}
 		else {
-			player.sendMessage(new TranslationTextComponent(TextFormatting.RED+"Invalid block"), UUID.randomUUID());
+			player.sendMessage(new TranslatableComponent(ChatFormatting.RED+"Invalid block"), UUID.randomUUID());
 			return 0;
 		}
 		return 1;

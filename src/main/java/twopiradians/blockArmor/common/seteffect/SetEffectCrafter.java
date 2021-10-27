@@ -1,19 +1,19 @@
 package twopiradians.blockArmor.common.seteffect;
 
 
-import net.minecraft.block.Block;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.inventory.container.Container;
-import net.minecraft.inventory.container.INamedContainerProvider;
-import net.minecraft.inventory.container.WorkbenchContainer;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.IWorldPosCallable;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.TextFormatting;
-import net.minecraft.util.text.TranslationTextComponent;
-import net.minecraft.world.World;
+import net.minecraft.ChatFormatting;
+import net.minecraft.core.BlockPos;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.world.MenuProvider;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.inventory.ContainerLevelAccess;
+import net.minecraft.world.inventory.CraftingMenu;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
 import twopiradians.blockArmor.common.BlockArmor;
 import twopiradians.blockArmor.common.item.ArmorSet;
 
@@ -21,17 +21,16 @@ public class SetEffectCrafter extends SetEffect {
 
 	protected SetEffectCrafter() {
 		super();
-		this.color = TextFormatting.GOLD;
-		this.description = "Opens a crafting screen";
+		this.color = ChatFormatting.GOLD;
 		this.usesButton = true;
 	}
 
 	/**Only called when player wearing full, enabled set*/
-	public void onArmorTick(World world, PlayerEntity player, ItemStack stack) {
+	public void onArmorTick(Level world, Player player, ItemStack stack) {
 		super.onArmorTick(world, player, stack);
 
-		if (!world.isRemote && ArmorSet.getFirstSetItem(player, this) == stack && BlockArmor.key.isKeyDown(player)) {
-			player.openContainer(new CrafterProvider());
+		if (!world.isClientSide && ArmorSet.getFirstSetItem(player, this) == stack && BlockArmor.key.isKeyDown(player)) {
+			player.openMenu(new CrafterProvider());
 			this.damageArmor(player, 1, false);
 		}
 	}
@@ -44,26 +43,26 @@ public class SetEffectCrafter extends SetEffect {
 		return false;
 	}	
 	
-	private class CrafterProvider implements INamedContainerProvider {
+	private class CrafterProvider implements MenuProvider {
 
 		@Override
-		public Container createMenu(int id, PlayerInventory playerInventory, PlayerEntity player) {
-			return new CrafterContainer(id, playerInventory, player.world, player.getPosition());
+		public AbstractContainerMenu createMenu(int id, Inventory playerInventory, Player player) {
+			return new CrafterContainer(id, playerInventory, player.level, player.blockPosition());
 		}
 
 		@Override
-		public ITextComponent getDisplayName() {
-			return new TranslationTextComponent("container.crafting");
+		public Component getDisplayName() {
+			return new TranslatableComponent("container.crafting");
 		}
 	}
 
-	private class CrafterContainer extends WorkbenchContainer {
-		public CrafterContainer(int id, PlayerInventory playerInventory, World world, BlockPos pos) {
-			super(id, playerInventory, IWorldPosCallable.of(world, pos));
+	private class CrafterContainer extends CraftingMenu {
+		public CrafterContainer(int id, Inventory playerInventory, Level world, BlockPos pos) {
+			super(id, playerInventory, ContainerLevelAccess.create(world, pos));
 		}
 
 		@Override
-		public boolean canInteractWith(PlayerEntity playerIn) {
+		public boolean stillValid(Player playerIn) {
 			return true;
 		}
 	}

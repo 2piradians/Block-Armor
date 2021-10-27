@@ -1,17 +1,16 @@
 package twopiradians.blockArmor.common.seteffect;
 
-import net.minecraft.block.Block;
-import net.minecraft.potion.EffectInstance;
-import net.minecraft.potion.Effects;
-import net.minecraft.util.text.TextFormatting;
+import net.minecraft.ChatFormatting;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.level.block.Block;
 
 public class SetEffectInvisibility extends SetEffect {
 
 	protected SetEffectInvisibility() {
 		super();
-		this.color = TextFormatting.WHITE;
-		this.description = "Provides Invisibility";
-		this.potionEffects.add(new EffectInstance(Effects.INVISIBILITY, 10, 0, true, false));
+		this.color = ChatFormatting.WHITE;
+		this.potionEffects.add(new MobEffectInstance(MobEffects.INVISIBILITY, 10, 0, true, false));
 	}
 	
 	// was going to make other mobs ignore invisible players, but no way to recognize bosses?

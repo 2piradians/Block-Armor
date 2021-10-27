@@ -1,13 +1,13 @@
 package twopiradians.blockArmor.common.seteffect;
 
-import net.minecraft.block.Block;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.SoundCategory;
-import net.minecraft.util.SoundEvents;
-import net.minecraft.util.text.TextFormatting;
-import net.minecraft.world.World;
+import net.minecraft.ChatFormatting;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.living.LivingFallEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -26,37 +26,36 @@ public class SetEffectSlimey extends SetEffect {
 
 	protected SetEffectSlimey() {
 		super();
-		this.color = TextFormatting.GREEN;
-		this.description = "Bounces off walls and floors";
+		this.color = ChatFormatting.GREEN;
 	}
 
 	/** Only called when player wearing full, enabled set */
 	@Override
-	public void onArmorTick(World world, PlayerEntity player, ItemStack stack) {
+	public void onArmorTick(Level world, Player player, ItemStack stack) {
 		super.onArmorTick(world, player, stack);
 
-		if (ArmorSet.getFirstSetItem(player, this) == stack && world.isRemote && !player.isSneaking()) {	
+		if (ArmorSet.getFirstSetItem(player, this) == stack && world.isClientSide && !player.isShiftKeyDown()) {	
 			//increased movement speed while bouncing
-			if (!player.isOnGround() && !player.isElytraFlying()) 
-				player.setMotion(player.getMotion().x*1.07d, player.getMotion().y, player.getMotion().z*1.07d);
+			if (!player.isOnGround() && !player.isFallFlying()) 
+				player.setDeltaMovement(player.getDeltaMovement().x*1.07d, player.getDeltaMovement().y, player.getDeltaMovement().z*1.07d);
 		
-			if (!player.getCooldownTracker().hasCooldown(stack.getItem()) && player.collidedHorizontally 
-					&& Math.sqrt(Math.pow(player.getPosX() - player.prevChasingPosX, 2) + 
-							Math.pow(player.getPosZ() - player.prevChasingPosZ, 2)) >= 1.1D) {	
+			if (!player.getCooldowns().isOnCooldown(stack.getItem()) && player.horizontalCollision 
+					&& Math.sqrt(Math.pow(player.getX() - player.xCloakO, 2) + 
+							Math.pow(player.getZ() - player.zCloakO, 2)) >= 1.1D) {	
 				this.setCooldown(player, 10);
 				double multiplier = 0.1d;
-				if (player.getMotion().x == 0) 
-					player.setMotion(
-							-(player.getPosX() - player.prevChasingPosX)*multiplier, 
-							player.getMotion().y+0.1d, 
-							(player.getPosZ() - player.prevChasingPosZ)*multiplier);
-				else if (player.getMotion().z == 0) 
-					player.setMotion(
-							(player.getPosX() - player.prevChasingPosX)*multiplier, 
-							player.getMotion().y+0.1d, 
-							-(player.getPosZ() - player.prevChasingPosZ)*multiplier);
-				world.playSound(player, player.getPosX(), player.getPosY(), player.getPosZ(), 
-						SoundEvents.BLOCK_SLIME_BLOCK_FALL, SoundCategory.BLOCKS, 0.4F, 1.0F);
+				if (player.getDeltaMovement().x == 0) 
+					player.setDeltaMovement(
+							-(player.getX() - player.xCloakO)*multiplier, 
+							player.getDeltaMovement().y+0.1d, 
+							(player.getZ() - player.zCloakO)*multiplier);
+				else if (player.getDeltaMovement().z == 0) 
+					player.setDeltaMovement(
+							(player.getX() - player.xCloakO)*multiplier, 
+							player.getDeltaMovement().y+0.1d, 
+							-(player.getZ() - player.zCloakO)*multiplier);
+				world.playSound(player, player.getX(), player.getY(), player.getZ(), 
+						SoundEvents.SLIME_BLOCK_FALL, SoundSource.BLOCKS, 0.4F, 1.0F);
 			}
 		}
 	}
@@ -64,29 +63,29 @@ public class SetEffectSlimey extends SetEffect {
 	@SubscribeEvent
 	public static void onEvent(LivingFallEvent event) {
 		if (ArmorSet.hasSetEffect(event.getEntityLiving(), SetEffect.SLIMEY)) {
-			if (!(event.getEntity() instanceof PlayerEntity))
+			if (!(event.getEntity() instanceof Player))
 				return;
 
-			PlayerEntity player = (PlayerEntity) event.getEntity();
-			if (!player.isSneaking()) {
+			Player player = (Player) event.getEntity();
+			if (!player.isShiftKeyDown()) {
 				event.setDamageMultiplier(0);
-				if (player.world.isRemote) {
+				if (player.level.isClientSide) {
 					if (event.getDistance() <= 40 && event.getDistance() > 2D) 
-						player.setMotion(player.getMotion().x, Math.abs(player.getMotion().y * 0.9d), player.getMotion().z);
+						player.setDeltaMovement(player.getDeltaMovement().x, Math.abs(player.getDeltaMovement().y * 0.9d), player.getDeltaMovement().z);
 					else if (event.getDistance() > 40 && event.getDistance() <= 100) 
-						player.setMotion(player.getMotion().x, Math.abs(player.getMotion().y * 0.9d * 1.5D), player.getMotion().z);
+						player.setDeltaMovement(player.getDeltaMovement().x, Math.abs(player.getDeltaMovement().y * 0.9d * 1.5D), player.getDeltaMovement().z);
 					else if (event.getDistance() > 100) 
-						player.setMotion(player.getMotion().x, Math.abs(player.getMotion().y * 0.9d * 2D), player.getMotion().z);
+						player.setDeltaMovement(player.getDeltaMovement().x, Math.abs(player.getDeltaMovement().y * 0.9d * 2D), player.getDeltaMovement().z);
 				
 					if (event.getDistance() > 2D)
-						player.world.playSound(player, player.getPosX(), player.getPosY(), player.getPosZ(), 
-								event.getDistance() > 40 ? SoundEvents.ENTITY_SLIME_JUMP : SoundEvents.ENTITY_SLIME_SQUISH, 
-										SoundCategory.PLAYERS, 0.4F, 1.0F);
-					player.isAirBorne = true;
+						player.level.playSound(player, player.getX(), player.getY(), player.getZ(), 
+								event.getDistance() > 40 ? SoundEvents.SLIME_JUMP : SoundEvents.SLIME_SQUISH, 
+										SoundSource.PLAYERS, 0.4F, 1.0F);
+					player.hasImpulse = true;
 					player.setOnGround(false);
-					player.velocityChanged = true;
+					player.hurtMarked = true;
 					bouncingEntity = player;
-					motionY = player.getMotion().getY();
+					motionY = player.getDeltaMovement().y();
 				}
 				else 
 					event.setCanceled(true);
@@ -98,9 +97,9 @@ public class SetEffectSlimey extends SetEffect {
 
 	@SubscribeEvent
 	public static void onEvent(TickEvent.PlayerTickEvent event) {
-		if (bouncingEntity != null && event.player == bouncingEntity && bouncingEntity.world.isRemote &&
+		if (bouncingEntity != null && event.player == bouncingEntity && bouncingEntity.level.isClientSide &&
 				event.phase == TickEvent.Phase.END) {
-			bouncingEntity.setMotion(bouncingEntity.getMotion().x, motionY, bouncingEntity.getMotion().z);
+			bouncingEntity.setDeltaMovement(bouncingEntity.getDeltaMovement().x, motionY, bouncingEntity.getDeltaMovement().z);
 			bouncingEntity.fallDistance = 0;
 			bouncingEntity = null;
 		}

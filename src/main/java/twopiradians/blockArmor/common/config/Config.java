@@ -17,7 +17,7 @@ import net.minecraftforge.common.ForgeConfigSpec.IntValue;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
-import net.minecraftforge.fml.config.ModConfig;
+import net.minecraftforge.fml.event.config.ModConfigEvent;
 import twopiradians.blockArmor.common.BlockArmor;
 import twopiradians.blockArmor.common.item.ArmorSet;
 import twopiradians.blockArmor.common.seteffect.SetEffect;
@@ -184,7 +184,7 @@ public class Config {
 	}
 
 	@SubscribeEvent
-	public static void onLoad(final ModConfig.ModConfigEvent configEvent) {
+	public static void onLoad(final ModConfigEvent configEvent) {
 		BlockArmor.LOGGER.info("Syncing config!");
 		sync();
 	}

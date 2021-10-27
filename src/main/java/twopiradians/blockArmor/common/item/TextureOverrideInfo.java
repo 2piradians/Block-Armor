@@ -4,14 +4,14 @@ import java.util.HashMap;
 
 import com.google.common.collect.Maps;
 
-import net.minecraft.inventory.EquipmentSlotType;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.EquipmentSlot;
 
 public class TextureOverrideInfo {
 
-	public HashMap<EquipmentSlotType, Info> overrides = Maps.newHashMap();
+	public HashMap<EquipmentSlot, Info> overrides = Maps.newHashMap();
 
-	public void addSlot(EquipmentSlotType slot, int color, ResourceLocation loc) {
+	public void addSlot(EquipmentSlot slot, int color, ResourceLocation loc) {
 		this.overrides.put(slot, new Info(color, loc));
 	}
 	

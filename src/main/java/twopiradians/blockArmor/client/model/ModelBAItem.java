@@ -17,46 +17,46 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonObject;
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.datafixers.util.Pair;
+import com.mojang.math.Quaternion;
+import com.mojang.math.Transformation;
+import com.mojang.math.Vector3f;
 
-import net.minecraft.block.BlockState;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.Atlases;
+import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.model.BakedQuad;
-import net.minecraft.client.renderer.model.BlockModel;
-import net.minecraft.client.renderer.model.IBakedModel;
-import net.minecraft.client.renderer.model.IModelTransform;
-import net.minecraft.client.renderer.model.ItemCameraTransforms;
-import net.minecraft.client.renderer.model.ItemCameraTransforms.TransformType;
-import net.minecraft.client.renderer.model.ItemOverrideList;
-import net.minecraft.client.renderer.model.ModelBakery;
-import net.minecraft.client.renderer.model.ModelResourceLocation;
-import net.minecraft.client.renderer.model.RenderMaterial;
-import net.minecraft.client.renderer.texture.AtlasTexture;
+import net.minecraft.client.renderer.Sheets;
+import net.minecraft.client.renderer.block.model.BakedQuad;
+import net.minecraft.client.renderer.block.model.BlockModel;
+import net.minecraft.client.renderer.block.model.ItemOverrides;
+import net.minecraft.client.renderer.block.model.ItemTransforms;
+import net.minecraft.client.renderer.block.model.ItemTransforms.TransformType;
+import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.client.world.ClientWorld;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.inventory.EquipmentSlotType;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.resources.IResourceManager;
-import net.minecraft.util.Direction;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.vector.Quaternion;
-import net.minecraft.util.math.vector.TransformationMatrix;
-import net.minecraft.util.math.vector.Vector3f;
+import net.minecraft.client.resources.model.BakedModel;
+import net.minecraft.client.resources.model.Material;
+import net.minecraft.client.resources.model.ModelBakery;
+import net.minecraft.client.resources.model.ModelResourceLocation;
+import net.minecraft.client.resources.model.ModelState;
+import net.minecraft.core.Direction;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.packs.resources.ResourceManager;
+import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.model.BlockModelConfiguration;
+import net.minecraftforge.client.model.CompositeModelState;
 import net.minecraftforge.client.model.IModelConfiguration;
 import net.minecraftforge.client.model.IModelLoader;
 import net.minecraftforge.client.model.ItemLayerModel;
 import net.minecraftforge.client.model.ItemTextureQuadConverter;
-import net.minecraftforge.client.model.ModelTransformComposition;
 import net.minecraftforge.client.model.PerspectiveMapWrapper;
-import net.minecraftforge.client.model.SimpleModelTransform;
+import net.minecraftforge.client.model.SimpleModelState;
 import net.minecraftforge.client.model.geometry.IModelGeometry;
 import twopiradians.blockArmor.client.ClientProxy;
 import twopiradians.blockArmor.common.BlockArmor;
@@ -81,8 +81,8 @@ public final class ModelBAItem implements IModelGeometry<ModelBAItem> {
 
 	/**Cannot assign quads here as BlockArmorItem quads rely on their block's quads to be baked first*/
 	@Override
-	public IBakedModel bake(IModelConfiguration owner, ModelBakery bakery, Function spriteGetter,
-			IModelTransform modelTransform, ItemOverrideList overrides, ResourceLocation modelLocation) {
+	public BakedModel bake(IModelConfiguration owner, ModelBakery bakery, Function spriteGetter,
+			ModelState modelTransform, ItemOverrides overrides, ResourceLocation modelLocation) {
 		return new BakedDynBlockArmor();
 	}
 
@@ -90,7 +90,7 @@ public final class ModelBAItem implements IModelGeometry<ModelBAItem> {
 		INSTANCE;
 
 		@Override
-		public void onResourceManagerReload(IResourceManager resourceManager) {
+		public void onResourceManagerReload(ResourceManager resourceManager) {
 			ClientProxy.mapTextures();
 		}
 
@@ -101,47 +101,47 @@ public final class ModelBAItem implements IModelGeometry<ModelBAItem> {
 
 	}
 
-	public static final class BakedDynBlockArmorOverrideHandler extends ItemOverrideList {
+	public static final class BakedDynBlockArmorOverrideHandler extends ItemOverrides {
 		/**Map of item to quads for the item's inventory model*/
 		private static HashMap<Item, HashMap<Layer, ImmutableList<BakedQuad>>> itemQuadsMap = Maps.newHashMap();
 
 		public static final BakedDynBlockArmorOverrideHandler INSTANCE = new BakedDynBlockArmorOverrideHandler();
-
+		
 		/**Creates inventory icons (via quads) for each Block Armor piece and adds to itemQuadsMap*/
 		@SuppressWarnings("deprecation")
 		public static int createInventoryIcons(ModelBakery bakery) {
 			ModelBAItem.BakedDynBlockArmorOverrideHandler.itemQuadsMap = Maps.newHashMap();
 			int numIcons = 0;
 
-			ImmutableMap.Builder<TransformType, TransformationMatrix> builder2 = ImmutableMap.builder();
-			builder2.put(TransformType.GROUND, new TransformationMatrix(new Vector3f(0.0f, 0.125f, 0.0f), new Quaternion(0.0f, 0.0f, 0.0f, 1.0f), new Vector3f(0.5f, 0.5f, 0.5f), new Quaternion(0.0f, 0.0f, 0.0f, 1.0f)));
-			builder2.put(TransformType.HEAD, new TransformationMatrix(new Vector3f(0.0f, 0.8125f, 0.4375f), new Quaternion(0.0f, 1.0f, 0.0f, -4.371139E-8f), new Vector3f(1.0f, 1.0f, 1.0f), new Quaternion(0.0f, 0.0f, 0.0f, 1.0f)));
-			builder2.put(TransformType.FIRST_PERSON_RIGHT_HAND, new TransformationMatrix(new Vector3f(0.070625f, 0.2f, 0.070625f), new Quaternion(-0.15304594f, -0.6903456f, 0.15304594f, 0.6903456f), new Vector3f(0.68000007f, 0.68000007f, 0.68f), new Quaternion(0.0f, 0.0f, 0.0f, 1.0f)));
-			builder2.put(TransformType.FIRST_PERSON_LEFT_HAND, new TransformationMatrix(new Vector3f(0.070625f, 0.2f, 0.070625f), new Quaternion(-0.15304594f, -0.6903456f, 0.15304594f, 0.6903456f), new Vector3f(0.68000007f, 0.68000007f, 0.68f), new Quaternion(0.0f, 0.0f, 0.0f, 1.0f)));
-			builder2.put(TransformType.THIRD_PERSON_RIGHT_HAND, new TransformationMatrix(new Vector3f(0.0f, 0.1875f, 0.0625f), new Quaternion(0.0f, 0.0f, 0.0f, 0.99999994f), new Vector3f(0.55f, 0.55f, 0.55f), new Quaternion(0.0f, 0.0f, 0.0f, 1.0f)));
-			builder2.put(TransformType.THIRD_PERSON_LEFT_HAND, new TransformationMatrix(new Vector3f(0.0f, 0.1875f, 0.0625f), new Quaternion(0.0f, 0.0f, 0.0f, 0.99999994f), new Vector3f(0.55f, 0.55f, 0.55f), new Quaternion(0.0f, 0.0f, 0.0f, 1.0f)));
-			ImmutableMap<TransformType, TransformationMatrix> transformMap = builder2.build();
+			ImmutableMap.Builder<TransformType, Transformation> builder2 = ImmutableMap.builder();
+			builder2.put(TransformType.GROUND, new Transformation(new Vector3f(0.0f, 0.125f, 0.0f), new Quaternion(0.0f, 0.0f, 0.0f, 1.0f), new Vector3f(0.5f, 0.5f, 0.5f), new Quaternion(0.0f, 0.0f, 0.0f, 1.0f)));
+			builder2.put(TransformType.HEAD, new Transformation(new Vector3f(0.0f, 0.8125f, 0.4375f), new Quaternion(0.0f, 1.0f, 0.0f, -4.371139E-8f), new Vector3f(1.0f, 1.0f, 1.0f), new Quaternion(0.0f, 0.0f, 0.0f, 1.0f)));
+			builder2.put(TransformType.FIRST_PERSON_RIGHT_HAND, new Transformation(new Vector3f(0.070625f, 0.2f, 0.070625f), new Quaternion(-0.15304594f, -0.6903456f, 0.15304594f, 0.6903456f), new Vector3f(0.68000007f, 0.68000007f, 0.68f), new Quaternion(0.0f, 0.0f, 0.0f, 1.0f)));
+			builder2.put(TransformType.FIRST_PERSON_LEFT_HAND, new Transformation(new Vector3f(0.070625f, 0.2f, 0.070625f), new Quaternion(-0.15304594f, -0.6903456f, 0.15304594f, 0.6903456f), new Vector3f(0.68000007f, 0.68000007f, 0.68f), new Quaternion(0.0f, 0.0f, 0.0f, 1.0f)));
+			builder2.put(TransformType.THIRD_PERSON_RIGHT_HAND, new Transformation(new Vector3f(0.0f, 0.1875f, 0.0625f), new Quaternion(0.0f, 0.0f, 0.0f, 0.99999994f), new Vector3f(0.55f, 0.55f, 0.55f), new Quaternion(0.0f, 0.0f, 0.0f, 1.0f)));
+			builder2.put(TransformType.THIRD_PERSON_LEFT_HAND, new Transformation(new Vector3f(0.0f, 0.1875f, 0.0625f), new Quaternion(0.0f, 0.0f, 0.0f, 0.99999994f), new Vector3f(0.55f, 0.55f, 0.55f), new Quaternion(0.0f, 0.0f, 0.0f, 1.0f)));
+			ImmutableMap<TransformType, Transformation> transformMap = builder2.build();
 
 			for (ArmorSet set : ArmorSet.allSets) {
 				BlockArmorItem[] armor = new BlockArmorItem[] {set.helmet, set.chestplate, set.leggings, set.boots};
 				for (BlockArmorItem item : armor) 
 					if (item != null) {
 						//Initialize variables
-						TextureAtlasSprite sprite = ArmorSet.getSprite(item);
+						TextureAtlasSprite sprite = item.set.getTextureInfo(item.getSlot()).sprite;
 						if (sprite == null)
-							BlockArmor.LOGGER.warn("Missing sprite for: "+new ItemStack(item).getDisplayName().getUnformattedComponentText());
-						IModelTransform state = new SimpleModelTransform(transformMap);
-						TransformationMatrix transform = TransformationMatrix.identity();
-						state = new ModelTransformComposition(state, SimpleModelTransform.IDENTITY);
+							BlockArmor.LOGGER.warn("Missing sprite for: "+new ItemStack(item).getHoverName().getContents());
+						ModelState state = new SimpleModelState(transformMap);
+						Transformation transform = Transformation.identity();
+						state = new CompositeModelState(state, state);
 						String armorType = "";
-						EquipmentSlotType slot = item.getEquipmentSlot();
-						if (slot == EquipmentSlotType.HEAD)
+						EquipmentSlot slot = item.getSlot();
+						if (slot == EquipmentSlot.HEAD)
 							armorType = "helmet";
-						else if (slot == EquipmentSlotType.CHEST)
+						else if (slot == EquipmentSlot.CHEST)
 							armorType = "chestplate";
-						else if (slot == EquipmentSlotType.LEGS)
+						else if (slot == EquipmentSlot.LEGS)
 							armorType = "leggings";
-						else if (slot == EquipmentSlotType.FEET)
+						else if (slot == EquipmentSlot.FEET)
 							armorType = "boots";
 
 						//Block texture background
@@ -150,12 +150,12 @@ public final class ModelBAItem implements IModelGeometry<ModelBAItem> {
 
 						//Base texture and model
 						ResourceLocation baseLocation = new ResourceLocation(BlockArmor.MODID+":items/icons/block_armor_"+armorType+"_base");
-						IBakedModel model = (new ItemLayerModel(ImmutableList.of(new RenderMaterial(AtlasTexture.LOCATION_BLOCKS_TEXTURE, baseLocation))))
-								.bake(new BlockModelConfiguration(new BlockModel(baseLocation, Lists.newArrayList(), Maps.newHashMap(), false, null, ItemCameraTransforms.DEFAULT, INSTANCE.getOverrides())), 
-										bakery, new Function<RenderMaterial, TextureAtlasSprite>() {
-									public TextureAtlasSprite apply(RenderMaterial mat)
+						BakedModel model = (new ItemLayerModel(ImmutableList.of(new Material(TextureAtlas.LOCATION_BLOCKS, baseLocation))))
+								.bake(new BlockModelConfiguration(new BlockModel(baseLocation, Lists.newArrayList(), Maps.newHashMap(), false, null, ItemTransforms.NO_TRANSFORMS, Lists.newArrayList())),  
+										bakery, new Function<Material, TextureAtlasSprite>() {
+									public TextureAtlasSprite apply(Material mat)
 									{
-										return bakery.getSpriteMap().getAtlasTexture(mat.getAtlasLocation()).getSprite(mat.getTextureLocation());
+										return bakery.getSpriteMap().getAtlas(mat.atlasLocation()).getSprite(mat.texture());
 									}
 								}, state, INSTANCE, baseLocation);
 
@@ -166,7 +166,7 @@ public final class ModelBAItem implements IModelGeometry<ModelBAItem> {
 						builder.addAll(model.getQuads(null, null, new Random()));
 						quads.put(Layer.BASE, builder.build());
 
-						int color = ArmorSet.getColor(item);
+						int color = item.set.getTextureInfo(item.getSlot()).color;
 						if (color != -1) {
 							float r = ((color >> 16) & 0xFF) / 255f;
 							float g = ((color >> 8) & 0xFF) / 255f;
@@ -177,13 +177,13 @@ public final class ModelBAItem implements IModelGeometry<ModelBAItem> {
 						//Template texture for left half
 						builder = ImmutableList.builder();
 						ResourceLocation templateLocation = new ResourceLocation(BlockArmor.MODID+":items/icons/block_armor_"+armorType+"1_template");
-						TextureAtlasSprite templateTexture = Minecraft.getInstance().getModelManager().getAtlasTexture(AtlasTexture.LOCATION_BLOCKS_TEXTURE).getSprite(templateLocation);
+						TextureAtlasSprite templateTexture = Minecraft.getInstance().getModelManager().getAtlas(TextureAtlas.LOCATION_BLOCKS).getSprite(templateLocation);
 						builder.addAll(ItemTextureQuadConverter.convertTexture(transform, templateTexture, sprite, NORTH_Z_FLUID, Direction.NORTH, color, 1));
 						builder.addAll(ItemTextureQuadConverter.convertTexture(transform, templateTexture, sprite, SOUTH_Z_FLUID, Direction.SOUTH, color, 1));
 
 						//Template texture for right half
 						templateLocation = new ResourceLocation(BlockArmor.MODID+":items/icons/block_armor_"+armorType+"2_template");
-						templateTexture = Minecraft.getInstance().getModelManager().getAtlasTexture(AtlasTexture.LOCATION_BLOCKS_TEXTURE).getSprite(templateLocation);
+						templateTexture = Minecraft.getInstance().getModelManager().getAtlas(TextureAtlas.LOCATION_BLOCKS).getSprite(templateLocation);
 						builder.addAll(ItemTextureQuadConverter.convertTexture(transform, templateTexture, sprite, NORTH_Z_FLUID, Direction.NORTH, color, 1));
 						builder.addAll(ItemTextureQuadConverter.convertTexture(transform, templateTexture, sprite, SOUTH_Z_FLUID, Direction.SOUTH, color, 1));
 						quads.put(Layer.TEMPLATE, builder.build());
@@ -191,7 +191,7 @@ public final class ModelBAItem implements IModelGeometry<ModelBAItem> {
 						//Cover texture
 						builder = ImmutableList.builder();
 						ResourceLocation coverLocation = new ResourceLocation(BlockArmor.MODID+":items/icons/block_armor_"+armorType+"_cover");
-						TextureAtlasSprite coverTexture = templateTexture = Minecraft.getInstance().getModelManager().getAtlasTexture(AtlasTexture.LOCATION_BLOCKS_TEXTURE).getSprite(coverLocation);
+						TextureAtlasSprite coverTexture = templateTexture = Minecraft.getInstance().getModelManager().getAtlas(TextureAtlas.LOCATION_BLOCKS).getSprite(coverLocation);
 						builder.add(ItemTextureQuadConverter.genQuad(transform, 0, 0, 16, 16, NORTH_Z_BASE, coverTexture, Direction.NORTH, color, 1));
 						builder.add(ItemTextureQuadConverter.genQuad(transform, 0, 0, 16, 16, SOUTH_Z_BASE, coverTexture, Direction.SOUTH, color, 1));
 						quads.put(Layer.COVER, builder.build());
@@ -205,14 +205,15 @@ public final class ModelBAItem implements IModelGeometry<ModelBAItem> {
 
 		/**Called every tick - sets inventory icon (via quads) from map if null*/
 		@Override
-		public IBakedModel getOverrideModel(IBakedModel originalModel, ItemStack stack, @Nullable ClientWorld world, @Nullable LivingEntity livingEntity) {
+		public BakedModel resolve(BakedModel originalModel, ItemStack stack, @Nullable ClientLevel level, @Nullable LivingEntity entity, int num) {
 			if (originalModel instanceof BakedDynBlockArmor && 
 					(((BakedDynBlockArmor)originalModel).layers.get(Layer.BASE).quads == null || 
 					((BakedDynBlockArmor)originalModel).layers.get(Layer.BASE).quads.isEmpty()) &&
 					itemQuadsMap.get(stack.getItem()) != null) {
 				for (Layer layer : Layer.values())
 					((BakedDynBlockArmor)originalModel).layers.get(layer).quads = itemQuadsMap.get(stack.getItem()).get(layer);
-				((BakedDynBlockArmor)originalModel).particles = ArmorSet.getSprite((BlockArmorItem) stack.getItem());
+				BlockArmorItem item = (BlockArmorItem) stack.getItem();
+				((BakedDynBlockArmor)originalModel).particles = item.set.getTextureInfo(item.getSlot()).sprite;
 			}
 			return originalModel;
 		}
@@ -224,20 +225,20 @@ public final class ModelBAItem implements IModelGeometry<ModelBAItem> {
 		/**Need to render cover transparent so it isn't culled*/
 		public RenderType getRenderType(ItemStack stack) {
 			if (this == COVER) 
-				return Atlases.getTranslucentCullBlockType();
-			else if (Minecraft.isFabulousGraphicsEnabled())
-				return Atlases.getCutoutBlockType(); // not translucent, but best we can do in Fabulous graphics?
+				return Sheets.translucentCullBlockSheet();
+			else if (Minecraft.useShaderTransparency())
+				return Sheets.cutoutBlockSheet(); // not translucent, but best we can do in Fabulous graphics?
 			else
-				return Atlases.getItemEntityTranslucentCullType(); // renders invisible in Fabulous graphics
+				return Sheets.translucentItemSheet(); // renders invisible in Fabulous graphics
 		}
 	}
 
-	private static final class BakedDynBlockArmor implements IBakedModel {
+	private static final class BakedDynBlockArmor implements BakedModel {
 
 		@Nullable
 		public final Layer layer;
 		private HashMap<Layer, BakedDynBlockArmor> layers = Maps.newHashMap();
-		private final ImmutableMap<TransformType, TransformationMatrix> transforms;
+		private final ImmutableMap<TransformType, Transformation> transforms;
 		private ImmutableList<BakedQuad> quads = ImmutableList.of();
 		private TextureAtlasSprite particles;
 
@@ -249,24 +250,24 @@ public final class ModelBAItem implements IModelGeometry<ModelBAItem> {
 
 		private BakedDynBlockArmor(Layer layer) {
 			this.layer = layer;
-			ImmutableMap.Builder<TransformType, TransformationMatrix> builder = ImmutableMap.builder();
-			builder.put(TransformType.GROUND, new TransformationMatrix(new Vector3f(0.0f, 0.125f, 0.0f), new Quaternion(0.0f, 0.0f, 0.0f, 1.0f), new Vector3f(0.5f, 0.5f, 0.5f), new Quaternion(0.0f, 0.0f, 0.0f, 1.0f)));
-			builder.put(TransformType.HEAD, new TransformationMatrix(new Vector3f(0.0f, 0.8125f, 0.4375f), new Quaternion(0.0f, 1.0f, 0.0f, -4.371139E-8f), new Vector3f(1.0f, 1.0f, 1.0f), new Quaternion(0.0f, 0.0f, 0.0f, 1.0f)));
-			builder.put(TransformType.FIRST_PERSON_RIGHT_HAND, new TransformationMatrix(new Vector3f(0.070625f, 0.2f, 0.070625f), new Quaternion(-0.15304594f, -0.6903456f, 0.15304594f, 0.6903456f), new Vector3f(0.68000007f, 0.68000007f, 0.68f), new Quaternion(0.0f, 0.0f, 0.0f, 1.0f)));
-			builder.put(TransformType.FIRST_PERSON_LEFT_HAND, new TransformationMatrix(new Vector3f(0.070625f, 0.2f, 0.070625f), new Quaternion(-0.15304594f, -0.6903456f, 0.15304594f, 0.6903456f), new Vector3f(0.68000007f, 0.68000007f, 0.68f), new Quaternion(0.0f, 0.0f, 0.0f, 1.0f)));
-			builder.put(TransformType.THIRD_PERSON_RIGHT_HAND, new TransformationMatrix(new Vector3f(0.0f, 0.1875f, 0.0625f), new Quaternion(0.0f, 0.0f, 0.0f, 0.99999994f), new Vector3f(0.55f, 0.55f, 0.55f), new Quaternion(0.0f, 0.0f, 0.0f, 1.0f)));
-			builder.put(TransformType.THIRD_PERSON_LEFT_HAND, new TransformationMatrix(new Vector3f(0.0f, 0.1875f, 0.0625f), new Quaternion(0.0f, 0.0f, 0.0f, 0.99999994f), new Vector3f(0.55f, 0.55f, 0.55f), new Quaternion(0.0f, 0.0f, 0.0f, 1.0f)));
-			ImmutableMap<TransformType, TransformationMatrix> transformMap = builder.build();
+			ImmutableMap.Builder<TransformType, Transformation> builder = ImmutableMap.builder();
+			builder.put(TransformType.GROUND, new Transformation(new Vector3f(0.0f, 0.125f, 0.0f), new Quaternion(0.0f, 0.0f, 0.0f, 1.0f), new Vector3f(0.5f, 0.5f, 0.5f), new Quaternion(0.0f, 0.0f, 0.0f, 1.0f)));
+			builder.put(TransformType.HEAD, new Transformation(new Vector3f(0.0f, 0.8125f, 0.4375f), new Quaternion(0.0f, 1.0f, 0.0f, -4.371139E-8f), new Vector3f(1.0f, 1.0f, 1.0f), new Quaternion(0.0f, 0.0f, 0.0f, 1.0f)));
+			builder.put(TransformType.FIRST_PERSON_RIGHT_HAND, new Transformation(new Vector3f(0.070625f, 0.2f, 0.070625f), new Quaternion(-0.15304594f, -0.6903456f, 0.15304594f, 0.6903456f), new Vector3f(0.68000007f, 0.68000007f, 0.68f), new Quaternion(0.0f, 0.0f, 0.0f, 1.0f)));
+			builder.put(TransformType.FIRST_PERSON_LEFT_HAND, new Transformation(new Vector3f(0.070625f, 0.2f, 0.070625f), new Quaternion(-0.15304594f, -0.6903456f, 0.15304594f, 0.6903456f), new Vector3f(0.68000007f, 0.68000007f, 0.68f), new Quaternion(0.0f, 0.0f, 0.0f, 1.0f)));
+			builder.put(TransformType.THIRD_PERSON_RIGHT_HAND, new Transformation(new Vector3f(0.0f, 0.1875f, 0.0625f), new Quaternion(0.0f, 0.0f, 0.0f, 0.99999994f), new Vector3f(0.55f, 0.55f, 0.55f), new Quaternion(0.0f, 0.0f, 0.0f, 1.0f)));
+			builder.put(TransformType.THIRD_PERSON_LEFT_HAND, new Transformation(new Vector3f(0.0f, 0.1875f, 0.0625f), new Quaternion(0.0f, 0.0f, 0.0f, 0.99999994f), new Vector3f(0.55f, 0.55f, 0.55f), new Quaternion(0.0f, 0.0f, 0.0f, 1.0f)));
+			ImmutableMap<TransformType, Transformation> transformMap = builder.build();
 			this.transforms = Maps.immutableEnumMap(transformMap);
 		}
 
 		@Override
-		public ItemOverrideList getOverrides() {
+		public ItemOverrides getOverrides() {
 			return BakedDynBlockArmorOverrideHandler.INSTANCE;
 		}
 
 		@Override
-		public IBakedModel handlePerspective(ItemCameraTransforms.TransformType cameraTransformType, MatrixStack mat) {
+		public BakedModel handlePerspective(ItemTransforms.TransformType cameraTransformType, PoseStack mat) {
 			return PerspectiveMapWrapper.handlePerspective(this, transforms, cameraTransformType, mat);
 		}
 
@@ -279,20 +280,20 @@ public final class ModelBAItem implements IModelGeometry<ModelBAItem> {
 
 		/**Need to render cover layer transparent so it isn't culled*/
 		@Override
-		public List<Pair<IBakedModel, RenderType>> getLayerModels(ItemStack stack, boolean fabulous) {
-			List<Pair<IBakedModel, RenderType>> ret = Lists.newArrayList();
+		public List<Pair<BakedModel, RenderType>> getLayerModels(ItemStack stack, boolean fabulous) {
+			List<Pair<BakedModel, RenderType>> ret = Lists.newArrayList();
 			for (Layer layer : Layer.values())
 				ret.add(Pair.of(this.layers.get(layer), layer.getRenderType(stack)));
 			return ret;
 		}
 
 		public boolean isLayered() { return true; }
-		public boolean isSideLit() { return false; }
-		public boolean isAmbientOcclusion() { return true;  }
+		public boolean usesBlockLight() { return false; }
+		public boolean useAmbientOcclusion() { return true;  }
 		public boolean isGui3d() { return false; }
-		public boolean isBuiltInRenderer() { return false; }
-		public TextureAtlasSprite getParticleTexture() { return particles; } 
-		public ItemCameraTransforms getItemCameraTransforms() { return ItemCameraTransforms.DEFAULT; }
+		public boolean isCustomRenderer() { return false; }
+		public TextureAtlasSprite getParticleIcon() { return particles; } 
+		public ItemTransforms getTransforms() { return ItemTransforms.NO_TRANSFORMS; }
 	}
 
 }

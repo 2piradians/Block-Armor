@@ -1,10 +1,10 @@
 package twopiradians.blockArmor.common.recipe;
 
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.crafting.Ingredient;
-import net.minecraft.item.crafting.ShapedRecipe;
-import net.minecraft.util.NonNullList;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.core.NonNullList;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.Ingredient;
+import net.minecraft.world.item.crafting.ShapedRecipe;
 import twopiradians.blockArmor.common.item.ArmorSet;
 
 public class RecipeBlockArmor extends ShapedRecipe {
@@ -17,8 +17,8 @@ public class RecipeBlockArmor extends ShapedRecipe {
 	}
 	
 	@Override
-	public ItemStack getRecipeOutput() {
-		return set.isEnabled() ? super.getRecipeOutput() : ItemStack.EMPTY;
+	public ItemStack getResultItem() {
+		return set.isEnabled() ? super.getResultItem() : ItemStack.EMPTY;
 	}
 
 }

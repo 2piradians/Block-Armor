@@ -1,17 +1,16 @@
 package twopiradians.blockArmor.common.seteffect;
 
-import net.minecraft.block.Block;
-import net.minecraft.enchantment.Enchantments;
-import net.minecraft.inventory.EquipmentSlotType;
-import net.minecraft.util.text.TextFormatting;
+import net.minecraft.ChatFormatting;
+import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.item.enchantment.Enchantments;
+import net.minecraft.world.level.block.Block;
 
 public class SetEffectFrosty extends SetEffect {
 
 	protected SetEffectFrosty() {
 		super();
-		this.color = TextFormatting.AQUA;
-		this.description = "Provides Frost Walking II";
-		this.enchantments.add(new EnchantmentData(Enchantments.FROST_WALKER, (short) 2, EquipmentSlotType.FEET));
+		this.color = ChatFormatting.AQUA;
+		this.enchantments.add(new EnchantmentData(Enchantments.FROST_WALKER, (short) 2, EquipmentSlot.FEET));
 	}
 
 	/**Should block be given this set effect*/

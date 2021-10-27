@@ -12,36 +12,38 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Multimap;
 
-import net.minecraft.block.Block;
-import net.minecraft.client.util.ITooltipFlag;
-import net.minecraft.enchantment.Enchantment;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.ai.attributes.Attribute;
-import net.minecraft.entity.ai.attributes.AttributeModifier;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.inventory.EquipmentSlotType;
-import net.minecraft.inventory.EquipmentSlotType.Group;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.nbt.ListNBT;
-import net.minecraft.potion.EffectInstance;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.SoundCategory;
-import net.minecraft.util.SoundEvents;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.StringTextComponent;
-import net.minecraft.util.text.TextFormatting;
-import net.minecraft.world.World;
+import net.minecraft.ChatFormatting;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.util.Mth;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.EquipmentSlot.Type;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.ai.attributes.Attribute;
+import net.minecraft.world.entity.ai.attributes.AttributeModifier;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.item.enchantment.Enchantment;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.event.entity.living.LivingEquipmentChangeEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.network.PacketDistributor;
+import net.minecraftforge.fmllegacy.network.PacketDistributor;
 import twopiradians.blockArmor.client.gui.EntityGuiPlayer;
 import twopiradians.blockArmor.client.key.KeyActivateSetEffect;
 import twopiradians.blockArmor.common.BlockArmor;
@@ -110,15 +112,13 @@ public class SetEffect {
 	/**Does set effect require button to activate*/
 	protected boolean usesButton;
 	/**Color of effect for tooltip*/
-	protected TextFormatting color;
+	public ChatFormatting color;
 	/**Potion effects that will be applied in onArmorTick*/
-	protected ArrayList<EffectInstance> potionEffects = new ArrayList<EffectInstance>();
+	protected ArrayList<MobEffectInstance> potionEffects = new ArrayList<MobEffectInstance>();
 	/**Attributes that will be applied in getAttributeModifiers*/
 	protected HashMap<Attribute, AttributeModifier> attributes = Maps.newHashMap();
 	/**EnchantmentData that will be applied in onUpdate*/
 	protected ArrayList<EnchantmentData> enchantments = new ArrayList<EnchantmentData>();
-	/**Description of effect for tooltip*/
-	public String description;
 	/**Name of this effect (class name without SetEffect)*/
 	public String name;
 
@@ -157,7 +157,7 @@ public class SetEffect {
 	public static boolean registryNameContains(Block block, String... strings) {
 		try { // TODO only work for " word ", "<eof>word ", " word<eof>", "<eof>word<eof>" (NOT "asdfWord")
 			String registryName = block.getRegistryName().getPath();
-			String displayName = new ItemStack(block, 1).getDisplayName().getUnformattedComponentText();
+			String displayName = new ItemStack(block, 1).getHoverName().getContents();
 			for (String string : strings) {
 				if (registryName.contains(string) || registryName.contains(string.substring(0, 1).toUpperCase()+string.substring(1)) ||
 						displayName.contains(string.substring(0, 1).toUpperCase()+string.substring(1)))
@@ -188,19 +188,19 @@ public class SetEffect {
 	}
 
 	/**Should player be given potionEffect now*/
-	protected boolean shouldApplyEffect(EffectInstance potionEffect, World world, PlayerEntity player, ItemStack stack) {
+	protected boolean shouldApplyEffect(MobEffectInstance potionEffect, Level world, Player player, ItemStack stack) {
 		return true;
 	}
 
 	/**Damage worn armor with this effect, if enabled in config - split damage amongst items prioritizing highest durability items*/
 	protected void damageArmor(LivingEntity entity, int amount, boolean ignoreConfig) {
-		if ((!ignoreConfig && !Config.effectsUseDurability) || entity == null || entity.world.isRemote)
+		if ((!ignoreConfig && !Config.effectsUseDurability) || entity == null || entity.level.isClientSide)
 			return;
 
 		//get list of all worn armor with this effect
 		ArrayList<ItemStack> armor = new ArrayList<ItemStack>();
-		for (EquipmentSlotType slot : ArmorSet.SLOTS) {
-			ItemStack stack = entity.getItemStackFromSlot(slot);
+		for (EquipmentSlot slot : ArmorSet.SLOTS) {
+			ItemStack stack = entity.getItemBySlot(slot);
 			if (stack != null && stack.getItem() instanceof BlockArmorItem && 
 					((BlockArmorItem)stack.getItem()).set.setEffects.contains(this))
 				armor.add(stack);
@@ -211,77 +211,77 @@ public class SetEffect {
 			ItemStack highestDur = null;
 			for (ItemStack stack : armor) {
 				if (!stack.isEmpty() && (highestDur == null || 
-						stack.getMaxDamage()-stack.getDamage() > 
-				highestDur.getMaxDamage()-highestDur.getDamage()))
+						stack.getMaxDamage()-stack.getDamageValue() > 
+				highestDur.getMaxDamage()-highestDur.getDamageValue()))
 					highestDur = stack;
 			}
 			//if item will break, play sound and spawn particles and remove from armor
-			if (highestDur != null && highestDur.getMaxDamage()-highestDur.getDamage() == 0) {
+			if (highestDur != null && highestDur.getMaxDamage()-highestDur.getDamageValue() == 0) {
 				armor.remove(highestDur);
 
 				//play sound - item particles crash on server (because entity.renderBrokenItemStack() doesn't work on server
-				entity.world.playSound(null, entity.getPosition(), SoundEvents.ENTITY_ITEM_BREAK, 
-						SoundCategory.PLAYERS, 0.8F, 0.8F + entity.world.rand.nextFloat() * 0.4F);
+				entity.level.playSound(null, entity.blockPosition(), SoundEvents.ITEM_BREAK, 
+						SoundSource.PLAYERS, 0.8F, 0.8F + entity.level.random.nextFloat() * 0.4F);
 				highestDur.shrink(1);
 			}
 			else if (highestDur != null)
-				highestDur.damageItem(1, entity, (e) -> {}); 
+				highestDur.hurtAndBreak(1, entity, (e) -> {}); 
 		}
 	}
 
 	/**Set cooldown for all worn BlockArmorItem on player for specified ticks*/
-	protected void setCooldown(PlayerEntity player, int ticks) {
+	protected void setCooldown(Player player, int ticks) {
 		if (player != null) 
-			for (EquipmentSlotType slot : ArmorSet.SLOTS) {
-				ItemStack stack = player.getItemStackFromSlot(slot);
+			for (EquipmentSlot slot : ArmorSet.SLOTS) {
+				ItemStack stack = player.getItemBySlot(slot);
 				if (stack != null && stack.getItem() instanceof BlockArmorItem && 
 						((BlockArmorItem)stack.getItem()).set.setEffects.contains(this))
-					player.getCooldownTracker().setCooldown(stack.getItem(), ticks);
+					player.getCooldowns().addCooldown(stack.getItem(), ticks);
 			}
 	}
 
 	/**Send cooldowns to client bc it forgets about them when changing dimensions*/
 	@SubscribeEvent
 	public static void onDimensionChange(PlayerEvent.PlayerChangedDimensionEvent event) {
-		if (event.getPlayer() instanceof ServerPlayerEntity)
-			BlockArmor.NETWORK.send(PacketDistributor.PLAYER.with(()->(ServerPlayerEntity) event.getPlayer()), new SSyncCooldownsPacket(event.getPlayer()));
+		if (event.getPlayer() instanceof ServerPlayer)
+			BlockArmor.NETWORK.send(PacketDistributor.PLAYER.with(()->(ServerPlayer) event.getPlayer()), new SSyncCooldownsPacket(event.getPlayer()));
 	}
 
 	/**Only called when player wearing full, enabled set*/
-	public void onArmorTick(World world, PlayerEntity player, ItemStack stack) {
-		if (!world.isRemote && ArmorSet.getFirstSetItem(player, this) == stack) {			
+	public void onArmorTick(Level world, Player player, ItemStack stack) {
+		if (!world.isClientSide && ArmorSet.getFirstSetItem(player, this) == stack) {			
 			//apply potion effects
-			for (EffectInstance potionEffect : this.potionEffects)
+			for (MobEffectInstance potionEffect : this.potionEffects)
 				if (this.shouldApplyEffect(potionEffect, world, player, stack))
-					player.addPotionEffect(new EffectInstance(potionEffect));
+					player.addEffect(new MobEffectInstance(potionEffect));
 		}
 	}
-	
+
 	/**Modified from EnchantmentHelper#getEnchantmentLevel to use loc instead of enchantId*/
 	public static int getEnchantmentLevel(ResourceLocation loc, ItemStack stack) {
-	      if (stack.isEmpty())
-	         return 0;
-	      else {
-	         ListNBT listnbt = stack.getEnchantmentTagList();
+		if (stack.isEmpty())
+			return 0;
+		else {
+			ListTag listnbt = stack.getEnchantmentTags();
 
-	         for (int i = 0; i < listnbt.size(); ++i) {
-	            CompoundNBT compoundnbt = listnbt.getCompound(i);
-	            ResourceLocation resourcelocation1 = ResourceLocation.tryCreate(compoundnbt.getString("id"));
-	            if (resourcelocation1 != null && resourcelocation1.equals(loc)) 
-	               return MathHelper.clamp(compoundnbt.getInt("lvl"), 0, 255);
-	         }
+			for (int i = 0; i < listnbt.size(); ++i) {
+				CompoundTag compoundnbt = listnbt.getCompound(i);
+				ResourceLocation resourcelocation1 = ResourceLocation.tryParse(compoundnbt.getString("id"));
+				if (resourcelocation1 != null && resourcelocation1.equals(loc)) 
+					return Mth.clamp(compoundnbt.getInt("lvl"), 0, 255);
+			}
 
-	         return 0;
-	      }
-	   }
+			return 0;
+		}
+	}
 
-	public void onUpdate(ItemStack stack, World world, Entity entity, int slot, boolean isSelected) {
-		if (!world.isRemote) {
+	public void onUpdate(ItemStack stack, Level world, Entity entity, int slot, boolean isSelected) {
+		if (!world.isClientSide) {
 			//do enchantments
 			if (!this.enchantments.isEmpty()) {
-				ListNBT enchantNbt = stack.getEnchantmentTagList();
+				ListTag enchantNbt = stack.getEnchantmentTags();
 				for (EnchantmentData enchant : this.enchantments) {
-					if (((BlockArmorItem)stack.getItem()).getEquipmentSlot() != enchant.slot)
+					if (((BlockArmorItem)stack.getItem()).getSlot() != enchant.slot)
 						continue;
 					//see if it has enchant already
 					boolean hasEnchant = getEnchantmentLevel(enchant.loc, stack) >= enchant.level;
@@ -289,22 +289,22 @@ public class SetEffect {
 					//should remove enchantment
 					if (hasEnchant && (!(entity instanceof LivingEntity) || 
 							!ArmorSet.getWornSetEffects((LivingEntity) entity).contains(this) || !this.isEnabled()) ||
-							((LivingEntity) entity).getItemStackFromSlot(((BlockArmorItem)stack.getItem()).getEquipmentSlot()) != stack) {
+							((LivingEntity) entity).getItemBySlot(((BlockArmorItem)stack.getItem()).getSlot()) != stack) {
 						for (int i=enchantNbt.size()-1; i>=0; i--)
 							if (enchantNbt.getCompound(i).getBoolean(BlockArmor.MODID+" enchant"))
 								enchantNbt.remove(i);
-						stack.setTagInfo("Enchantments", enchantNbt);
+						stack.addTagElement("Enchantments", enchantNbt);
 					}
 					//should add enchantment
 					else if (!hasEnchant && 
-							((LivingEntity) entity).getItemStackFromSlot(((BlockArmorItem)stack.getItem()).getEquipmentSlot()) == stack &&
+							((LivingEntity) entity).getItemBySlot(((BlockArmorItem)stack.getItem()).getSlot()) == stack &&
 							ArmorSet.getWornSetEffects((LivingEntity) entity).contains(this) && this.isEnabled()) {
-						CompoundNBT nbt = new CompoundNBT();
+						CompoundTag nbt = new CompoundTag();
 						nbt.putString("id", enchant.loc.toString());
 						nbt.putShort("lvl", enchant.level);
 						nbt.putBoolean(BlockArmor.MODID+" enchant", true);
 						enchantNbt.add(0, nbt);
-						stack.setTagInfo("Enchantments", enchantNbt);
+						stack.addTagElement("Enchantments", enchantNbt);
 					}
 				}
 				if (enchantNbt.isEmpty())
@@ -321,14 +321,14 @@ public class SetEffect {
 	@SubscribeEvent
 	public static void onEquipmentChange(LivingEquipmentChangeEvent event) {
 		HashSet<SetEffect> effects = ArmorSet.getWornSetEffects(event.getEntityLiving());
-		for (EquipmentSlotType slot : EquipmentSlotType.values())
-			if (slot.getSlotType() == Group.ARMOR) {
-				ItemStack stack = event.getEntityLiving().getItemStackFromSlot(slot);
+		for (EquipmentSlot slot : EquipmentSlot.values())
+			if (slot.getType() == Type.ARMOR) {
+				ItemStack stack = event.getEntityLiving().getItemBySlot(slot);
 				if (stack == event.getFrom())
 					stack = event.getTo();
 				if (stack != null && stack.getItem() instanceof BlockArmorItem) {
 					if (!stack.hasTag())
-						stack.setTag(new CompoundNBT());
+						stack.setTag(new CompoundTag());
 
 					if (effects.containsAll(((BlockArmorItem)stack.getItem()).set.setEffects))
 						stack.getTag().putBoolean("wearingFullSet", true);
@@ -340,10 +340,10 @@ public class SetEffect {
 
 	/**Handles the attributes when wearing an armor set*/
 	public Multimap<Attribute, AttributeModifier> getAttributeModifiers(Multimap<Attribute, AttributeModifier> map,
-			EquipmentSlotType slot, ItemStack stack) {
+			EquipmentSlot slot, ItemStack stack) {
 
 		if (!stack.hasTag())
-			stack.setTag(new CompoundNBT());
+			stack.setTag(new CompoundTag());
 
 		if (stack.getTag().getBoolean("wearingFullSet")) {//FIXME removing piece will reset attributes (not sure how to fix)
 			for (Attribute attribute : this.attributes.keySet())
@@ -355,24 +355,41 @@ public class SetEffect {
 
 	/**Set effect name and description if shifting*/
 	@OnlyIn(Dist.CLIENT)
-	public List<ITextComponent> addInformation(ItemStack stack, boolean isShiftDown, PlayerEntity player, List<ITextComponent> tooltip, ITooltipFlag flagIn) {
-		String string = color.toString();
+	public List<Component> addInformation(ItemStack stack, boolean isShiftDown, Player player, List<Component> tooltip, TooltipFlag flagIn) {
+		MutableComponent comp = new TextComponent("");
+		// set effect name
+		MutableComponent name = new TranslatableComponent("setEffect."+this.name.replaceAll(" ", "_").toLowerCase()+".name");
+		// bold if active
 		if (player instanceof EntityGuiPlayer || (ArmorSet.getWornSetEffects(player).contains(this) && 
-				player.getItemStackFromSlot(((BlockArmorItem)stack.getItem()).getEquipmentSlot()) == stack))
-			string += TextFormatting.BOLD;
-		string += this.isEnabled() ? "" : TextFormatting.STRIKETHROUGH.toString();
-		string += this.toString()+TextFormatting.RESET;
+				player.getItemBySlot(((BlockArmorItem)stack.getItem()).getSlot()) == stack))
+			name.withStyle(ChatFormatting.BOLD);
+		comp.append(name);
+		// add description
 		if (isShiftDown) {
-			string += color;
-			string += this.isEnabled() ? "" : TextFormatting.STRIKETHROUGH.toString();
-			string += ": "+TextFormatting.ITALIC+description+TextFormatting.RESET;
+			MutableComponent description = this.getDescription();
+			// add button
 			if (this.usesButton)
-				string += TextFormatting.BLUE+" <"+TextFormatting.BOLD+KeyActivateSetEffect.ACTIVATE_SET_EFFECT.func_238171_j_().getString().toUpperCase()
-				+TextFormatting.RESET+""+TextFormatting.BLUE+">";
+				description.append(ChatFormatting.BLUE+" <"+ChatFormatting.BOLD+KeyActivateSetEffect.ACTIVATE_SET_EFFECT.getTranslatedKeyMessage().getString().toUpperCase()
+						+ChatFormatting.RESET+""+ChatFormatting.BLUE+">");
+			comp.append(": ").append(description);
 		}
-		tooltip.add(new StringTextComponent(string));
+		// strikethrough if not enabled
+		if (!this.isEnabled())
+			comp.withStyle(ChatFormatting.STRIKETHROUGH);
+		// color
+		comp.withStyle(color);
+		tooltip.add(comp);
 
 		return tooltip;
+	}
+	
+	public TranslatableComponent getDescription() {
+		return new TranslatableComponent("setEffect."+this.name.replaceAll(" ", "_").toLowerCase()+".description", this.getDescriptionObjects());
+	}
+
+	/**Extra objects needed for description*/
+	public Object[] getDescriptionObjects() {
+		return new Object[0];
 	}
 
 	@Override
@@ -383,7 +400,14 @@ public class SetEffect {
 	/**Override so instances of classes are the same as SetEffect.INSTANCE*/
 	@Override
 	public boolean equals(Object obj) {
-		return obj.getClass() == this.getClass()/* && this.description.equals(((SetEffect)obj).description)*/; // removed 4/23/21 for playerSetEffects in ArmorSet
+		if (obj.getClass() == this.getClass()) {
+			for (int i=0; i<this.getDescriptionObjects().length; ++i)
+				if (i > ((SetEffect)obj).getDescriptionObjects().length || 
+						this.getDescriptionObjects()[i] != ((SetEffect)obj).getDescriptionObjects()[i])
+					return false;
+			return true;
+		}
+		return false;
 	}
 
 	/**Override so instances of classes are the same as SetEffect.INSTANCE*/
@@ -423,10 +447,10 @@ public class SetEffect {
 	protected static class EnchantmentData {
 		public Enchantment ench;
 		public Short level;
-		public EquipmentSlotType slot;
+		public EquipmentSlot slot;
 		public ResourceLocation loc;
 
-		public EnchantmentData(Enchantment ench, Short level, EquipmentSlotType slot) {
+		public EnchantmentData(Enchantment ench, Short level, EquipmentSlot slot) {
 			this.ench = ench;
 			this.loc = ench.getRegistryName();
 			this.level = level;
@@ -435,9 +459,9 @@ public class SetEffect {
 	}
 
 	/**Called when full set is first equipped*/
-	public void onStart(PlayerEntity player) {}
+	public void onStart(Player player) {}
 
 	/**Called when full set is unequipped or player logged out*/
-	public void onStop(PlayerEntity player) {}
+	public void onStop(Player player) {}
 
 }

@@ -1,14 +1,15 @@
 package twopiradians.blockArmor.common.seteffect;
 
-import net.minecraft.block.Block;
-import net.minecraft.block.Blocks;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.SoundCategory;
-import net.minecraft.util.SoundEvents;
-import net.minecraft.util.text.TextFormatting;
-import net.minecraft.world.GameRules;
-import net.minecraft.world.World;
+import net.minecraft.ChatFormatting;
+import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.GameRules;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.fml.DistExecutor;
 import twopiradians.blockArmor.client.ClientProxy;
@@ -23,9 +24,13 @@ public class SetEffectTime_Control extends SetEffect {
 	protected SetEffectTime_Control(Type type) {
 		super();
 		this.type = type;
-		this.description = type == null ? "" : type.description;
-		this.color = TextFormatting.LIGHT_PURPLE;
+		this.color = ChatFormatting.LIGHT_PURPLE;
 		this.usesButton = true;
+	}
+	
+	@Override
+	public TranslatableComponent getDescription() {
+		return new TranslatableComponent("setEffect."+this.name.replaceAll(" ", "_").toLowerCase()+"."+type.name.toLowerCase()+".description", this.getDescriptionObjects());
 	}
 
 	/**Write this effect to string for config (variables need to be included)*/
@@ -42,33 +47,33 @@ public class SetEffectTime_Control extends SetEffect {
 
 
 	/**Only called when player wearing full, enabled set*/
-	public void onArmorTick(World world, PlayerEntity player, ItemStack stack) {
+	public void onArmorTick(Level world, Player player, ItemStack stack) {
 		super.onArmorTick(world, player, stack);
 
 		if (ArmorSet.getFirstSetItem(player, this) == stack &&
 				BlockArmor.key.isKeyDown(player)) {
 			if (type == Type.REWIND) {
-				if (world.getWorldInfo().getDayTime()< 21)
+				if (world.getLevelData().getDayTime()< 21)
 					setWorldTime(world, 23999 + world.getDayTime() - 21);
 				else
 					setWorldTime(world, world.getDayTime() - 21);
-				if (player.ticksExisted % 4 == 0)
-					world.playSound(player, player.getPosition(), SoundEvents.ITEM_LODESTONE_COMPASS_LOCK, SoundCategory.PLAYERS, 0.3f, 0f);
+				if (player.tickCount % 4 == 0)
+					world.playSound(player, player.blockPosition(), SoundEvents.LODESTONE_COMPASS_LOCK, SoundSource.PLAYERS, 0.3f, 0f);
 			}
-			else if (type == Type.STOP && world.getGameRules().getBoolean(GameRules.DO_DAYLIGHT_CYCLE)) {
+			else if (type == Type.STOP && world.getGameRules().getBoolean(GameRules.RULE_DAYLIGHT)) {
 				setWorldTime(world, world.getDayTime() - 1);
-				if (player.ticksExisted % 8 == 0)
-				world.playSound(player, player.getPosition(), SoundEvents.BLOCK_NOTE_BLOCK_SNARE, SoundCategory.PLAYERS, 0.2f, 0f);
+				if (player.tickCount % 8 == 0)
+				world.playSound(player, player.blockPosition(), SoundEvents.NOTE_BLOCK_SNARE, SoundSource.PLAYERS, 0.2f, 0f);
 			}
 			else if (type == Type.ACCELERATE) {
 				setWorldTime(world, world.getDayTime() + 19);
-				if (player.ticksExisted % 2 == 0)
-					world.playSound(player, player.getPosition(), SoundEvents.ITEM_LODESTONE_COMPASS_LOCK, SoundCategory.PLAYERS, 0.3f, 2f);
+				if (player.tickCount % 2 == 0)
+					world.playSound(player, player.blockPosition(), SoundEvents.LODESTONE_COMPASS_LOCK, SoundSource.PLAYERS, 0.3f, 2f);
 			}
 		}
 	}
 
-	public void setWorldTime(World world, long time) {
+	public void setWorldTime(Level world, long time) {
 		DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> {ClientProxy.setWorldTime(world, time);});
 		DistExecutor.unsafeRunWhenOn(Dist.DEDICATED_SERVER, () -> () -> {CommonProxy.setWorldTime(world, time);});
 	}
@@ -89,18 +94,16 @@ public class SetEffectTime_Control extends SetEffect {
 	}
 
 	private enum Type {
-		REWIND(Blocks.REPEATING_COMMAND_BLOCK, "Rewind", "Rewinds time"), 
-		STOP(Blocks.CHAIN_COMMAND_BLOCK, "Stop", "Stops Time"), 
-		ACCELERATE(Blocks.COMMAND_BLOCK, "Accelerate", "Accelerates time");
+		REWIND(Blocks.REPEATING_COMMAND_BLOCK, "Rewind"), 
+		STOP(Blocks.CHAIN_COMMAND_BLOCK, "Stop"), 
+		ACCELERATE(Blocks.COMMAND_BLOCK, "Accelerate");
 
 		public Block block;
 		public String name;
-		public String description;
 
-		private Type(Block block, String name, String description) {
+		private Type(Block block, String name) {
 			this.block = block;
 			this.name = name;
-			this.description = description;
 		}
 
 		public static Type getType(Block block) {

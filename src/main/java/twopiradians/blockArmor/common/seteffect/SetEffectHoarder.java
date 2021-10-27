@@ -1,5 +1,6 @@
 package twopiradians.blockArmor.common.seteffect;
 
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -8,39 +9,39 @@ import java.util.List;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
-import net.minecraft.block.BarrelBlock;
-import net.minecraft.block.Block;
-import net.minecraft.block.ChestBlock;
-import net.minecraft.block.ShulkerBoxBlock;
-import net.minecraft.client.util.ITooltipFlag;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.player.PlayerInventory;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.inventory.EquipmentSlotType;
-import net.minecraft.inventory.IInventory;
-import net.minecraft.inventory.Inventory;
-import net.minecraft.inventory.container.ChestContainer;
-import net.minecraft.inventory.container.Container;
-import net.minecraft.inventory.container.ContainerType;
-import net.minecraft.inventory.container.INamedContainerProvider;
-import net.minecraft.inventory.container.Slot;
-import net.minecraft.item.BlockItem;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.nbt.ListNBT;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.network.play.server.SPlaySoundPacket;
-import net.minecraft.util.NonNullList;
-import net.minecraft.util.SoundCategory;
-import net.minecraft.util.SoundEvent;
-import net.minecraft.util.SoundEvents;
-import net.minecraft.util.text.IFormattableTextComponent;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.StringTextComponent;
-import net.minecraft.util.text.TextFormatting;
-import net.minecraft.util.text.TranslationTextComponent;
-import net.minecraft.world.World;
+import net.minecraft.ChatFormatting;
+import net.minecraft.core.NonNullList;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.chat.TextComponent;
+import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.protocol.game.ClientboundCustomSoundPacket;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.Container;
+import net.minecraft.world.MenuProvider;
+import net.minecraft.world.SimpleContainer;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.inventory.ChestMenu;
+import net.minecraft.world.inventory.MenuType;
+import net.minecraft.world.inventory.Slot;
+import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.BarrelBlock;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.ChestBlock;
+import net.minecraft.world.level.block.ShulkerBoxBlock;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.common.extensions.IForgeContainerType;
@@ -50,7 +51,8 @@ import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber.Bus;
-import net.minecraftforge.fml.server.ServerLifecycleHooks;
+import net.minecraftforge.fml.util.ObfuscationReflectionHelper;
+import net.minecraftforge.fmllegacy.server.ServerLifecycleHooks;
 import twopiradians.blockArmor.common.BlockArmor;
 import twopiradians.blockArmor.common.item.ArmorSet;
 import twopiradians.blockArmor.common.item.BlockArmorItem;
@@ -61,41 +63,40 @@ public class SetEffectHoarder extends SetEffect {
 	/**Map of Hoarder item to items it stores so nbt only has to update once per tick*/
 	private static HashMap<ItemStack, ItemStack[]> dirtyItems = Maps.newHashMap();
 
-	public static ContainerType<HoarderContainer> containerType_9x1;
-	public static ContainerType<HoarderContainer> containerType_9x2;
-	public static ContainerType<HoarderContainer> containerType_9x3;
-	public static ContainerType<HoarderContainer> containerType_9x4;
-	public static ContainerType<HoarderContainer> containerType_9x5;
-	public static ContainerType<HoarderContainer> containerType_9x6;
+	public static MenuType<HoarderContainer> containerType_9x1;
+	public static MenuType<HoarderContainer> containerType_9x2;
+	public static MenuType<HoarderContainer> containerType_9x3;
+	public static MenuType<HoarderContainer> containerType_9x4;
+	public static MenuType<HoarderContainer> containerType_9x5;
+	public static MenuType<HoarderContainer> containerType_9x6;
 
-	private static final HashMap<EquipmentSlotType, Integer> SLOT_TO_SIZE;
+	private static final HashMap<EquipmentSlot, Integer> SLOT_TO_SIZE;
 
 	static {
 		SLOT_TO_SIZE = Maps.newHashMap();
-		SLOT_TO_SIZE.put(EquipmentSlotType.HEAD, 9);
-		SLOT_TO_SIZE.put(EquipmentSlotType.CHEST, 18);
-		SLOT_TO_SIZE.put(EquipmentSlotType.LEGS, 18);
-		SLOT_TO_SIZE.put(EquipmentSlotType.FEET, 9);
+		SLOT_TO_SIZE.put(EquipmentSlot.HEAD, 9);
+		SLOT_TO_SIZE.put(EquipmentSlot.CHEST, 18);
+		SLOT_TO_SIZE.put(EquipmentSlot.LEGS, 18);
+		SLOT_TO_SIZE.put(EquipmentSlot.FEET, 9);
 	}
 
 	protected SetEffectHoarder() {
 		super();
-		this.color = TextFormatting.GOLD;
-		this.description = "Provides storage wherever you go";
+		this.color = ChatFormatting.GOLD;
 		this.usesButton = true;
 	}
 
 	/** Only called when player wearing full, enabled set */
 	@Override
-	public void onArmorTick(World world, PlayerEntity player, ItemStack stack) {
+	public void onArmorTick(Level world, Player player, ItemStack stack) {
 		super.onArmorTick(world, player, stack);
 
-		if (!world.isRemote && BlockArmor.key.isKeyDown(player) &&
+		if (!world.isClientSide && BlockArmor.key.isKeyDown(player) &&
 				ArmorSet.getFirstSetItem(player, this) == stack &&
-				!player.getCooldownTracker().hasCooldown(stack.getItem())) {
-			if (player instanceof ServerPlayerEntity)
-				((ServerPlayerEntity)player).connection.sendPacket(new SPlaySoundPacket(SetEffect.HOARDER.getSoundEvent(player, true).getRegistryName(), SoundCategory.PLAYERS, player.getPositionVec(), 0.6f, 1));	
-			player.openContainer(new HoarderProvider());
+				!player.getCooldowns().isOnCooldown(stack.getItem())) {
+			if (player instanceof ServerPlayer)
+				((ServerPlayer)player).connection.send(new ClientboundCustomSoundPacket(SetEffect.HOARDER.getSoundEvent(player, true).getRegistryName(), SoundSource.PLAYERS, player.position(), 0.6f, 1));	
+			player.openMenu(new HoarderProvider());
 			this.damageArmor(player, 1, false); 
 			this.setCooldown(player, 20);
 		}
@@ -112,7 +113,7 @@ public class SetEffectHoarder extends SetEffect {
 
 	/**Set effect name and description if shifting*/
 	@OnlyIn(Dist.CLIENT)
-	public List<ITextComponent> addInformation(ItemStack stack, boolean isShiftDown, PlayerEntity player, List<ITextComponent> tooltip, ITooltipFlag flagIn) {
+	public List<Component> addInformation(ItemStack stack, boolean isShiftDown, Player player, List<Component> tooltip, TooltipFlag flagIn) {
 		tooltip = super.addInformation(stack, isShiftDown, player, tooltip, flagIn);
 
 		// add stored items
@@ -124,14 +125,14 @@ public class SetEffectHoarder extends SetEffect {
 					nonEmptyItems.add(storedItem);
 			for (int i=0; i<4 && i<nonEmptyItems.size(); ++i) {
 				ItemStack storedItem = nonEmptyItems.get(i);
-				IFormattableTextComponent comp = new StringTextComponent("  - ")
-						.appendSibling(storedItem.getDisplayName().deepCopy().mergeStyle(this.color));
-				comp.appendString(" x").appendString(String.valueOf(storedItem.getCount()));
+				MutableComponent comp = new TextComponent("  - ")
+						.append(storedItem.getHoverName().copy().withStyle(this.color));
+				comp.append(" x").append(String.valueOf(storedItem.getCount()));
 				tooltip.add(comp);
 			}
 			if (nonEmptyItems.size() > 4)
-				tooltip.add((new StringTextComponent("  ")
-						.appendSibling(new TranslationTextComponent("container.shulkerBox.more", nonEmptyItems.size()-4)).mergeStyle(TextFormatting.ITALIC, this.color)));
+				tooltip.add((new TextComponent("  ")
+						.append(new TranslatableComponent("container.shulkerBox.more", nonEmptyItems.size()-4)).withStyle(ChatFormatting.ITALIC, this.color)));
 		}
 
 		return tooltip;
@@ -149,51 +150,51 @@ public class SetEffectHoarder extends SetEffect {
 	}
 
 	/**Get open/close sound event based on this block*/
-	public SoundEvent getSoundEvent(PlayerEntity player, boolean open) {
+	public SoundEvent getSoundEvent(Player player, boolean open) {
 		ItemStack stack = ArmorSet.getFirstSetItem(player, SetEffect.HOARDER);
 		if (stack != null) {
 			Block block = ((BlockArmorItem)stack.getItem()).set.block;
 			if (block instanceof BarrelBlock)
-				return open ? SoundEvents.BLOCK_BARREL_OPEN : SoundEvents.BLOCK_BARREL_CLOSE;
+				return open ? SoundEvents.BARREL_OPEN : SoundEvents.BARREL_CLOSE;
 			else if (block instanceof ShulkerBoxBlock)
-				return open ? SoundEvents.BLOCK_SHULKER_BOX_OPEN : SoundEvents.BLOCK_SHULKER_BOX_CLOSE;				
+				return open ? SoundEvents.SHULKER_BOX_OPEN : SoundEvents.SHULKER_BOX_CLOSE;				
 		}
-		return open ? SoundEvents.BLOCK_CHEST_OPEN : SoundEvents.BLOCK_CHEST_CLOSE;
+		return open ? SoundEvents.CHEST_OPEN : SoundEvents.CHEST_CLOSE;
 	}
 
 	/**Called when an item with Hoarder is broken*/
 	public void onBreak(ItemStack stack) {
 		// get player, item frame, or item entity with this item
-		Entity entity = stack.getAttachedEntity();
+		Entity entity = stack.getEntityRepresentation();
 		if (entity == null && ServerLifecycleHooks.getCurrentServer() != null) {
-			for (PlayerEntity player : ServerLifecycleHooks.getCurrentServer().getPlayerList().getPlayers())
-				if (player.inventory.hasItemStack(stack)) {
+			for (Player player : ServerLifecycleHooks.getCurrentServer().getPlayerList().getPlayers())
+				if (player.getInventory().contains(stack)) {
 					entity = player;
 					break;
 				}
 		}
 
 		// spawn stored items
-		if (entity != null && !entity.world.isRemote) {
+		if (entity != null && !entity.level.isClientSide) {
 			NonNullList<ItemStack> storedItems = getStoredItems(stack);
 			if (!storedItems.isEmpty()) {
 				for (ItemStack storedItem : storedItems)
-					entity.entityDropItem(storedItem);
+					entity.spawnAtLocation(storedItem);
 				stack.setCount(0);
 				// if hoarder gui is open - close it (to prevent dupes)
-				if (entity instanceof PlayerEntity && 
-						((PlayerEntity)entity).openContainer instanceof HoarderContainer)
-					((PlayerEntity)entity).closeScreen();
+				if (entity instanceof Player && 
+						((Player)entity).containerMenu instanceof HoarderContainer)
+					((Player)entity).closeContainer();
 			}
 		}
 
 	}
 
 	/**Get container type based on which/how many slots have Hoarder items*/
-	private static ContainerType getContainerType(PlayerEntity player) {
+	private static MenuType getContainerType(Player player) {
 		int size = 0;
 		for (ItemStack wornItem : ArmorSet.getAllSetItems(player, SetEffect.HOARDER))
-			size += SLOT_TO_SIZE.get(((BlockArmorItem)wornItem.getItem()).getEquipmentSlot());
+			size += SLOT_TO_SIZE.get(((BlockArmorItem)wornItem.getItem()).getSlot());
 		if (size == 9)
 			return containerType_9x1;
 		else if (size == 18)
@@ -211,7 +212,7 @@ public class SetEffectHoarder extends SetEffect {
 	}
 
 	/**Get all stacks stored in this player's Hoarder items*/
-	public static NonNullList<ItemStack> getStoredItems(PlayerEntity player) {
+	public static NonNullList<ItemStack> getStoredItems(Player player) {
 		NonNullList<ItemStack> stacks = NonNullList.create();
 		for (ItemStack wornItem : ArmorSet.getAllSetItems(player, SetEffect.HOARDER))
 			stacks.addAll(getStoredItems(wornItem));
@@ -219,10 +220,10 @@ public class SetEffectHoarder extends SetEffect {
 	}
 
 	/**Set stored stacks for this player's Hoarder items*/
-	public static void setStoredItems(PlayerEntity player, ItemStack[] stacks) {
+	public static void setStoredItems(Player player, ItemStack[] stacks) {
 		int index = 0;
 		for (ItemStack wornItem : ArmorSet.getAllSetItems(player, SetEffect.HOARDER)) {
-			int size = SLOT_TO_SIZE.get(((BlockArmorItem)wornItem.getItem()).getEquipmentSlot());
+			int size = SLOT_TO_SIZE.get(((BlockArmorItem)wornItem.getItem()).getSlot());
 			if (index + size <= stacks.length) 
 				dirtyItems.put(wornItem, Arrays.copyOfRange(stacks, index, index+size));
 			index += size;
@@ -231,13 +232,13 @@ public class SetEffectHoarder extends SetEffect {
 
 	/**Get stacks stored in this Hoarder item*/
 	public static NonNullList<ItemStack> getStoredItems(ItemStack wornItem) {
-		NonNullList<ItemStack> stacks = NonNullList.withSize(SLOT_TO_SIZE.get(((BlockArmorItem)wornItem.getItem()).getEquipmentSlot()), ItemStack.EMPTY);
+		NonNullList<ItemStack> stacks = NonNullList.withSize(SLOT_TO_SIZE.get(((BlockArmorItem)wornItem.getItem()).getSlot()), ItemStack.EMPTY);
 		if (wornItem != null && !wornItem.isEmpty() && wornItem.hasTag()) {
-			CompoundNBT nbt = wornItem.getTag();
-			ListNBT list = nbt.getList(BlockArmor.MODID+":hoarderItems", NBT.TAG_COMPOUND);
+			CompoundTag nbt = wornItem.getTag();
+			ListTag list = nbt.getList(BlockArmor.MODID+":hoarderItems", NBT.TAG_COMPOUND);
 			for (int i=0; i<list.size() && i<stacks.size(); ++i) {
-				CompoundNBT itemNbt = list.getCompound(i);
-				stacks.set(i, ItemStack.read(itemNbt));
+				CompoundTag itemNbt = list.getCompound(i);
+				stacks.set(i, ItemStack.of(itemNbt));
 			}
 		}
 		return stacks;
@@ -246,62 +247,75 @@ public class SetEffectHoarder extends SetEffect {
 	/**Set stacks stored in this Hoarder item*/
 	public static void setStoredItems(ItemStack wornItem, ItemStack[] stacks) {
 		if (wornItem != null) {
-			CompoundNBT nbt = wornItem.hasTag() ? wornItem.getTag() : new CompoundNBT();
-			ListNBT list = new ListNBT();
+			CompoundTag nbt = wornItem.hasTag() ? wornItem.getTag() : new CompoundTag();
+			ListTag list = new ListTag();
 			for (int i=0; i<stacks.length; ++i)
 				if (stacks[i].isEmpty())
-					list.add(i, new CompoundNBT());
+					list.add(i, new CompoundTag());
 				else
-					list.add(i, stacks[i].write(new CompoundNBT()));
+					list.add(i, stacks[i].save(new CompoundTag()));
 			nbt.put(BlockArmor.MODID+":hoarderItems", list);
 			wornItem.setTag(nbt);
 		}
 	}
 
-	private static class HoarderProvider implements INamedContainerProvider {
+	private static class HoarderProvider implements MenuProvider {
 
 		@Override
-		public Container createMenu(int id, PlayerInventory playerInventory, PlayerEntity player) {
+		public AbstractContainerMenu createMenu(int id, Inventory playerInventory, Player player) {
 			return new HoarderContainer(id, playerInventory, getStoredItems(player).toArray(new ItemStack[0]), player);
 		}
 
 		@Override
-		public ITextComponent getDisplayName() {
-			return new StringTextComponent("Hoarder Storage");
+		public Component getDisplayName() {
+			return new TextComponent("Hoarder Storage");
 		}
 	}
 
-	private static class HoarderContainer extends ChestContainer {
+	private static class HoarderContainer extends ChestMenu {
 
-		public HoarderContainer(int id, PlayerInventory playerInventory) {
+		private static final Field LAST_SLOTS_FIELD = ObfuscationReflectionHelper.findField(AbstractContainerMenu.class, "f_38841_");
+		private static final Field REMOTE_SLOTS_FIELD = ObfuscationReflectionHelper.findField(AbstractContainerMenu.class, "f_150394_");
+
+		public HoarderContainer(int id, Inventory playerInventory) {
 			this(id, playerInventory, getStoredItems(playerInventory.player).toArray(new ItemStack[0]), playerInventory.player);
 		}
 
-		public HoarderContainer(int id, PlayerInventory playerInventory, ItemStack[] storedItems, PlayerEntity player) {
-			this(id, playerInventory, player, new Inventory(storedItems) {
-				public void markDirty() {
+		public HoarderContainer(int id, Inventory playerInventory, ItemStack[] storedItems, Player player) {
+			this(id, playerInventory, player, new SimpleContainer(storedItems) {
+				public void setChanged() {
 					// update stored items in nbt
-					ItemStack[] stacks = new ItemStack[this.getSizeInventory()];
-					for (int i=0; i<this.getSizeInventory(); ++i)
-						stacks[i] = this.getStackInSlot(i);
+					ItemStack[] stacks = new ItemStack[this.getContainerSize()];
+					for (int i=0; i<this.getContainerSize(); ++i)
+						stacks[i] = this.getItem(i);
 					setStoredItems(player, stacks);
 
-					super.markDirty();
+					super.setChanged();
 				}
 			}, storedItems.length / 9);
 		}
 
-		public HoarderContainer(int id, PlayerInventory playerInventory, PlayerEntity player, Inventory inv, int numRows) {
+		public HoarderContainer(int id, Inventory playerInventory, Player player, SimpleContainer inv, int numRows) {
 			super(getContainerType(player), id, playerInventory, inv, numRows);
 
-			// custom slots to prevent storing more hoarder items
-			this.inventorySlots.clear();
+			// clear existing slots
+			this.slots.clear();
+			try {
+				((NonNullList<ItemStack>) LAST_SLOTS_FIELD.get(this)).clear(); 
+				((NonNullList<ItemStack>) REMOTE_SLOTS_FIELD.get(this)).clear(); 
+			}
+			catch (Exception e) {
+				e.printStackTrace();
+			}
+
 			int i = (numRows - 4) * 18;
 
+			// add custom slots to prevent storing more hoarder items
 			for(int j = 0; j < numRows; ++j) 
 				for(int k = 0; k < 9; ++k) 
-					this.addSlot(new HoarderSlot(this.getLowerChestInventory(), k + j * 9, 8 + k * 18, 18 + j * 18));
+					this.addSlot(new HoarderSlot(this.getContainer(), k + j * 9, 8 + k * 18, 18 + j * 18));
 
+			// add regular inventory + hotbar slots
 			for(int l = 0; l < 3; ++l) 
 				for(int j1 = 0; j1 < 9; ++j1) 
 					this.addSlot(new Slot(playerInventory, j1 + l * 9 + 9, 8 + j1 * 18, 103 + l * 18 + i));
@@ -311,32 +325,32 @@ public class SetEffectHoarder extends SetEffect {
 		}
 
 		@Override
-		public void onContainerClosed(PlayerEntity player) {
-			super.onContainerClosed(player);
+		public void removed(Player player) {
+			super.removed(player);
 
-			if (!player.world.isRemote && player instanceof ServerPlayerEntity)
-				((ServerPlayerEntity)player).connection.sendPacket(new SPlaySoundPacket(SetEffect.HOARDER.getSoundEvent(player, false).getRegistryName(), SoundCategory.PLAYERS, player.getPositionVec(), 0.6f, 1));	
+			if (!player.level.isClientSide && player instanceof ServerPlayer)
+				((ServerPlayer)player).connection.send(new ClientboundCustomSoundPacket(SetEffect.HOARDER.getSoundEvent(player, false).getRegistryName(), SoundSource.PLAYERS, player.position(), 0.6f, 1));	
 		}
 
 		@Override
-		public boolean canInteractWith(PlayerEntity playerIn) {
+		public boolean stillValid(Player playerIn) {
 			return true;
 		}
 
 		/**Create this container clientside*/
-		public static HoarderContainer createContainerClientSide(int id, PlayerInventory playerInventory, PacketBuffer extraData) {
+		public static HoarderContainer createContainerClientSide(int id, Inventory playerInventory, FriendlyByteBuf extraData) {
 			return new HoarderContainer(id, playerInventory);
 		}
 
 	}
 
 	public static class HoarderSlot extends Slot {
-		public HoarderSlot(IInventory inventoryIn, int slotIndexIn, int xPosition, int yPosition) {
+		public HoarderSlot(Container inventoryIn, int slotIndexIn, int xPosition, int yPosition) {
 			super(inventoryIn, slotIndexIn, xPosition, yPosition);
 		}
 
 		/**Prevent putting in Hoarder items and shulker boxes*/
-		public boolean isItemValid(ItemStack stack) {
+		public boolean mayPlace(ItemStack stack) {
 			return !(stack.getItem() instanceof BlockArmorItem && 
 					((BlockArmorItem)stack.getItem()).set.setEffects.contains(SetEffect.HOARDER)) &&
 					!(stack.getItem() instanceof BlockItem && ((BlockItem)stack.getItem()).getBlock() instanceof ShulkerBoxBlock);
@@ -347,7 +361,7 @@ public class SetEffectHoarder extends SetEffect {
 	public static class RegistrationHandler {
 
 		@SubscribeEvent
-		public static void registerContainers(final RegistryEvent.Register<ContainerType<?>> event) {
+		public static void registerContainers(final RegistryEvent.Register<MenuType<?>> event) {
 			containerType_9x1 = IForgeContainerType.create(HoarderContainer::createContainerClientSide);
 			containerType_9x1.setRegistryName("hoarder_container_9x1");
 			event.getRegistry().register(containerType_9x1);

@@ -4,34 +4,25 @@ import java.lang.reflect.Field;
 
 import com.google.common.collect.Lists;
 
-import net.minecraft.block.AbstractBlock;
-import net.minecraft.block.Block;
-import net.minecraft.block.material.Material;
-import net.minecraft.util.math.BlockPos;
-import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockBehaviour;
+import net.minecraft.world.level.material.Material;
+import net.minecraftforge.fml.util.ObfuscationReflectionHelper;
 import twopiradians.blockArmor.common.seteffect.SetEffect;
 
 public class BlockUtils {
 
 	/**Block properties -> material*/
-	private static final Field MATERIAL_FIELD;
+	private static final Field MATERIAL_FIELD = ObfuscationReflectionHelper.findField(BlockBehaviour.Properties.class, "f_60882_");
 	/**Block properties -> isSolid*/
-	private static final Field IS_SOLID_FIELD;
+	private static final Field IS_SOLID_FIELD = ObfuscationReflectionHelper.findField(BlockBehaviour.Properties.class, "f_60895_");
 	/**Block properties -> requiresTool*/
-	private static final Field REQUIRES_TOOL_FIELD;
-
-	static {
-		MATERIAL_FIELD = ObfuscationReflectionHelper.findField(AbstractBlock.Properties.class, "field_200953_a");
-		MATERIAL_FIELD.setAccessible(true);
-		IS_SOLID_FIELD = ObfuscationReflectionHelper.findField(AbstractBlock.Properties.class, "field_226895_m_");
-		IS_SOLID_FIELD.setAccessible(true);
-		REQUIRES_TOOL_FIELD = ObfuscationReflectionHelper.findField(AbstractBlock.Properties.class, "field_235806_h_");
-		REQUIRES_TOOL_FIELD.setAccessible(true);
-	}
+	private static final Field REQUIRES_TOOL_FIELD = ObfuscationReflectionHelper.findField(BlockBehaviour.Properties.class, "f_60889_");
 	
 	/**Get block properties*/
-	public static AbstractBlock.Properties getProperties(Block block) {
-		return AbstractBlock.Properties.from(block);
+	public static BlockBehaviour.Properties getProperties(Block block) {
+		return BlockBehaviour.Properties.copy(block);
 	}
 
 	/**Get block material*/
@@ -47,7 +38,7 @@ public class BlockUtils {
 	public static float getHardness(Block block) {
 		float blockHardness = 0.5f;
 		try {
-			blockHardness = block.getDefaultState().getBlockHardness(null, BlockPos.ZERO);
+			blockHardness = block.defaultBlockState().getDestroySpeed(null, BlockPos.ZERO);
 		} catch(Exception e) {
 			blockHardness = 0.5f;
 		}
@@ -83,11 +74,11 @@ public class BlockUtils {
 	/**Get light level for block*/
 	@SuppressWarnings("deprecation")
 	public static int getLightLevel(Block block) {
-		int lightLevel = block.getDefaultState().getLightValue();
+		int lightLevel = block.defaultBlockState().getLightEmission();
 		if (lightLevel <= 0) {
 			Material material = BlockUtils.getMaterial(block);
 			if (SetEffect.registryNameContains(block, new String[] {"lamp"}) ||
-					Lists.newArrayList(Material.REDSTONE_LIGHT).contains(material))
+					Lists.newArrayList(Material.BUILDABLE_GLASS).contains(material))
 				lightLevel = 15;
 		}
 		return lightLevel;

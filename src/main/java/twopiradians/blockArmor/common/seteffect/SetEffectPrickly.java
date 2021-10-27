@@ -3,47 +3,46 @@ package twopiradians.blockArmor.common.seteffect;
 import java.util.Iterator;
 import java.util.List;
 
-import net.minecraft.block.Block;
-import net.minecraft.enchantment.Enchantments;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.inventory.EquipmentSlotType;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.DamageSource;
-import net.minecraft.util.SoundCategory;
-import net.minecraft.util.SoundEvents;
-import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.text.TextFormatting;
-import net.minecraft.world.World;
+import net.minecraft.ChatFormatting;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.enchantment.Enchantments;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.phys.AABB;
 import twopiradians.blockArmor.common.item.ArmorSet;
 
 public class SetEffectPrickly extends SetEffect {
 
 	protected SetEffectPrickly() {
 		super();
-		this.color = TextFormatting.GREEN;
-		this.description = "Pricks colliding enemies and provides Thorns";
-		this.enchantments.add(new EnchantmentData(Enchantments.THORNS, (short) 1, EquipmentSlotType.HEAD));
-		this.enchantments.add(new EnchantmentData(Enchantments.THORNS, (short) 1, EquipmentSlotType.CHEST));
-		this.enchantments.add(new EnchantmentData(Enchantments.THORNS, (short) 1, EquipmentSlotType.LEGS));
-		this.enchantments.add(new EnchantmentData(Enchantments.THORNS, (short) 1, EquipmentSlotType.FEET));
+		this.color = ChatFormatting.GREEN;
+		this.enchantments.add(new EnchantmentData(Enchantments.THORNS, (short) 1, EquipmentSlot.HEAD));
+		this.enchantments.add(new EnchantmentData(Enchantments.THORNS, (short) 1, EquipmentSlot.CHEST));
+		this.enchantments.add(new EnchantmentData(Enchantments.THORNS, (short) 1, EquipmentSlot.LEGS));
+		this.enchantments.add(new EnchantmentData(Enchantments.THORNS, (short) 1, EquipmentSlot.FEET));
 	}
 
 	/**Only called when player wearing full, enabled set*/
-	public void onArmorTick(World world, PlayerEntity player, ItemStack stack) {
+	public void onArmorTick(Level world, Player player, ItemStack stack) {
 		super.onArmorTick(world, player, stack);
 
 		if (ArmorSet.getFirstSetItem(player, this) == stack && 
-				!world.isRemote && !player.getCooldownTracker().hasCooldown(stack.getItem()))	{
-			AxisAlignedBB axisAlignedBB = player.getBoundingBox();
-			List<LivingEntity> list = player.world.getEntitiesWithinAABB(LivingEntity.class, axisAlignedBB);
+				!world.isClientSide && !player.getCooldowns().isOnCooldown(stack.getItem()))	{
+			AABB axisAlignedBB = player.getBoundingBox();
+			List<LivingEntity> list = player.level.getEntitiesOfClass(LivingEntity.class, axisAlignedBB);
 			list.remove(player);
 
 			if (!list.isEmpty()) {
 				Iterator<LivingEntity> iterator = list.iterator();
-				if (iterator.next().attackEntityFrom(DamageSource.CACTUS, 1.0F)) {
-					world.playSound((PlayerEntity)null, player.getPosition(), SoundEvents.ENCHANT_THORNS_HIT, 
-							SoundCategory.PLAYERS, 1.0F, world.rand.nextFloat() * 0.4F + 0.8F);
+				if (iterator.next().hurt(DamageSource.CACTUS, 1.0F)) {
+					world.playSound((Player)null, player.blockPosition(), SoundEvents.THORNS_HIT, 
+							SoundSource.PLAYERS, 1.0F, world.random.nextFloat() * 0.4F + 0.8F);
 					this.setCooldown(player, 20);
 				}
 			}

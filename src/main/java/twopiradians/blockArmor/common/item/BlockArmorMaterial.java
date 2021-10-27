@@ -2,15 +2,15 @@ package twopiradians.blockArmor.common.item;
 
 import java.util.function.Supplier;
 
-import net.minecraft.inventory.EquipmentSlotType;
-import net.minecraft.item.IArmorMaterial;
-import net.minecraft.item.crafting.Ingredient;
-import net.minecraft.util.LazyValue;
-import net.minecraft.util.SoundEvent;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.util.LazyLoadedValue;
+import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.item.ArmorMaterial;
+import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
-public class BlockArmorMaterial implements IArmorMaterial {
+public class BlockArmorMaterial implements ArmorMaterial {
 
 	private static final int[] MAX_DAMAGE_ARRAY = new int[]{13, 15, 16, 11};
 	private final String name;
@@ -20,7 +20,7 @@ public class BlockArmorMaterial implements IArmorMaterial {
 	private final SoundEvent soundEvent;
 	private final float toughness;
 	private final float knockbackResistance;
-	private final LazyValue<Ingredient> repairMaterial;
+	private final LazyLoadedValue<Ingredient> repairMaterial;
 
 	public BlockArmorMaterial(String name, int maxDamageFactor, int[] damageReductionAmountArray, 
 			int enchantability, SoundEvent soundEvent, float toughness, float knockbackResistance,
@@ -32,32 +32,32 @@ public class BlockArmorMaterial implements IArmorMaterial {
 		this.soundEvent = soundEvent;
 		this.toughness = toughness;
 		this.knockbackResistance = knockbackResistance;
-		this.repairMaterial = new LazyValue(repairMaterial);
+		this.repairMaterial = new LazyLoadedValue(repairMaterial);
 	}
 
 	@Override
-	public int getDurability(EquipmentSlotType p_200896_1_) {
+	public int getDurabilityForSlot(EquipmentSlot p_200896_1_) {
 		return MAX_DAMAGE_ARRAY[p_200896_1_.getIndex()] * this.maxDamageFactor;
 	}
 
 	@Override
-	public int getDamageReductionAmount(EquipmentSlotType slotType) {
+	public int getDefenseForSlot(EquipmentSlot slotType) {
 		return this.damageReductionAmountArray[slotType.getIndex()];
 	}
 
 	@Override
-	public int getEnchantability() {
+	public int getEnchantmentValue() {
 		return this.enchantability;
 	}
 
 	@Override
-	public SoundEvent getSoundEvent() {
+	public SoundEvent getEquipSound() {
 		return this.soundEvent;
 	}
 
 	@Override
-	public Ingredient getRepairMaterial() {
-		return (Ingredient)this.repairMaterial.getValue();
+	public Ingredient getRepairIngredient() {
+		return (Ingredient)this.repairMaterial.get();
 	}
 
 	@Override

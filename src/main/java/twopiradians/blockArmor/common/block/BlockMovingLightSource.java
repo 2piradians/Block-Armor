@@ -1,89 +1,88 @@
 package twopiradians.blockArmor.common.block;
 
 
-import net.minecraft.block.AbstractBlock;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockRenderType;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.ITileEntityProvider;
-import net.minecraft.block.material.Material;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.item.BlockItemUseContext;
-import net.minecraft.item.ItemStack;
-import net.minecraft.state.IntegerProperty;
-import net.minecraft.state.Property;
-import net.minecraft.state.StateContainer;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.shapes.ISelectionContext;
-import net.minecraft.util.math.shapes.VoxelShape;
-import net.minecraft.util.math.shapes.VoxelShapes;
-import net.minecraft.world.IBlockReader;
-import net.minecraft.world.World;
+import javax.annotation.Nullable;
+
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.context.BlockPlaceContext;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.BaseEntityBlock;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.RenderShape;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityTicker;
+import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.state.BlockBehaviour;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.StateDefinition;
+import net.minecraft.world.level.block.state.properties.IntegerProperty;
+import net.minecraft.world.level.block.state.properties.Property;
+import net.minecraft.world.level.material.Material;
+import net.minecraft.world.phys.shapes.CollisionContext;
+import net.minecraft.world.phys.shapes.Shapes;
+import net.minecraft.world.phys.shapes.VoxelShape;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.fml.DistExecutor;
 import twopiradians.blockArmor.client.ClientProxy;
 import twopiradians.blockArmor.common.tileentity.TileEntityMovingLightSource;
 
 /**Used for armor sets that produce light*/
-@SuppressWarnings("deprecation")
-public class BlockMovingLightSource extends Block implements ITileEntityProvider {
+public class BlockMovingLightSource extends BaseEntityBlock {
 
 	public static final Property<Integer> LIGHT_LEVEL = IntegerProperty.create("light_level", 1, 15);
 
 	public BlockMovingLightSource() {
-		super(AbstractBlock.Properties.create(Material.AIR).setLightLevel((state) -> state.get(LIGHT_LEVEL).intValue()));
+		super(BlockBehaviour.Properties.of(Material.AIR).lightLevel((state) -> state.getValue(LIGHT_LEVEL).intValue()));
 	}
 
 	@Override
-	protected void fillStateContainer(StateContainer.Builder<Block, BlockState> builder) {
+	protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
 		builder.add(LIGHT_LEVEL);
 	}
 
 	@Override
-	public VoxelShape getShape(BlockState p_220053_1_, IBlockReader p_220053_2_, BlockPos p_220053_3_, ISelectionContext p_220053_4_) {
-		return VoxelShapes.empty();
+	public VoxelShape getShape(BlockState p_220053_1_, BlockGetter p_220053_2_, BlockPos p_220053_3_, CollisionContext p_220053_4_) {
+		return Shapes.empty();
 	}
 
 	@Override
-	public int getLightValue(BlockState state, IBlockReader world, BlockPos pos) {
-		return state.get(LIGHT_LEVEL);
+	public RenderShape getRenderShape(BlockState state) {
+		return RenderShape.INVISIBLE;
 	}
 
 	@Override
-	public BlockRenderType getRenderType(BlockState state) {
-		return BlockRenderType.INVISIBLE;
-	}
-
-	@Override
-	public boolean isReplaceable(BlockState state, BlockItemUseContext useContext) {
+	public boolean canBeReplaced(BlockState state, BlockPlaceContext useContext) {
 		return true;
 	}
 
 	@Override
-	public TileEntity createTileEntity(BlockState state, IBlockReader world) {
-		return new TileEntityMovingLightSource(state.get(LIGHT_LEVEL).intValue());
+	public void setPlacedBy(Level world, BlockPos pos, BlockState state, LivingEntity entity, ItemStack stack) {
+		world.getBlockEntity(pos);
 	}
 
 	@Override
-	public void onBlockPlacedBy(World world, BlockPos pos, BlockState state, LivingEntity entity, ItemStack stack) {
-		world.getTileEntity(pos);
+	public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
+		return new TileEntityMovingLightSource(state.getValue(LIGHT_LEVEL).intValue(), pos, state);
 	}
 
 	@Override
-	public TileEntity createNewTileEntity(IBlockReader worldIn) {
-		return new TileEntityMovingLightSource(15);
-	}
-
-	@Override
-	public StateContainer<Block, BlockState> getStateContainer() {
+	public StateDefinition<Block, BlockState> getStateDefinition() {
 		DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> {ClientProxy.mapUnbakedModels();}); // hacky way to map models in ModelBakery#processLoading
-		return super.getStateContainer();
+		return super.getStateDefinition();
 	}
-	
+
 	@Override
-	public boolean isAir(BlockState state, IBlockReader world, BlockPos pos) {
-        return false;
-    }
+	public boolean isAir(BlockState state) {
+		return false;
+	}
+
+	@Nullable
+	@Override
+	public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> type) {
+		return level.isClientSide ? null : createTickerHelper(type, TileEntityMovingLightSource.type, TileEntityMovingLightSource::tick);
+	}
 
 }

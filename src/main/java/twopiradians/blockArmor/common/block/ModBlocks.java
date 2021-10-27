@@ -2,10 +2,10 @@ package twopiradians.blockArmor.common.block;
 
 import java.util.ArrayList;
 
-import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.model.ModelResourceLocation;
-import net.minecraft.item.Item;
+import net.minecraft.client.resources.model.ModelResourceLocation;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.level.block.Block;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -38,8 +38,8 @@ public class ModBlocks {
 	@SuppressWarnings("deprecation")
 	public static void registerRenders() {
 		for (Block block : allBlocks)
-			Minecraft.getInstance().getItemRenderer().getItemModelMesher().register
-			(Item.getItemFromBlock(block), new ModelResourceLocation(block.getRegistryName(), "inventory"));
+			Minecraft.getInstance().getItemRenderer().getItemModelShaper().register
+			(Item.byBlock(block), new ModelResourceLocation(block.getRegistryName(), "inventory"));
 	}
 
 }

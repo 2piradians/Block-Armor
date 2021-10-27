@@ -1,17 +1,16 @@
 package twopiradians.blockArmor.common.seteffect;
 
-import net.minecraft.block.Block;
-import net.minecraft.block.Blocks;
-import net.minecraft.entity.ai.attributes.AttributeModifier;
-import net.minecraft.entity.ai.attributes.Attributes;
-import net.minecraft.util.text.TextFormatting;
+import net.minecraft.ChatFormatting;
+import net.minecraft.world.entity.ai.attributes.AttributeModifier;
+import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
 
 public class SetEffectSpeedy extends SetEffect {
 
 	protected SetEffectSpeedy() {
 		super();
-		this.color = TextFormatting.YELLOW;
-		this.description = "Increases Speed";
+		this.color = ChatFormatting.YELLOW;
 		this.attributes.put(Attributes.MOVEMENT_SPEED, new AttributeModifier(MOVEMENT_SPEED_UUID, 
 				"Movement Speed", 0.1d, AttributeModifier.Operation.ADDITION));
 	}

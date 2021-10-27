@@ -6,31 +6,31 @@ import java.util.function.Supplier;
 
 import com.google.common.collect.Maps;
 
-import net.minecraft.network.PacketBuffer;
-import net.minecraftforge.fml.network.NetworkEvent;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraftforge.fmllegacy.network.NetworkEvent;
 import twopiradians.blockArmor.common.command.CommandDev;
 
 public class SDevColorsPacket
 {
 	public SDevColorsPacket() {}
 
-	public static void encode(SDevColorsPacket packet, PacketBuffer buf) {
+	public static void encode(SDevColorsPacket packet, FriendlyByteBuf buf) {
 		ArrayList<UUID> keys = new ArrayList<UUID>(CommandDev.devColors.keySet());
 		int count = keys.size();
 		buf.writeInt(count);
 		for (int i=0; i<count; i++) {
-			buf.writeString(keys.get(i).toString());
+			buf.writeUtf(keys.get(i).toString());
 			buf.writeFloat(CommandDev.devColors.get(keys.get(i))[0]);
 			buf.writeFloat(CommandDev.devColors.get(keys.get(i))[1]);
 			buf.writeFloat(CommandDev.devColors.get(keys.get(i))[2]);
 		}
 	}
 
-	public static SDevColorsPacket decode(PacketBuffer buf) {		
+	public static SDevColorsPacket decode(FriendlyByteBuf buf) {		
 		CommandDev.devColors = Maps.newHashMap();
 		int count = buf.readInt();
 		for (int i=0; i<count; i++) {
-			UUID uuid = UUID.fromString(buf.readString(32767));
+			UUID uuid = UUID.fromString(buf.readUtf(32767));
 			Float[] color = new Float[] { buf.readFloat(),  buf.readFloat(),  buf.readFloat()};
 			CommandDev.devColors.put(uuid, color);
 		}

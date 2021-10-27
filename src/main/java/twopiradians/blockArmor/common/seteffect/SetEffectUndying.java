@@ -1,13 +1,13 @@
 package twopiradians.blockArmor.common.seteffect;
 
-import net.minecraft.block.Block;
-import net.minecraft.entity.player.ServerPlayerEntity;
-import net.minecraft.network.play.server.SPlaySoundEffectPacket;
-import net.minecraft.potion.EffectInstance;
-import net.minecraft.potion.Effects;
-import net.minecraft.util.SoundCategory;
-import net.minecraft.util.SoundEvents;
-import net.minecraft.util.text.TextFormatting;
+import net.minecraft.ChatFormatting;
+import net.minecraft.network.protocol.game.ClientboundSoundPacket;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.level.block.Block;
 import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -18,30 +18,29 @@ public class SetEffectUndying extends SetEffect {
 
 	protected SetEffectUndying() {
 		super();
-		this.color = TextFormatting.DARK_PURPLE;
-		this.description = "Saves you from death";
+		this.color = ChatFormatting.DARK_PURPLE;
 	}
 	
 	/**Teleport player instead of them dying*/
 	@SubscribeEvent
 	public static void onEvent(LivingDeathEvent event) {
 		try {
-			if (event.getEntityLiving() instanceof ServerPlayerEntity) {
-				ServerPlayerEntity player = (ServerPlayerEntity) event.getEntityLiving();
-				if (!player.world.isRemote && 
+			if (event.getEntityLiving() instanceof ServerPlayer) {
+				ServerPlayer player = (ServerPlayer) event.getEntityLiving();
+				if (!player.level.isClientSide && 
 						ArmorSet.hasSetEffect(player, SetEffect.UNDYING) && 
-						!player.getCooldownTracker().hasCooldown(ArmorSet.getFirstSetItem(player, SetEffect.UNDYING).getItem())) {
+						!player.getCooldowns().isOnCooldown(ArmorSet.getFirstSetItem(player, SetEffect.UNDYING).getItem())) {
 					// set health to 1 and clear effects
 					player.setHealth(1);
-					player.clearActivePotions();
-					player.addPotionEffect(new EffectInstance(Effects.REGENERATION, 900, 1));
-					player.addPotionEffect(new EffectInstance(Effects.ABSORPTION, 100, 1));
-					player.addPotionEffect(new EffectInstance(Effects.FIRE_RESISTANCE, 800, 0));
-					player.world.setEntityState(player, (byte)35);
+					player.removeAllEffects();
+					player.addEffect(new MobEffectInstance(MobEffects.REGENERATION, 900, 1));
+					player.addEffect(new MobEffectInstance(MobEffects.ABSORPTION, 100, 1));
+					player.addEffect(new MobEffectInstance(MobEffects.FIRE_RESISTANCE, 800, 0));
+					player.level.broadcastEntityEvent(player, (byte)35);
 					// cooldown, damage, sound
 					SetEffect.UNDYING.setCooldown(player, 6000);
 					SetEffect.UNDYING.damageArmor(player, 100, true);
-					player.connection.sendPacket(new SPlaySoundEffectPacket(SoundEvents.BLOCK_RESPAWN_ANCHOR_DEPLETE, SoundCategory.BLOCKS, (double)player.getPosX(), (double)player.getPosY(), (double)player.getPosZ(), 1.0F, 1.0F));
+					player.connection.send(new ClientboundSoundPacket(SoundEvents.RESPAWN_ANCHOR_DEPLETE, SoundSource.BLOCKS, (double)player.getX(), (double)player.getY(), (double)player.getZ(), 1.0F, 1.0F));
 					// cancel event so player doesn't die
 					event.setCanceled(true);
 				}

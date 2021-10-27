@@ -2,14 +2,16 @@ package twopiradians.blockArmor.common.seteffect;
 
 import java.util.UUID;
 
-import net.minecraft.block.Block;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.text.TextFormatting;
-import net.minecraft.util.text.TranslationTextComponent;
-import net.minecraft.world.LightType;
-import net.minecraft.world.World;
+import net.minecraft.ChatFormatting;
+import net.minecraft.core.BlockPos;
+import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.util.Mth;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LightLayer;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
 import twopiradians.blockArmor.common.BlockArmor;
 import twopiradians.blockArmor.common.block.BlockMovingLightSource;
 import twopiradians.blockArmor.common.block.ModBlocks;
@@ -22,33 +24,41 @@ public class SetEffectIlluminated extends SetEffect {
 
 	public SetEffectIlluminated(int lightLevel) {
 		super();
-		this.lightLevel = MathHelper.clamp(lightLevel, 1, 15);
-		this.color = TextFormatting.GOLD;
-		this.description = "Produces light level "+this.lightLevel;
+		this.lightLevel = Mth.clamp(lightLevel, 1, 15);
+		this.color = ChatFormatting.GOLD;
 		this.usesButton = true;
 	}
 
+	/**Extra objects needed for description*/
 	@Override
-	public void onArmorTick(World world, PlayerEntity player, ItemStack stack) {
+	public Object[] getDescriptionObjects() {
+		return new Object[] { lightLevel };
+	}
+	
+	@Override
+	public void onArmorTick(Level world, Player player, ItemStack stack) {
 		super.onArmorTick(world, player, stack);
 
 		// enable/disable
 		if (ArmorSet.getFirstSetItem(player, this) == stack &&
-				!world.isRemote && BlockArmor.key.isKeyDown(player) && !player.getCooldownTracker().hasCooldown(stack.getItem())) {
+				!world.isClientSide && BlockArmor.key.isKeyDown(player) && !player.getCooldowns().isOnCooldown(stack.getItem())) {
 			boolean deactivated = !stack.getTag().getBoolean("deactivated");
 			stack.getTag().putBoolean("deactivated", deactivated);
-			player.sendMessage(new TranslationTextComponent(TextFormatting.GRAY+""+TextFormatting.ITALIC+"Illuminated set effect "
-					+ (deactivated ? TextFormatting.RED+""+TextFormatting.ITALIC+"disabled" : TextFormatting.GREEN+""+TextFormatting.ITALIC+"enabled")), UUID.randomUUID());
+			player.sendMessage(new TranslatableComponent(ChatFormatting.GRAY+""+ChatFormatting.ITALIC+"Illuminated set effect "
+					+ (deactivated ? ChatFormatting.RED+""+ChatFormatting.ITALIC+"disabled" : ChatFormatting.GREEN+""+ChatFormatting.ITALIC+"enabled")), UUID.randomUUID());
 			this.setCooldown(player, 10);
 		}
 
 		//set block at head level to BlockMovingLightSource
 		if (ArmorSet.getFirstSetItem(player, this) == stack &&
-				!world.isRemote && world.isAirBlock(player.getPosition().up()) && 
-				world.getLightFor(LightType.BLOCK, player.getPosition().up()) < lightLevel &&
-				!stack.getTag().getBoolean("deactivated")) 
-			world.setBlockState(player.getPosition().up(), 
-					ModBlocks.MOVING_LIGHT_SOURCE.getDefaultState().with(BlockMovingLightSource.LIGHT_LEVEL, lightLevel));
+				!world.isClientSide && world.isEmptyBlock(player.blockPosition().above()) && 
+				world.getBrightness(LightLayer.BLOCK, player.blockPosition().above()) < lightLevel &&
+				!stack.getTag().getBoolean("deactivated")) {
+			BlockPos pos = player.blockPosition().above();
+			BlockState state = ModBlocks.MOVING_LIGHT_SOURCE.defaultBlockState().setValue(BlockMovingLightSource.LIGHT_LEVEL, lightLevel);
+			world.setBlockAndUpdate(pos, state);
+			world.setBlockEntity(ModBlocks.MOVING_LIGHT_SOURCE.newBlockEntity(pos, state));
+		}
 	}
 
 	/**Can be overwritten to return a new instance depending on the given block*/

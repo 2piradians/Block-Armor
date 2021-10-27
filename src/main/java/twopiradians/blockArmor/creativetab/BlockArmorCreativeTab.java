@@ -2,13 +2,13 @@ package twopiradians.blockArmor.creativetab;
 
 import java.util.ArrayList;
 
-import net.minecraft.block.Blocks;
-import net.minecraft.item.ItemGroup;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
+import net.minecraft.world.item.CreativeModeTab;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.level.block.Blocks;
 import twopiradians.blockArmor.common.item.ArmorSet;
 
-public class BlockArmorCreativeTab extends ItemGroup {
+public class BlockArmorCreativeTab extends CreativeModeTab {
 	
 	public static BlockArmorCreativeTab vanillaTab;
 	public static BlockArmorCreativeTab moddedTab;
@@ -19,7 +19,7 @@ public class BlockArmorCreativeTab extends ItemGroup {
 	}
 
 	@Override
-	public ItemStack createIcon() {
+	public ItemStack makeIcon() {
 		if (moddedTab == this && orderedStacks.size() > 2)
 			return orderedStacks.get(1);
 		else if (ArmorSet.getSet(Blocks.BEDROCK) != null)

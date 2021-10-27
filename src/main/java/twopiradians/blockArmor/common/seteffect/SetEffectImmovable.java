@@ -1,9 +1,9 @@
 package twopiradians.blockArmor.common.seteffect;
 
-import net.minecraft.block.Block;
-import net.minecraft.entity.ai.attributes.AttributeModifier;
-import net.minecraft.entity.ai.attributes.Attributes;
-import net.minecraft.util.text.TextFormatting;
+import net.minecraft.ChatFormatting;
+import net.minecraft.world.entity.ai.attributes.AttributeModifier;
+import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.level.block.Block;
 import twopiradians.blockArmor.utils.BlockUtils;
 
 public class SetEffectImmovable extends SetEffect {
@@ -13,10 +13,15 @@ public class SetEffectImmovable extends SetEffect {
 	protected SetEffectImmovable(double knockbackResistance) {
 		super();
 		this.knockbackResistance = knockbackResistance;
-		this.color = TextFormatting.GRAY;
-		this.description = "Gives "+(int)(knockbackResistance*100d)+"% Knockback Resistance";
+		this.color = ChatFormatting.GRAY;
 		this.attributes.put(Attributes.KNOCKBACK_RESISTANCE, new AttributeModifier(KNOCKBACK_RESISTANCE_UUID, 
 				"Knockback Resistance", knockbackResistance, AttributeModifier.Operation.ADDITION));
+	}
+	
+	/**Extra objects needed for description*/
+	@Override
+	public Object[] getDescriptionObjects() {
+		return new Object[] { (int)(knockbackResistance*100d) };
 	}
 
 	/**Can be overwritten to return a new instance depending on the given block*/

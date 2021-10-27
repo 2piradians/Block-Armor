@@ -5,27 +5,23 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.function.Predicate;
 
 import com.google.common.collect.Maps;
 
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.ScreenManager;
-import net.minecraft.client.gui.screen.inventory.ChestScreen;
-import net.minecraft.client.renderer.model.BlockModel;
-import net.minecraft.client.renderer.model.IUnbakedModel;
-import net.minecraft.client.renderer.model.ModelBakery;
-import net.minecraft.client.renderer.model.ModelResourceLocation;
-import net.minecraft.client.renderer.texture.AtlasTexture;
-import net.minecraft.client.settings.KeyBinding;
-import net.minecraft.client.world.ClientWorld;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.inventory.EquipmentSlotType;
-import net.minecraft.resources.IReloadableResourceManager;
-import net.minecraft.resources.IResourceManager;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.client.KeyMapping;
+import net.minecraft.client.gui.screens.MenuScreens;
+import net.minecraft.client.gui.screens.inventory.ContainerScreen;
+import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.client.renderer.block.model.BlockModel;
+import net.minecraft.client.renderer.texture.TextureAtlas;
+import net.minecraft.client.resources.model.ModelBakery;
+import net.minecraft.client.resources.model.ModelResourceLocation;
+import net.minecraft.client.resources.model.UnbakedModel;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Tuple;
-import net.minecraft.world.World;
+import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.level.Level;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.event.ModelBakeEvent;
@@ -33,15 +29,11 @@ import net.minecraftforge.client.event.ModelRegistryEvent;
 import net.minecraftforge.client.event.TextureStitchEvent;
 import net.minecraftforge.client.model.ModelLoader;
 import net.minecraftforge.client.model.ModelLoaderRegistry;
-import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.LogicalSide;
-import net.minecraftforge.fml.client.registry.ClientRegistry;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber.Bus;
-import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
-import net.minecraftforge.resource.IResourceType;
-import net.minecraftforge.resource.ISelectiveResourceReloadListener;
+import net.minecraftforge.fml.util.ObfuscationReflectionHelper;
+import net.minecraftforge.fmlclient.registry.ClientRegistry;
 import twopiradians.blockArmor.client.key.KeyActivateSetEffect;
 import twopiradians.blockArmor.client.model.ModelBAArmor;
 import twopiradians.blockArmor.client.model.ModelBAItem;
@@ -62,15 +54,8 @@ public class ClientProxy {
 	/**Map of models to their constructor fields - generated as needed*/
 	private static HashMap<String, ModelBAArmor> modelMaps = Maps.newHashMap();
 	public static ModelLoader modelLoader;
-	private static final Field UNBAKED_MODELS_FIELD;
-	private static final Method LOAD_MODEL_METHOD;
-
-	static {
-		UNBAKED_MODELS_FIELD = ObfuscationReflectionHelper.findField(ModelBakery.class, "field_217849_F");
-		UNBAKED_MODELS_FIELD.setAccessible(true);
-		LOAD_MODEL_METHOD = ObfuscationReflectionHelper.findMethod(ModelBakery.class, "func_177594_c", ResourceLocation.class);
-		LOAD_MODEL_METHOD.setAccessible(true);
-	}
+	private static final Field UNBAKED_MODELS_FIELD = ObfuscationReflectionHelper.findField(ModelBakery.class, "f_119212_");
+	private static final Method LOAD_MODEL_METHOD = ObfuscationReflectionHelper.findMethod(ModelBakery.class, "m_119364_", ResourceLocation.class);
 
 	@Mod.EventBusSubscriber(value = Dist.CLIENT, bus = Bus.MOD)
 	public static class RegistrationHandler {
@@ -78,7 +63,7 @@ public class ClientProxy {
 		/**Used to register block textures to override inventory textures and for inventory icons*/
 		@SubscribeEvent
 		public static void textureStitch(TextureStitchEvent.Pre event) {
-			if (event.getMap().getTextureLocation() == AtlasTexture.LOCATION_BLOCKS_TEXTURE) {
+			if (event.getMap().location() == TextureAtlas.LOCATION_BLOCKS) {
 				//textures for overriding
 				for (TextureOverrideInfo override : ArmorSet.TEXTURE_OVERRIDES.values())
 					for (Info info : override.overrides.values())
@@ -106,7 +91,7 @@ public class ClientProxy {
 		/**Map textures after the last textures (mob_effects) are stitched*/
 		@SubscribeEvent
 		public static void textureStitch(TextureStitchEvent.Post event) {
-			if (event.getMap().getTextureLocation().getPath().equals("textures/atlas/mob_effects.png")) 
+			if (event.getMap().location().getPath().equals("textures/atlas/mob_effects.png")) 
 				mapTextures();
 		}
 
@@ -125,9 +110,9 @@ public class ClientProxy {
 	}
 
 	/**Set world time*/
-	public static void setWorldTime(World world, long time) {
-		if (world instanceof ClientWorld)
-			((ClientWorld)world).setDayTime(time);
+	public static void setWorldTime(Level world, long time) {
+		if (world instanceof ClientLevel)
+			((ClientLevel)world).setDayTime(time);
 		else
 			CommonProxy.setWorldTime(world, time);
 	}
@@ -137,16 +122,16 @@ public class ClientProxy {
 	public static void mapUnbakedModels() {
 		try {
 			// get unbaked models map
-			Map<ResourceLocation, IUnbakedModel> unbakedModels = (Map<ResourceLocation, IUnbakedModel>) UNBAKED_MODELS_FIELD.get(ModelLoader.instance());
+			Map<ResourceLocation, UnbakedModel> unbakedModels = (Map<ResourceLocation, UnbakedModel>) UNBAKED_MODELS_FIELD.get(ModelLoader.instance());
 			if (!ArmorSet.allSets.isEmpty() && ArmorSet.allSets.get(0).helmet != null) {
-				IUnbakedModel currentModel = unbakedModels.get(new ModelResourceLocation(ArmorSet.allSets.get(0).helmet.getRegistryName(), "inventory"));
+				UnbakedModel currentModel = unbakedModels.get(new ModelResourceLocation(ArmorSet.allSets.get(0).helmet.getRegistryName(), "inventory"));
 				// if current model is null or missing model, replace with block_armor.json model
-				if (currentModel == null || currentModel == ModelBakery.MODEL_MISSING) {
+				if (currentModel == null || currentModel == ModelBakery.MISSING_MODEL_LOCATION) {
 					// get block_armor.json unbaked model
 					BlockModel model = (BlockModel) LOAD_MODEL_METHOD.invoke(ModelLoader.instance(), new ModelResourceLocation(new ResourceLocation(BlockArmor.MODID, "item/block_armor"), "inventory"));
 					// add unbaked model to map so armor items use block_armor.json instead of looking for their registry_name.json
 					for (ArmorSet set : ArmorSet.allSets)
-						for (EquipmentSlotType slot : ArmorSet.SLOTS) {
+						for (EquipmentSlot slot : ArmorSet.SLOTS) {
 							BlockArmorItem item = set.getArmorForSlot(slot);
 							unbakedModels.put(new ModelResourceLocation(item.getRegistryName(), "inventory"), model);
 						}
@@ -160,54 +145,32 @@ public class ClientProxy {
 
 	public static void setup() {
 		// keybinding
-		KeyActivateSetEffect.ACTIVATE_SET_EFFECT = new KeyBinding("Activate Set Effect", 82, BlockArmor.MODNAME);
+		KeyActivateSetEffect.ACTIVATE_SET_EFFECT = new KeyMapping("Activate Set Effect", 82, BlockArmor.MODNAME);
 		ClientRegistry.registerKeyBinding(KeyActivateSetEffect.ACTIVATE_SET_EFFECT);
-		// resource reload listener
-		((IReloadableResourceManager) Minecraft.getInstance().getResourceManager()).addReloadListener(new ISelectiveResourceReloadListener() {
-			@Override
-			public void onResourceManagerReload(IResourceManager resourceManager,
-					Predicate<IResourceType> resourcePredicate) {
-				//Config.syncJEIIngredients();
-			}
-		});
 		// Hoarder container types
 		registerScreenContainerTypes();
 	}
 
 	@OnlyIn(Dist.CLIENT)
 	public static void registerScreenContainerTypes() {
-		ScreenManager.registerFactory(SetEffectHoarder.containerType_9x1, ChestScreen::new);
-		ScreenManager.registerFactory(SetEffectHoarder.containerType_9x2, ChestScreen::new);
-		ScreenManager.registerFactory(SetEffectHoarder.containerType_9x3, ChestScreen::new);
-		ScreenManager.registerFactory(SetEffectHoarder.containerType_9x4, ChestScreen::new);
-		ScreenManager.registerFactory(SetEffectHoarder.containerType_9x5, ChestScreen::new);
-		ScreenManager.registerFactory(SetEffectHoarder.containerType_9x6, ChestScreen::new);
+		MenuScreens.register(SetEffectHoarder.containerType_9x1, ContainerScreen::new);
+		MenuScreens.register(SetEffectHoarder.containerType_9x2, ContainerScreen::new);
+		MenuScreens.register(SetEffectHoarder.containerType_9x3, ContainerScreen::new);
+		MenuScreens.register(SetEffectHoarder.containerType_9x4, ContainerScreen::new);
+		MenuScreens.register(SetEffectHoarder.containerType_9x5, ContainerScreen::new);
+		MenuScreens.register(SetEffectHoarder.containerType_9x6, ContainerScreen::new);
 	}
 
 	/**Get model based on model's constructor parameters*/
-	public static Object getBlockArmorModel(LivingEntity entity, int height, int width, int currentFrame, int nextFrame, EquipmentSlotType slot) {
-		String key = height+""+width+""+currentFrame+""+nextFrame+""+slot.getName();
+	public static Object getBlockArmorModel(LivingEntity entity, int height, int width, int currentFrame, int nextFrame, EquipmentSlot slot) {
+		String key = height+"_"+width+"_"+currentFrame+"_"+nextFrame+"_"+slot.getName();
 		ModelBAArmor model = modelMaps.get(key);
-		if (model == null) {
+		if (model == null) { 
 			model = new ModelBAArmor(height, width, currentFrame, nextFrame, slot);
 			modelMaps.put(key, model);
 		}
 		model.entity = entity;
 		return model;
-	}
-
-	@SubscribeEvent
-	public static void clientTick(TickEvent.ClientTickEvent event) {
-		//manage all animated set's frames (ticks at same rate as TextureAtlasSprite's updateAnimation())
-		if (event.side == LogicalSide.CLIENT) 
-			for (ArmorSet set : ArmorSet.allSets) 
-				for (int i=0; i<4; i++) { //through valid slots
-					if (set.animations != null && set.animations[i] != null) {//if animated
-						set.frames[i] += 0.5f/set.animations[i].getFrameTimeSingle((int) set.frames[i]);
-						if (set.frames[i] >= set.animations[i].getFrameCount())
-							set.frames[i] -= set.animations[i].getFrameCount();
-					}
-				}
 	}
 
 	/**Resets model and item quads and maps block textures (called when client joins world or resource pack loaded)*/

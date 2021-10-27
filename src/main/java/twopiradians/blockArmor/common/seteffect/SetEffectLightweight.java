@@ -1,13 +1,13 @@
 package twopiradians.blockArmor.common.seteffect;
 
-import net.minecraft.block.Block;
-import net.minecraft.block.LeavesBlock;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.SoundCategory;
-import net.minecraft.util.SoundEvents;
-import net.minecraft.util.text.TextFormatting;
-import net.minecraft.world.World;
+import net.minecraft.ChatFormatting;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.LeavesBlock;
 import net.minecraftforge.event.entity.living.LivingFallEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -18,15 +18,14 @@ public class SetEffectLightweight extends SetEffect
 {
 	protected SetEffectLightweight() {
 		super();
-		this.color = TextFormatting.GREEN;
-		this.description = "Falls slowly, like a leaf in the wind";
+		this.color = ChatFormatting.GREEN;
 	}
 
 	/**Reduce fall distance for less damage*/
 	@SubscribeEvent
 	public static void onEvent(LivingFallEvent event) {
 		if (ArmorSet.getWornSetEffects(event.getEntityLiving()).contains(SetEffect.LIGHTWEIGHT)) {
-			if (event.getEntityLiving().isSneaking()) {
+			if (event.getEntityLiving().isShiftKeyDown()) {
 				event.setDamageMultiplier(0.1f);
 			}
 			else {
@@ -38,21 +37,21 @@ public class SetEffectLightweight extends SetEffect
 
 	/**Only called when player wearing full, enabled set*/
 	@Override
-	public void onArmorTick(World world, PlayerEntity player, ItemStack stack) {
+	public void onArmorTick(Level world, Player player, ItemStack stack) {
 		super.onArmorTick(world, player, stack);
-		if (!player.isSneaking() && ArmorSet.getFirstSetItem(player, this) == stack && player.getMotion().getY() < 0 && !player.isOnGround() &&
-				world.isAirBlock(player.getPosition().down(2))) {
+		if (!player.isShiftKeyDown() && ArmorSet.getFirstSetItem(player, this) == stack && player.getDeltaMovement().y() < 0 && !player.isOnGround() &&
+				world.isEmptyBlock(player.blockPosition().below(2))) {
 
-			if (world.isRemote && player.fallDistance > 1 && player.getMotion().getY() < -0.3d) {
-				player.addVelocity(0, 0.076D, 0);
+			if (world.isClientSide && player.fallDistance > 1 && player.getDeltaMovement().y() < -0.3d) {
+				player.push(0, 0.076D, 0);
 				if (player.fallDistance > 5) {			
-					double driftX = world.rand.nextDouble()-0.5d;
-					double driftZ = world.rand.nextDouble()-0.5d;
+					double driftX = world.random.nextDouble()-0.5d;
+					double driftZ = world.random.nextDouble()-0.5d;
 
-					player.addVelocity(driftX/5d, 0, driftZ/5d);
+					player.push(driftX/5d, 0, driftZ/5d);
 					if (Math.abs(driftX) + Math.abs(driftZ) >= 0.75d)
-						world.playSound(player, player.getPosition(), SoundEvents.BLOCK_GRASS_STEP, 
-								SoundCategory.PLAYERS, 0.08F, world.rand.nextFloat()/5);
+						world.playSound(player, player.blockPosition(), SoundEvents.GRASS_STEP, 
+								SoundSource.PLAYERS, 0.08F, world.random.nextFloat()/5);
 				}
 			}
 		}

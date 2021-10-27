@@ -2,40 +2,39 @@ package twopiradians.blockArmor.common.seteffect;
 
 import java.util.Map.Entry;
 
-import net.minecraft.block.Block;
-import net.minecraft.enchantment.EnchantmentHelper;
-import net.minecraft.enchantment.Enchantments;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.inventory.EquipmentSlotType;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.text.TextFormatting;
-import net.minecraft.world.World;
+import net.minecraft.ChatFormatting;
+import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.enchantment.EnchantmentHelper;
+import net.minecraft.world.item.enchantment.Enchantments;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
 import twopiradians.blockArmor.common.item.ArmorSet;
 
 public class SetEffectExperience_Giving extends SetEffect {
 
 	protected SetEffectExperience_Giving() {
 		super();
-		this.color = TextFormatting.GREEN;
-		this.description = "Gives experience over time";
+		this.color = ChatFormatting.GREEN;
 	}
 
 	/**Only called when player wearing full, enabled set*/
-	public void onArmorTick(World world, PlayerEntity player, ItemStack stack) {
+	public void onArmorTick(Level world, Player player, ItemStack stack) {
 		super.onArmorTick(world, player, stack);
 
-		if (ArmorSet.getFirstSetItem(player, this) == stack && !world.isRemote && 
-				!player.getCooldownTracker().hasCooldown(stack.getItem())) {
+		if (ArmorSet.getFirstSetItem(player, this) == stack && !world.isClientSide && 
+				!player.getCooldowns().isOnCooldown(stack.getItem())) {
 			this.setCooldown(player, 50);
 			
 			// give exp this way for mending
 			// modified from EntityXPOrb#onCollideWithPlayer
 			boolean hasMending = false;
-			Entry<EquipmentSlotType, ItemStack> entry = EnchantmentHelper.getRandomEquippedWithEnchantment(Enchantments.MENDING, player, ItemStack::isDamaged);
+			Entry<EquipmentSlot, ItemStack> entry = EnchantmentHelper.getRandomItemWith(Enchantments.MENDING, player, ItemStack::isDamaged);
 			if (entry != null) {
 				ItemStack itemstack = entry.getValue();
 				if (!itemstack.isEmpty() && itemstack.isDamaged()) {
-					itemstack.setDamage(itemstack.getDamage() - 1);
+					itemstack.setDamageValue(itemstack.getDamageValue() - 1);
 					hasMending = true;
 				}
 			}

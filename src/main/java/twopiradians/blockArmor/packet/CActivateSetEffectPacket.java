@@ -3,8 +3,8 @@ package twopiradians.blockArmor.packet;
 import java.util.UUID;
 import java.util.function.Supplier;
 
-import net.minecraft.network.PacketBuffer;
-import net.minecraftforge.fml.network.NetworkEvent;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraftforge.fmllegacy.network.NetworkEvent;
 import twopiradians.blockArmor.client.key.KeyActivateSetEffect;
 
 public class CActivateSetEffectPacket {
@@ -19,14 +19,14 @@ public class CActivateSetEffectPacket {
 		this.player = player;
 	}
 
-	public static void encode(CActivateSetEffectPacket packet, PacketBuffer buf) {
+	public static void encode(CActivateSetEffectPacket packet, FriendlyByteBuf buf) {
 		buf.writeBoolean(packet.isKeyPressed);
-		buf.writeString(packet.player.toString());
+		buf.writeUtf(packet.player.toString());
 	}
 
-	public static CActivateSetEffectPacket decode(PacketBuffer buf) {		
+	public static CActivateSetEffectPacket decode(FriendlyByteBuf buf) {		
 		boolean isKeyPressed = buf.readBoolean();
-		UUID player = UUID.fromString(buf.readString(32767));
+		UUID player = UUID.fromString(buf.readUtf(32767));
 		return new CActivateSetEffectPacket(isKeyPressed, player);
 	}
 

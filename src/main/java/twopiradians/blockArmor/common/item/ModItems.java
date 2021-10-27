@@ -4,10 +4,10 @@ import java.util.ArrayList;
 import java.util.Iterator;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.model.ModelResourceLocation;
-import net.minecraft.entity.merchant.villager.VillagerProfession;
-import net.minecraft.inventory.EquipmentSlotType;
-import net.minecraft.item.Item;
+import net.minecraft.client.resources.model.ModelResourceLocation;
+import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.npc.VillagerProfession;
+import net.minecraft.world.item.Item;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -48,10 +48,10 @@ public class ModItems {
 			while (it.hasNext()) { 
 				ArmorSet set = it.next();
 				String registryName = ArmorSet.getItemRegistryName(set.item);
-				set.helmet = register(registry, new BlockArmorItem(set.material, EquipmentSlotType.HEAD, set), registryName+"_helmet");
-				set.chestplate = register(registry, new BlockArmorItem(set.material, EquipmentSlotType.CHEST, set), registryName+"_chestplate");
-				set.leggings = register(registry, new BlockArmorItem(set.material, EquipmentSlotType.LEGS, set), registryName+"_leggings");
-				set.boots = register(registry, new BlockArmorItem(set.material, EquipmentSlotType.FEET, set), registryName+"_boots");
+				set.helmet = register(registry, new BlockArmorItem(set.material, EquipmentSlot.HEAD, set), registryName+"_helmet");
+				set.chestplate = register(registry, new BlockArmorItem(set.material, EquipmentSlot.CHEST, set), registryName+"_chestplate");
+				set.leggings = register(registry, new BlockArmorItem(set.material, EquipmentSlot.LEGS, set), registryName+"_leggings");
+				set.boots = register(registry, new BlockArmorItem(set.material, EquipmentSlot.FEET, set), registryName+"_boots");
 				if (set.isFromModdedBlock)
 					moddedItems += 4;
 				else
@@ -60,9 +60,9 @@ public class ModItems {
 				set.enable(); // enable here so they're added to creative tab right away (can be disabled when config loads)
 			}
 
-			BlockArmor.LOGGER.info("Generated "+vanillaItems+" Block Armor items from Vanilla Blocks");
+			BlockArmor.LOGGER.info("Generated "+vanillaItems+" Block Armor items from Vanilla blocks");
 			if (moddedItems > 0)
-				BlockArmor.LOGGER.info("Generated "+moddedItems+" Block Armor items from Modded Blocks");
+				BlockArmor.LOGGER.info("Generated "+moddedItems+" Block Armor items from Modded blocks");
 			
 			registry.freeze();
 		}
@@ -78,7 +78,7 @@ public class ModItems {
 
 	public static void registerRenders() {
 		for (BlockArmorItem item : allArmors) 
-			Minecraft.getInstance().getItemRenderer().getItemModelMesher().register
+			Minecraft.getInstance().getItemRenderer().getItemModelShaper().register
 			(item, new ModelResourceLocation(item.getRegistryName(), "inventory"));
 	}
 
