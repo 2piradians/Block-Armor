@@ -10,6 +10,7 @@ import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
+@SuppressWarnings("deprecation")
 public class BlockArmorMaterial implements ArmorMaterial {
 
 	private static final int[] MAX_DAMAGE_ARRAY = new int[]{13, 15, 16, 11};

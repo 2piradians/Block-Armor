@@ -63,7 +63,7 @@ import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fmllegacy.server.ServerLifecycleHooks;
+import net.minecraftforge.server.ServerLifecycleHooks;
 import twopiradians.blockArmor.common.BlockArmor;
 import twopiradians.blockArmor.common.command.CommandDev;
 import twopiradians.blockArmor.common.config.Config;

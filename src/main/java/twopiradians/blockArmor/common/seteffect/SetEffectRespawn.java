@@ -46,7 +46,7 @@ public class SetEffectRespawn extends SetEffect {
 						respawnWorld = player.server.overworld();
 					BlockPos respawnPos = player.getRespawnPosition();
 					if (respawnPos == null)
-						respawnWorld.getSharedSpawnPos();
+						respawnPos = respawnWorld.getSharedSpawnPos();
 					if (respawnWorld != player.level) {
 						player.handleInsidePortal(player.blockPosition());
 						player.changeDimension(respawnWorld);

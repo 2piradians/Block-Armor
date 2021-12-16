@@ -15,15 +15,15 @@ import net.minecraft.world.item.ItemCooldowns;
 import net.minecraft.world.item.ItemCooldowns.CooldownInstance;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.fml.util.ObfuscationReflectionHelper;
-import net.minecraftforge.fmllegacy.network.NetworkEvent;
+import net.minecraftforge.network.NetworkEvent;
 
 public class SSyncCooldownsPacket {
 
-	private static final Field COOLDOWNS_FIELD = ObfuscationReflectionHelper.findField(ItemCooldowns.class, "f_41515_");
-	private static final Field COOLDOWNS_TICKS_FIELD = ObfuscationReflectionHelper.findField(ItemCooldowns.class, "f_41516_");
+	private static final Field COOLDOWNS_FIELD = ObfuscationReflectionHelper.findField(ItemCooldowns.class, "cooldowns");
+	private static final Field COOLDOWNS_TICKS_FIELD = ObfuscationReflectionHelper.findField(ItemCooldowns.class, "tickCount");
 	private static final Constructor<CooldownInstance> COOLDOWNS_CONSTRUCTOR = ObfuscationReflectionHelper.findConstructor(ItemCooldowns.CooldownInstance.class, ItemCooldowns.class, int.class, int.class);
-	private static final Field COOLDOWNS_CREATE_TICKS_FIELD = ObfuscationReflectionHelper.findField(ItemCooldowns.CooldownInstance.class, "f_41533_");
-	private static final Field COOLDOWNS_EXPIRE_TICKS_FIELD = ObfuscationReflectionHelper.findField(ItemCooldowns.CooldownInstance.class, "f_41534_");
+	private static final Field COOLDOWNS_CREATE_TICKS_FIELD = ObfuscationReflectionHelper.findField(ItemCooldowns.CooldownInstance.class, "startTime");
+	private static final Field COOLDOWNS_EXPIRE_TICKS_FIELD = ObfuscationReflectionHelper.findField(ItemCooldowns.CooldownInstance.class, "endTime");
 
 	private Map<Item, ItemCooldowns.CooldownInstance> cooldowns;
 	private int ticks;

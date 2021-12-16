@@ -43,7 +43,7 @@ import net.minecraftforge.event.entity.living.LivingEquipmentChangeEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fmllegacy.network.PacketDistributor;
+import net.minecraftforge.network.PacketDistributor;
 import twopiradians.blockArmor.client.gui.EntityGuiPlayer;
 import twopiradians.blockArmor.client.key.KeyActivateSetEffect;
 import twopiradians.blockArmor.common.BlockArmor;

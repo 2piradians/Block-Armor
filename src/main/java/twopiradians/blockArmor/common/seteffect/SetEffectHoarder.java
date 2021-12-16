@@ -44,15 +44,14 @@ import net.minecraft.world.level.block.ChestBlock;
 import net.minecraft.world.level.block.ShulkerBoxBlock;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.common.extensions.IForgeContainerType;
-import net.minecraftforge.common.util.Constants.NBT;
+import net.minecraftforge.common.extensions.IForgeMenuType;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber.Bus;
 import net.minecraftforge.fml.util.ObfuscationReflectionHelper;
-import net.minecraftforge.fmllegacy.server.ServerLifecycleHooks;
+import net.minecraftforge.server.ServerLifecycleHooks;
 import twopiradians.blockArmor.common.BlockArmor;
 import twopiradians.blockArmor.common.item.ArmorSet;
 import twopiradians.blockArmor.common.item.BlockArmorItem;
@@ -235,7 +234,7 @@ public class SetEffectHoarder extends SetEffect {
 		NonNullList<ItemStack> stacks = NonNullList.withSize(SLOT_TO_SIZE.get(((BlockArmorItem)wornItem.getItem()).getSlot()), ItemStack.EMPTY);
 		if (wornItem != null && !wornItem.isEmpty() && wornItem.hasTag()) {
 			CompoundTag nbt = wornItem.getTag();
-			ListTag list = nbt.getList(BlockArmor.MODID+":hoarderItems", NBT.TAG_COMPOUND);
+			ListTag list = nbt.getList(BlockArmor.MODID+":hoarderItems", 10);
 			for (int i=0; i<list.size() && i<stacks.size(); ++i) {
 				CompoundTag itemNbt = list.getCompound(i);
 				stacks.set(i, ItemStack.of(itemNbt));
@@ -274,8 +273,8 @@ public class SetEffectHoarder extends SetEffect {
 
 	private static class HoarderContainer extends ChestMenu {
 
-		private static final Field LAST_SLOTS_FIELD = ObfuscationReflectionHelper.findField(AbstractContainerMenu.class, "f_38841_");
-		private static final Field REMOTE_SLOTS_FIELD = ObfuscationReflectionHelper.findField(AbstractContainerMenu.class, "f_150394_");
+		private static final Field LAST_SLOTS_FIELD = ObfuscationReflectionHelper.findField(AbstractContainerMenu.class, "lastSlots");
+		private static final Field REMOTE_SLOTS_FIELD = ObfuscationReflectionHelper.findField(AbstractContainerMenu.class, "remoteSlots");
 
 		public HoarderContainer(int id, Inventory playerInventory) {
 			this(id, playerInventory, getStoredItems(playerInventory.player).toArray(new ItemStack[0]), playerInventory.player);
@@ -362,22 +361,22 @@ public class SetEffectHoarder extends SetEffect {
 
 		@SubscribeEvent
 		public static void registerContainers(final RegistryEvent.Register<MenuType<?>> event) {
-			containerType_9x1 = IForgeContainerType.create(HoarderContainer::createContainerClientSide);
+			containerType_9x1 = IForgeMenuType.create(HoarderContainer::createContainerClientSide);
 			containerType_9x1.setRegistryName("hoarder_container_9x1");
 			event.getRegistry().register(containerType_9x1);
-			containerType_9x2 = IForgeContainerType.create(HoarderContainer::createContainerClientSide);
+			containerType_9x2 = IForgeMenuType.create(HoarderContainer::createContainerClientSide);
 			containerType_9x2.setRegistryName("hoarder_container_9x2");
 			event.getRegistry().register(containerType_9x2);
-			containerType_9x3 = IForgeContainerType.create(HoarderContainer::createContainerClientSide);
+			containerType_9x3 = IForgeMenuType.create(HoarderContainer::createContainerClientSide);
 			containerType_9x3.setRegistryName("hoarder_container_9x3");
 			event.getRegistry().register(containerType_9x3);
-			containerType_9x4 = IForgeContainerType.create(HoarderContainer::createContainerClientSide);
+			containerType_9x4 = IForgeMenuType.create(HoarderContainer::createContainerClientSide);
 			containerType_9x4.setRegistryName("hoarder_container_9x4");
 			event.getRegistry().register(containerType_9x4);
-			containerType_9x5 = IForgeContainerType.create(HoarderContainer::createContainerClientSide);
+			containerType_9x5 = IForgeMenuType.create(HoarderContainer::createContainerClientSide);
 			containerType_9x5.setRegistryName("hoarder_container_9x5");
 			event.getRegistry().register(containerType_9x5);
-			containerType_9x6 = IForgeContainerType.create(HoarderContainer::createContainerClientSide);
+			containerType_9x6 = IForgeMenuType.create(HoarderContainer::createContainerClientSide);
 			containerType_9x6.setRegistryName("hoarder_container_9x6");
 			event.getRegistry().register(containerType_9x6);
 		}

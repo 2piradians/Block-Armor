@@ -25,13 +25,13 @@ import net.minecraftforge.common.loot.GlobalLootModifierSerializer;
 import net.minecraftforge.event.RegisterCommandsEvent;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent.PlayerLoggedInEvent;
+import net.minecraftforge.event.server.ServerStartedEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber.Bus;
 import net.minecraftforge.fml.util.ObfuscationReflectionHelper;
-import net.minecraftforge.fmllegacy.network.NetworkDirection;
-import net.minecraftforge.fmllegacy.network.PacketDistributor;
-import net.minecraftforge.fmlserverevents.FMLServerStartedEvent;
+import net.minecraftforge.network.NetworkDirection;
+import net.minecraftforge.network.PacketDistributor;
 import twopiradians.blockArmor.common.command.CommandDev;
 import twopiradians.blockArmor.common.item.ArmorSet;
 import twopiradians.blockArmor.common.recipe.RecipeBlockArmor;
@@ -72,13 +72,13 @@ public class CommonProxy {
 	}
 
 	@SubscribeEvent
-	public static void serverStart(FMLServerStartedEvent event) {
+	public static void serverStart(ServerStartedEvent event) {
 		registerRecipes(event.getServer());
 	}
 	
 	private static void registerRecipes(MinecraftServer server) {
 		try {
-			Field recipesField = ObfuscationReflectionHelper.findField(RecipeManager.class, "f_44007_");
+			Field recipesField = ObfuscationReflectionHelper.findField(RecipeManager.class, "recipes");
 			Map<RecipeType<?>, Map<ResourceLocation, Recipe<?>>> recipes = Maps.newHashMap((Map<RecipeType<?>, Map<ResourceLocation, Recipe<?>>>) recipesField.get(server.getRecipeManager()));
 			for (ArmorSet set : ArmorSet.allSets) {
 				if (set.isEnabled()) {

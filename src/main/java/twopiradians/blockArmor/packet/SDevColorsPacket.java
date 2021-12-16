@@ -7,7 +7,7 @@ import java.util.function.Supplier;
 import com.google.common.collect.Maps;
 
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraftforge.fmllegacy.network.NetworkEvent;
+import net.minecraftforge.network.NetworkEvent;
 import twopiradians.blockArmor.common.command.CommandDev;
 
 public class SDevColorsPacket

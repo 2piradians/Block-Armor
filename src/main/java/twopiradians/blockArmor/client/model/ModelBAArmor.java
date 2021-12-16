@@ -31,7 +31,7 @@ import twopiradians.blockArmor.common.item.BlockArmorItem;
 @OnlyIn(Dist.CLIENT)
 public class ModelBAArmor<T extends LivingEntity> extends HumanoidModel<T> {
 
-	private static final Field MODEL_BOX_QUADS = ObfuscationReflectionHelper.findField(ModelPart.Cube.class, "f_104341_");
+	private static final Field MODEL_BOX_QUADS = ObfuscationReflectionHelper.findField(ModelPart.Cube.class, "polygons");
 	/**Cached resource locations for armor textures*/
 	private static final HashMap<String, ResourceLocation> TEXTURES = Maps.newHashMap();
 

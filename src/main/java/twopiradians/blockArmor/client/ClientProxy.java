@@ -24,16 +24,16 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.Level;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.client.ClientRegistry;
 import net.minecraftforge.client.event.ModelBakeEvent;
 import net.minecraftforge.client.event.ModelRegistryEvent;
 import net.minecraftforge.client.event.TextureStitchEvent;
-import net.minecraftforge.client.model.ModelLoader;
+import net.minecraftforge.client.model.ForgeModelBakery;
 import net.minecraftforge.client.model.ModelLoaderRegistry;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber.Bus;
 import net.minecraftforge.fml.util.ObfuscationReflectionHelper;
-import net.minecraftforge.fmlclient.registry.ClientRegistry;
 import twopiradians.blockArmor.client.key.KeyActivateSetEffect;
 import twopiradians.blockArmor.client.model.ModelBAArmor;
 import twopiradians.blockArmor.client.model.ModelBAItem;
@@ -53,9 +53,9 @@ public class ClientProxy {
 
 	/**Map of models to their constructor fields - generated as needed*/
 	private static HashMap<String, ModelBAArmor> modelMaps = Maps.newHashMap();
-	public static ModelLoader modelLoader;
-	private static final Field UNBAKED_MODELS_FIELD = ObfuscationReflectionHelper.findField(ModelBakery.class, "f_119212_");
-	private static final Method LOAD_MODEL_METHOD = ObfuscationReflectionHelper.findMethod(ModelBakery.class, "m_119364_", ResourceLocation.class);
+	public static ForgeModelBakery modelLoader;
+	private static final Field UNBAKED_MODELS_FIELD = ObfuscationReflectionHelper.findField(ModelBakery.class, "unbakedCache");
+	private static final Method LOAD_MODEL_METHOD = ObfuscationReflectionHelper.findMethod(ModelBakery.class, "loadBlockModel", ResourceLocation.class);
 
 	@Mod.EventBusSubscriber(value = Dist.CLIENT, bus = Bus.MOD)
 	public static class RegistrationHandler {
@@ -63,7 +63,7 @@ public class ClientProxy {
 		/**Used to register block textures to override inventory textures and for inventory icons*/
 		@SubscribeEvent
 		public static void textureStitch(TextureStitchEvent.Pre event) {
-			if (event.getMap().location() == TextureAtlas.LOCATION_BLOCKS) {
+			if (event.getAtlas().location() == TextureAtlas.LOCATION_BLOCKS) {
 				//textures for overriding
 				for (TextureOverrideInfo override : ArmorSet.TEXTURE_OVERRIDES.values())
 					for (Info info : override.overrides.values())
@@ -91,7 +91,7 @@ public class ClientProxy {
 		/**Map textures after the last textures (mob_effects) are stitched*/
 		@SubscribeEvent
 		public static void textureStitch(TextureStitchEvent.Post event) {
-			if (event.getMap().location().getPath().equals("textures/atlas/mob_effects.png")) 
+			if (event.getAtlas().location().getPath().equals("textures/atlas/mob_effects.png")) 
 				mapTextures();
 		}
 
@@ -122,13 +122,13 @@ public class ClientProxy {
 	public static void mapUnbakedModels() {
 		try {
 			// get unbaked models map
-			Map<ResourceLocation, UnbakedModel> unbakedModels = (Map<ResourceLocation, UnbakedModel>) UNBAKED_MODELS_FIELD.get(ModelLoader.instance());
+			Map<ResourceLocation, UnbakedModel> unbakedModels = (Map<ResourceLocation, UnbakedModel>) UNBAKED_MODELS_FIELD.get(ForgeModelBakery.instance());
 			if (!ArmorSet.allSets.isEmpty() && ArmorSet.allSets.get(0).helmet != null) {
 				UnbakedModel currentModel = unbakedModels.get(new ModelResourceLocation(ArmorSet.allSets.get(0).helmet.getRegistryName(), "inventory"));
 				// if current model is null or missing model, replace with block_armor.json model
 				if (currentModel == null || currentModel == ModelBakery.MISSING_MODEL_LOCATION) {
 					// get block_armor.json unbaked model
-					BlockModel model = (BlockModel) LOAD_MODEL_METHOD.invoke(ModelLoader.instance(), new ModelResourceLocation(new ResourceLocation(BlockArmor.MODID, "item/block_armor"), "inventory"));
+					BlockModel model = (BlockModel) LOAD_MODEL_METHOD.invoke(ForgeModelBakery.instance(), new ModelResourceLocation(new ResourceLocation(BlockArmor.MODID, "item/block_armor"), "inventory"));
 					// add unbaked model to map so armor items use block_armor.json instead of looking for their registry_name.json
 					for (ArmorSet set : ArmorSet.allSets)
 						for (EquipmentSlot slot : ArmorSet.SLOTS) {
