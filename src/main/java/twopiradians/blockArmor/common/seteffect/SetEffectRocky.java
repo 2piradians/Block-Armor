@@ -14,8 +14,8 @@ import net.minecraftforge.fml.util.ObfuscationReflectionHelper;
 
 public class SetEffectRocky extends SetEffect {
 
-	private static final Field WAS_TOUCHING_WATER_FIELD = ObfuscationReflectionHelper.findField(Entity.class, "wasTouchingWater");
-	private static final Field FIRST_TICK_FIELD = ObfuscationReflectionHelper.findField(Entity.class, "firstTick");
+	private static final Field WAS_TOUCHING_WATER_FIELD = ObfuscationReflectionHelper.findField(Entity.class, "f_19798_");
+	private static final Field FIRST_TICK_FIELD = ObfuscationReflectionHelper.findField(Entity.class, "f_19803_");
 
 	protected SetEffectRocky() {
 		super();

@@ -26,12 +26,12 @@ public class TextureInfo {
 	/**Original height of sprite (before it recalculates sprite with extra frames, like Prismarine)*/
 	public int originalHeight;
 
-	private static final Field FRAME_FIELD = ObfuscationReflectionHelper.findField(TextureAtlasSprite.AnimatedTexture.class, "frame");
-	private static final Field SUB_FRAME_FIELD = ObfuscationReflectionHelper.findField(TextureAtlasSprite.AnimatedTexture.class, "subFrame");
-	private static final Field FRAMES_FIELD = ObfuscationReflectionHelper.findField(TextureAtlasSprite.AnimatedTexture.class, "frames");
-	private static final Field INDEX_FIELD = ObfuscationReflectionHelper.findField(TextureAtlasSprite.FrameInfo.class, "index");
-	private static final Field TIME_FIELD = ObfuscationReflectionHelper.findField(TextureAtlasSprite.FrameInfo.class, "time");
-	private static final Field MAIN_IMAGE_FIELD = ObfuscationReflectionHelper.findField(TextureAtlasSprite.class, "mainImage");
+	private static final Field FRAME_FIELD = ObfuscationReflectionHelper.findField(TextureAtlasSprite.AnimatedTexture.class, "f_174748_");
+	private static final Field SUB_FRAME_FIELD = ObfuscationReflectionHelper.findField(TextureAtlasSprite.AnimatedTexture.class, "f_174749_");
+	private static final Field FRAMES_FIELD = ObfuscationReflectionHelper.findField(TextureAtlasSprite.AnimatedTexture.class, "f_174750_");
+	private static final Field INDEX_FIELD = ObfuscationReflectionHelper.findField(TextureAtlasSprite.FrameInfo.class, "f_174771_");
+	private static final Field TIME_FIELD = ObfuscationReflectionHelper.findField(TextureAtlasSprite.FrameInfo.class, "f_174772_");
+	private static final Field MAIN_IMAGE_FIELD = ObfuscationReflectionHelper.findField(TextureAtlasSprite.class, "f_118342_");
 
 	protected TextureInfo(@Nullable TextureAtlasSprite sprite, int color, @Nullable AnimatedTexture animatedTexture) {
 		this.sprite = sprite == null ? ArmorSet.missingSprite : sprite;

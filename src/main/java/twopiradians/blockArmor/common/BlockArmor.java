@@ -19,7 +19,9 @@ import twopiradians.blockArmor.client.key.KeyActivateSetEffect;
 public class BlockArmor {
 			
 	/**Changelog
-	 * FIXME sleepy not working during rain/storms? https://youtu.be/fV9yKKVmyGw?t=214
+	 * Fixed loading errors
+	 * Fixed Sleepy not resetting weather or waking up other sleeping players
+	 * Added Falling effect to Dripstone armor
 	 * 
 	 * FIXME (1.16.5) more reports of chests being empty - desert temple chests (tested in SP and not able to reproduce)
 	 * FIXME (1.16.5) can't join server with MineColonies bc of "Exception: io.nettyhandler.codec.DecoderException: java.io.IOException: Payload may not be larger than 1048576 bytes"

@@ -78,7 +78,7 @@ public class CommonProxy {
 	
 	private static void registerRecipes(MinecraftServer server) {
 		try {
-			Field recipesField = ObfuscationReflectionHelper.findField(RecipeManager.class, "recipes");
+			Field recipesField = ObfuscationReflectionHelper.findField(RecipeManager.class, "f_44007_");
 			Map<RecipeType<?>, Map<ResourceLocation, Recipe<?>>> recipes = Maps.newHashMap((Map<RecipeType<?>, Map<ResourceLocation, Recipe<?>>>) recipesField.get(server.getRecipeManager()));
 			for (ArmorSet set : ArmorSet.allSets) {
 				if (set.isEnabled()) {

@@ -54,8 +54,8 @@ public class ClientProxy {
 	/**Map of models to their constructor fields - generated as needed*/
 	private static HashMap<String, ModelBAArmor> modelMaps = Maps.newHashMap();
 	public static ForgeModelBakery modelLoader;
-	private static final Field UNBAKED_MODELS_FIELD = ObfuscationReflectionHelper.findField(ModelBakery.class, "unbakedCache");
-	private static final Method LOAD_MODEL_METHOD = ObfuscationReflectionHelper.findMethod(ModelBakery.class, "loadBlockModel", ResourceLocation.class);
+	private static final Field UNBAKED_MODELS_FIELD = ObfuscationReflectionHelper.findField(ModelBakery.class, "f_119212_");
+	private static final Method LOAD_MODEL_METHOD = ObfuscationReflectionHelper.findMethod(ModelBakery.class, "m_119364_", ResourceLocation.class);
 
 	@Mod.EventBusSubscriber(value = Dist.CLIENT, bus = Bus.MOD)
 	public static class RegistrationHandler {

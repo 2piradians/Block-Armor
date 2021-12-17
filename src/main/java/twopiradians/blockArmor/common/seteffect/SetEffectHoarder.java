@@ -273,8 +273,8 @@ public class SetEffectHoarder extends SetEffect {
 
 	private static class HoarderContainer extends ChestMenu {
 
-		private static final Field LAST_SLOTS_FIELD = ObfuscationReflectionHelper.findField(AbstractContainerMenu.class, "lastSlots");
-		private static final Field REMOTE_SLOTS_FIELD = ObfuscationReflectionHelper.findField(AbstractContainerMenu.class, "remoteSlots");
+		private static final Field LAST_SLOTS_FIELD = ObfuscationReflectionHelper.findField(AbstractContainerMenu.class, "f_38841_");
+		private static final Field REMOTE_SLOTS_FIELD = ObfuscationReflectionHelper.findField(AbstractContainerMenu.class, "f_150394_");
 
 		public HoarderContainer(int id, Inventory playerInventory) {
 			this(id, playerInventory, getStoredItems(playerInventory.player).toArray(new ItemStack[0]), playerInventory.player);

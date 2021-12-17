@@ -44,7 +44,7 @@ public class SetEffectFalling extends SetEffect {
 	/**Should block be given this set effect*/
 	@Override
 	protected boolean isValid(Block block) {	
-		if (block instanceof FallingBlock || DIVING_SUIT.isValid(block))
+		if (block instanceof FallingBlock || DIVING_SUIT.isValid(block) || SetEffect.registryNameContains(block, new String[] {"dripstone"}))
 			return true;		
 		return false;
 	}
