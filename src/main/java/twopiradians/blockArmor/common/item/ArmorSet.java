@@ -463,7 +463,7 @@ public class ArmorSet {
 			return null;
 		}
 	}
-	
+
 	@OnlyIn(Dist.CLIENT)
 	public TextureInfo getTextureInfo(EquipmentSlot slot) {
 		if (this.textureInfo == null)
@@ -868,12 +868,13 @@ public class ArmorSet {
 				}
 			}
 
+		// if no info for slot, put in blank texture info
+		for (EquipmentSlot slot : SLOTS)
+			if (!this.textureInfo.containsKey(slot))
+				this.textureInfo.put(slot, new TextureInfo(null, -1, null));
+
 		//If a sprite is missing, disable the set
-		if (this.textureInfo.get(EquipmentSlot.HEAD).sprite == null || 
-				this.textureInfo.get(EquipmentSlot.CHEST).sprite == null || 
-				this.textureInfo.get(EquipmentSlot.LEGS).sprite == null || 
-				this.textureInfo.get(EquipmentSlot.FEET).sprite == null ||
-				this.textureInfo.get(EquipmentSlot.HEAD).sprite == missingSprite ||
+		if (this.textureInfo.get(EquipmentSlot.HEAD).sprite == missingSprite ||
 				this.textureInfo.get(EquipmentSlot.CHEST).sprite == missingSprite ||
 				this.textureInfo.get(EquipmentSlot.LEGS).sprite == missingSprite || 
 				this.textureInfo.get(EquipmentSlot.FEET).sprite == missingSprite) 
