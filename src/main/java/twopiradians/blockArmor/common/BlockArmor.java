@@ -19,10 +19,7 @@ import twopiradians.blockArmor.client.key.KeyActivateSetEffect;
 public class BlockArmor {
 			
 	/**Changelog
-	 * Ported to Minecraft v1.17.1
-	 * Added lang support for armor item names and set effects
-	 * Fixed set effects with enchantments duplicating enchantments under certain conditions
-	 * Fixed a duping issue with the Lucky set effect
+	 * Fixed a crashing issue on startup with certain mods installed
 	 * 
 	 * FIXME (1.16.5) more reports of chests being empty - desert temple chests (tested in SP and not able to reproduce)
 	 * FIXME (1.16.5) can't join server with MineColonies bc of "Exception: io.nettyhandler.codec.DecoderException: java.io.IOException: Payload may not be larger than 1048576 bytes"

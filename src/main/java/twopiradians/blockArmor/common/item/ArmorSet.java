@@ -869,7 +869,11 @@ public class ArmorSet {
 			}
 
 		//If a sprite is missing, disable the set
-		if (this.textureInfo.get(EquipmentSlot.HEAD).sprite == null || 
+		if (!this.textureInfo.containsKey(EquipmentSlot.HEAD) || 
+				!this.textureInfo.containsKey(EquipmentSlot.CHEST) || 
+				!this.textureInfo.containsKey(EquipmentSlot.LEGS) || 
+				!this.textureInfo.containsKey(EquipmentSlot.FEET) ||
+				this.textureInfo.get(EquipmentSlot.HEAD).sprite == null || 
 				this.textureInfo.get(EquipmentSlot.CHEST).sprite == null || 
 				this.textureInfo.get(EquipmentSlot.LEGS).sprite == null || 
 				this.textureInfo.get(EquipmentSlot.FEET).sprite == null ||
