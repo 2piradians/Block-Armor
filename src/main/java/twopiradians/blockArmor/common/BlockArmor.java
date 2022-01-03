@@ -17,11 +17,12 @@ import twopiradians.blockArmor.client.key.KeyActivateSetEffect;
 @Mod(value = BlockArmor.MODID)
 @Mod.EventBusSubscriber(bus = Bus.MOD)
 public class BlockArmor {
+	
+	// FIXME forgetting recipes on server reload
+	// FIXME compatibility with configmenusforge - only when removing armor sets and saving?
 			
 	/**Changelog
-	 * Fixed loading errors
-	 * Fixed Sleepy not resetting weather or waking up other sleeping players
-	 * Added Falling effect to Dripstone armor
+	 * Fixed a crash when changing dimensions
 	 * 
 	 * FIXME (1.16.5) more reports of chests being empty - desert temple chests (tested in SP and not able to reproduce)
 	 * FIXME (1.16.5) can't join server with MineColonies bc of "Exception: io.nettyhandler.codec.DecoderException: java.io.IOException: Payload may not be larger than 1048576 bytes"

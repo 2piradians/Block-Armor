@@ -21,7 +21,7 @@ public class SSyncCooldownsPacket {
 
 	private static final Field COOLDOWNS_FIELD = ObfuscationReflectionHelper.findField(ItemCooldowns.class, "f_41515_");
 	private static final Field COOLDOWNS_TICKS_FIELD = ObfuscationReflectionHelper.findField(ItemCooldowns.class, "f_41516_");
-	private static final Constructor<CooldownInstance> COOLDOWNS_CONSTRUCTOR = ObfuscationReflectionHelper.findConstructor(ItemCooldowns.CooldownInstance.class, ItemCooldowns.class, int.class, int.class);
+	private static final Constructor<CooldownInstance> COOLDOWNS_CONSTRUCTOR = ObfuscationReflectionHelper.findConstructor(ItemCooldowns.CooldownInstance.class, int.class, int.class);
 	private static final Field COOLDOWNS_CREATE_TICKS_FIELD = ObfuscationReflectionHelper.findField(ItemCooldowns.CooldownInstance.class, "f_41533_");
 	private static final Field COOLDOWNS_EXPIRE_TICKS_FIELD = ObfuscationReflectionHelper.findField(ItemCooldowns.CooldownInstance.class, "f_41534_");
 
@@ -61,12 +61,11 @@ public class SSyncCooldownsPacket {
 		SSyncCooldownsPacket packet = new SSyncCooldownsPacket();
 		packet.cooldowns = Maps.newHashMap();
 		try {
-			ItemCooldowns tracker = new ItemCooldowns();
 			packet.ticks = buf.readInt();
 			int count = buf.readInt();
 			for (int i=0; i<count; ++i) 
 				packet.cooldowns.put(buf.readItem().getItem(),
-						COOLDOWNS_CONSTRUCTOR.newInstance(tracker, buf.readInt(), buf.readInt()));
+						COOLDOWNS_CONSTRUCTOR.newInstance(buf.readInt(), buf.readInt()));
 		}
 		catch (Exception e) {
 			e.printStackTrace();
