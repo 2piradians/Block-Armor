@@ -121,9 +121,9 @@ public class SetEffectAutoSmelt extends SetEffect {
 				.orElse(null);
 	}
 
-	public static class SetEffectAutoSmeltModifier extends LootModifier {
+	public static class EnchantmentSmeltingModifier extends LootModifier {
 
-		protected SetEffectAutoSmeltModifier(LootItemCondition[] conditionsIn) {
+		protected EnchantmentSmeltingModifier(LootItemCondition[] conditionsIn) {
 			super(conditionsIn);
 		}
 
@@ -176,15 +176,15 @@ public class SetEffectAutoSmelt extends SetEffect {
 			return generatedLoot;
 		}
 
-		public static class Serializer extends GlobalLootModifierSerializer<SetEffectAutoSmeltModifier> {
+		public static class Serializer extends GlobalLootModifierSerializer<EnchantmentSmeltingModifier> {
 
 			@Override
-			public SetEffectAutoSmeltModifier read(ResourceLocation location, JsonObject object, LootItemCondition[] conditions) {
-				return new SetEffectAutoSmeltModifier(conditions);
+			public EnchantmentSmeltingModifier read(ResourceLocation location, JsonObject object, LootItemCondition[] conditions) {
+				return new EnchantmentSmeltingModifier(conditions);
 			}
 
 			@Override
-			public JsonObject write(SetEffectAutoSmeltModifier instance) {
+			public JsonObject write(EnchantmentSmeltingModifier instance) {
 				return this.makeConditions(instance.conditions);
 			}
 

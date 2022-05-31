@@ -35,7 +35,7 @@ import net.minecraftforge.network.PacketDistributor;
 import twopiradians.blockArmor.common.command.CommandDev;
 import twopiradians.blockArmor.common.item.ArmorSet;
 import twopiradians.blockArmor.common.recipe.RecipeBlockArmor;
-import twopiradians.blockArmor.common.seteffect.SetEffectAutoSmelt.SetEffectAutoSmeltModifier;
+import twopiradians.blockArmor.common.seteffect.SetEffectAutoSmelt.EnchantmentSmeltingModifier;
 import twopiradians.blockArmor.common.seteffect.SetEffectLucky.SetEffectLuckyModifier;
 import twopiradians.blockArmor.packet.CActivateSetEffectPacket;
 import twopiradians.blockArmor.packet.SDevColorsPacket;
@@ -49,7 +49,7 @@ public class CommonProxy {
 
 		@SubscribeEvent
 		public static void registerModifierSerializers(@Nonnull final RegistryEvent.Register<GlobalLootModifierSerializer<?>> event) {
-			event.getRegistry().register(new SetEffectAutoSmeltModifier.Serializer().setRegistryName(new ResourceLocation(BlockArmor.MODID,"set_effect_autosmelt")));
+			event.getRegistry().register(new EnchantmentSmeltingModifier.Serializer().setRegistryName(new ResourceLocation(BlockArmor.MODID,"set_effect_autosmelt")));
 			event.getRegistry().register(new SetEffectLuckyModifier.Serializer().setRegistryName(new ResourceLocation(BlockArmor.MODID,"set_effect_lucky")));
 		}
 
